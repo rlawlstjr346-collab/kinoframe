@@ -38633,5 +38633,353 @@
       "marketingApply": "PHOTO 레퍼런스 보드 및 색감 팔레트 아카이브."
     },
     "addedAt": "2026-11-17"
+  },
+  {
+    "id": "KF-439",
+    "titleKo": "1958 Preservewildlife 아카이브 포스터",
+    "originalTitle": "Preservewildlife",
+    "brandOrSource": "Wikimedia Commons / Public Domain",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "category": "EXHIBITION_SPORTS",
+    "country": "US",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Preservewildlife.jpg/960px-Preservewildlife.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Preservewildlife.jpg",
+    "licenseNote": "Public Domain (Wikimedia Commons)",
+    "compositionTags": [
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#162238",
+      "#D94B38",
+      "#E6B43C",
+      "#3A7D8C",
+      "#F4EFE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          74,
+          38
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "핵심 시선 앵커",
+        "timeOrZone": "중앙 포커스",
+        "noteKo": "강렬한 명도 대비와 색채 포인트로 1초 내 시선 고정",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "구도 리딩라인",
+        "timeOrZone": "좌→우 축",
+        "noteKo": "기하학 선분과 소실점이 화면 깊이와 몰입을 강화",
+        "focusCrop": "35% 55%"
+      },
+      {
+        "label": "색채 보색 대비",
+        "timeOrZone": "배경×전경",
+        "noteKo": "한색 배경과 난색 포인트의 균형으로 주목도 극대화",
+        "focusCrop": "65% 42%"
+      },
+      {
+        "label": "아카이브 마감",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "퍼블릭 도메인 원판의 아날로그 질감과 비례미 보존",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 색채 대비와 명료한 조형 실루엣이 첫 1초 만에 시선을 화면 중심으로 끌어당긴다.",
+      "framing": "소실점과 3분할 교차점을 활용한 안정적 비례 설계로 복잡한 정보를 단숨에 정돈한다.",
+      "marketingApply": "캠페인 키 비주얼과 숏폼 썸네일에서 높은 색채 대비와 명쾌한 시선 동선을 적용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-440",
+    "titleKo": "1958 Preservewildlifea 아카이브 포스터",
+    "originalTitle": "Preservewildlifea",
+    "brandOrSource": "Wikimedia Commons / Public Domain",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "category": "EXHIBITION_SPORTS",
+    "country": "US",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Preservewildlifea.jpg/960px-Preservewildlifea.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Preservewildlifea.jpg",
+    "licenseNote": "Public Domain (Wikimedia Commons)",
+    "compositionTags": [
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#162238",
+      "#D94B38",
+      "#E6B43C",
+      "#3A7D8C",
+      "#F4EFE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          74,
+          38
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "핵심 시선 앵커",
+        "timeOrZone": "중앙 포커스",
+        "noteKo": "강렬한 명도 대비와 색채 포인트로 1초 내 시선 고정",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "구도 리딩라인",
+        "timeOrZone": "좌→우 축",
+        "noteKo": "기하학 선분과 소실점이 화면 깊이와 몰입을 강화",
+        "focusCrop": "35% 55%"
+      },
+      {
+        "label": "색채 보색 대비",
+        "timeOrZone": "배경×전경",
+        "noteKo": "한색 배경과 난색 포인트의 균형으로 주목도 극대화",
+        "focusCrop": "65% 42%"
+      },
+      {
+        "label": "아카이브 마감",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "퍼블릭 도메인 원판의 아날로그 질감과 비례미 보존",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 색채 대비와 명료한 조형 실루엣이 첫 1초 만에 시선을 화면 중심으로 끌어당긴다.",
+      "framing": "소실점과 3분할 교차점을 활용한 안정적 비례 설계로 복잡한 정보를 단숨에 정돈한다.",
+      "marketingApply": "캠페인 키 비주얼과 숏폼 썸네일에서 높은 색채 대비와 명쾌한 시선 동선을 적용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-441",
+    "titleKo": "1958 Preservewildlifeb 아카이브 포스터",
+    "originalTitle": "Preservewildlifeb",
+    "brandOrSource": "Wikimedia Commons / Public Domain",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "category": "EXHIBITION_SPORTS",
+    "country": "US",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Preservewildlifeb.jpg/960px-Preservewildlifeb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Preservewildlifeb.jpg",
+    "licenseNote": "Public Domain (Wikimedia Commons)",
+    "compositionTags": [
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#162238",
+      "#D94B38",
+      "#E6B43C",
+      "#3A7D8C",
+      "#F4EFE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          74,
+          38
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "핵심 시선 앵커",
+        "timeOrZone": "중앙 포커스",
+        "noteKo": "강렬한 명도 대비와 색채 포인트로 1초 내 시선 고정",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "구도 리딩라인",
+        "timeOrZone": "좌→우 축",
+        "noteKo": "기하학 선분과 소실점이 화면 깊이와 몰입을 강화",
+        "focusCrop": "35% 55%"
+      },
+      {
+        "label": "색채 보색 대비",
+        "timeOrZone": "배경×전경",
+        "noteKo": "한색 배경과 난색 포인트의 균형으로 주목도 극대화",
+        "focusCrop": "65% 42%"
+      },
+      {
+        "label": "아카이브 마감",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "퍼블릭 도메인 원판의 아날로그 질감과 비례미 보존",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 색채 대비와 명료한 조형 실루엣이 첫 1초 만에 시선을 화면 중심으로 끌어당긴다.",
+      "framing": "소실점과 3분할 교차점을 활용한 안정적 비례 설계로 복잡한 정보를 단숨에 정돈한다.",
+      "marketingApply": "캠페인 키 비주얼과 숏폼 썸네일에서 높은 색채 대비와 명쾌한 시선 동선을 적용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-442",
+    "titleKo": "1958 RNS Yellowstone 13399u 아카이브 포스터",
+    "originalTitle": "RNS Yellowstone 13399u",
+    "brandOrSource": "Wikimedia Commons / Public Domain",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "category": "EXHIBITION_SPORTS",
+    "country": "US",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/RNS_Yellowstone_13399u.jpg/960px-RNS_Yellowstone_13399u.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:RNS_Yellowstone_13399u.jpg",
+    "licenseNote": "Public Domain (Wikimedia Commons)",
+    "compositionTags": [
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#162238",
+      "#D94B38",
+      "#E6B43C",
+      "#3A7D8C",
+      "#F4EFE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          74,
+          38
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "핵심 시선 앵커",
+        "timeOrZone": "중앙 포커스",
+        "noteKo": "강렬한 명도 대비와 색채 포인트로 1초 내 시선 고정",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "구도 리딩라인",
+        "timeOrZone": "좌→우 축",
+        "noteKo": "기하학 선분과 소실점이 화면 깊이와 몰입을 강화",
+        "focusCrop": "35% 55%"
+      },
+      {
+        "label": "색채 보색 대비",
+        "timeOrZone": "배경×전경",
+        "noteKo": "한색 배경과 난색 포인트의 균형으로 주목도 극대화",
+        "focusCrop": "65% 42%"
+      },
+      {
+        "label": "아카이브 마감",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "퍼블릭 도메인 원판의 아날로그 질감과 비례미 보존",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 색채 대비와 명료한 조형 실루엣이 첫 1초 만에 시선을 화면 중심으로 끌어당긴다.",
+      "framing": "소실점과 3분할 교차점을 활용한 안정적 비례 설계로 복잡한 정보를 단숨에 정돈한다.",
+      "marketingApply": "캠페인 키 비주얼과 숏폼 썸네일에서 높은 색채 대비와 명쾌한 시선 동선을 적용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
   }
 ]
