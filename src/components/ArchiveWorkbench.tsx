@@ -53,6 +53,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     boardIds: initialBoardIds,
   }));
 
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState<boolean>(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
@@ -113,11 +114,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return items.find((i) => i.id === selectedItemId) ?? null;
   }, [items, selectedItemId]);
 
+  const taxonomyActiveCount =
+    filterState.compositionTags.length +
+    filterState.persuasionTags.length +
+    (filterState.era !== "ALL" ? 1 : 0);
+
   const hasActiveFilters =
     filterState.mediaType !== "ALL" ||
-    filterState.era !== "ALL" ||
-    filterState.compositionTags.length > 0 ||
-    filterState.persuasionTags.length > 0 ||
+    taxonomyActiveCount > 0 ||
     filterState.query.trim().length > 0 ||
     filterState.boardOnly;
 
@@ -137,6 +141,26 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         ? prev.persuasionTags.filter((t) => t !== tag)
         : [...prev.persuasionTags, tag],
     }));
+  }, []);
+
+  const handleApplyCompositionFromModal = useCallback((tag: CompositionTag) => {
+    setFilterState((prev) => ({
+      ...prev,
+      compositionTags: prev.compositionTags.includes(tag)
+        ? prev.compositionTags
+        : [...prev.compositionTags, tag],
+    }));
+    setSelectedItemId(null);
+  }, []);
+
+  const handleApplyPersuasionFromModal = useCallback((tag: PersuasionTag) => {
+    setFilterState((prev) => ({
+      ...prev,
+      persuasionTags: prev.persuasionTags.includes(tag)
+        ? prev.persuasionTags
+        : [...prev.persuasionTags, tag],
+    }));
+    setSelectedItemId(null);
   }, []);
 
   const handleToggleBoard = useCallback((id: string) => {
@@ -190,137 +214,28 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Top 35mm Darkroom Navigation Bar */}
-      <header className="sticky top-0 z-30 border-b border-rim bg-darkroom-base/92 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
+    <div className="flex min-h-screen flex-col bg-[#09090B]">
+      {/* Ultra-Slim Translucent Sticky Ribbon Header (Savee / Eyecandy Style) */}
+      <header className="sticky top-0 z-30 border-b border-[#F4F1EA]/[0.07] bg-[#09090B]/88 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-3 py-2 sm:px-5 lg:flex-nowrap lg:px-7">
+          {/* Left: Logo + Media Quick Tabs */}
+          <div className="flex items-center gap-3 overflow-x-auto">
             <button
               type="button"
               onClick={handleResetFilters}
-              className="flex items-center gap-2.5 text-left"
+              className="flex shrink-0 items-center gap-2 text-left"
               aria-label="KINOFRAME 홈 및 필터 초기화"
             >
-              <KinoframeLogo className="h-8 w-8 shrink-0" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-base font-bold tracking-[0.18em] text-ivory">
-                    KINOFRAME
-                  </span>
-                  <span className="rounded border border-amber-kodak/40 bg-amber-kodak/12 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider text-amber-kodak">
-                    35MM ARCHIVE
-                  </span>
-                </div>
-                <p className="hidden text-[11px] text-silver sm:block">
-                  빈티지 광고·뉴스·보도사진 구도 &amp; 초반 3초 설득 레퍼런스 뷰파인더
-                </p>
-              </div>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="hidden rounded border border-rim bg-darkroom-mount px-2.5 py-1.5 font-mono text-[11px] text-silver lg:inline-flex">
-              검증 프레임 <strong className="ml-1.5 text-ivory">{items.length}</strong>
-            </span>
-
-            <button
-              type="button"
-              onClick={() => setCompareOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-xs transition-colors ${
-                compareIds.length > 0
-                  ? "border-amber-kodak bg-amber-kodak/15 text-amber-kodak"
-                  : "border-rim bg-darkroom-mount text-ivory hover:border-rim-strong"
-              }`}
-            >
-              <CompareIcon className="h-3.5 w-3.5" />
-              <span>좌우 비교</span>
-              <span className="rounded bg-darkroom-base px-1.5 py-0.5 text-[10px]">
-                {compareIds.length}/2
+              <KinoframeLogo className="h-6 w-6 shrink-0" />
+              <span className="font-mono text-sm font-bold tracking-[0.18em] text-ivory">
+                KINOFRAME
               </span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setBoardOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-xs transition-colors ${
-                filterState.boardIds.length > 0
-                  ? "border-amber-kodak bg-amber-kodak font-semibold text-darkroom-base"
-                  : "border-rim bg-darkroom-mount text-ivory hover:border-rim-strong"
-              }`}
-            >
-              <BoardBookmarkIcon
-                className="h-3.5 w-3.5"
-                filled={filterState.boardIds.length > 0}
-              />
-              <span>무드보드</span>
-              <span
-                className={`rounded px-1.5 py-0.5 text-[10px] ${
-                  filterState.boardIds.length > 0
-                    ? "bg-darkroom-base/20 text-darkroom-base"
-                    : "bg-darkroom-base text-silver"
-                }`}
-              >
-                {filterState.boardIds.length}
-              </span>
-            </button>
-          </div>
-        </div>
-      </header>
+            <span className="hidden h-4 w-px bg-[#F4F1EA]/12 sm:inline-block" aria-hidden="true" />
 
-      {/* Main Content Area (Zero Empty-State: Filter Bar + Curated Grid Open Immediately) */}
-      <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-4 sm:px-6 sm:py-5">
-        {/* Shared Moodboard Restoration Banner */}
-        {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-kodak/40 bg-amber-kodak/10 px-4 py-2.5 text-xs">
-            <div className="flex items-center gap-2 text-ivory">
-              <BoardBookmarkIcon className="h-4 w-4 text-amber-kodak" filled />
-              <span>
-                공유 링크(<code className="font-mono text-amber-kodak">?board=</code>)에서{" "}
-                <strong>{initialBoardIds.length}개</strong>의 레퍼런스 무드보드가 복원되었습니다.
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    boardOnly: !prev.boardOnly,
-                  }))
-                }
-                className="rounded border border-amber-kodak/50 bg-darkroom-base px-2.5 py-1 font-mono text-[11px] text-amber-kodak hover:bg-amber-kodak hover:text-darkroom-base"
-              >
-                {filterState.boardOnly ? "전체 아카이브 보기" : "보드 컷만 모아보기"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setBoardOpen(true)}
-                className="rounded bg-amber-kodak px-2.5 py-1 font-mono text-[11px] font-semibold text-darkroom-base"
-              >
-                무드보드 열기
-              </button>
-              <button
-                type="button"
-                onClick={() => setSharedBannerDismissed(true)}
-                aria-label="알림 닫기"
-                className="p-1 text-silver hover:text-ivory"
-              >
-                <CloseIcon className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Dual Taxonomy Filter & Search Control Deck */}
-        <section
-          aria-label="이중 택소노미 필터 및 검색"
-          className="mb-5 rounded-xl border border-rim bg-darkroom-mount p-3.5 sm:p-4"
-        >
-          {/* Row 1: Media Tabs + Era + Search + Sort */}
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            {/* Media Category Tabs */}
-            <div
-              className="flex flex-wrap items-center gap-1.5"
+            <nav
+              className="flex items-center gap-0.5"
               role="tablist"
               aria-label="매체 카테고리"
             >
@@ -338,16 +253,16 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                         mediaType: m.value as MediaType | "ALL",
                       }))
                     }
-                    className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-xs transition-colors ${
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-[4px] px-2.5 py-1 font-mono text-[11px] transition-colors ${
                       active
-                        ? "border-amber-kodak bg-amber-kodak font-semibold text-darkroom-base"
-                        : "border-rim bg-darkroom-base text-silver hover:border-rim-strong hover:text-ivory"
+                        ? "bg-[#D99B26] font-semibold text-[#09090B]"
+                        : "text-silver hover:bg-[#F4F1EA]/[0.06] hover:text-ivory"
                     }`}
                   >
                     <span>{m.label}</span>
                     <span
                       className={`text-[10px] ${
-                        active ? "text-darkroom-base/80" : "text-silver"
+                        active ? "text-[#09090B]/75" : "text-silver/60"
                       }`}
                     >
                       {mediaCounts[m.value]}
@@ -355,180 +270,397 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   </button>
                 );
               })}
-            </div>
-
-            {/* Era + Search + Sort */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Era Selector */}
-              <select
-                aria-label="연대 필터"
-                value={filterState.era}
-                onChange={(e) =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    era: e.target.value as Era | "ALL",
-                  }))
-                }
-                className="rounded-md border border-rim bg-darkroom-base px-2.5 py-1.5 font-mono text-xs text-ivory focus:border-amber-kodak"
-              >
-                {ERAS.map((era) => (
-                  <option key={era.value} value={era.value}>
-                    {era.label}
-                  </option>
-                ))}
-              </select>
-
-              {/* Sort Selector */}
-              <select
-                aria-label="정렬 기준"
-                value={filterState.sort}
-                onChange={(e) =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    sort: e.target.value as SortOption,
-                  }))
-                }
-                className="rounded-md border border-rim bg-darkroom-base px-2.5 py-1.5 font-mono text-xs text-ivory focus:border-amber-kodak"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-
-              {/* Keyword Search Input */}
-              <div className="relative min-w-[210px] flex-1 sm:w-64 sm:flex-none">
-                <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-silver" />
-                <input
-                  type="search"
-                  value={filterState.query}
-                  onChange={(e) =>
-                    setFilterState((prev) => ({
-                      ...prev,
-                      query: e.target.value,
-                    }))
-                  }
-                  placeholder="제목·브랜드·구도·3초 훅 검색..."
-                  aria-label="아카이브 키워드 검색"
-                  className="w-full rounded-md border border-rim bg-darkroom-base py-1.5 pl-8 pr-7 text-xs text-ivory placeholder:text-silver/75 focus:border-amber-kodak"
-                />
-                {filterState.query && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFilterState((prev) => ({ ...prev, query: "" }))
-                    }
-                    aria-label="검색어 지우기"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-silver hover:text-ivory"
-                  >
-                    <CloseIcon className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
+            </nav>
           </div>
 
-          {/* Row 2: Dual Taxonomy Cross-Filter Chips (Composition x Persuasion) */}
-          <div className="mt-3.5 grid grid-cols-1 gap-3 border-t border-rim pt-3.5 lg:grid-cols-2">
-            {/* Axis A: Visual Composition Taxonomy */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-silver">
-                  AXIS A · 시각 구도 (COMPOSITION)
-                </span>
-                {filterState.compositionTags.length > 0 && (
-                  <span className="font-mono text-[10px] text-ivory">
-                    {filterState.compositionTags.length}개 선택
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {COMPOSITION_TAGS.map((tag) => {
-                  const active = filterState.compositionTags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => handleToggleComposition(tag)}
-                      aria-pressed={active}
-                      className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                        active
-                          ? "border-ivory bg-ivory text-darkroom-base font-semibold"
-                          : "border-rim bg-darkroom-base text-silver hover:border-rim-strong hover:text-ivory"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Axis B: Marketing Persuasion Hook Taxonomy */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-amber-kodak">
-                  AXIS B · 마케팅 설득 훅 (PERSUASION HOOK)
-                </span>
-                {filterState.persuasionTags.length > 0 && (
-                  <span className="font-mono text-[10px] text-amber-kodak">
-                    {filterState.persuasionTags.length}개 선택
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {PERSUASION_TAGS.map((tag) => {
-                  const active = filterState.persuasionTags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => handleTogglePersuasion(tag)}
-                      aria-pressed={active}
-                      className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                        active
-                          ? "border-amber-kodak bg-amber-kodak text-darkroom-base font-semibold"
-                          : "border-amber-kodak/25 bg-darkroom-base text-silver hover:border-amber-kodak/60 hover:text-ivory"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Result Telemetry + Reset */}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-rim pt-2.5 font-mono text-[11px] text-silver">
-            <div>
-              표시 결과:{" "}
-              <strong className="text-ivory">{filteredItems.length}</strong> /{" "}
-              {items.length} 프레임
-              {filterState.boardOnly && (
-                <span className="ml-2 text-amber-kodak">· 무드보드 필터 활성</span>
-              )}
-            </div>
-
-            {hasActiveFilters && (
+          {/* Center: Slim Search Input */}
+          <div className="relative order-3 w-full sm:w-64 lg:order-2 lg:mx-2 lg:w-72 xl:w-80">
+            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-silver/70" />
+            <input
+              type="search"
+              value={filterState.query}
+              onChange={(e) =>
+                setFilterState((prev) => ({
+                  ...prev,
+                  query: e.target.value,
+                }))
+              }
+              placeholder="제목·브랜드·구도·3초 훅 검색..."
+              aria-label="아카이브 키워드 검색"
+              className="w-full rounded-[4px] border border-[#F4F1EA]/[0.09] bg-[#111216]/90 py-1 pl-8 pr-7 text-xs text-ivory placeholder:text-silver/55 focus:border-[#D99B26] focus:outline-none"
+            />
+            {filterState.query && (
               <button
                 type="button"
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1 rounded border border-rim bg-darkroom-base px-2.5 py-1 text-[11px] text-ivory transition-colors hover:border-amber-kodak hover:text-amber-kodak"
+                onClick={() =>
+                  setFilterState((prev) => ({ ...prev, query: "" }))
+                }
+                aria-label="검색어 지우기"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-silver hover:text-ivory"
               >
-                <ResetIcon className="h-3 w-3" />
-                필터 초기화
+                <CloseIcon className="h-3 w-3" />
               </button>
             )}
           </div>
-        </section>
 
-        {/* Multi-Aspect-Ratio Slide Mount Grid */}
+          {/* Right: Taxonomy Filter Toggle + Sort + Compare + Board */}
+          <div className="order-2 flex shrink-0 items-center gap-1.5 lg:order-3">
+            <button
+              type="button"
+              onClick={() => setFilterDrawerOpen((v) => !v)}
+              aria-expanded={filterDrawerOpen}
+              className={`inline-flex items-center gap-1.5 rounded-[4px] border px-2.5 py-1 font-mono text-[11px] transition-colors ${
+                filterDrawerOpen || taxonomyActiveCount > 0
+                  ? "border-[#D99B26]/70 bg-[#D99B26]/15 text-[#D99B26]"
+                  : "border-[#F4F1EA]/[0.1] bg-[#111216] text-ivory hover:border-[#F4F1EA]/25"
+              }`}
+            >
+              <span>구도·설득 필터</span>
+              {taxonomyActiveCount > 0 && (
+                <span className="rounded bg-[#D99B26] px-1 py-0.5 text-[10px] font-bold leading-none text-[#09090B]">
+                  {taxonomyActiveCount}
+                </span>
+              )}
+            </button>
+
+            <select
+              aria-label="정렬 기준"
+              value={filterState.sort}
+              onChange={(e) =>
+                setFilterState((prev) => ({
+                  ...prev,
+                  sort: e.target.value as SortOption,
+                }))
+              }
+              className="rounded-[4px] border border-[#F4F1EA]/[0.1] bg-[#111216] px-2 py-1 font-mono text-[11px] text-ivory focus:border-[#D99B26] focus:outline-none"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              onClick={() => setCompareOpen(true)}
+              className={`inline-flex items-center gap-1 rounded-[4px] border px-2.5 py-1 font-mono text-[11px] transition-colors ${
+                compareIds.length > 0
+                  ? "border-[#D99B26] bg-[#D99B26]/15 text-[#D99B26]"
+                  : "border-[#F4F1EA]/[0.1] bg-[#111216] text-ivory hover:border-[#F4F1EA]/25"
+              }`}
+            >
+              <CompareIcon className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">비교</span>
+              <span className="text-[10px] opacity-85">{compareIds.length}/2</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setBoardOpen(true)}
+              className={`inline-flex items-center gap-1 rounded-[4px] border px-2.5 py-1 font-mono text-[11px] transition-colors ${
+                filterState.boardIds.length > 0
+                  ? "border-[#D99B26] bg-[#D99B26] font-semibold text-[#09090B]"
+                  : "border-[#F4F1EA]/[0.1] bg-[#111216] text-ivory hover:border-[#F4F1EA]/25"
+              }`}
+            >
+              <BoardBookmarkIcon
+                className="h-3.5 w-3.5"
+                filled={filterState.boardIds.length > 0}
+              />
+              <span className="hidden sm:inline">보드</span>
+              <span className="text-[10px] opacity-85">
+                {filterState.boardIds.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Dual Taxonomy & Era Drawer (Hidden by default so 88%+ viewport is pure wall) */}
+        {filterDrawerOpen && (
+          <section
+            aria-label="이중 택소노미 및 연대 필터"
+            className="border-t border-[#F4F1EA]/[0.07] bg-[#0C0D10]/96"
+          >
+            <div className="mx-auto w-full max-w-[2560px] space-y-3 px-3 py-3 sm:px-5 lg:px-7">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+                {/* Axis A: Visual Composition Taxonomy */}
+                <div className="space-y-1.5 lg:col-span-5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-silver">
+                      AXIS A · 시각 구도
+                    </span>
+                    {filterState.compositionTags.length > 0 && (
+                      <span className="font-mono text-[10px] text-ivory">
+                        {filterState.compositionTags.length}개 선택
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {COMPOSITION_TAGS.map((tag) => {
+                      const active = filterState.compositionTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleComposition(tag)}
+                          aria-pressed={active}
+                          className={`rounded-[4px] border px-2.5 py-1 text-xs font-medium transition-colors ${
+                            active
+                              ? "border-ivory bg-ivory font-semibold text-[#09090B]"
+                              : "border-[#F4F1EA]/[0.1] bg-[#111216] text-silver hover:border-[#F4F1EA]/25 hover:text-ivory"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Axis B: Marketing Persuasion Hook Taxonomy */}
+                <div className="space-y-1.5 lg:col-span-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-[#D99B26]">
+                      AXIS B · 마케팅 설득 훅
+                    </span>
+                    {filterState.persuasionTags.length > 0 && (
+                      <span className="font-mono text-[10px] text-[#D99B26]">
+                        {filterState.persuasionTags.length}개 선택
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PERSUASION_TAGS.map((tag) => {
+                      const active = filterState.persuasionTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleTogglePersuasion(tag)}
+                          aria-pressed={active}
+                          className={`rounded-[4px] border px-2.5 py-1 text-xs font-medium transition-colors ${
+                            active
+                              ? "border-[#D99B26] bg-[#D99B26] font-semibold text-[#09090B]"
+                              : "border-[#D99B26]/25 bg-[#111216] text-silver hover:border-[#D99B26]/60 hover:text-ivory"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Era Filter */}
+                <div className="space-y-1.5 lg:col-span-3">
+                  <span className="block font-mono text-[10px] font-semibold uppercase tracking-widest text-silver">
+                    ERA · 제작 연대
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ERAS.map((era) => {
+                      const active = filterState.era === era.value;
+                      return (
+                        <button
+                          key={era.value}
+                          type="button"
+                          onClick={() =>
+                            setFilterState((prev) => ({
+                              ...prev,
+                              era: era.value as Era | "ALL",
+                            }))
+                          }
+                          aria-pressed={active}
+                          className={`rounded-[4px] border px-2.5 py-1 font-mono text-[11px] transition-colors ${
+                            active
+                              ? "border-[#D99B26] bg-[#D99B26]/20 font-semibold text-[#D99B26]"
+                              : "border-[#F4F1EA]/[0.1] bg-[#111216] text-silver hover:border-[#F4F1EA]/25 hover:text-ivory"
+                          }`}
+                        >
+                          {era.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[#F4F1EA]/[0.07] pt-2 font-mono text-[11px] text-silver">
+                <span>
+                  표시 결과:{" "}
+                  <strong className="text-ivory">{filteredItems.length}</strong> /{" "}
+                  {items.length} 프레임
+                </span>
+                <div className="flex items-center gap-2">
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.12] px-2 py-0.5 text-[11px] text-ivory hover:border-[#D99B26] hover:text-[#D99B26]"
+                    >
+                      <ResetIcon className="h-3 w-3" />
+                      초기화
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setFilterDrawerOpen(false)}
+                    className="rounded-[4px] px-2 py-0.5 text-[11px] text-silver hover:text-ivory"
+                  >
+                    접기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </header>
+
+      {/* Full-Bleed Visual Masonry Wall */}
+      <main className="mx-auto w-full max-w-[2560px] flex-1 px-3 py-3 sm:px-5 lg:px-7">
+        {/* Shared Moodboard Restoration Banner */}
+        {initialBoardIds.length > 0 && !sharedBannerDismissed && (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[4px] border border-[#D99B26]/40 bg-[#D99B26]/10 px-3.5 py-2 text-xs">
+            <div className="flex items-center gap-2 text-ivory">
+              <BoardBookmarkIcon className="h-3.5 w-3.5 text-[#D99B26]" filled />
+              <span>
+                공유 링크(<code className="font-mono text-[#D99B26]">?board=</code>)에서{" "}
+                <strong>{initialBoardIds.length}개</strong>의 레퍼런스 무드보드가 복원되었습니다.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setFilterState((prev) => ({
+                    ...prev,
+                    boardOnly: !prev.boardOnly,
+                  }))
+                }
+                className="rounded-[4px] border border-[#D99B26]/50 bg-[#09090B] px-2.5 py-1 font-mono text-[11px] text-[#D99B26] hover:bg-[#D99B26] hover:text-[#09090B]"
+              >
+                {filterState.boardOnly ? "전체 아카이브 보기" : "보드 컷만 모아보기"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setBoardOpen(true)}
+                className="rounded-[4px] bg-[#D99B26] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#09090B]"
+              >
+                무드보드 열기
+              </button>
+              <button
+                type="button"
+                onClick={() => setSharedBannerDismissed(true)}
+                aria-label="알림 닫기"
+                className="p-1 text-silver hover:text-ivory"
+              >
+                <CloseIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Active Filter Micro-Chips Bar (Only shown when 1+ filters are active) */}
+        {hasActiveFilters && (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] text-silver">
+                <strong className="text-ivory">{filteredItems.length}</strong> / {items.length}
+              </span>
+
+              {filterState.boardOnly && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilterState((prev) => ({ ...prev, boardOnly: false }))
+                  }
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#D99B26]/50 bg-[#D99B26]/15 px-2 py-0.5 font-mono text-[11px] text-[#D99B26]"
+                >
+                  무드보드만 보기
+                  <CloseIcon className="h-3 w-3" />
+                </button>
+              )}
+
+              {filterState.mediaType !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilterState((prev) => ({ ...prev, mediaType: "ALL" }))
+                  }
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2 py-0.5 font-mono text-[11px] text-ivory"
+                >
+                  {filterState.mediaType}
+                  <CloseIcon className="h-3 w-3 text-silver" />
+                </button>
+              )}
+
+              {filterState.era !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilterState((prev) => ({ ...prev, era: "ALL" }))
+                  }
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2 py-0.5 font-mono text-[11px] text-ivory"
+                >
+                  {filterState.era}
+                  <CloseIcon className="h-3 w-3 text-silver" />
+                </button>
+              )}
+
+              {filterState.compositionTags.map((tag) => (
+                <button
+                  key={`active-c-${tag}`}
+                  type="button"
+                  onClick={() => handleToggleComposition(tag)}
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-ivory/40 bg-ivory/15 px-2 py-0.5 text-[11px] text-ivory"
+                >
+                  {tag}
+                  <CloseIcon className="h-3 w-3" />
+                </button>
+              ))}
+
+              {filterState.persuasionTags.map((tag) => (
+                <button
+                  key={`active-p-${tag}`}
+                  type="button"
+                  onClick={() => handleTogglePersuasion(tag)}
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#D99B26]/50 bg-[#D99B26]/15 px-2 py-0.5 text-[11px] text-[#D99B26]"
+                >
+                  {tag}
+                  <CloseIcon className="h-3 w-3" />
+                </button>
+              ))}
+
+              {filterState.query.trim() && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilterState((prev) => ({ ...prev, query: "" }))
+                  }
+                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2 py-0.5 font-mono text-[11px] text-ivory"
+                >
+                  &ldquo;{filterState.query.trim()}&rdquo;
+                  <CloseIcon className="h-3 w-3 text-silver" />
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#111216] px-2.5 py-1 font-mono text-[11px] text-ivory transition-colors hover:border-[#D99B26] hover:text-[#D99B26]"
+            >
+              <ResetIcon className="h-3 w-3" />
+              초기화
+            </button>
+          </div>
+        )}
+
+        {/* True Multi-Column Full-Bleed Masonry Wall */}
         {filteredItems.length > 0 ? (
           <section
             aria-label="큐레이션 아카이브 그리드"
-            className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            className="columns-1 gap-3 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
           >
             {filteredItems.map((item) => (
               <SlideMountCard
@@ -544,8 +676,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             ))}
           </section>
         ) : (
-          <section className="flex flex-col items-center justify-center rounded-xl border border-rim bg-darkroom-mount px-6 py-16 text-center">
-            <p className="font-mono text-xs uppercase tracking-widest text-amber-kodak">
+          <section className="flex flex-col items-center justify-center rounded-[4px] border border-[#F4F1EA]/[0.08] bg-[#111216] px-6 py-20 text-center">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#D99B26]">
               NO MATCHING FRAMES
             </p>
             <h2 className="mt-2 text-base font-semibold text-ivory">
@@ -557,7 +689,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-amber-kodak px-4 py-2 font-mono text-xs font-semibold text-darkroom-base hover:bg-amber-glow"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-[4px] bg-[#D99B26] px-4 py-2 font-mono text-xs font-semibold text-[#09090B] hover:bg-amber-glow"
             >
               <ResetIcon className="h-3.5 w-3.5" />
               모든 필터 초기화
@@ -566,31 +698,31 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         )}
       </main>
 
-      {/* Darkroom Studio Footer */}
-      <footer className="mt-12 border-t border-rim bg-darkroom-recessed py-6">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-2 px-4 font-mono text-[11px] text-silver sm:flex-row sm:items-center sm:px-6">
+      {/* Minimal Darkroom Footer */}
+      <footer className="mt-8 border-t border-[#F4F1EA]/[0.07] bg-[#09090B] py-4">
+        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-3 font-mono text-[11px] text-silver/75 sm:flex-row sm:items-center sm:px-5 lg:px-7">
           <span>
-            KINOFRAME · 35MM DARKROOM ARCHIVE · ZERO-SERVER STATIC SNAPSHOT
+            KINOFRAME · 35MM DARKROOM VISUAL ARCHIVE · {items.length} VERIFIED FRAMES
           </span>
           <span>
-            출처: Internet Archive (Prelinger / Newsreels) · NASA Images · Wikimedia Commons · YouTube Official Embed
+            Internet Archive (Prelinger / Newsreels) · NASA Images · Wikimedia Commons / LOC · YouTube Official Embed
           </span>
         </div>
       </footer>
 
       {/* Floating Bottom Compare Dock (when 1~2 items selected) */}
       {compareIds.length > 0 && !compareOpen && (
-        <div className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-amber-kodak/55 bg-darkroom-mount/95 px-4 py-2 shadow-2xl backdrop-blur-md">
+        <div className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#D99B26]/55 bg-[#111216]/95 px-4 py-2 shadow-2xl backdrop-blur-md">
           <div className="flex items-center gap-2 font-mono text-xs text-ivory">
-            <CompareIcon className="h-4 w-4 text-amber-kodak" />
+            <CompareIcon className="h-4 w-4 text-[#D99B26]" />
             <span>
-              비교 슬롯 <strong className="text-amber-kodak">{compareIds.join(" × ")}</strong>
+              비교 슬롯 <strong className="text-[#D99B26]">{compareIds.join(" × ")}</strong>
             </span>
           </div>
           <button
             type="button"
             onClick={() => setCompareOpen(true)}
-            className="rounded-full bg-amber-kodak px-3 py-1 font-mono text-xs font-semibold text-darkroom-base hover:bg-amber-glow"
+            className="rounded-full bg-[#D99B26] px-3 py-1 font-mono text-xs font-semibold text-[#09090B] hover:bg-amber-glow"
           >
             비교 열기
           </button>
@@ -605,7 +737,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         </div>
       )}
 
-      {/* Detail Viewfinder Studio Modal */}
+      {/* Frame Set Minimalist Lightbox Modal */}
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
@@ -632,6 +764,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           }}
           onToggleBoard={handleToggleBoard}
           onToggleCompare={handleToggleCompare}
+          onSelectCompositionTag={handleApplyCompositionFromModal}
+          onSelectPersuasionTag={handleApplyPersuasionFromModal}
         />
       )}
 

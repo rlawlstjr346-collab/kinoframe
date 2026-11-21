@@ -7,6 +7,7 @@ import {
   PERSUASION_TAGS,
   filterAndSortArchive,
   generateMoodboardMarkdown,
+  isChromaticItem,
   parseBoardIds,
   serializeBoardIds,
 } from "@/lib/taxonomy";
@@ -22,18 +23,18 @@ const FORBIDDEN_PHRASES = [
 ];
 
 describe("KINOFRAME Archive Snapshot Contract", () => {
-  it("contains at least 24 real verified items covering all 4 media categories", () => {
-    expect(ITEMS.length).toBeGreaterThanOrEqual(24);
+  it("contains at least 60 real verified items covering all 4 media categories with balanced depth", () => {
+    expect(ITEMS.length).toBeGreaterThanOrEqual(60);
 
     const byMedia = new Map<MediaType, number>();
     for (const item of ITEMS) {
       byMedia.set(item.mediaType, (byMedia.get(item.mediaType) ?? 0) + 1);
     }
 
-    expect(byMedia.get("TVCF") ?? 0).toBeGreaterThanOrEqual(5);
-    expect(byMedia.get("NEWS") ?? 0).toBeGreaterThanOrEqual(5);
-    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(5);
-    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(5);
+    expect(byMedia.get("TVCF") ?? 0).toBeGreaterThanOrEqual(16);
+    expect(byMedia.get("NEWS") ?? 0).toBeGreaterThanOrEqual(14);
+    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(17);
+    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(17);
 
     const uniqueIds = new Set(ITEMS.map((i) => i.id));
     expect(uniqueIds.size).toBe(ITEMS.length);
@@ -140,6 +141,32 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
     });
     for (let i = 1; i < desc.length; i += 1) {
       expect(desc[i].year).toBeLessThanOrEqual(desc[i - 1].year);
+    }
+  });
+
+  it("balances chromatic richness and multi-media interleaving across the default first-screen top 16", () => {
+    const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
+    expect(defaultSorted).toHaveLength(ITEMS.length);
+
+    const top16 = defaultSorted.slice(0, 16);
+    const chromaticCount = top16.filter((item) => isChromaticItem(item)).length;
+    expect(chromaticCount).toBeGreaterThanOrEqual(11);
+
+    const mediaSet = new Set(top16.map((item) => item.mediaType));
+    expect(mediaSet.size).toBe(4);
+
+    // Ensure no 3 consecutive identical media types or 3 consecutive monochrome items in top 16
+    for (let i = 2; i < top16.length; i += 1) {
+      const same3Media =
+        top16[i].mediaType === top16[i - 1].mediaType &&
+        top16[i - 1].mediaType === top16[i - 2].mediaType;
+      expect(same3Media).toBe(false);
+
+      const mono3 =
+        !isChromaticItem(top16[i]) &&
+        !isChromaticItem(top16[i - 1]) &&
+        !isChromaticItem(top16[i - 2]);
+      expect(mono3).toBe(false);
     }
   });
 

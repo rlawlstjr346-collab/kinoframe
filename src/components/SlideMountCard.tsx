@@ -1,14 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
-import { formatDuration, getAspectRatioClass } from "@/lib/taxonomy";
-import {
-  BoardBookmarkIcon,
-  CompareIcon,
-  PlayIcon,
-  ViewfinderIcon,
-} from "@/components/Icons";
+import { getAspectRatioClass } from "@/lib/taxonomy";
+import { BoardBookmarkIcon, CompareIcon } from "@/components/Icons";
 
 interface SlideMountCardProps {
   item: ArchiveItem;
@@ -29,61 +24,79 @@ export function SlideMountCard({
   onToggleBoard,
   onToggleCompare,
 }: SlideMountCardProps) {
-  const [isHovering, setIsHovering] = useState(false);
+  const cardRef = useRef<HTMLElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const [inView, setInView] = useState(false);
+  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  const canHoverVideo =
+  const isAutoLoopVideo =
     item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
 
-  const handleEnter = () => {
-    setIsHovering(true);
-  };
+  // Eyecandy-style viewport-aware muted auto-loop via IntersectionObserver
+  useEffect(() => {
+    if (!isAutoLoopVideo) return;
+    const node = cardRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
 
-  const handleLeave = () => {
-    setIsHovering(false);
-    setVideoReady(false);
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+        setInView(visible);
+        if (visible) {
+          setHasEnteredViewport(true);
+        }
+      },
+      {
+        threshold: [0, 0.25, 0.5],
+        rootMargin: "100px",
+      }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isAutoLoopVideo]);
+
+  // Play when visible in viewport, immediately pause on exit to protect CPU/memory
+  useEffect(() => {
+    if (!isAutoLoopVideo) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (inView) {
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } else {
+      video.pause();
+    }
+  }, [inView, isAutoLoopVideo, videoReady]);
+
+  const hasSavedState = isInBoard || isInCompare;
 
   return (
     <article
-      className="slide-mount-border group relative flex flex-col overflow-hidden rounded-lg bg-darkroom-mount transition-colors duration-200 hover:bg-darkroom-hover"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
+      ref={cardRef}
+      className="group relative mb-3 break-inside-avoid overflow-hidden rounded-[4px] bg-[#111216] ring-1 ring-[#F4F1EA]/[0.08] transition-all duration-200 hover:ring-[#D99B26]/50"
     >
-      {/* Top 35mm Slide Mount Header Strip */}
-      <div className="flex items-center justify-between border-b border-rim px-3 py-2 font-mono text-[11px] tracking-wider text-silver">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-amber-kodak">{item.id}</span>
-          <span className="h-2.5 w-px bg-ivory/15" aria-hidden="true" />
-          <span className="text-ivory/90">{item.mediaType}</span>
-          <span className="text-silver">{item.year}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="rounded border border-rim bg-darkroom-base/80 px-1.5 py-0.5 text-[10px] text-silver">
-            {item.aspectRatio}
-          </span>
-          <span className="text-[10px] text-silver">
-            {formatDuration(item.durationSec)}
-          </span>
-        </div>
-      </div>
-
-      {/* Optical Film Frame Window */}
+      {/* Pure Zero-Chrome Visual Frame Window */}
       <div
         role="button"
         tabIndex={0}
         onClick={() => onOpenDetail(item)}
-        onFocus={handleEnter}
-        onBlur={handleLeave}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             onOpenDetail(item);
           }
         }}
-        aria-label={`${item.titleKo} 상세 뷰파인더 열기`}
-        className={`relative w-full cursor-pointer overflow-hidden bg-darkroom-base ${getAspectRatioClass(
+        aria-label={`${item.titleKo} 상세 라이트박스 열기`}
+        className={`relative w-full cursor-pointer overflow-hidden bg-[#111216] ${getAspectRatioClass(
           item.aspectRatio
         )}`}
       >
@@ -94,165 +107,109 @@ export function SlideMountCard({
             loading="lazy"
             decoding="async"
             onError={() => setImgError(true)}
-            className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
-              videoReady && isHovering ? "opacity-0" : "opacity-100"
+            className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025] ${
+              videoReady && inView ? "opacity-0" : "opacity-100"
             }`}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-darkroom-recessed p-4 text-center font-mono text-xs text-silver">
+          <div className="flex h-full w-full items-center justify-center bg-[#09090B] p-4 text-center font-mono text-[11px] text-silver">
             {item.id} · {item.originalTitle}
           </div>
         )}
 
-        {/* Lightweight Hover MP4 Loop (Mounts ONLY while hovered/focused) */}
-        {canHoverVideo && isHovering && item.previewVideoUrl && (
+        {/* Viewport Auto-Play Muted Loop for archive_mp4 */}
+        {isAutoLoopVideo && hasEnteredViewport && item.previewVideoUrl && (
           <video
+            ref={videoRef}
             src={item.previewVideoUrl}
-            preload="none"
+            preload="metadata"
             muted
             loop
             playsInline
-            autoPlay
             onCanPlay={() => setVideoReady(true)}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-              videoReady ? "opacity-100" : "opacity-0"
+              videoReady && inView ? "opacity-100" : "opacity-0"
             }`}
           />
         )}
 
-        {/* Optical Multi-Stop Frame Vignette */}
-        <div className="frame-optical-vignette absolute inset-0" aria-hidden="true" />
-
-        {/* Subtle Viewfinder Corner Brackets on Hover */}
-        <div
-          className="pointer-events-none absolute inset-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-          aria-hidden="true"
-        >
-          <span className="absolute left-0 top-0 h-3 w-3 border-l border-t border-amber-kodak/90" />
-          <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-amber-kodak/90" />
-          <span className="absolute bottom-0 left-0 h-3 w-3 border-b border-l border-amber-kodak/90" />
-          <span className="absolute bottom-0 right-0 h-3 w-3 border-b border-r border-amber-kodak/90" />
-        </div>
-
-        {/* Media Indicator Badge */}
-        <div className="pointer-events-none absolute bottom-2.5 left-2.5 flex items-center gap-1.5">
-          {item.mediaSource === "archive_mp4" && (
-            <span className="inline-flex items-center gap-1 rounded bg-darkroom-base/85 px-2 py-0.5 font-mono text-[10px] tracking-wide text-ivory backdrop-blur-sm">
-              <PlayIcon className="h-2.5 w-2.5 text-amber-kodak" />
-              {isHovering ? "PREVIEW LOOP" : "MP4 REEL"}
-            </span>
-          )}
-          {item.mediaSource === "youtube_embed" && (
-            <span className="inline-flex items-center gap-1 rounded bg-darkroom-base/85 px-2 py-0.5 font-mono text-[10px] tracking-wide text-ivory backdrop-blur-sm">
-              <PlayIcon className="h-2.5 w-2.5 text-amber-kodak" />
-              YT ARCHIVE
-            </span>
-          )}
-        </div>
-
-        {/* Hover Viewfinder Callout */}
-        <div className="pointer-events-none absolute bottom-2.5 right-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <span className="inline-flex items-center gap-1 rounded border border-amber-kodak/50 bg-darkroom-base/90 px-2 py-0.5 font-mono text-[10px] text-amber-kodak">
-            <ViewfinderIcon className="h-3 w-3" />
-            VIEWFINDER
-          </span>
-        </div>
-      </div>
-
-      {/* Card Metadata Body */}
-      <div className="flex flex-1 flex-col justify-between gap-3 p-3.5">
-        <div className="space-y-2">
-          <div className="flex items-start justify-between gap-2">
-            <button
-              type="button"
-              onClick={() => onOpenDetail(item)}
-              className="text-left text-[15px] font-semibold leading-snug tracking-tight text-ivory transition-colors hover:text-amber-kodak"
-            >
-              {item.titleKo}
-            </button>
-          </div>
-
-          <p className="truncate font-mono text-[11px] text-silver">
-            {item.brandOrSource} · {item.era}
-          </p>
-
-          {/* 1-Line 3s Hook Teaser */}
-          <p className="line-clamp-2 text-[12.5px] leading-relaxed text-silver">
-            {item.breakdown.hook3s}
-          </p>
-
-          {/* Dual Taxonomy Pills */}
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {item.compositionTags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="rounded border border-rim bg-darkroom-base/80 px-1.5 py-0.5 text-[11px] font-medium text-ivory/90"
-              >
-                {tag}
+        {/* Subtle Persistent Saved Indicator (Visible Before Hover) */}
+        {hasSavedState && (
+          <div
+            className="pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0"
+            aria-hidden="true"
+          >
+            {isInCompare && (
+              <span className="h-2 w-2 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80" />
+            )}
+            {isInBoard && (
+              <span className="inline-flex h-4 items-center rounded-[2px] bg-[#D99B26] px-1 font-mono text-[9px] font-bold leading-none text-[#09090B] shadow-sm">
+                B
               </span>
-            ))}
-            {item.persuasionTags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="rounded border border-amber-kodak/30 bg-amber-kodak/10 px-1.5 py-0.5 text-[11px] font-medium text-amber-kodak"
-              >
-                {tag}
-              </span>
-            ))}
+            )}
           </div>
+        )}
+
+        {/* Whisper Hover Top-Right Minimal Action Buttons */}
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCompare(item.id);
+            }}
+            disabled={!isInCompare && compareFull}
+            aria-label={
+              isInCompare
+                ? "비교 슬롯에서 제거"
+                : compareFull
+                ? "최대 2개 작품까지 비교 가능"
+                : "좌우 비교에 추가"
+            }
+            title={
+              isInCompare
+                ? "비교중 (해제)"
+                : compareFull
+                ? "최대 2개까지 비교 가능"
+                : "비교 추가"
+            }
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
+              isInCompare
+                ? "border-[#D99B26] bg-[#D99B26]/25 text-[#D99B26]"
+                : compareFull
+                ? "cursor-not-allowed border-[#F4F1EA]/10 bg-[#09090B]/65 text-silver/40"
+                : "border-[#F4F1EA]/15 bg-[#09090B]/72 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
+            }`}
+          >
+            <CompareIcon className="h-3.5 w-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBoard(item.id);
+            }}
+            aria-label={isInBoard ? "무드보드에서 제거" : "무드보드에 담기"}
+            title={isInBoard ? "보드에 담김 (해제)" : "보드 담기"}
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
+              isInBoard
+                ? "border-[#D99B26] bg-[#D99B26] text-[#09090B]"
+                : "border-[#F4F1EA]/15 bg-[#09090B]/72 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
+            }`}
+          >
+            <BoardBookmarkIcon className="h-3.5 w-3.5" filled={isInBoard} />
+          </button>
         </div>
 
-        {/* Footer: 5-Color Palette Strip + Quick Actions */}
-        <div className="flex items-center justify-between border-t border-rim pt-2.5">
-          <div className="flex items-center gap-1" aria-label="대표 5색 팔레트">
-            {item.palette.map((hex, i) => (
-              <span
-                key={`${item.id}-p-${i}`}
-                className="h-3 w-3 rounded-[2px] border border-ivory/15"
-                style={{ backgroundColor: hex }}
-                title={hex}
-              />
-            ))}
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => onToggleCompare(item.id)}
-              disabled={!isInCompare && compareFull}
-              title={
-                isInCompare
-                  ? "비교 슬롯에서 제거"
-                  : compareFull
-                  ? "최대 2개 작품까지 비교 가능"
-                  : "좌우 비교 슬롯에 추가"
-              }
-              className={`inline-flex items-center gap-1 rounded px-2 py-1 font-mono text-[11px] transition-colors ${
-                isInCompare
-                  ? "border border-amber-kodak bg-amber-kodak/20 text-amber-kodak"
-                  : compareFull
-                  ? "cursor-not-allowed border border-rim text-silver/45"
-                  : "border border-rim bg-darkroom-base/70 text-silver hover:border-rim-strong hover:text-ivory"
-              }`}
-            >
-              <CompareIcon className="h-3.5 w-3.5" />
-              <span>{isInCompare ? "비교중" : "비교"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onToggleBoard(item.id)}
-              title={isInBoard ? "무드보드에서 제거" : "무드보드에 담기"}
-              className={`inline-flex items-center gap-1 rounded px-2 py-1 font-mono text-[11px] transition-colors ${
-                isInBoard
-                  ? "border border-amber-kodak bg-amber-kodak text-darkroom-base font-semibold"
-                  : "border border-rim bg-darkroom-base/70 text-silver hover:border-rim-strong hover:text-ivory"
-              }`}
-            >
-              <BoardBookmarkIcon className="h-3.5 w-3.5" filled={isInBoard} />
-              <span>{isInBoard ? "담김" : "보드"}</span>
-            </button>
-          </div>
+        {/* Whisper Hover Bottom Multi-Stop Gradient + Minimal Caption */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/92 via-[#09090B]/48 to-transparent px-2.5 pb-2.5 pt-12 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+          <p className="truncate text-[13px] font-medium leading-tight tracking-tight text-ivory">
+            {item.titleKo}
+          </p>
+          <p className="mt-0.5 truncate font-mono text-[10px] tracking-wide text-silver/90">
+            {item.brandOrSource} · {item.year} · {item.mediaType}
+          </p>
         </div>
       </div>
     </article>

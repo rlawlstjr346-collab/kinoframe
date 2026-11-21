@@ -98,15 +98,202 @@ export function parseTimestampToSeconds(timeOrZone: string): number | null {
   return null;
 }
 
+export interface PaletteChromaMetrics {
+  avgSaturation: number;
+  maxSaturation: number;
+  vividCount: number;
+  luminanceSpread: number;
+  isChromatic: boolean;
+}
+
+export function analyzePaletteChroma(palette: readonly string[]): PaletteChromaMetrics {
+  if (palette.length === 0) {
+    return {
+      avgSaturation: 0,
+      maxSaturation: 0,
+      vividCount: 0,
+      luminanceSpread: 0,
+      isChromatic: false,
+    };
+  }
+
+  let satSum = 0;
+  let maxSat = 0;
+  let vividCount = 0;
+  let minLum = 1;
+  let maxLum = 0;
+
+  for (const hex of palette) {
+    const clean = hex.replace("#", "");
+    const r = Number.parseInt(clean.slice(0, 2), 16) / 255;
+    const g = Number.parseInt(clean.slice(2, 4), 16) / 255;
+    const b = Number.parseInt(clean.slice(4, 6), 16) / 255;
+    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) continue;
+
+    const maxC = Math.max(r, g, b);
+    const minC = Math.min(r, g, b);
+    const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
+    const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    satSum += sat;
+    if (sat > maxSat) maxSat = sat;
+    if (sat >= 0.34 && maxC >= 0.24) vividCount += 1;
+    if (lum < minLum) minLum = lum;
+    if (lum > maxLum) maxLum = lum;
+  }
+
+  const avgSaturation = satSum / palette.length;
+  const luminanceSpread = Math.max(0, maxLum - minLum);
+  const isChromatic =
+    avgSaturation >= 0.27 || (maxSaturationCheck(maxSat) && vividCount >= 2);
+
+  return {
+    avgSaturation,
+    maxSaturation: maxSat,
+    vividCount,
+    luminanceSpread,
+    isChromatic,
+  };
+}
+
+function maxSaturationCheck(maxSat: number): boolean {
+  return maxSat >= 0.48;
+}
+
+export function isChromaticItem(item: ArchiveItem): boolean {
+  return analyzePaletteChroma(item.palette).isChromatic;
+}
+
 export function computeCurationDensityScore(item: ArchiveItem): number {
-  const tagScore = item.compositionTags.length * 3 + item.persuasionTags.length * 3;
-  const motionBonus = item.mediaSource === "archive_mp4" ? 4 : item.mediaSource === "youtube_embed" ? 3 : 2;
+  const chroma = analyzePaletteChroma(item.palette);
+  const tagScore = item.compositionTags.length * 2.2 + item.persuasionTags.length * 2.2;
+  const chromaScore =
+    chroma.avgSaturation * 16 +
+    (chroma.isChromatic ? 8.5 : 0) +
+    chroma.vividCount * 1.4 +
+    chroma.luminanceSpread * 3.2;
+
+  // Balance live motion presence without letting B&W archive_mp4 dominate the wall
+  const motionBonus =
+    item.mediaSource === "archive_mp4"
+      ? chroma.isChromatic
+        ? 4.2
+        : 1.4
+      : item.mediaSource === "youtube_embed"
+      ? chroma.isChromatic
+        ? 3.8
+        : 1.8
+      : chroma.isChromatic
+      ? 3.2
+      : 1.2;
+
   const noteDepth =
     (item.breakdown.hook3s.length +
       item.breakdown.framing.length +
       item.breakdown.marketingApply.length) /
-    60;
-  return tagScore + motionBonus + noteDepth;
+    90;
+
+  return tagScore + chromaScore + motionBonus + noteDepth;
+}
+
+const RHYTHM_MEDIA_CYCLE: MediaType[] = ["PRINT", "TVCF", "PHOTO", "NEWS"];
+
+function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
+  if (scoredDesc.length <= 2) return scoredDesc;
+
+  const pool = scoredDesc.map((item) => ({
+    item,
+    score: computeCurationDensityScore(item),
+    chromatic: isChromaticItem(item),
+    isLoopMp4: item.mediaSource === "archive_mp4",
+  }));
+
+  const result: ArchiveItem[] = [];
+  const remaining = [...pool];
+
+  let lastMedia: MediaType | null = null;
+  let sameMediaRun = 0;
+  let monoRun = 0;
+  let monoCountInTop16 = 0;
+
+  while (remaining.length > 0) {
+    const pos = result.length;
+    const preferredMedia = RHYTHM_MEDIA_CYCLE[pos % RHYTHM_MEDIA_CYCLE.length];
+    const wantLoopSlot = pos % 4 === 1;
+    const inTop16 = pos < 16;
+
+    let bestIdx = 0;
+    let bestUtility = Number.NEGATIVE_INFINITY;
+
+    const searchLimit = Math.min(remaining.length, 32);
+    for (let i = 0; i < searchLimit; i += 1) {
+      const cand = remaining[i];
+      let utility = cand.score;
+
+      // Mild rank decay so high-scoring curated works rise first
+      utility -= i * 0.22;
+
+      // Strictly discourage 3 consecutive identical media types
+      if (cand.item.mediaType === lastMedia) {
+        if (sameMediaRun >= 2) {
+          utility -= 45;
+        } else {
+          utility -= 6;
+        }
+      }
+
+      // Encourage rhythmic 4-media alternation
+      if (cand.item.mediaType === preferredMedia) {
+        utility += 5.5;
+      }
+
+      // Encourage auto-looping MP4 presence across the wall
+      if (wantLoopSlot && cand.isLoopMp4) {
+        utility += 4.5;
+      }
+
+      // Prevent monochrome clustering and ensure >= 75% chromatic vitality in top 16
+      if (!cand.chromatic) {
+        if (monoRun >= 2) {
+          utility -= 60;
+        } else if (monoRun >= 1) {
+          utility -= 14;
+        }
+        if (inTop16) {
+          if (monoCountInTop16 >= 3) {
+            utility -= 38;
+          } else if (pos < 4) {
+            // Open the top row with rich chromatic impact
+            utility -= 22;
+          }
+        }
+      }
+
+      if (utility > bestUtility) {
+        bestUtility = utility;
+        bestIdx = i;
+      }
+    }
+
+    const [picked] = remaining.splice(bestIdx, 1);
+    result.push(picked.item);
+
+    if (picked.item.mediaType === lastMedia) {
+      sameMediaRun += 1;
+    } else {
+      lastMedia = picked.item.mediaType;
+      sameMediaRun = 1;
+    }
+
+    if (picked.chromatic) {
+      monoRun = 0;
+    } else {
+      monoRun += 1;
+      if (inTop16) monoCountInTop16 += 1;
+    }
+  }
+
+  return result;
 }
 
 export function filterAndSortArchive(
@@ -180,6 +367,10 @@ export function filterAndSortArchive(
       }
     }
   });
+
+  if (state.sort === "curation_density") {
+    return interleaveByColorAndMedia(sorted);
+  }
 
   return sorted;
 }
