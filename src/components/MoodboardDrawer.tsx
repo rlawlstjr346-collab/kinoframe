@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { ArchiveItem, AuthSessionState, VaultState } from "@/types/archive";
 import {
-  formatPreciseTimestamp,
   generateMoodboardMarkdown,
   serializeBoardIds,
 } from "@/lib/taxonomy";
@@ -13,7 +12,6 @@ import {
   CloseIcon,
   MarkdownDocIcon,
   ShareLinkIcon,
-  ViewfinderIcon,
 } from "@/components/Icons";
 
 interface MoodboardDrawerProps {
@@ -65,14 +63,6 @@ export function MoodboardDrawer({
     return map;
   }, [vault.bookmarks]);
 
-  const folderNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const f of vault.folders) {
-      map.set(f.id, f.name);
-    }
-    return map;
-  }, [vault.folders]);
-
   const visibleItems = useMemo(() => {
     if (activeFolderId === "ALL") return items;
     return items.filter(
@@ -92,7 +82,7 @@ export function MoodboardDrawer({
     try {
       await navigator.clipboard.writeText(shareUrl);
     } catch {
-      // Fallback handled cleanly via state indicator
+      // Fallback handled cleanly
     }
     setCopiedState("url");
     window.setTimeout(() => setCopiedState(null), 1800);
@@ -111,67 +101,162 @@ export function MoodboardDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-darkroom-base/78 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex justify-end bg-[#050507]/80 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
-      aria-label="레퍼런스 보관함 및 무드보드"
+      aria-label="레퍼런스 보관함"
       onClick={onClose}
     >
       <aside
-        className="flex h-full w-full max-w-lg flex-col border-l border-rim bg-darkroom-mount shadow-2xl"
+        className="flex h-full w-full max-w-[520px] flex-col border-l border-white/[0.09] bg-[#0E0F13] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-rim bg-darkroom-recessed px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <BoardBookmarkIcon className="h-4 w-4 text-amber-kodak" filled />
-            <h2 className="font-mono text-sm font-semibold tracking-wider text-ivory">
-              ARCHIVE VAULT ({items.length})
+        {/* Clean Cosmos-Style Header */}
+        <header className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[20px] font-semibold tracking-tight text-[#FAF8F5]">
+              보관함
             </h2>
+            {items.length > 0 && (
+              <span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 font-mono text-[13px] font-medium text-[#E5A93B]">
+                {items.length}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {session.cloudSyncAvailable && (
+              <button
+                type="button"
+                onClick={onOpenAuth}
+                className="rounded-full bg-[#E5A93B]/15 px-3 py-1 text-[12px] font-medium text-[#E5A93B]"
+              >
+                클라우드 동기화
+              </button>
+            )}
             <button
               type="button"
-              onClick={onOpenAuth}
-              className={`rounded-[3px] px-2 py-0.5 font-mono text-[11px] transition-colors ${
-                session.cloudSyncAvailable
-                  ? "bg-amber-kodak/20 text-amber-kodak"
-                  : "border border-rim bg-darkroom-base text-silver hover:text-ivory"
-              }`}
+              onClick={onClose}
+              aria-label="보관함 닫기"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#C8C3B8] transition-colors hover:bg-white/[0.08] hover:text-white"
             >
-              {session.cloudSyncAvailable
-                ? "클라우드 동기화"
-                : session.authenticated
-                ? `${session.user?.name} · 로컬`
-                : "로컬 보관함"}
+              <CloseIcon className="h-4 w-4" />
             </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="보관함 닫기"
-            className="rounded border border-rim p-1.5 text-silver hover:border-amber-kodak hover:text-ivory"
-          >
-            <CloseIcon className="h-4 w-4" />
-          </button>
         </header>
 
-        {/* Share & Backup Controls */}
-        <div className="space-y-3 border-b border-rim bg-darkroom-base p-4">
-          <div className="grid grid-cols-2 gap-2">
+        {/* Clean 14px Folder Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto border-b border-white/[0.08] px-6 py-3.5">
+          <button
+            type="button"
+            onClick={() => setActiveFolderId("ALL")}
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors ${
+              activeFolderId === "ALL"
+                ? "bg-[#F4F1EA] font-semibold text-[#09090B]"
+                : "bg-[#171920] text-[#D0CBC0] hover:text-white"
+            }`}
+          >
+            전체
+          </button>
+          {vault.folders.map((folder) => {
+            const active = activeFolderId === folder.id;
+            return (
+              <button
+                key={folder.id}
+                type="button"
+                onClick={() => setActiveFolderId(folder.id)}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors ${
+                  active
+                    ? "bg-[#F4F1EA] font-semibold text-[#09090B]"
+                    : "bg-[#171920] text-[#D0CBC0] hover:text-white"
+                }`}
+              >
+                {folder.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Airy 2-Column Visual Collection Grid */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {visibleItems.length === 0 ? (
+            <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center">
+              <BoardBookmarkIcon className="mb-3 h-7 w-7 text-[#C8C3B8]" />
+              <p className="text-[16px] font-medium text-[#FAF8F5]">
+                {items.length === 0
+                  ? "아직 보관한 레퍼런스가 없습니다"
+                  : "이 폴더에 담긴 레퍼런스가 없습니다"}
+              </p>
+              <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-[#C8C3B8]">
+                마음에 드는 프레임의 북마크 버튼이나 상세 화면의{" "}
+                <strong className="text-[#FAF8F5]">보관</strong> 버튼을 눌러 나만의 컬렉션을 만들어보세요.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3.5">
+              {visibleItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-lg bg-[#141519] ring-1 ring-white/[0.08] transition-all hover:ring-[#E5A93B]/60"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenDetail(item);
+                    }}
+                    className="block w-full text-left"
+                  >
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-black">
+                      <img
+                        src={item.thumbnailUrl}
+                        alt={item.titleKo}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate text-[15px] font-medium leading-snug text-[#FAF8F5]">
+                        {item.titleKo}
+                      </p>
+                      <p className="mt-0.5 truncate font-mono text-[12px] text-[#C8C3B8]">
+                        {item.mediaType} · {item.year}
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onRemoveItem(item.id)}
+                    aria-label={`${item.titleKo} 보관함에서 제거`}
+                    className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#09090B]/80 text-[#FAF8F5] opacity-0 backdrop-blur-sm transition-opacity hover:bg-[#09090B] group-hover:opacity-100"
+                  >
+                    <CloseIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Clean Bottom 2-Button Action Footer + Subtle Backup Sub-Menu */}
+        <footer className="space-y-3 border-t border-white/[0.08] bg-[#0B0C0F] px-6 py-4">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={handleCopyShareUrl}
               disabled={items.length === 0}
-              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-amber-kodak px-3 py-2 text-xs font-semibold text-darkroom-base transition-colors hover:bg-amber-glow disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#F4F1EA] px-4 text-[14px] font-semibold text-[#09090B] transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
             >
               {copiedState === "url" ? (
                 <>
-                  <CheckIcon className="h-3.5 w-3.5" />
-                  공유 링크 복사됨
+                  <CheckIcon className="h-4 w-4" />
+                  <span>링크 복사됨</span>
                 </>
               ) : (
                 <>
-                  <ShareLinkIcon className="h-3.5 w-3.5" />
-                  ?board= 링크 복사
+                  <ShareLinkIcon className="h-4 w-4" />
+                  <span>공유 링크 복사</span>
                 </>
               )}
             </button>
@@ -180,38 +265,37 @@ export function MoodboardDrawer({
               type="button"
               onClick={handleCopyMarkdown}
               disabled={items.length === 0}
-              className="inline-flex items-center justify-center gap-1.5 rounded-md border border-rim-strong bg-darkroom-mount px-3 py-2 text-xs font-medium text-ivory transition-colors hover:border-amber-kodak hover:text-amber-kodak disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-[#181A22] px-4 text-[14px] font-medium text-[#FAF8F5] transition-colors hover:bg-[#222530] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {copiedState === "md" ? (
                 <>
-                  <CheckIcon className="h-3.5 w-3.5 text-amber-kodak" />
-                  브리프 복사됨
+                  <CheckIcon className="h-4 w-4 text-[#E5A93B]" />
+                  <span>브리프 복사됨</span>
                 </>
               ) : (
                 <>
-                  <MarkdownDocIcon className="h-3.5 w-3.5" />
-                  노션 마크다운 복사
+                  <MarkdownDocIcon className="h-4 w-4" />
+                  <span>기획안 브리프 복사</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Local JSON File Backup & Restore */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[13px] text-[#C4BFB4]">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={onExportBackup}
-                className="rounded border border-rim bg-darkroom-mount px-2.5 py-1 font-mono text-xs text-ivory hover:border-amber-kodak hover:text-amber-kodak"
+                className="transition-colors hover:text-[#FAF8F5]"
               >
-                .kinoframe.json 내보내기
+                백업 저장
               </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="rounded border border-rim bg-darkroom-mount px-2.5 py-1 font-mono text-xs text-silver hover:border-amber-kodak hover:text-ivory"
+                className="transition-colors hover:text-[#FAF8F5]"
               >
-                불러오기
+                백업 불러오기
               </button>
               <input
                 ref={fileInputRef}
@@ -229,175 +313,27 @@ export function MoodboardDrawer({
             </div>
 
             {items.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={onToggleBoardOnly}
-                  className={`rounded border px-2 py-1 font-mono text-xs transition-colors ${
-                    boardOnly
-                      ? "border-amber-kodak bg-amber-kodak/20 text-amber-kodak"
-                      : "border-rim text-silver hover:text-ivory"
+                  className={`transition-colors ${
+                    boardOnly ? "font-semibold text-[#E5A93B]" : "hover:text-[#FAF8F5]"
                   }`}
                 >
-                  {boardOnly ? "보관함만 보기중" : "벽면 필터"}
+                  {boardOnly ? "벽면 필터 해제" : "보관함만 보기"}
                 </button>
                 <button
                   type="button"
                   onClick={onClearBoard}
-                  className="font-mono text-xs text-silver hover:text-ivory"
+                  className="transition-colors hover:text-[#FAF8F5]"
                 >
-                  비우기
+                  전체 비우기
                 </button>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Folder Filter Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-rim bg-darkroom-mount px-4 py-2.5">
-          <button
-            type="button"
-            onClick={() => setActiveFolderId("ALL")}
-            className={`shrink-0 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-              activeFolderId === "ALL"
-                ? "bg-amber-kodak font-semibold text-darkroom-base"
-                : "bg-darkroom-base text-silver hover:text-ivory"
-            }`}
-          >
-            전체 ({items.length})
-          </button>
-          {vault.folders.map((folder) => {
-            const count = items.filter(
-              (item) => bookmarkByItemId.get(item.id)?.folderId === folder.id
-            ).length;
-            const active = activeFolderId === folder.id;
-            return (
-              <button
-                key={folder.id}
-                type="button"
-                onClick={() => setActiveFolderId(folder.id)}
-                className={`shrink-0 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-                  active
-                    ? "bg-amber-kodak font-semibold text-darkroom-base"
-                    : "bg-darkroom-base text-silver hover:text-ivory"
-                }`}
-              >
-                {folder.name} ({count})
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Pinned Items List */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {visibleItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-rim px-5 py-12 text-center">
-              <BoardBookmarkIcon className="mb-3 h-6 w-6 text-silver" />
-              <p className="text-sm font-medium text-ivory">
-                {items.length === 0
-                  ? "담긴 레퍼런스 컷이 아직 없습니다"
-                  : "이 폴더에 담긴 레퍼런스가 없습니다"}
-              </p>
-              <p className="mt-1.5 text-xs leading-relaxed text-silver">
-                타일의 북마크 아이콘이나 라이트박스{" "}
-                <span className="text-amber-kodak">보관함 · 연관</span> 탭에서 폴더·메모와 함께 저장해보세요.
-              </p>
-            </div>
-          ) : (
-            <ul className="space-y-2.5">
-              {visibleItems.map((item) => {
-                const meta = bookmarkByItemId.get(item.id);
-                const folderName = meta
-                  ? folderNameById.get(meta.folderId)
-                  : null;
-                return (
-                  <li
-                    key={item.id}
-                    className="flex items-start gap-3 rounded-lg border border-rim bg-darkroom-base p-3"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClose();
-                        onOpenDetail(item);
-                      }}
-                      className="relative h-16 w-24 shrink-0 overflow-hidden rounded border border-rim bg-black"
-                    >
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.titleKo}
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px] text-silver">
-                        <span className="text-amber-kodak">{item.id}</span>
-                        <span>{item.mediaType}</span>
-                        <span>{item.year}</span>
-                        {folderName && (
-                          <span className="rounded bg-darkroom-mount px-1.5 py-0.5 text-[10px] text-ivory">
-                            {folderName}
-                          </span>
-                        )}
-                        {meta?.timestampSec !== null &&
-                          meta?.timestampSec !== undefined && (
-                            <span className="rounded bg-amber-kodak/15 px-1.5 py-0.5 text-[10px] text-amber-kodak">
-                              {formatPreciseTimestamp(meta.timestampSec)}
-                            </span>
-                          )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          onOpenDetail(item);
-                        }}
-                        className="mt-1 block truncate text-left text-sm font-semibold text-ivory hover:text-amber-kodak"
-                      >
-                        {item.titleKo}
-                      </button>
-                      {meta?.memo && (
-                        <p className="mt-1 line-clamp-2 text-xs text-silver">
-                          {meta.memo}
-                        </p>
-                      )}
-                      <div className="mt-1.5 flex items-center gap-1">
-                        {item.palette.map((hex, i) => (
-                          <span
-                            key={`${item.id}-mb-${i}`}
-                            className="h-2.5 w-2.5 rounded-[2px] border border-ivory/15"
-                            style={{ backgroundColor: hex }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          onOpenDetail(item);
-                        }}
-                        aria-label={`${item.titleKo} 라이트박스 열기`}
-                        className="rounded border border-rim p-1.5 text-silver hover:border-amber-kodak hover:text-amber-kodak"
-                      >
-                        <ViewfinderIcon className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onRemoveItem(item.id)}
-                        aria-label={`${item.titleKo} 보관함에서 제거`}
-                        className="rounded border border-rim p-1.5 text-silver hover:border-rim-strong hover:text-ivory"
-                      >
-                        <CloseIcon className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        </footer>
       </aside>
     </div>
   );

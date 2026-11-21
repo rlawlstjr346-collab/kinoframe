@@ -14,17 +14,41 @@ interface ViewfinderOverlayProps {
 function parseFocusCropToPoint(focusCrop: string): [number, number] | null {
   const parts = focusCrop.trim().split(/\s+/);
   if (parts.length !== 2) return null;
-  const toPercent = (token: string, axis: "x" | "y"): number => {
+  const toPercent = (token: string): number => {
     if (token.endsWith("%")) return Number.parseFloat(token);
     if (token === "left" || token === "top") return 18;
     if (token === "right" || token === "bottom") return 82;
     if (token === "center") return 50;
-    return axis === "x" ? 50 : 50;
+    return 50;
   };
-  const x = toPercent(parts[0], "x");
-  const y = toPercent(parts[1], "y");
+  const x = toPercent(parts[0]);
+  const y = toPercent(parts[1]);
   if (Number.isNaN(x) || Number.isNaN(y)) return null;
   return [x, y];
+}
+
+/**
+ * Smooth Catmull-Rom to Cubic Bezier SVG path through 3 eye-tracking points
+ * so the optical trajectory feels fluid rather than jagged.
+ */
+function buildSmoothEyePath(
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number]
+): string {
+  // Control points computed via centripetal tangent at p2
+  const dx = (p3[0] - p1[0]) * 0.22;
+  const dy = (p3[1] - p1[1]) * 0.22;
+  const c1x = p1[0] + (p2[0] - p1[0]) * 0.45;
+  const c1y = p1[1] + (p2[1] - p1[1]) * 0.45;
+  const c2x = p2[0] - dx;
+  const c2y = p2[1] - dy;
+  const c3x = p2[0] + dx;
+  const c3y = p2[1] + dy;
+  const c4x = p3[0] - (p3[0] - p2[0]) * 0.45;
+  const c4y = p3[1] - (p3[1] - p2[1]) * 0.45;
+
+  return `M ${p1[0]} ${p1[1]} C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2[0]} ${p2[1]} C ${c3x.toFixed(2)} ${c3y.toFixed(2)}, ${c4x.toFixed(2)} ${c4y.toFixed(2)}, ${p3[0]} ${p3[1]}`;
 }
 
 export function ViewfinderOverlay({
@@ -47,199 +71,215 @@ export function ViewfinderOverlay({
 
   if (!hasAny) return null;
 
-  const strokeThin = compact ? 0.45 : 0.35;
-  const strokeMed = compact ? 0.65 : 0.5;
-  const nodeR = compact ? 2.5 : 2.1;
+  const hairlineColor = "rgba(255, 255, 255, 0.42)";
+  const crispIvory = "rgba(244, 241, 234, 0.85)";
+  const curveColor = "rgba(244, 241, 234, 0.72)";
+  const cornerColor = "rgba(255, 255, 255, 0.62)";
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-0 h-full w-full select-none"
-      style={{ opacity }}
+    <div
+      className="pointer-events-none absolute inset-0 h-full w-full select-none overflow-hidden"
+      style={{
+        opacity,
+        filter: "drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.8))",
+      }}
       aria-hidden="true"
     >
-      <defs>
-        <marker
-          id="kf-arrow"
-          viewBox="0 0 10 10"
-          refX="8"
-          refY="5"
-          markerWidth="4.5"
-          markerHeight="4.5"
-          orient="auto-start-reverse"
+      {/* Razor-Sharp 1px Non-Scaling Hairline Geometry Layer */}
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full"
+      >
+        {/* Leica-style Minimal L Corner Registration Marks */}
+        <g
+          stroke={cornerColor}
+          strokeWidth={1}
+          fill="none"
+          vectorEffect="non-scaling-stroke"
         >
-          <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#D99B26" />
-        </marker>
-      </defs>
-
-      {/* Optical viewfinder frame corner registration marks */}
-      <g stroke="#F4F1EA" strokeOpacity="0.45" strokeWidth={strokeThin}>
-        <path d="M3 8V3H8" fill="none" />
-        <path d="M97 8V3H92" fill="none" />
-        <path d="M3 92V97H8" fill="none" />
-        <path d="M97 92V97H92" fill="none" />
-      </g>
-
-      {/* 1. Rule of Thirds Grid */}
-      {visibility.thirds && (
-        <g>
-          <line x1="33.33" y1="0" x2="33.33" y2="100" stroke="#F4F1EA" strokeOpacity="0.65" strokeWidth={strokeThin} />
-          <line x1="66.67" y1="0" x2="66.67" y2="100" stroke="#F4F1EA" strokeOpacity="0.65" strokeWidth={strokeThin} />
-          <line x1="0" y1="33.33" x2="100" y2="33.33" stroke="#F4F1EA" strokeOpacity="0.65" strokeWidth={strokeThin} />
-          <line x1="0" y1="66.67" x2="100" y2="66.67" stroke="#F4F1EA" strokeOpacity="0.65" strokeWidth={strokeThin} />
-          {[33.33, 66.67].map((x) =>
-            [33.33, 66.67].map((y) => (
-              <g key={`t-${x}-${y}`}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={compact ? 1.3 : 1.05}
-                  fill="none"
-                  stroke="#D99B26"
-                  strokeWidth={strokeMed}
-                />
-              </g>
-            ))
-          )}
+          <path d="M 2.5 7.5 V 2.5 H 7.5" vectorEffect="non-scaling-stroke" />
+          <path d="M 97.5 7.5 V 2.5 H 92.5" vectorEffect="non-scaling-stroke" />
+          <path d="M 2.5 92.5 V 97.5 H 7.5" vectorEffect="non-scaling-stroke" />
+          <path d="M 97.5 92.5 V 97.5 H 92.5" vectorEffect="non-scaling-stroke" />
         </g>
-      )}
 
-      {/* 2. Horizontal & Vertical Symmetry Axes */}
-      {visibility.symmetry && (
-        <g>
-          <line
-            x1="50"
-            y1="0"
-            x2="50"
-            y2="100"
-            stroke="#F4F1EA"
-            strokeOpacity="0.82"
-            strokeWidth={strokeMed}
-            strokeDasharray="2 1.6"
-          />
-          <line
-            x1="0"
-            y1="50"
-            x2="100"
-            y2="50"
-            stroke="#F4F1EA"
-            strokeOpacity="0.82"
-            strokeWidth={strokeMed}
-            strokeDasharray="2 1.6"
-          />
-          <rect
-            x="47.2"
-            y="47.2"
-            width="5.6"
-            height="5.6"
-            fill="none"
-            stroke="#D99B26"
-            strokeWidth={strokeMed}
-          />
-        </g>
-      )}
+        {/* 1. Optical Rule of Thirds Hairlines */}
+        {visibility.thirds && (
+          <g stroke={hairlineColor} strokeWidth={1} fill="none">
+            <line x1="33.33" y1="0" x2="33.33" y2="100" vectorEffect="non-scaling-stroke" />
+            <line x1="66.67" y1="0" x2="66.67" y2="100" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="33.33" x2="100" y2="33.33" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="66.67" x2="100" y2="66.67" vectorEffect="non-scaling-stroke" />
+            {[33.33, 66.67].map((x) =>
+              [33.33, 66.67].map((y) => (
+                <g key={`tp-${x}-${y}`} stroke={crispIvory} strokeWidth={1}>
+                  <line
+                    x1={x - 1.1}
+                    y1={y}
+                    x2={x + 1.1}
+                    y2={y}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <line
+                    x1={x}
+                    y1={y - 1.4}
+                    x2={x}
+                    y2={y + 1.4}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </g>
+              ))
+            )}
+          </g>
+        )}
 
-      {/* 3. One-Point Perspective Vanishing Point & Rays */}
-      {visibility.perspective && (
-        <g>
-          {[
-            [0, 0],
-            [50, 0],
-            [100, 0],
-            [100, 50],
-            [100, 100],
-            [50, 100],
-            [0, 100],
-            [0, 50],
-          ].map(([ex, ey], idx) => (
+        {/* 2. Optical Symmetry Hairlines */}
+        {visibility.symmetry && (
+          <g stroke={hairlineColor} strokeWidth={1} fill="none">
             <line
-              key={`ray-${idx}`}
-              x1={vx}
-              y1={vy}
-              x2={ex}
-              y2={ey}
-              stroke="#D99B26"
-              strokeOpacity={idx % 2 === 0 ? "0.75" : "0.35"}
-              strokeWidth={idx % 2 === 0 ? strokeMed : strokeThin}
-              strokeDasharray={idx % 2 === 0 ? undefined : "1.5 1.5"}
+              x1="50"
+              y1="0"
+              x2="50"
+              y2="100"
+              strokeDasharray="4 6"
+              vectorEffect="non-scaling-stroke"
             />
-          ))}
-          {/* Concentric vanishing point reticle */}
-          <circle cx={vx} cy={vy} r={compact ? 4.2 : 3.4} fill="rgba(9, 9, 11, 0.45)" stroke="#D99B26" strokeWidth={strokeMed} />
-          <circle cx={vx} cy={vy} r={compact ? 1.1 : 0.9} fill="#D99B26" />
-          <line x1={vx - 5.5} y1={vy} x2={vx + 5.5} y2={vy} stroke="#F4F1EA" strokeWidth={strokeThin} />
-          <line x1={vx} y1={vy - 5.5} x2={vx} y2={vy + 5.5} stroke="#F4F1EA" strokeWidth={strokeThin} />
-        </g>
-      )}
+            <line
+              x1="0"
+              y1="50"
+              x2="100"
+              y2="50"
+              strokeDasharray="4 6"
+              vectorEffect="non-scaling-stroke"
+            />
+            <line
+              x1="48.4"
+              y1="50"
+              x2="51.6"
+              y2="50"
+              stroke={crispIvory}
+              vectorEffect="non-scaling-stroke"
+            />
+            <line
+              x1="50"
+              y1="48"
+              x2="50"
+              y2="52"
+              stroke={crispIvory}
+              vectorEffect="non-scaling-stroke"
+            />
+          </g>
+        )}
 
-      {/* 4. 1 -> 2 -> 3 Eye-Tracking Vector Path */}
-      {visibility.eyePath && (
-        <g>
-          <path
-            d={`M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]}`}
-            fill="none"
-            stroke="#09090B"
-            strokeOpacity="0.65"
-            strokeWidth={strokeMed * 2.4}
-          />
-          <path
-            d={`M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]}`}
-            fill="none"
-            stroke="#D99B26"
-            strokeWidth={strokeMed * 1.3}
-            markerEnd="url(#kf-arrow)"
-          />
-          <path
-            d={`M ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]}`}
-            fill="none"
-            stroke="#D99B26"
-            strokeWidth={strokeMed * 1.3}
-            strokeDasharray="2.2 1.2"
-            markerEnd="url(#kf-arrow)"
-          />
-          {[p1, p2, p3].map((pt, idx) => (
-            <g key={`eye-${idx}`}>
-              <circle
-                cx={pt[0]}
-                cy={pt[1]}
-                r={nodeR}
-                fill="#09090B"
-                stroke="#D99B26"
-                strokeWidth={strokeMed * 1.2}
+        {/* 3. ARRI-Style Minimal Perspective Convergence Hairlines */}
+        {visibility.perspective && (
+          <g fill="none">
+            {[
+              [0, 0],
+              [100, 0],
+              [100, 100],
+              [0, 100],
+            ].map(([ex, ey], idx) => (
+              <line
+                key={`vp-ray-${idx}`}
+                x1={vx}
+                y1={vy}
+                x2={ex}
+                y2={ey}
+                stroke={hairlineColor}
+                strokeWidth={1}
+                strokeDasharray="4 6"
+                vectorEffect="non-scaling-stroke"
               />
-              <text
-                x={pt[0]}
-                y={pt[1] + 0.9}
-                textAnchor="middle"
-                fill="#F4F1EA"
-                fontSize={compact ? "3.1" : "2.6"}
-                fontFamily="monospace"
-                fontWeight="700"
-              >
-                {idx + 1}
-              </text>
-            </g>
-          ))}
-        </g>
-      )}
+            ))}
+            <line
+              x1="0"
+              y1={vy}
+              x2="100"
+              y2={vy}
+              stroke="rgba(255, 255, 255, 0.24)"
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          </g>
+        )}
 
-      {/* 5. Active Contact Sheet Focus Crop Reticle */}
-      {focusPt && (
-        <g>
+        {/* 4. Fluid Optical Eye-Path Bezier Curve */}
+        {visibility.eyePath && (
+          <path
+            d={buildSmoothEyePath(p1, p2, p3)}
+            fill="none"
+            stroke={curveColor}
+            strokeWidth={1.25}
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+
+        {/* 5. Optional Focus Crop Hairline Frame */}
+        {focusPt && (
           <rect
             x={Math.max(2, Math.min(72, focusPt[0] - 13))}
             y={Math.max(2, Math.min(72, focusPt[1] - 13))}
             width="26"
             height="26"
-            fill="rgba(217, 155, 38, 0.08)"
-            stroke="#D99B26"
-            strokeWidth={strokeMed * 1.2}
-            strokeDasharray="2 1.2"
+            fill="none"
+            stroke={crispIvory}
+            strokeWidth={1}
+            strokeDasharray="4 5"
+            vectorEffect="non-scaling-stroke"
           />
-          <circle cx={focusPt[0]} cy={focusPt[1]} r="1.2" fill="#F4F1EA" />
-        </g>
+        )}
+      </svg>
+
+      {/* Aspect-Ratio-True Precision Optical Reticles & Micro Nodes (Zero Oval Distortion) */}
+      {visibility.perspective && (
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2"
+          style={{ left: `${vx}%`, top: `${vy}%` }}
+        >
+          <svg
+            width={compact ? 18 : 22}
+            height={compact ? 18 : 22}
+            viewBox="0 0 22 22"
+            fill="none"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="5.5"
+              stroke={crispIvory}
+              strokeWidth="1"
+            />
+            <line x1="11" y1="1.5" x2="11" y2="6.5" stroke={crispIvory} strokeWidth="1" />
+            <line x1="11" y1="15.5" x2="11" y2="20.5" stroke={crispIvory} strokeWidth="1" />
+            <line x1="1.5" y1="11" x2="6.5" y2="11" stroke={crispIvory} strokeWidth="1" />
+            <line x1="15.5" y1="11" x2="20.5" y2="11" stroke={crispIvory} strokeWidth="1" />
+            <circle cx="11" cy="11" r="1" fill={crispIvory} />
+          </svg>
+        </div>
       )}
-    </svg>
+
+      {visibility.eyePath &&
+        [p1, p2, p3].map((pt, idx) => (
+          <div
+            key={`eye-node-${idx}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${pt[0]}%`, top: `${pt[1]}%` }}
+          >
+            <div className="relative flex items-center justify-center">
+              <span className="h-[6px] w-[6px] rounded-full bg-[#F4F1EA] ring-1 ring-[#09090B]/70" />
+              <span
+                className={`absolute left-2.5 top-[-8px] font-mono tracking-wider text-[#F4F1EA]/90 ${
+                  compact ? "text-[9px]" : "text-[10px]"
+                }`}
+              >
+                0{idx + 1}
+              </span>
+            </div>
+          </div>
+        ))}
+    </div>
   );
 }

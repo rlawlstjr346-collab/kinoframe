@@ -50,6 +50,8 @@ interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
 }
 
+const LOCAL_NICKNAME_KEY = "kinoframe_local_nickname_v3";
+
 export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
   const validIdSet = useMemo(() => new Set(items.map((i) => i.id)), [items]);
@@ -73,6 +75,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
   const [boardOpen, setBoardOpen] = useState<boolean>(false);
   const [authOpen, setAuthOpen] = useState<boolean>(false);
+  const [localNickname, setLocalNickname] = useState<string>("");
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
 
@@ -91,11 +94,13 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       Math.floor(Date.now() % 1_000_000) + Math.floor(Math.random() * 9973) + 1;
     setShuffleSeed(visitSeed);
 
+    const savedNick = window.localStorage.getItem(LOCAL_NICKNAME_KEY);
+    if (savedNick) setLocalNickname(savedNick);
+
     const local = loadLocalVault();
     setVault(local);
     setVaultHydrated(true);
 
-    // Merge local vault bookmark ids into boardIds if URL didn't specify ?board=
     if (initialBoardIds.length === 0 && local.bookmarks.length > 0) {
       const localIds = local.bookmarks
         .map((b) => b.itemId)
@@ -221,6 +226,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     filterState.compositionTags.length +
     filterState.persuasionTags.length +
     (filterState.era !== "ALL" ? 1 : 0);
+
+  const filterBadgeCount =
+    taxonomyActiveCount + (filterState.sort !== "smart_mix" ? 1 : 0);
 
   const hasActiveFilters =
     filterState.mediaType !== "ALL" ||
@@ -409,6 +417,18 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [validIdSet]
   );
 
+  const handleSaveLocalNickname = useCallback((name: string) => {
+    const trimmed = name.trim();
+    setLocalNickname(trimmed);
+    if (typeof window !== "undefined") {
+      if (trimmed) {
+        window.localStorage.setItem(LOCAL_NICKNAME_KEY, trimmed);
+      } else {
+        window.localStorage.removeItem(LOCAL_NICKNAME_KEY);
+      }
+    }
+  }, []);
+
   const handleLogout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setSession({
@@ -416,14 +436,20 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       user: null,
       cloudSyncAvailable: false,
     });
-  }, []);
+    handleSaveLocalNickname("");
+  }, [handleSaveLocalNickname]);
+
+  const displayAccountLabel =
+    session.authenticated && session.user
+      ? session.user.name
+      : localNickname || "로그인";
 
   return (
     <div className="flex min-h-screen flex-col bg-[#09090B]">
-      {/* Enlarged High-Readability Translucent Sticky Ribbon Header */}
+      {/* Cosmos / Savee Minimal Header: Locked Left Tabs + 3 Clean Right Clusters */}
       <header className="sticky top-0 z-30 border-b border-[#F4F1EA]/[0.08] bg-[#09090B]/90 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-3 gap-y-2.5 px-3 py-3 sm:px-5 lg:px-7">
-          {/* Left: Logo + Media Quick Tabs */}
+        <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-3 py-3 sm:px-5 lg:px-7">
+          {/* Left (LOCKED UNCHANGED): Logo + Media Quick Tabs */}
           <div className="flex items-center gap-3.5 overflow-x-auto">
             <button
               type="button"
@@ -481,156 +507,104 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             </nav>
           </div>
 
-          {/* Center: Readable Slim Search Input */}
-          <div className="relative order-3 w-full sm:w-72 xl:order-2 xl:mx-2 xl:w-80">
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-silver/70" />
-            <input
-              type="search"
-              value={filterState.query}
-              onChange={(e) =>
-                setFilterState((prev) => ({
-                  ...prev,
-                  query: e.target.value,
-                }))
-              }
-              placeholder="제목·브랜드·구도·3초 훅 검색..."
-              aria-label="아카이브 키워드 검색"
-              className="w-full rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#111216]/90 py-1.5 pl-9 pr-8 text-sm text-ivory placeholder:text-silver/55 focus:border-[#D99B26] focus:outline-none"
-            />
-            {filterState.query && (
-              <button
-                type="button"
-                onClick={() =>
-                  setFilterState((prev) => ({ ...prev, query: "" }))
+          {/* Right (3 Minimal Breathable Clusters) */}
+          <div className="flex flex-1 items-center justify-end gap-2.5 sm:gap-3">
+            {/* Cluster 1: Slim Capsule Search */}
+            <div className="relative w-full max-w-[224px] sm:w-56 lg:w-72 lg:max-w-none">
+              <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9E998E]" />
+              <input
+                type="search"
+                value={filterState.query}
+                onChange={(e) =>
+                  setFilterState((prev) => ({
+                    ...prev,
+                    query: e.target.value,
+                  }))
                 }
-                aria-label="검색어 지우기"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-silver hover:text-ivory"
-              >
-                <CloseIcon className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
+                placeholder="검색..."
+                aria-label="아카이브 키워드 검색"
+                className="h-9 w-full rounded-full border border-[#F4F1EA]/[0.10] bg-[#141519] pl-10 pr-8 text-[14px] text-[#FAF8F5] placeholder:text-[#9E998E] focus:border-[#D99B26]/70 focus:outline-none"
+              />
+              {filterState.query && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilterState((prev) => ({ ...prev, query: "" }))
+                  }
+                  aria-label="검색어 지우기"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9E998E] hover:text-[#FAF8F5]"
+                >
+                  <CloseIcon className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
 
-          {/* Right: Shuffle + Taxonomy Filter + Sort + Compare + Vault + Login */}
-          <div className="order-2 flex shrink-0 flex-wrap items-center gap-2 xl:order-3">
-            <button
-              type="button"
-              onClick={handleShuffleWall}
-              title="색감·매체 균형을 유지하며 새로운 조합으로 즉시 셔플"
-              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.14] bg-[#111216] px-3 py-1.5 text-sm font-medium text-ivory transition-colors hover:border-[#D99B26] hover:text-[#D99B26]"
-            >
-              <span>셔플 ↻</span>
-            </button>
-
+            {/* Cluster 2: Single Capsule [필터] Button */}
             <button
               type="button"
               onClick={() => setFilterDrawerOpen((v) => !v)}
               aria-expanded={filterDrawerOpen}
-              className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-sm font-medium transition-colors ${
-                filterDrawerOpen || taxonomyActiveCount > 0
-                  ? "border-[#D99B26]/70 bg-[#D99B26]/15 text-[#D99B26]"
-                  : "border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#F4F1EA]/30"
+              className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-medium transition-colors ${
+                filterDrawerOpen || filterBadgeCount > 0
+                  ? "border-[#D99B26]/65 bg-[#D99B26]/14 text-[#FAF8F5]"
+                  : "border-[#F4F1EA]/[0.10] bg-[#141519] text-[#F4F1EA]/90 hover:border-[#F4F1EA]/25 hover:text-white"
               }`}
             >
-              <span>구도·설득 필터</span>
-              {taxonomyActiveCount > 0 && (
-                <span className="rounded bg-[#D99B26] px-1.5 py-0.5 font-mono text-xs font-bold leading-none text-[#09090B]">
-                  {taxonomyActiveCount}
+              <span>필터</span>
+              {filterBadgeCount > 0 && (
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D99B26] px-1.5 font-mono text-[11px] font-bold leading-none text-[#09090B]">
+                  {filterBadgeCount}
                 </span>
               )}
             </button>
 
-            <select
-              aria-label="정렬 기준"
-              value={filterState.sort}
-              onChange={(e) =>
-                setFilterState((prev) => ({
-                  ...prev,
-                  sort: e.target.value as SortOption,
-                }))
-              }
-              className="rounded-[4px] border border-[#F4F1EA]/[0.14] bg-[#111216] px-2.5 py-1.5 text-sm text-ivory focus:border-[#D99B26] focus:outline-none"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            {/* Cluster 3: Vault + Borderless Login Text Action */}
+            <div className="flex shrink-0 items-center gap-2 pl-1">
+              <button
+                type="button"
+                onClick={() => setBoardOpen(true)}
+                className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium transition-colors ${
+                  filterState.boardIds.length > 0
+                    ? "bg-[#F4F1EA] font-semibold text-[#09090B] hover:bg-white"
+                    : "text-[#F4F1EA]/90 hover:bg-white/[0.06] hover:text-white"
+                }`}
+              >
+                <BoardBookmarkIcon
+                  className="h-4 w-4"
+                  filled={filterState.boardIds.length > 0}
+                />
+                <span>보관함</span>
+                {filterState.boardIds.length > 0 && (
+                  <span className="font-mono text-[12px] font-bold">
+                    {filterState.boardIds.length}
+                  </span>
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setCompareOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-sm font-medium transition-colors ${
-                compareIds.length > 0
-                  ? "border-[#D99B26] bg-[#D99B26]/15 text-[#D99B26]"
-                  : "border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#F4F1EA]/30"
-              }`}
-            >
-              <CompareIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">비교</span>
-              <span className="font-mono text-xs opacity-85">
-                {compareIds.length}/2
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setBoardOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-sm font-medium transition-colors ${
-                filterState.boardIds.length > 0
-                  ? "border-[#D99B26] bg-[#D99B26] font-semibold text-[#09090B]"
-                  : "border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#F4F1EA]/30"
-              }`}
-            >
-              <BoardBookmarkIcon
-                className="h-4 w-4"
-                filled={filterState.boardIds.length > 0}
-              />
-              <span className="hidden sm:inline">보관함</span>
-              <span className="font-mono text-xs opacity-85">
-                {filterState.boardIds.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-sm font-medium transition-colors ${
-                session.authenticated
-                  ? "border-[#D99B26]/60 bg-[#D99B26]/12 text-[#D99B26]"
-                  : "border-[#F4F1EA]/[0.16] bg-[#111216] text-ivory hover:border-[#D99B26] hover:text-[#D99B26]"
-              }`}
-            >
-              <span>
-                {session.authenticated && session.user
-                  ? session.user.name
-                  : "로그인"}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setAuthOpen(true)}
+                className="px-2 py-1 text-[14px] font-medium text-[#F4F1EA]/90 transition-colors hover:text-white"
+              >
+                {displayAccountLabel}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Collapsible Dual Taxonomy & Era Drawer */}
+        {/* Clean Collapsible Filter · Sort · Shuffle Panel */}
         {filterDrawerOpen && (
           <section
-            aria-label="이중 택소노미 및 연대 필터"
-            className="border-t border-[#F4F1EA]/[0.07] bg-[#0C0D10]/96"
+            aria-label="필터 및 정렬 설정"
+            className="border-t border-white/[0.07] bg-[#0C0D10]/96"
           >
-            <div className="mx-auto w-full max-w-[2560px] space-y-3 px-3 py-3.5 sm:px-5 lg:px-7">
-              <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-12">
+            <div className="mx-auto w-full max-w-[2560px] space-y-4 px-3 py-4 sm:px-5 lg:px-7">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 {/* Axis A: Visual Composition Taxonomy */}
                 <div className="space-y-2 lg:col-span-5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold uppercase tracking-widest text-silver">
-                      AXIS A · 시각 구도
-                    </span>
-                    {filterState.compositionTags.length > 0 && (
-                      <span className="font-mono text-xs text-ivory">
-                        {filterState.compositionTags.length}개 선택
-                      </span>
-                    )}
-                  </div>
+                  <span className="block text-[13px] font-semibold text-[#C8C3B8]">
+                    시각 구도
+                  </span>
                   <div className="flex flex-wrap gap-1.5">
                     {COMPOSITION_TAGS.map((tag) => {
                       const active = filterState.compositionTags.includes(tag);
@@ -640,10 +614,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                           type="button"
                           onClick={() => handleToggleComposition(tag)}
                           aria-pressed={active}
-                          className={`rounded-[4px] border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          className={`rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
                             active
-                              ? "border-ivory bg-ivory font-semibold text-[#09090B]"
-                              : "border-[#F4F1EA]/[0.12] bg-[#111216] text-silver hover:border-[#F4F1EA]/30 hover:text-ivory"
+                              ? "border-[#F4F1EA] bg-[#F4F1EA] font-semibold text-[#09090B]"
+                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-white/25 hover:text-white"
                           }`}
                         >
                           {tag}
@@ -655,16 +629,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
                 {/* Axis B: Marketing Persuasion Hook Taxonomy */}
                 <div className="space-y-2 lg:col-span-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold uppercase tracking-widest text-[#D99B26]">
-                      AXIS B · 마케팅 설득 훅
-                    </span>
-                    {filterState.persuasionTags.length > 0 && (
-                      <span className="font-mono text-xs text-[#D99B26]">
-                        {filterState.persuasionTags.length}개 선택
-                      </span>
-                    )}
-                  </div>
+                  <span className="block text-[13px] font-semibold text-[#E5A93B]">
+                    마케팅 설득 훅
+                  </span>
                   <div className="flex flex-wrap gap-1.5">
                     {PERSUASION_TAGS.map((tag) => {
                       const active = filterState.persuasionTags.includes(tag);
@@ -674,10 +641,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                           type="button"
                           onClick={() => handleTogglePersuasion(tag)}
                           aria-pressed={active}
-                          className={`rounded-[4px] border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          className={`rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
                             active
                               ? "border-[#D99B26] bg-[#D99B26] font-semibold text-[#09090B]"
-                              : "border-[#D99B26]/30 bg-[#111216] text-silver hover:border-[#D99B26]/70 hover:text-ivory"
+                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-[#D99B26]/60 hover:text-white"
                           }`}
                         >
                           {tag}
@@ -689,8 +656,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
                 {/* Era Filter */}
                 <div className="space-y-2 lg:col-span-3">
-                  <span className="block font-mono text-xs font-semibold uppercase tracking-widest text-silver">
-                    ERA · 제작 연대
+                  <span className="block text-[13px] font-semibold text-[#C8C3B8]">
+                    제작 연대
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {ERAS.map((era) => {
@@ -706,10 +673,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                             }))
                           }
                           aria-pressed={active}
-                          className={`rounded-[4px] border px-3 py-1.5 font-mono text-xs transition-colors ${
+                          className={`rounded-full border px-3 py-1.5 font-mono text-[12px] transition-colors ${
                             active
-                              ? "border-[#D99B26] bg-[#D99B26]/20 font-semibold text-[#D99B26]"
-                              : "border-[#F4F1EA]/[0.12] bg-[#111216] text-silver hover:border-[#F4F1EA]/30 hover:text-ivory"
+                              ? "border-[#D99B26] bg-[#D99B26]/20 font-semibold text-[#E5A93B]"
+                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-white/25 hover:text-white"
                           }`}
                         >
                           {era.label}
@@ -720,18 +687,56 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t border-[#F4F1EA]/[0.07] pt-2.5 font-mono text-xs text-silver">
-                <span>
-                  표시 결과:{" "}
-                  <strong className="text-ivory">{filteredItems.length}</strong> /{" "}
-                  {items.length} 프레임
-                </span>
-                <div className="flex items-center gap-2">
+              {/* Sort Criteria + Shuffle + Telemetry Row */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-3.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[13px] font-semibold text-[#C8C3B8]">
+                    정렬
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {SORT_OPTIONS.map((opt) => {
+                      const active = filterState.sort === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() =>
+                            setFilterState((prev) => ({
+                              ...prev,
+                              sort: opt.value as SortOption,
+                            }))
+                          }
+                          className={`rounded-full px-3 py-1 text-[13px] font-medium transition-colors ${
+                            active
+                              ? "bg-[#F4F1EA] font-semibold text-[#09090B]"
+                              : "bg-[#141519] text-[#C8C3B8] hover:text-white"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleShuffleWall}
+                    className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-[#D99B26]/45 bg-[#D99B26]/12 px-3.5 py-1 text-[13px] font-medium text-[#E5A93B] transition-colors hover:bg-[#D99B26] hover:text-[#09090B]"
+                  >
+                    순서 새로 섞기 ↻
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 text-[13px] text-[#C8C3B8]">
+                  <span className="font-mono">
+                    <strong className="text-[#FAF8F5]">{filteredItems.length}</strong> /{" "}
+                    {items.length}
+                  </span>
                   {hasActiveFilters && (
                     <button
                       type="button"
                       onClick={handleResetFilters}
-                      className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.14] px-2.5 py-1 text-xs text-ivory hover:border-[#D99B26] hover:text-[#D99B26]"
+                      className="inline-flex items-center gap-1 rounded-full border border-white/[0.12] px-3 py-1 text-[13px] text-[#FAF8F5] hover:border-[#D99B26] hover:text-[#E5A93B]"
                     >
                       <ResetIcon className="h-3.5 w-3.5" />
                       초기화
@@ -740,9 +745,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   <button
                     type="button"
                     onClick={() => setFilterDrawerOpen(false)}
-                    className="rounded-[4px] px-2.5 py-1 text-xs text-silver hover:text-ivory"
+                    className="px-2 py-1 text-[13px] text-[#C8C3B8] hover:text-white"
                   >
-                    접기
+                    닫기
                   </button>
                 </div>
               </div>
@@ -751,11 +756,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         )}
       </header>
 
-      {/* Full-Bleed Visual Masonry Wall (PRESERVED 100% UNCHANGED) */}
+      {/* Full-Bleed Visual Masonry Wall (LOCKED 100% UNCHANGED) */}
       <main className="mx-auto w-full max-w-[2560px] flex-1 px-3 py-3 sm:px-5 lg:px-7">
         {/* Shared Moodboard Restoration Banner */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[4px] border border-[#D99B26]/40 bg-[#D99B26]/10 px-4 py-2.5 text-sm">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#D99B26]/40 bg-[#D99B26]/10 px-4 py-2.5 text-sm">
             <div className="flex items-center gap-2 text-ivory">
               <BoardBookmarkIcon className="h-4 w-4 text-[#D99B26]" filled />
               <span>
@@ -772,14 +777,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                     boardOnly: !prev.boardOnly,
                   }))
                 }
-                className="rounded-[4px] border border-[#D99B26]/50 bg-[#09090B] px-3 py-1 font-mono text-xs text-[#D99B26] hover:bg-[#D99B26] hover:text-[#09090B]"
+                className="rounded-full border border-[#D99B26]/50 bg-[#09090B] px-3 py-1 text-xs font-medium text-[#D99B26] hover:bg-[#D99B26] hover:text-[#09090B]"
               >
                 {filterState.boardOnly ? "전체 아카이브 보기" : "보관함 컷만 모아보기"}
               </button>
               <button
                 type="button"
                 onClick={() => setBoardOpen(true)}
-                className="rounded-[4px] bg-[#D99B26] px-3 py-1 font-mono text-xs font-semibold text-[#09090B]"
+                className="rounded-full bg-[#D99B26] px-3 py-1 text-xs font-semibold text-[#09090B]"
               >
                 보관함 열기
               </button>
@@ -799,8 +804,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         {hasActiveFilters && (
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="font-mono text-xs text-silver">
-                <strong className="text-ivory">{filteredItems.length}</strong> /{" "}
+              <span className="font-mono text-xs text-[#C8C3B8]">
+                <strong className="text-[#FAF8F5]">{filteredItems.length}</strong> /{" "}
                 {items.length}
               </span>
 
@@ -810,7 +815,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   onClick={() =>
                     setFilterState((prev) => ({ ...prev, boardOnly: false }))
                   }
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#D99B26]/50 bg-[#D99B26]/15 px-2.5 py-1 font-mono text-xs text-[#D99B26]"
+                  className="inline-flex items-center gap-1 rounded-full border border-[#D99B26]/50 bg-[#D99B26]/15 px-3 py-1 text-xs font-medium text-[#E5A93B]"
                 >
                   보관함만 보기
                   <CloseIcon className="h-3 w-3" />
@@ -823,10 +828,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   onClick={() =>
                     setFilterState((prev) => ({ ...prev, mediaType: "ALL" }))
                   }
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2.5 py-1 font-mono text-xs text-ivory"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 text-xs font-medium text-[#FAF8F5]"
                 >
                   {filterState.mediaType}
-                  <CloseIcon className="h-3 w-3 text-silver" />
+                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
                 </button>
               )}
 
@@ -836,10 +841,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   onClick={() =>
                     setFilterState((prev) => ({ ...prev, era: "ALL" }))
                   }
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2.5 py-1 font-mono text-xs text-ivory"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 font-mono text-xs text-[#FAF8F5]"
                 >
                   {filterState.era}
-                  <CloseIcon className="h-3 w-3 text-silver" />
+                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
                 </button>
               )}
 
@@ -848,7 +853,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   key={`active-c-${tag}`}
                   type="button"
                   onClick={() => handleToggleComposition(tag)}
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-ivory/40 bg-ivory/15 px-2.5 py-1 text-xs text-ivory"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-medium text-[#FAF8F5]"
                 >
                   {tag}
                   <CloseIcon className="h-3 w-3" />
@@ -860,7 +865,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   key={`active-p-${tag}`}
                   type="button"
                   onClick={() => handleTogglePersuasion(tag)}
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#D99B26]/50 bg-[#D99B26]/15 px-2.5 py-1 text-xs text-[#D99B26]"
+                  className="inline-flex items-center gap-1 rounded-full border border-[#D99B26]/50 bg-[#D99B26]/15 px-3 py-1 text-xs font-medium text-[#E5A93B]"
                 >
                   {tag}
                   <CloseIcon className="h-3 w-3" />
@@ -873,10 +878,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                   onClick={() =>
                     setFilterState((prev) => ({ ...prev, query: "" }))
                   }
-                  className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/15 bg-[#111216] px-2.5 py-1 font-mono text-xs text-ivory"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 text-xs text-[#FAF8F5]"
                 >
                   &ldquo;{filterState.query.trim()}&rdquo;
-                  <CloseIcon className="h-3 w-3 text-silver" />
+                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
                 </button>
               )}
             </div>
@@ -884,7 +889,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.14] bg-[#111216] px-3 py-1 font-mono text-xs text-ivory transition-colors hover:border-[#D99B26] hover:text-[#D99B26]"
+              className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] bg-[#141519] px-3 py-1 text-xs font-medium text-[#FAF8F5] transition-colors hover:border-[#D99B26] hover:text-[#E5A93B]"
             >
               <ResetIcon className="h-3.5 w-3.5" />
               초기화
@@ -892,7 +897,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           </div>
         )}
 
-        {/* True Multi-Column Full-Bleed Masonry Wall (LOCKED) */}
+        {/* True Multi-Column Full-Bleed Masonry Wall (LOCKED UNCHANGED) */}
         {filteredItems.length > 0 ? (
           <section
             aria-label="큐레이션 아카이브 그리드"
@@ -912,20 +917,20 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             ))}
           </section>
         ) : (
-          <section className="flex flex-col items-center justify-center rounded-[4px] border border-[#F4F1EA]/[0.08] bg-[#111216] px-6 py-20 text-center">
-            <p className="font-mono text-xs uppercase tracking-widest text-[#D99B26]">
+          <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-20 text-center">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#E5A93B]">
               NO MATCHING FRAMES
             </p>
-            <h2 className="mt-2 text-lg font-semibold text-ivory">
-              선택한 교차 필터 조건에 일치하는 아카이브 프레임이 없습니다
+            <h2 className="mt-2 text-lg font-semibold text-[#FAF8F5]">
+              선택한 필터 조건에 일치하는 아카이브 프레임이 없습니다
             </h2>
-            <p className="mt-1.5 text-sm text-silver">
-              일부 구도·설득 태그를 해제하거나 전체 필터를 초기화해 모든 검증 프레임을 확인하세요.
+            <p className="mt-1.5 text-sm text-[#C8C3B8]">
+              일부 구도·설득 태그를 해제하거나 전체 필터를 초기화해 모든 프레임을 확인하세요.
             </p>
             <button
               type="button"
               onClick={handleResetFilters}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-[4px] bg-[#D99B26] px-4 py-2 font-mono text-xs font-semibold text-[#09090B] hover:bg-amber-glow"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-[#F4F1EA] px-5 py-2 text-sm font-semibold text-[#09090B] hover:bg-white"
             >
               <ResetIcon className="h-3.5 w-3.5" />
               모든 필터 초기화
@@ -946,35 +951,37 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         </div>
       </footer>
 
-      {/* Floating Bottom Compare Dock */}
+      {/* Floating Bottom Compare Dock (Only surfaces when 1~2 items selected) */}
       {compareIds.length > 0 && !compareOpen && (
-        <div className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#D99B26]/55 bg-[#111216]/95 px-4 py-2 shadow-2xl backdrop-blur-md">
-          <div className="flex items-center gap-2 font-mono text-xs text-ivory">
-            <CompareIcon className="h-4 w-4 text-[#D99B26]" />
+        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#D99B26]/55 bg-[#111216]/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-2 text-sm text-[#FAF8F5]">
+            <CompareIcon className="h-4 w-4 text-[#E5A93B]" />
             <span>
-              비교 슬롯{" "}
-              <strong className="text-[#D99B26]">{compareIds.join(" × ")}</strong>
+              비교 선택{" "}
+              <strong className="font-mono text-[#E5A93B]">
+                {compareIds.join(" × ")}
+              </strong>
             </span>
           </div>
           <button
             type="button"
             onClick={() => setCompareOpen(true)}
-            className="rounded-full bg-[#D99B26] px-3 py-1 font-mono text-xs font-semibold text-[#09090B] hover:bg-amber-glow"
+            className="rounded-full bg-[#F4F1EA] px-3.5 py-1 text-xs font-semibold text-[#09090B] hover:bg-white"
           >
-            비교 열기
+            좌우 비교 열기
           </button>
           <button
             type="button"
             onClick={() => setCompareIds([])}
             aria-label="비교 슬롯 비우기"
-            className="text-silver hover:text-ivory"
+            className="text-[#C8C3B8] hover:text-white"
           >
-            <CloseIcon className="h-3.5 w-3.5" />
+            <CloseIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Enlarged 3-Tab Frame Set Lightbox Modal */}
+      {/* Full-Screen ShotDeck Theater View & Editorial Sheet Modal */}
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
@@ -1023,7 +1030,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         />
       )}
 
-      {/* Archive Vault & URL-Shared Moodboard Drawer */}
+      {/* Cosmos-Style Clean Collection Vault Drawer */}
       {boardOpen && (
         <MoodboardDrawer
           items={boardItems}
@@ -1049,10 +1056,12 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         />
       )}
 
-      {/* Google / Naver OAuth & Local Backup Modal */}
+      {/* Clean Minimal Profile & Vault Entry Modal */}
       {authOpen && (
         <AuthModal
           session={session}
+          localNickname={localNickname}
+          onSaveLocalNickname={handleSaveLocalNickname}
           onClose={() => setAuthOpen(false)}
           onLogout={handleLogout}
           onExportBackup={handleExportBackup}

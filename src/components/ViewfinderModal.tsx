@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   ArchiveItem,
+  AspectRatio,
   CompositionTag,
   OverlayVisibility,
   PersuasionTag,
@@ -11,8 +12,8 @@ import type {
 } from "@/types/archive";
 import {
   findRelatedArchiveItems,
-  formatDuration,
   formatPreciseTimestamp,
+  getAspectRatioClass,
 } from "@/lib/taxonomy";
 import { buildMediaProxyUrl } from "@/lib/media-allowlist";
 import {
@@ -23,12 +24,10 @@ import {
 } from "@/lib/frame-capture";
 import { ViewfinderOverlay } from "@/components/ViewfinderOverlay";
 import {
-  BoardBookmarkIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CloseIcon,
-  CompareIcon,
   ExternalLinkIcon,
   PlayIcon,
   ViewfinderIcon,
@@ -61,8 +60,6 @@ interface ViewfinderModalProps {
   onSelectPersuasionTag?: (tag: PersuasionTag) => void;
 }
 
-type InspectorTab = "analysis" | "download" | "vault";
-
 const OFF_OVERLAY: OverlayVisibility = {
   perspective: false,
   thirds: false,
@@ -81,7 +78,22 @@ function getPrimaryOverlay(item: ArchiveItem): OverlayVisibility {
   };
 }
 
-const OPTIMAL_OVERLAY_OPACITY = 0.78;
+function getNumericAspectRatio(ratio: AspectRatio): number {
+  switch (ratio) {
+    case "4:3":
+      return 4 / 3;
+    case "3:2":
+      return 3 / 2;
+    case "4:5":
+      return 4 / 5;
+    case "16:9":
+      return 16 / 9;
+    case "2.39:1":
+      return 2.39;
+  }
+}
+
+const OPTIMAL_OVERLAY_OPACITY = 0.88;
 
 export function ViewfinderModal({
   item,
@@ -100,34 +112,22 @@ export function ViewfinderModal({
   onToggleBoard,
   onToggleCompare,
   onSaveToVault,
-  onCreateFolder,
   onSelectCompositionTag,
   onSelectPersuasionTag,
 }: ViewfinderModalProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Composition overlay strictly OFF by default
+  // Optical viewfinder grid strictly OFF on initial open & frame switch
   const [overlay, setOverlay] = useState<OverlayVisibility>(OFF_OVERLAY);
-  const [activeTab, setActiveTab] = useState<InspectorTab>("analysis");
   const [youtubeActive, setYoutubeActive] = useState<boolean>(false);
   const [useDirectVideoFallback, setUseDirectVideoFallback] =
     useState<boolean>(false);
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
-
-  // PC Download states
   const [busyAction, setBusyAction] = useState<"raw" | "card" | "copy" | null>(
     null
   );
-  const [captureNotice, setCaptureNotice] = useState<string | null>(null);
-
-  // Vault tab states
-  const [selectedFolderId, setSelectedFolderId] = useState<string>(
-    existingBookmark?.folderId || folders[0]?.id || "hook-3s"
-  );
-  const [newFolderName, setNewFolderName] = useState<string>("");
-  const [memoText, setMemoText] = useState<string>(existingBookmark?.memo || "");
-  const [vaultSavedNotice, setVaultSavedNotice] = useState<boolean>(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const isGridActive =
     overlay.perspective ||
@@ -140,20 +140,14 @@ export function ViewfinderModal({
     [item, allItems]
   );
 
-  // Reset per-item states when switching frames
   useEffect(() => {
     setOverlay(OFF_OVERLAY);
     setYoutubeActive(false);
     setUseDirectVideoFallback(false);
     setCurrentTimeSec(0);
     setCopiedHex(null);
-    setCaptureNotice(null);
-    setVaultSavedNotice(false);
-    setSelectedFolderId(
-      existingBookmark?.folderId || folders[0]?.id || "hook-3s"
-    );
-    setMemoText(existingBookmark?.memo || "");
-  }, [item, existingBookmark, folders]);
+    setToastMsg(null);
+  }, [item]);
 
   const handleToggleMasterGrid = useCallback(() => {
     setOverlay((prev) => {
@@ -199,19 +193,20 @@ export function ViewfinderModal({
     setOverlay((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const flashToast = (msg: string) => {
+    setToastMsg(msg);
+    window.setTimeout(() => setToastMsg(null), 2600);
+  };
+
   const handleCopyHex = async (hex: string) => {
     try {
       await navigator.clipboard.writeText(hex);
     } catch {
-      // ignore clipboard permission errors
+      // ignore clipboard errors
     }
     setCopiedHex(hex);
-    window.setTimeout(() => setCopiedHex(null), 1600);
-  };
-
-  const flashNotice = (msg: string) => {
-    setCaptureNotice(msg);
-    window.setTimeout(() => setCaptureNotice(null), 3200);
+    flashToast(`${hex} 복사됨`);
+    window.setTimeout(() => setCopiedHex(null), 1800);
   };
 
   const timestampSuffix =
@@ -224,9 +219,9 @@ export function ViewfinderModal({
     try {
       const blob = await captureRawFramePngBlob(item, videoRef.current);
       downloadBlobAsPng(blob, `${item.id}_frame${timestampSuffix}.png`);
-      flashNotice("현재 장면 원본 PNG가 컴퓨터에 저장되었습니다.");
+      flashToast("현재 장면 PNG 저장 완료");
     } catch {
-      flashNotice("프레임 캡처에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      flashToast("PNG 추출에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setBusyAction(null);
     }
@@ -238,9 +233,9 @@ export function ViewfinderModal({
       const ts = item.mediaSource === "archive_mp4" ? currentTimeSec : null;
       const blob = await captureReferenceCardPngBlob(item, videoRef.current, ts);
       downloadBlobAsPng(blob, `${item.id}_reference_card${timestampSuffix}.png`);
-      flashNotice("컬러칩·분석 레퍼런스 카드 PNG가 저장되었습니다.");
+      flashToast("레퍼런스 카드 PNG 저장 완료");
     } catch {
-      flashNotice("레퍼런스 카드 생성에 실패했습니다. 다시 시도해주세요.");
+      flashToast("카드형 PNG 생성에 실패했습니다.");
     } finally {
       setBusyAction(null);
     }
@@ -252,38 +247,28 @@ export function ViewfinderModal({
       const blob = await captureRawFramePngBlob(item, videoRef.current);
       const copied = await copyPngBlobToClipboard(blob);
       if (copied) {
-        flashNotice("클립보드에 PNG 이미지가 복사되었습니다.");
+        flashToast("클립보드에 PNG 이미지 복사됨");
       } else {
         downloadBlobAsPng(blob, `${item.id}_frame${timestampSuffix}.png`);
-        flashNotice(
-          "브라우저가 이미지 클립보드 복사를 제한해 PNG 파일로 자동 저장했습니다."
-        );
+        flashToast("PNG 파일로 저장되었습니다");
       }
     } catch {
-      flashNotice("이미지 복사에 실패했습니다.");
+      flashToast("이미지 복사에 실패했습니다.");
     } finally {
       setBusyAction(null);
     }
   };
 
-  const handleCreateAndSelectFolder = () => {
-    const trimmed = newFolderName.trim();
-    if (!trimmed) return;
-    const createdId = onCreateFolder(trimmed);
-    setSelectedFolderId(createdId);
-    setNewFolderName("");
-  };
-
-  const handleSaveVaultEntry = () => {
+  const handleSelectFolderPill = (folderId: string) => {
     const ts = item.mediaSource === "archive_mp4" ? currentTimeSec : null;
     onSaveToVault({
       itemId: item.id,
-      folderId: selectedFolderId,
+      folderId,
       timestampSec: ts,
-      memo: memoText.trim(),
+      memo: existingBookmark?.memo || "",
     });
-    setVaultSavedNotice(true);
-    window.setTimeout(() => setVaultSavedNotice(false), 2200);
+    const fName = folders.find((f) => f.id === folderId)?.name;
+    if (fName) flashToast(`'${fName}' 폴더에 정리됨`);
   };
 
   const videoSrc =
@@ -293,43 +278,44 @@ export function ViewfinderModal({
         : buildMediaProxyUrl(item.previewVideoUrl)
       : null;
 
+  const numericRatio = getNumericAspectRatio(item.aspectRatio);
+  const activeFolderId = existingBookmark?.folderId || folders[0]?.id;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090B]/94 p-2 backdrop-blur-md sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#050507]/94 backdrop-blur-xl"
       role="dialog"
       aria-modal="true"
-      aria-label={`${item.titleKo} 라이트박스`}
+      aria-label={`${item.titleKo} 시어터 뷰`}
       onClick={onClose}
     >
       <div
-        className="flex max-h-[94vh] w-[96vw] max-w-[1720px] flex-col overflow-hidden rounded-[6px] border border-[#F4F1EA]/[0.12] bg-[#0D0E12] shadow-2xl"
+        className="flex h-[92vh] w-[96vw] max-w-[2160px] flex-col overflow-hidden rounded-xl border border-white/[0.09] bg-[#0B0C0F] shadow-2xl lg:flex-row"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Lightbox Utility Bar (Enlarged HIG Click Targets) */}
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F4F1EA]/[0.08] bg-[#09090B] px-5 py-3">
-          {/* Left: Single Master Grid Toggle + Quiet Mini Layer Chips when ON */}
-          <div className="flex flex-wrap items-center gap-2.5">
+        {/* LEFT: Full-Scale ShotDeck Theater Media Stage */}
+        <div className="relative flex h-[46vh] min-w-0 flex-1 items-center justify-center overflow-hidden bg-[#060608] p-4 [--stage-h:38vh] sm:p-8 lg:h-full lg:p-10 lg:[--stage-h:80vh]">
+          {/* Top-Left Minimal Glass Pill: Viewfinder Guide Toggle (Default OFF) */}
+          <div className="absolute left-4 top-4 z-30 flex flex-wrap items-center gap-1.5 sm:left-6 sm:top-5">
             <button
               type="button"
               onClick={handleToggleMasterGrid}
               aria-pressed={isGridActive}
-              className={`inline-flex items-center gap-2 rounded-[4px] border px-3.5 py-2 font-mono text-sm font-medium transition-colors ${
+              className={`inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-[13px] font-medium backdrop-blur-md transition-colors ${
                 isGridActive
-                  ? "border-[#D99B26] bg-[#D99B26]/18 text-[#D99B26]"
-                  : "border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#D99B26]/60 hover:text-[#D99B26]"
+                  ? "border-[#F4F1EA]/40 bg-[#F4F1EA]/15 text-[#FAF8F5]"
+                  : "border-white/[0.12] bg-[#0B0C0F]/75 text-[#E6E2D8] hover:border-white/30 hover:text-white"
               }`}
             >
-              <ViewfinderIcon className="h-4 w-4" />
-              <span>
-                {isGridActive ? "구도 그리드 끄기 (G)" : "구도 그리드 보기 (G)"}
-              </span>
+              <ViewfinderIcon className="h-3.5 w-3.5" />
+              <span>뷰파인더 가이드 · G</span>
             </button>
 
             {isGridActive && (
               <div
-                className="flex items-center gap-1.5"
+                className="flex items-center gap-1 rounded-full border border-white/[0.1] bg-[#0B0C0F]/80 px-1.5 py-1 backdrop-blur-md"
                 role="group"
-                aria-label="구도 레이어 세부 전환"
+                aria-label="구도 가이드 세부 전환"
               >
                 {(
                   [
@@ -344,10 +330,10 @@ export function ViewfinderModal({
                     type="button"
                     onClick={() => toggleLayer(key)}
                     aria-pressed={overlay[key]}
-                    className={`rounded-[4px] px-2.5 py-1 font-mono text-xs transition-colors ${
+                    className={`rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-colors ${
                       overlay[key]
-                        ? "bg-[#D99B26]/22 font-semibold text-[#D99B26]"
-                        : "text-silver/70 hover:bg-[#F4F1EA]/[0.07] hover:text-ivory"
+                        ? "bg-[#F4F1EA] text-[#09090B]"
+                        : "text-[#C8C3B8] hover:text-white"
                     }`}
                   >
                     {label}
@@ -357,566 +343,380 @@ export function ViewfinderModal({
             )}
           </div>
 
-          {/* Right: Telemetry + Prev / Next / Close */}
-          <div className="flex items-center gap-2">
-            <span className="mr-2 hidden font-mono text-xs text-silver/80 md:inline">
-              {item.id} · {item.aspectRatio} · {formatDuration(item.durationSec)}
-            </span>
+          {/* Top-Right Minimal Glass Prev / Next Arrows */}
+          <div className="absolute right-4 top-4 z-30 flex items-center gap-1.5 sm:right-6 sm:top-5">
             <button
               type="button"
               onClick={onPrev}
               disabled={!hasPrev}
               aria-label="이전 작품"
-              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#111216] px-3.5 py-2 text-sm text-silver transition-colors hover:border-[#F4F1EA]/30 hover:text-ivory disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-[#0B0C0F]/75 text-[#E6E2D8] backdrop-blur-md transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ChevronLeftIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">이전</span>
             </button>
             <button
               type="button"
               onClick={onNext}
               disabled={!hasNext}
               aria-label="다음 작품"
-              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#111216] px-3.5 py-2 text-sm text-silver transition-colors hover:border-[#F4F1EA]/30 hover:text-ivory disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-[#0B0C0F]/75 text-[#E6E2D8] backdrop-blur-md transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             >
-              <span className="hidden sm:inline">다음</span>
               <ChevronRightIcon className="h-4 w-4" />
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="라이트박스 닫기"
-              className="inline-flex items-center gap-1 rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#111216] px-3.5 py-2 text-sm text-silver transition-colors hover:border-[#D99B26]/60 hover:text-ivory"
-            >
-              <CloseIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">닫기</span>
-            </button>
           </div>
-        </header>
 
-        {/* Main Lightbox Split: Large Cinema Viewer (8 cols) + Readable 3-Tab Inspector (4 cols) */}
-        <div className="grid flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-12">
-          {/* Left Cinema Stage */}
-          <div className="relative flex min-h-[340px] flex-col items-center justify-center bg-[#050507] p-4 lg:col-span-8 lg:min-h-[640px] lg:border-r lg:border-[#F4F1EA]/[0.08] lg:p-8">
-            <div className="relative flex w-full items-center justify-center overflow-hidden">
-              {item.mediaSource === "archive_mp4" && videoSrc ? (
-                <div className="relative inline-flex max-w-full items-center justify-center">
-                  <video
-                    ref={videoRef}
-                    src={videoSrc}
-                    poster={item.thumbnailUrl}
-                    crossOrigin="anonymous"
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    onTimeUpdate={(e) =>
-                      setCurrentTimeSec(e.currentTarget.currentTime)
-                    }
-                    onSeeked={(e) =>
-                      setCurrentTimeSec(e.currentTarget.currentTime)
-                    }
-                    onError={() => {
-                      if (!useDirectVideoFallback) {
-                        setUseDirectVideoFallback(true);
-                      }
-                    }}
-                    className="max-h-[80vh] w-auto max-w-full bg-black object-contain"
-                  />
-                  <ViewfinderOverlay
-                    viewfinder={item.viewfinder}
-                    visibility={overlay}
-                    opacity={OPTIMAL_OVERLAY_OPACITY}
-                  />
-                </div>
-              ) : item.mediaSource === "youtube_embed" && item.youtubeId ? (
-                youtubeActive ? (
-                  <div className="relative aspect-video w-full max-w-5xl">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&rel=0`}
-                      title={item.titleKo}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="h-full w-full border-0"
-                    />
-                  </div>
-                ) : (
-                  <div className="relative aspect-video w-full max-w-5xl overflow-hidden bg-black">
-                    <img
-                      src={item.thumbnailUrl}
-                      alt={item.titleKo}
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setYoutubeActive(true)}
-                      className="absolute inset-0 flex items-center justify-center bg-[#09090B]/25 transition-colors hover:bg-[#09090B]/10"
-                      aria-label="YouTube 아카이브 영상 재생"
-                    >
-                      <span className="inline-flex items-center gap-2 rounded-full border border-[#D99B26]/80 bg-[#09090B]/88 px-5 py-2.5 font-mono text-sm font-semibold text-[#D99B26] shadow-lg backdrop-blur-sm">
-                        <PlayIcon className="h-4 w-4" />
-                        YOUTUBE PLAY
-                      </span>
-                    </button>
-                    <ViewfinderOverlay
-                      viewfinder={item.viewfinder}
-                      visibility={overlay}
-                      opacity={OPTIMAL_OVERLAY_OPACITY}
-                    />
-                  </div>
-                )
+          {/* Explicit Aspect-Ratio Locked Full-Scale Media Wrapper (88~94% Stage Fill) */}
+          <div
+            className={`relative max-h-full overflow-hidden rounded-[4px] bg-black shadow-[0_24px_80px_rgba(0,0,0,0.85)] ${getAspectRatioClass(
+              item.aspectRatio
+            )}`}
+            style={{
+              width: `min(100%, calc(var(--stage-h) * ${numericRatio}))`,
+            }}
+          >
+            {item.mediaSource === "archive_mp4" && videoSrc ? (
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                poster={item.thumbnailUrl}
+                crossOrigin="anonymous"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+                onTimeUpdate={(e) =>
+                  setCurrentTimeSec(e.currentTarget.currentTime)
+                }
+                onSeeked={(e) =>
+                  setCurrentTimeSec(e.currentTarget.currentTime)
+                }
+                onError={() => {
+                  if (!useDirectVideoFallback) {
+                    setUseDirectVideoFallback(true);
+                  }
+                }}
+                className="h-full w-full bg-black object-contain"
+              />
+            ) : item.mediaSource === "youtube_embed" && item.youtubeId ? (
+              youtubeActive ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&rel=0`}
+                  title={item.titleKo}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full border-0"
+                />
               ) : (
-                <div className="relative inline-flex max-w-full items-center justify-center">
+                <div className="relative h-full w-full bg-black">
                   <img
                     src={item.thumbnailUrl}
                     alt={item.titleKo}
-                    className="max-h-[80vh] w-auto max-w-full object-contain"
+                    className="h-full w-full object-contain"
                   />
-                  <ViewfinderOverlay
-                    viewfinder={item.viewfinder}
-                    visibility={overlay}
-                    opacity={OPTIMAL_OVERLAY_OPACITY}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setYoutubeActive(true)}
+                    className="absolute inset-0 flex items-center justify-center bg-[#09090B]/22 transition-colors hover:bg-[#09090B]/10"
+                    aria-label="YouTube 아카이브 영상 재생"
+                  >
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[#F4F1EA]/40 bg-[#09090B]/85 px-5 py-2.5 text-[14px] font-semibold text-[#FAF8F5] shadow-xl backdrop-blur-md">
+                      <PlayIcon className="h-4 w-4 text-[#D99B26]" />
+                      영상 재생
+                    </span>
+                  </button>
                 </div>
-              )}
-            </div>
+              )
+            ) : (
+              <img
+                src={item.thumbnailUrl}
+                alt={item.titleKo}
+                className="h-full w-full object-contain"
+              />
+            )}
 
-            {item.mediaSource === "youtube_embed" && youtubeActive && (
-              <button
-                type="button"
-                onClick={() => setYoutubeActive(false)}
-                className="mt-3 font-mono text-xs text-[#D99B26] underline underline-offset-4 hover:text-ivory"
-              >
-                스틸 프레임으로 돌아가 구도 그리드 보기
-              </button>
+            {/* 1:1 Precision Optical Viewfinder Overlay Inside Exact Frame Bounds */}
+            {!youtubeActive && (
+              <ViewfinderOverlay
+                viewfinder={item.viewfinder}
+                visibility={overlay}
+                opacity={OPTIMAL_OVERLAY_OPACITY}
+              />
             )}
           </div>
 
-          {/* Right Editorial 3-Tab Inspector */}
-          <aside className="flex flex-col bg-[#0D0E12] lg:col-span-4">
-            {/* Fixed Editorial Header */}
-            <div className="border-b border-[#F4F1EA]/[0.08] px-6 py-5">
-              <p className="font-mono text-xs uppercase tracking-wider text-[#D99B26]">
-                {item.mediaType} · {item.year} · {item.brandOrSource}
-              </p>
-              <h2 className="mt-2 text-xl font-semibold leading-snug tracking-tight text-[#F4F1EA] sm:text-2xl">
-                {item.titleKo}
-              </h2>
-              <p className="mt-1.5 text-sm text-[#BEB9AE]">
-                {item.originalTitle}
-              </p>
-            </div>
-
-            {/* Crisp 3-Tab Navigation Bar */}
-            <div
-              className="grid grid-cols-3 border-b border-[#F4F1EA]/[0.08] bg-[#09090B]"
-              role="tablist"
-              aria-label="상세 정보 탭"
+          {item.mediaSource === "youtube_embed" && youtubeActive && (
+            <button
+              type="button"
+              onClick={() => setYoutubeActive(false)}
+              className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/15 bg-[#0B0C0F]/85 px-4 py-1.5 text-[13px] font-medium text-[#FAF8F5] backdrop-blur-md hover:border-white/35"
             >
-              {(
-                [
-                  ["analysis", "색감 · 분석"],
-                  ["download", "컴퓨터 저장"],
-                  ["vault", "보관함 · 연관"],
-                ] as Array<[InspectorTab, string]>
-              ).map(([tabKey, label]) => {
-                const active = activeTab === tabKey;
-                return (
+              스틸 프레임으로 돌아가기
+            </button>
+          )}
+        </div>
+
+        {/* RIGHT: Single High-Contrast Editorial Sheet (Zero Tabs, Apple HIG / Cosmos Hierarchy) */}
+        <aside className="flex h-full w-full shrink-0 flex-col justify-between overflow-y-auto border-t border-white/[0.08] bg-[#0E0F13] px-6 py-6 sm:px-8 sm:py-7 lg:w-[440px] lg:border-l lg:border-t-0 xl:w-[480px]">
+          <div className="space-y-6">
+            {/* 1. Top One-Click Action Bar */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 font-mono text-[13px] font-medium text-[#D0CBC0]">
+                  <span>
+                    {item.mediaType} · {item.year}
+                  </span>
+                  {item.mediaSource === "archive_mp4" && (
+                    <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-[#E5A93B]">
+                      {formatPreciseTimestamp(currentTimeSec)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5">
                   <button
-                    key={tabKey}
                     type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setActiveTab(tabKey)}
-                    className={`border-b-2 py-3 text-center text-sm font-medium transition-colors ${
-                      active
-                        ? "border-[#D99B26] bg-[#111216] text-[#F4F1EA]"
-                        : "border-transparent text-[#BEB9AE] hover:text-[#F4F1EA]"
+                    onClick={handleDownloadRawPng}
+                    disabled={busyAction !== null}
+                    className="inline-flex h-9 items-center rounded-full border border-white/10 bg-[#1A1C23] px-3.5 text-[13px] font-medium text-[#FAF8F5] transition-colors hover:bg-[#242730] disabled:opacity-50"
+                  >
+                    {busyAction === "raw" ? "저장 중..." : "PNG 저장"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadReferenceCardPng}
+                    disabled={busyAction !== null}
+                    title="컬러칩과 분석이 포함된 1600px 레퍼런스 카드 PNG 저장"
+                    className="inline-flex h-9 items-center rounded-full border border-white/[0.08] bg-transparent px-2.5 text-[12px] font-medium text-[#C8C3B8] transition-colors hover:border-white/20 hover:text-[#FAF8F5] disabled:opacity-50"
+                  >
+                    {busyAction === "card" ? "..." : "카드 PNG"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onToggleBoard(item.id)}
+                    className={`inline-flex h-9 items-center gap-1 rounded-full px-4 text-[13px] font-semibold transition-colors ${
+                      isInBoard
+                        ? "bg-[#D99B26] text-[#09090B] hover:bg-[#e5aa38]"
+                        : "bg-[#F4F1EA] text-[#09090B] hover:bg-white"
                     }`}
                   >
-                    {label}
+                    {isInBoard ? (
+                      <>
+                        <span>보관됨</span>
+                        <CheckIcon className="h-3.5 w-3.5" />
+                      </>
+                    ) : (
+                      <span>보관</span>
+                    )}
                   </button>
-                );
-              })}
-            </div>
 
-            {/* Tab Panel Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-5">
-              {/* TAB 1: 색감 · 분석 */}
-              {activeTab === "analysis" && (
-                <div className="space-y-6">
-                  {/* Wide h-12 5-Color Palette Strip */}
-                  <section className="border-b border-[#F4F1EA]/[0.08] pb-5">
-                    <div className="mb-2.5 flex items-center justify-between">
-                      <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[#BEB9AE]">
-                        COLOR PALETTE
-                      </h3>
-                      <span className="font-mono text-xs text-[#BEB9AE]">
-                        {copiedHex ? (
-                          <span className="inline-flex items-center gap-1 text-[#D99B26]">
-                            <CheckIcon className="h-3.5 w-3.5" />
-                            {copiedHex} 복사됨
-                          </span>
-                        ) : (
-                          "클릭하여 HEX 복사"
-                        )}
-                      </span>
-                    </div>
-
-                    <div className="flex h-12 w-full overflow-hidden rounded-[4px] ring-1 ring-[#F4F1EA]/15">
-                      {item.palette.map((hex, idx) => (
-                        <button
-                          key={`${item.id}-swatch-${idx}`}
-                          type="button"
-                          onClick={() => handleCopyHex(hex)}
-                          title={`${hex} 복사`}
-                          aria-label={`컬러 ${hex} 복사`}
-                          className="group/swatch relative flex-1 transition-all duration-200 hover:flex-[1.5] focus-visible:flex-[1.5]"
-                          style={{ backgroundColor: hex }}
-                        >
-                          <span className="absolute inset-x-0 bottom-0 bg-[#09090B]/80 py-0.5 text-center font-mono text-[11px] text-ivory opacity-0 transition-opacity group-hover/swatch:opacity-100">
-                            {hex}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="mt-2 grid grid-cols-5 gap-1">
-                      {item.palette.map((hex, idx) => (
-                        <button
-                          key={`${item.id}-code-${idx}`}
-                          type="button"
-                          onClick={() => handleCopyHex(hex)}
-                          className={`text-center font-mono text-xs transition-colors ${
-                            copiedHex === hex
-                              ? "font-semibold text-[#D99B26]"
-                              : "text-[#BEB9AE] hover:text-[#F4F1EA]"
-                          }`}
-                        >
-                          {hex}
-                        </button>
-                      ))}
-                    </div>
-                  </section>
-
-                  {/* Readable Editorial Analysis */}
-                  <section className="space-y-4 divide-y divide-[#F4F1EA]/[0.08]">
-                    <div>
-                      <p className="font-mono text-xs font-semibold tracking-wider text-[#D99B26]">
-                        초반 3초 시선 훅
-                      </p>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-[#ECE8DF]">
-                        {item.breakdown.hook3s}
-                      </p>
-                    </div>
-
-                    <div className="pt-4">
-                      <p className="font-mono text-xs font-semibold tracking-wider text-[#D99B26]">
-                        구도·조명 설계
-                      </p>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-[#ECE8DF]">
-                        {item.breakdown.framing}
-                      </p>
-                    </div>
-
-                    <div className="pt-4">
-                      <p className="font-mono text-xs font-semibold tracking-wider text-[#D99B26]">
-                        마케팅 실무 적용
-                      </p>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-[#ECE8DF]">
-                        {item.breakdown.marketingApply}
-                      </p>
-                    </div>
-                  </section>
-
-                  {/* Clickable Filter Tags */}
-                  <section className="border-t border-[#F4F1EA]/[0.08] pt-4">
-                    <div className="flex flex-wrap gap-2">
-                      {item.compositionTags.map((tag) => (
-                        <button
-                          key={`m-c-${tag}`}
-                          type="button"
-                          onClick={() => onSelectCompositionTag?.(tag)}
-                          title={`'${tag}' 구도 필터 적용`}
-                          className="rounded-[4px] border border-[#F4F1EA]/[0.15] bg-[#111216] px-3 py-1.5 text-xs font-medium text-[#F4F1EA] transition-colors hover:border-[#F4F1EA] hover:bg-[#F4F1EA] hover:text-[#09090B]"
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                      {item.persuasionTags.map((tag) => (
-                        <button
-                          key={`m-p-${tag}`}
-                          type="button"
-                          onClick={() => onSelectPersuasionTag?.(tag)}
-                          title={`'${tag}' 설득 훅 필터 적용`}
-                          className="rounded-[4px] border border-[#D99B26]/40 bg-[#D99B26]/12 px-3 py-1.5 text-xs font-medium text-[#D99B26] transition-colors hover:border-[#D99B26] hover:bg-[#D99B26] hover:text-[#09090B]"
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                  </section>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="닫기"
+                    className="ml-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#C8C3B8] transition-colors hover:bg-white/[0.08] hover:text-white"
+                  >
+                    <CloseIcon className="h-4 w-4" />
+                  </button>
                 </div>
-              )}
+              </div>
 
-              {/* TAB 2: 컴퓨터 저장 (Non-Login Instant PC PNG Export) */}
-              {activeTab === "download" && (
-                <div className="space-y-5">
-                  <div className="rounded-[4px] border border-[#F4F1EA]/[0.1] bg-[#111216] p-4">
-                    <p className="font-mono text-xs font-semibold uppercase tracking-wider text-[#D99B26]">
-                      로그인 없이 즉시 PC 저장
-                    </p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-[#ECE8DF]">
-                      {item.mediaSource === "archive_mp4" ? (
-                        <>
-                          현재 영상 프레임{" "}
-                          <strong className="rounded bg-[#D99B26]/20 px-2 py-0.5 font-mono text-[#D99B26]">
-                            현재 프레임 {formatPreciseTimestamp(currentTimeSec)}
-                          </strong>{" "}
-                          시점을 원하는 순간에 일시정지한 뒤 고해상도 PNG로 저장할 수 있습니다.
-                        </>
-                      ) : (
-                        "보안 미디어 프록시를 통해 CORS 제한 없이 고해상도 스틸컷과 컬러 레퍼런스 카드를 즉시 저장합니다."
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={handleDownloadRawPng}
-                      disabled={busyAction !== null}
-                      className="flex w-full items-center justify-between rounded-[4px] bg-[#D99B26] px-4 py-3.5 text-left text-sm font-semibold text-[#09090B] transition-opacity hover:opacity-92 disabled:opacity-50"
-                    >
-                      <span>
-                        {busyAction === "raw"
-                          ? "원본 프레임 추출 중..."
-                          : "현재 장면 원본 PNG 컴퓨터 저장"}
-                      </span>
-                      <span className="font-mono text-xs opacity-80">PNG</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleDownloadReferenceCardPng}
-                      disabled={busyAction !== null}
-                      className="flex w-full items-center justify-between rounded-[4px] border border-[#D99B26]/55 bg-[#D99B26]/14 px-4 py-3.5 text-left text-sm font-semibold text-[#F4F1EA] transition-colors hover:bg-[#D99B26]/24 disabled:opacity-50"
-                    >
-                      <span>
-                        {busyAction === "card"
-                          ? "레퍼런스 카드 합성 중..."
-                          : "컬러칩 · 분석 레퍼런스 카드 PNG 저장"}
-                      </span>
-                      <span className="font-mono text-xs text-[#D99B26]">
-                        1600px SHEET
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleCopyFrameImage}
-                      disabled={busyAction !== null}
-                      className="flex w-full items-center justify-between rounded-[4px] border border-[#F4F1EA]/[0.16] bg-[#111216] px-4 py-3.5 text-left text-sm font-medium text-[#F4F1EA] transition-colors hover:border-[#F4F1EA]/40 disabled:opacity-50"
-                    >
-                      <span>
-                        {busyAction === "copy"
-                          ? "클립보드 복사 중..."
-                          : "클립보드에 이미지 복사"}
-                      </span>
-                      <span className="font-mono text-xs text-[#BEB9AE]">
-                        COPY PNG
-                      </span>
-                    </button>
-
-                    <a
-                      href={item.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex w-full items-center justify-between rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#09090B] px-4 py-3 text-sm font-medium text-[#BEB9AE] transition-colors hover:border-[#F4F1EA]/30 hover:text-[#F4F1EA]"
-                    >
-                      <span>원본 아카이브 출처 열기</span>
-                      <ExternalLinkIcon className="h-4 w-4" />
-                    </a>
-                  </div>
-
-                  {captureNotice && (
-                    <div
-                      role="status"
-                      className="rounded-[4px] border border-[#D99B26]/50 bg-[#D99B26]/12 px-4 py-3 text-sm text-[#F4F1EA]"
-                    >
-                      {captureNotice}
-                    </div>
-                  )}
-
-                  <p className="font-mono text-xs text-[#BEB9AE]/70">
-                    라이선스: {item.licenseNote}
-                  </p>
-                </div>
-              )}
-
-              {/* TAB 3: 보관함 · 연관 */}
-              {activeTab === "vault" && (
-                <div className="space-y-6">
-                  {/* Folder Bookmark & Memo Editor */}
-                  <section className="space-y-3 border-b border-[#F4F1EA]/[0.08] pb-5">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[#D99B26]">
-                        폴더 북마크 · 장면 메모 저장
-                      </h3>
-                      {item.mediaSource === "archive_mp4" && (
-                        <span className="rounded bg-[#D99B26]/15 px-2 py-0.5 font-mono text-xs text-[#D99B26]">
-                          타임스탬프 {formatPreciseTimestamp(currentTimeSec)}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="block text-xs font-medium text-[#BEB9AE]">
-                        저장 폴더 선택
-                      </label>
-                      <select
-                        value={selectedFolderId}
-                        onChange={(e) => setSelectedFolderId(e.target.value)}
-                        className="w-full rounded-[4px] border border-[#F4F1EA]/[0.14] bg-[#111216] px-3 py-2.5 text-sm text-[#F4F1EA] focus:border-[#D99B26] focus:outline-none"
-                      >
-                        {folders.map((folder) => (
-                          <option key={folder.id} value={folder.id}>
-                            {folder.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Quick Create Folder */}
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleCreateAndSelectFolder();
-                          }
-                        }}
-                        placeholder="새 폴더 이름 (예: 여름 캠페인)"
-                        className="flex-1 rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#09090B] px-3 py-2 text-sm text-[#F4F1EA] placeholder:text-[#BEB9AE]/55 focus:border-[#D99B26] focus:outline-none"
-                      />
+              {/* Minimal 1-Line Folder Pill Strip (Only Visible When Saved) */}
+              {isInBoard && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[12px] font-medium text-[#B8B3A8]">
+                    폴더
+                  </span>
+                  {folders.map((folder) => {
+                    const selected = activeFolderId === folder.id;
+                    return (
                       <button
+                        key={folder.id}
                         type="button"
-                        onClick={handleCreateAndSelectFolder}
-                        className="rounded-[4px] border border-[#F4F1EA]/[0.16] bg-[#111216] px-3 py-2 text-xs font-medium text-[#F4F1EA] hover:border-[#D99B26] hover:text-[#D99B26]"
+                        onClick={() => handleSelectFolderPill(folder.id)}
+                        className={`rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-colors ${
+                          selected
+                            ? "bg-[#E5A93B]/20 text-[#E5A93B] ring-1 ring-[#E5A93B]/50"
+                            : "bg-white/[0.05] text-[#C8C3B8] hover:text-white"
+                        }`}
                       >
-                        폴더 추가
+                        {folder.name}
                       </button>
-                    </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                    {/* 1-Line Scene Memo */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-[#BEB9AE]">
-                        장면 메모 (1줄)
-                      </label>
-                      <input
-                        type="text"
-                        value={memoText}
-                        onChange={(e) => setMemoText(e.target.value)}
-                        placeholder="예: 오프닝 3초 보색 전환 레퍼런스"
-                        className="w-full rounded-[4px] border border-[#F4F1EA]/[0.12] bg-[#09090B] px-3 py-2.5 text-sm text-[#F4F1EA] placeholder:text-[#BEB9AE]/55 focus:border-[#D99B26] focus:outline-none"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleSaveVaultEntry}
-                      className="flex w-full items-center justify-center gap-2 rounded-[4px] bg-[#D99B26] px-4 py-2.5 text-sm font-semibold text-[#09090B] transition-opacity hover:opacity-92"
-                    >
-                      {vaultSavedNotice ? (
-                        <>
-                          <CheckIcon className="h-4 w-4" />
-                          보관함에 저장되었습니다
-                        </>
-                      ) : (
-                        <>
-                          <BoardBookmarkIcon className="h-4 w-4" filled />
-                          {existingBookmark
-                            ? "보관함 메모·폴더 업데이트"
-                            : "현재 장면 보관함에 저장"}
-                        </>
-                      )}
-                    </button>
-                  </section>
-
-                  {/* Related 4 Archives */}
-                  <section className="space-y-3">
-                    <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-[#BEB9AE]">
-                      연관 아카이브 4선 (유사 구도·설득)
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      {relatedItems.map((rel) => (
-                        <button
-                          key={rel.id}
-                          type="button"
-                          onClick={() => onSelectItem(rel)}
-                          className="group overflow-hidden rounded-[4px] border border-[#F4F1EA]/[0.1] bg-[#111216] text-left transition-colors hover:border-[#D99B26]/60"
-                        >
-                          <div className="aspect-[4/3] w-full overflow-hidden bg-black">
-                            <img
-                              src={rel.thumbnailUrl}
-                              alt={rel.titleKo}
-                              loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          </div>
-                          <div className="p-2.5">
-                            <p className="font-mono text-[11px] text-[#D99B26]">
-                              {rel.mediaType} · {rel.year}
-                            </p>
-                            <p className="mt-0.5 truncate text-xs font-medium text-[#F4F1EA]">
-                              {rel.titleKo}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </section>
+              {toastMsg && (
+                <div
+                  role="status"
+                  className="rounded-lg bg-[#E5A93B]/15 px-3.5 py-2 text-[13px] font-medium text-[#FAF8F5] ring-1 ring-[#E5A93B]/40"
+                >
+                  {toastMsg}
                 </div>
               )}
             </div>
 
-            {/* Bottom Single-Row Quick Action Bar */}
-            <div className="flex items-center gap-2 border-t border-[#F4F1EA]/[0.08] bg-[#09090B] px-6 py-3.5">
-              <button
-                type="button"
-                onClick={() => onToggleBoard(item.id)}
-                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-[4px] px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isInBoard
-                    ? "bg-[#D99B26] font-semibold text-[#09090B]"
-                    : "border border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#D99B26]/60"
-                }`}
-              >
-                <BoardBookmarkIcon className="h-4 w-4" filled={isInBoard} />
-                <span>{isInBoard ? "보관함 담김" : "보관함 담기"}</span>
-              </button>
+            {/* 2. Large High-Contrast Editorial Title */}
+            <div>
+              <h2 className="text-[22px] font-bold leading-[1.32] tracking-[-0.02em] text-[#FAF8F5] sm:text-[25px]">
+                {item.titleKo}
+              </h2>
+              <p className="mt-2 text-[14px] leading-snug text-[#C8C3B8]">
+                {item.brandOrSource} · {item.originalTitle}
+              </p>
+            </div>
 
+            {/* 3. Text-Free Wide 48px Color Swatch Bar (Hover Expands + Centered HEX) */}
+            <div>
+              <div className="flex h-12 w-full overflow-hidden rounded-lg ring-1 ring-white/10">
+                {item.palette.map((hex, idx) => (
+                  <button
+                    key={`${item.id}-sw-${idx}`}
+                    type="button"
+                    onClick={() => handleCopyHex(hex)}
+                    title={`${hex} 복사`}
+                    aria-label={`컬러 ${hex} 복사`}
+                    className="group/swatch relative flex flex-1 items-center justify-center transition-all duration-200 hover:flex-[1.4] focus-visible:flex-[1.4]"
+                    style={{ backgroundColor: hex }}
+                  >
+                    <span
+                      className={`rounded bg-[#09090B]/78 px-2 py-0.5 font-mono text-[12px] font-medium text-[#FAF8F5] backdrop-blur-sm transition-opacity ${
+                        copiedHex === hex
+                          ? "opacity-100"
+                          : "opacity-0 group-hover/swatch:opacity-100 group-focus-visible/swatch:opacity-100"
+                      }`}
+                    >
+                      {copiedHex === hex ? "복사됨" : hex}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. High-Contrast 16px Editorial Analysis Body */}
+            <section className="space-y-5 border-t border-white/[0.08] pt-6">
+              <div>
+                <h3 className="mb-1.5 text-[13px] font-semibold text-[#E5A93B]">
+                  초반 3초 시선 훅
+                </h3>
+                <p className="text-[16px] font-normal leading-[1.72] text-[#F2EFE9]">
+                  {item.breakdown.hook3s}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="mb-1.5 text-[13px] font-semibold text-[#E5A93B]">
+                  구도 및 미장센
+                </h3>
+                <p className="text-[16px] font-normal leading-[1.72] text-[#F2EFE9]">
+                  {item.breakdown.framing}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="mb-1.5 text-[13px] font-semibold text-[#E5A93B]">
+                  마케팅 실무 인사이트
+                </h3>
+                <p className="text-[16px] font-normal leading-[1.72] text-[#F2EFE9]">
+                  {item.breakdown.marketingApply}
+                </p>
+              </div>
+            </section>
+
+            {/* 5. Clean Tag Pills & Visual 4-Cut Related Strip */}
+            <section className="space-y-5 border-t border-white/[0.08] pt-5">
+              <div className="flex flex-wrap gap-2">
+                {item.compositionTags.map((tag) => (
+                  <button
+                    key={`m-c-${tag}`}
+                    type="button"
+                    onClick={() => onSelectCompositionTag?.(tag)}
+                    className="rounded-full border border-white/[0.08] bg-[#181A22] px-3 py-1.5 text-[13px] font-medium text-[#E6E2D8] transition-colors hover:bg-[#222530] hover:text-white"
+                  >
+                    {tag}
+                  </button>
+                ))}
+                {item.persuasionTags.map((tag) => (
+                  <button
+                    key={`m-p-${tag}`}
+                    type="button"
+                    onClick={() => onSelectPersuasionTag?.(tag)}
+                    className="rounded-full border border-white/[0.08] bg-[#181A22] px-3 py-1.5 text-[13px] font-medium text-[#E6E2D8] transition-colors hover:bg-[#222530] hover:text-[#E5A93B]"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-2.5">
+                <p className="text-[13px] font-medium text-[#C8C3B8]">
+                  유사 구도 레퍼런스
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {relatedItems.map((rel) => (
+                    <button
+                      key={rel.id}
+                      type="button"
+                      onClick={() => onSelectItem(rel)}
+                      title={`${rel.titleKo} (${rel.year})`}
+                      aria-label={`${rel.titleKo} 열기`}
+                      className="group aspect-[4/3] overflow-hidden rounded-md bg-black ring-1 ring-white/[0.09] transition-all hover:ring-[#E5A93B]/70"
+                    >
+                      <img
+                        src={rel.thumbnailUrl}
+                        alt={rel.titleKo}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Minimal Bottom 1-Line Utility Footer */}
+          <footer className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-4 text-[13px] text-[#C4BFB4]">
+            <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => onToggleCompare(item.id)}
                 disabled={!isInCompare && compareFull}
-                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-[4px] px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`font-medium transition-colors ${
                   isInCompare
-                    ? "border border-[#D99B26] bg-[#D99B26]/20 text-[#D99B26]"
+                    ? "text-[#E5A93B]"
                     : compareFull
-                    ? "cursor-not-allowed border border-[#F4F1EA]/[0.08] text-silver/40"
-                    : "border border-[#F4F1EA]/[0.14] bg-[#111216] text-ivory hover:border-[#D99B26]/60"
+                    ? "cursor-not-allowed opacity-40"
+                    : "hover:text-[#FAF8F5]"
                 }`}
               >
-                <CompareIcon className="h-4 w-4" />
-                <span>{isInCompare ? "비교중" : "비교 추가"}</span>
+                {isInCompare ? "비교 슬롯 해제" : "좌우 비교에 추가"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyFrameImage}
+                disabled={busyAction !== null}
+                className="font-medium transition-colors hover:text-[#FAF8F5] disabled:opacity-40"
+              >
+                {busyAction === "copy" ? "복사 중..." : "이미지 복사"}
               </button>
             </div>
-          </aside>
-        </div>
+
+            <a
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-medium transition-colors hover:text-[#FAF8F5]"
+            >
+              <span>원본 아카이브 출처</span>
+              <ExternalLinkIcon className="h-3.5 w-3.5" />
+            </a>
+          </footer>
+        </aside>
       </div>
     </div>
   );
