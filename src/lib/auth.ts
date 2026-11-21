@@ -1,11 +1,14 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import type { NextRequest } from "next/server";
 
 export type OAuthProvider = "google" | "naver";
+export type AuthProvider = OAuthProvider | "account";
 
 export interface SessionUser {
   sub: string;
-  provider: OAuthProvider;
+  provider: AuthProvider;
   name: string;
   email?: string;
   avatar?: string;
@@ -13,6 +16,14 @@ export interface SessionUser {
 
 interface SignedSessionPayload extends SessionUser {
   exp: number;
+}
+
+interface StoredAccount {
+  id: string;
+  username: string;
+  displayName: string;
+  passwordHash: string;
+  createdAt: string;
 }
 
 export const SESSION_COOKIE_NAME = "kinoframe_session";
@@ -47,6 +58,108 @@ function safeEqual(a: string, b: string): boolean {
   const bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) return false;
   return crypto.timingSafeEqual(bufA, bufB);
+}
+
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derived = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `scrypt$${salt}$${derived}`;
+}
+
+export function verifyPassword(password: string, storedHash: string): boolean {
+  const parts = storedHash.split("$");
+  if (parts.length !== 3 || parts[0] !== "scrypt") return false;
+  const [, salt, expectedHex] = parts;
+  if (!salt || !expectedHex) return false;
+  const derivedHex = crypto.scryptSync(password, salt, 64).toString("hex");
+  return safeEqual(derivedHex, expectedHex);
+}
+
+function getUsersFilePath(): string {
+  const dataDir = path.join(process.cwd(), ".data");
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  return path.join(dataDir, "users.json");
+}
+
+function readStoredUsers(): StoredAccount[] {
+  const filePath = getUsersFilePath();
+  try {
+    if (!fs.existsSync(filePath)) return [];
+    const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return Array.isArray(parsed) ? (parsed as StoredAccount[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredUsers(users: StoredAccount[]): void {
+  const filePath = getUsersFilePath();
+  fs.writeFileSync(filePath, JSON.stringify(users, null, 2) + "\n", "utf8");
+}
+
+export function registerLocalAccount(
+  rawUsername: string,
+  password: string,
+  rawDisplayName?: string
+): { ok: true; user: SessionUser } | { ok: false; error: string; status: number } {
+  const username = rawUsername.trim().toLowerCase();
+  const displayName = (rawDisplayName?.trim() || rawUsername.trim()).slice(0, 32);
+
+  if (username.length < 2 || username.length > 64) {
+    return { ok: false, error: "아이디는 2자 이상 64자 이하로 입력해주세요.", status: 400 };
+  }
+  if (password.length < 4 || password.length > 128) {
+    return { ok: false, error: "비밀번호는 4자 이상 입력해주세요.", status: 400 };
+  }
+
+  const users = readStoredUsers();
+  if (users.some((u) => u.username === username)) {
+    return { ok: false, error: "이미 사용 중인 아이디입니다.", status: 409 };
+  }
+
+  const id = crypto.randomBytes(10).toString("hex");
+  const record: StoredAccount = {
+    id,
+    username,
+    displayName,
+    passwordHash: hashPassword(password),
+    createdAt: new Date().toISOString(),
+  };
+  users.push(record);
+  writeStoredUsers(users);
+
+  return {
+    ok: true,
+    user: {
+      sub: `account:${record.id}`,
+      provider: "account",
+      name: record.displayName,
+      email: username.includes("@") ? username : undefined,
+    },
+  };
+}
+
+export function authenticateLocalAccount(
+  rawUsername: string,
+  password: string
+): { ok: true; user: SessionUser } | { ok: false; error: string; status: number } {
+  const username = rawUsername.trim().toLowerCase();
+  const users = readStoredUsers();
+  const found = users.find((u) => u.username === username);
+  if (!found || !verifyPassword(password, found.passwordHash)) {
+    return { ok: false, error: "아이디 또는 비밀번호가 일치하지 않습니다.", status: 401 };
+  }
+  return {
+    ok: true,
+    user: {
+      sub: `account:${found.id}`,
+      provider: "account",
+      name: found.displayName,
+      email: username.includes("@") ? username : undefined,
+    },
+  };
 }
 
 export function createSessionToken(user: SessionUser): string {
@@ -89,7 +202,7 @@ export function createOAuthState(provider: OAuthProvider): {
 } {
   const nonce = crypto.randomBytes(16).toString("hex");
   const state = `${provider}_${nonce}`;
-  const exp = Math.floor(Date.now() / 1000) + 600; // 10 min
+  const exp = Math.floor(Date.now() / 1000) + 600;
   const encoded = base64UrlEncode(JSON.stringify({ state, provider, exp }));
   const sig = signData(encoded);
   return { state, signedCookie: `${encoded}.${sig}` };

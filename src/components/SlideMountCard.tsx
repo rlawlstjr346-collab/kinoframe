@@ -2,8 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
-import { getAspectRatioClass } from "@/lib/taxonomy";
-import { BoardBookmarkIcon, CompareIcon } from "@/components/Icons";
+import {
+  getAspectRatioClass,
+  getCategoryLabel,
+  getCountryLabel,
+  resolveItemCategory,
+  resolveItemCountry,
+} from "@/lib/taxonomy";
+import {
+  captureRawFramePngBlob,
+  copyPngBlobToClipboard,
+  downloadBlobAsPng,
+} from "@/lib/frame-capture";
 
 interface SlideMountCardProps {
   item: ArchiveItem;
@@ -19,10 +29,8 @@ export function SlideMountCard({
   item,
   isInBoard,
   isInCompare,
-  compareFull,
   onOpenDetail,
   onToggleBoard,
-  onToggleCompare,
 }: SlideMountCardProps) {
   const cardRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -31,11 +39,14 @@ export function SlideMountCard({
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "copied">(
+    "idle"
+  );
 
   const isAutoLoopVideo =
     item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
 
-  // Eyecandy-style viewport-aware muted auto-loop via IntersectionObserver
+  // Viewport-aware muted auto-loop via IntersectionObserver
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
@@ -61,7 +72,6 @@ export function SlideMountCard({
     return () => observer.disconnect();
   }, [isAutoLoopVideo]);
 
-  // Play when visible in viewport, immediately pause on exit to protect CPU/memory
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const video = videoRef.current;
@@ -77,12 +87,31 @@ export function SlideMountCard({
     }
   }, [inView, isAutoLoopVideo, videoReady]);
 
+  const handleQuickCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (copyStatus === "copying") return;
+    setCopyStatus("copying");
+    try {
+      const blob = await captureRawFramePngBlob(item, videoRef.current);
+      const copied = await copyPngBlobToClipboard(blob);
+      if (!copied) {
+        downloadBlobAsPng(blob, `${item.id}_frame.png`);
+      }
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 1600);
+    } catch {
+      setCopyStatus("idle");
+    }
+  };
+
+  const categoryLabel = getCategoryLabel(resolveItemCategory(item));
+  const countryLabel = getCountryLabel(resolveItemCountry(item));
   const hasSavedState = isInBoard || isInCompare;
 
   return (
     <article
       ref={cardRef}
-      className="group relative mb-3 break-inside-avoid overflow-hidden rounded-[4px] bg-[#111216] ring-1 ring-[#F4F1EA]/[0.08] transition-all duration-200 hover:ring-[#D99B26]/50"
+      className="group relative mb-3 break-inside-avoid overflow-hidden rounded-[4px] bg-[#111216] ring-1 ring-[#F4F1EA]/[0.08] transition-all duration-200 hover:ring-[#F4F1EA]/40"
     >
       {/* Pure Zero-Chrome Visual Frame Window */}
       <div
@@ -95,7 +124,7 @@ export function SlideMountCard({
             onOpenDetail(item);
           }
         }}
-        aria-label={`${item.titleKo} 상세 라이트박스 열기`}
+        aria-label={`${item.titleKo} 상세 보기`}
         className={`relative w-full cursor-pointer overflow-hidden bg-[#111216] ${getAspectRatioClass(
           item.aspectRatio
         )}`}
@@ -117,7 +146,7 @@ export function SlideMountCard({
           </div>
         )}
 
-        {/* Viewport Auto-Play Muted Loop for archive_mp4 (with poster fallback) */}
+        {/* Viewport Auto-Play Muted Loop for archive_mp4 */}
         {isAutoLoopVideo && hasEnteredViewport && item.previewVideoUrl && (
           <video
             ref={videoRef}
@@ -137,52 +166,33 @@ export function SlideMountCard({
         {/* Subtle Persistent Saved Indicator (Visible Before Hover) */}
         {hasSavedState && (
           <div
-            className="pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0"
+            className="pointer-events-none absolute right-2.5 top-2.5 z-10 flex items-center gap-1 transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0"
             aria-hidden="true"
           >
             {isInCompare && (
-              <span className="h-2 w-2 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80" />
             )}
             {isInBoard && (
-              <span className="inline-flex h-4 items-center rounded-[2px] bg-[#D99B26] px-1 font-mono text-[9px] font-bold leading-none text-[#09090B] shadow-sm">
-                B
+              <span className="inline-flex h-5 items-center rounded-full bg-[#D99B26] px-2 text-[11px] font-bold leading-none text-[#09090B] shadow-md">
+                저장됨
               </span>
             )}
           </div>
         )}
 
-        {/* Whisper Hover Top-Right Minimal Action Buttons */}
-        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+        {/* Pinterest-Style Top-Right High-Visibility Action Buttons on Hover */}
+        <div className="absolute right-2.5 top-2.5 z-20 flex items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleCompare(item.id);
-            }}
-            disabled={!isInCompare && compareFull}
-            aria-label={
-              isInCompare
-                ? "비교 슬롯에서 제거"
-                : compareFull
-                ? "최대 2개 작품까지 비교 가능"
-                : "좌우 비교에 추가"
-            }
-            title={
-              isInCompare
-                ? "비교중 (해제)"
-                : compareFull
-                ? "최대 2개까지 비교 가능"
-                : "비교 추가"
-            }
-            className={`inline-flex h-8 w-8 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
-              isInCompare
-                ? "border-[#D99B26] bg-[#D99B26]/25 text-[#D99B26]"
-                : compareFull
-                ? "cursor-not-allowed border-[#F4F1EA]/10 bg-[#09090B]/65 text-silver/40"
-                : "border-[#F4F1EA]/15 bg-[#09090B]/75 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
-            }`}
+            onClick={handleQuickCopy}
+            aria-label="이미지 클립보드 복사"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-white/20 bg-[#09090B]/85 px-3.5 text-[14px] font-semibold text-white backdrop-blur-md transition-colors hover:border-white/50 hover:bg-[#09090B] 2xl:text-[15px]"
           >
-            <CompareIcon className="h-4 w-4" />
+            {copyStatus === "copied"
+              ? "복사됨"
+              : copyStatus === "copying"
+              ? "..."
+              : "복사"}
           </button>
 
           <button
@@ -191,25 +201,24 @@ export function SlideMountCard({
               e.stopPropagation();
               onToggleBoard(item.id);
             }}
-            aria-label={isInBoard ? "보관함에서 제거" : "보관함에 담기"}
-            title={isInBoard ? "보관함에 담김 (해제)" : "보관함 담기"}
-            className={`inline-flex h-8 w-8 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
+            aria-label={isInBoard ? "보드에서 제거" : "보드에 저장"}
+            className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-[14px] font-bold shadow-lg transition-colors 2xl:text-[15px] ${
               isInBoard
-                ? "border-[#D99B26] bg-[#D99B26] text-[#09090B]"
-                : "border-[#F4F1EA]/15 bg-[#09090B]/75 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
+                ? "bg-[#D99B26] text-[#09090B] hover:bg-[#e5aa38]"
+                : "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
             }`}
           >
-            <BoardBookmarkIcon className="h-4 w-4" filled={isInBoard} />
+            {isInBoard ? "저장됨" : "저장"}
           </button>
         </div>
 
-        {/* Whisper Hover Bottom Multi-Stop Gradient + Readable Caption */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/95 via-[#09090B]/55 to-transparent px-3 pb-3 pt-14 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-          <p className="truncate text-sm font-medium leading-snug tracking-tight text-ivory sm:text-[15px]">
+        {/* High-Contrast QHD/4K Bottom Hover Caption */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/96 via-[#09090B]/60 to-transparent px-3.5 pb-3.5 pt-16 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+          <p className="truncate text-[16px] font-bold leading-snug tracking-tight text-white 2xl:text-[18px]">
             {item.titleKo}
           </p>
-          <p className="mt-0.5 truncate font-mono text-xs tracking-wide text-silver/90">
-            {item.brandOrSource} · {item.year} · {item.mediaType}
+          <p className="mt-0.5 truncate text-[13px] font-medium tracking-wide text-[#E6E2D8] 2xl:text-[15px]">
+            {countryLabel} · {item.year} · {categoryLabel}
           </p>
         </div>
       </div>

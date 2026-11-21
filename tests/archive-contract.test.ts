@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import archiveSnapshot from "@/data/archive-snapshot.json";
-import type { ArchiveItem, MediaType } from "@/types/archive";
+import type { ArchiveCategory, ArchiveItem, CountryCode, MediaType } from "@/types/archive";
 import {
+  ARCHIVE_CATEGORIES,
   COMPOSITION_TAGS,
   DEFAULT_FILTER_STATE,
   PERSUASION_TAGS,
@@ -9,10 +10,18 @@ import {
   generateMoodboardMarkdown,
   isChromaticItem,
   parseBoardIds,
+  resolveItemCategory,
+  resolveItemCountry,
   rotateArchiveWithSeed,
   serializeBoardIds,
 } from "@/lib/taxonomy";
 import { isAllowedMediaProxyUrl } from "@/lib/media-allowlist";
+import {
+  createSessionToken,
+  hashPassword,
+  verifyPassword,
+  verifySessionToken,
+} from "@/lib/auth";
 
 const ITEMS = archiveSnapshot as ArchiveItem[];
 
@@ -24,25 +33,58 @@ const FORBIDDEN_PHRASES = [
   "샘플 데이터 모드",
 ];
 
-describe("KINOFRAME Archive Snapshot Contract", () => {
-  it("contains at least 120 real verified items covering all 4 media categories with balanced depth", () => {
-    expect(ITEMS.length).toBeGreaterThanOrEqual(120);
+const ALL_CATEGORIES: ArchiveCategory[] = [
+  "TVCF",
+  "CLASSIC_FILM",
+  "ROCK_POSTER",
+  "AD_POSTER",
+  "PROPAGANDA",
+  "TSHIRT_GRAPHIC",
+  "PHOTO",
+];
+
+describe("KINOFRAME V4 Archive & Security Contract", () => {
+  it("contains at least 180 real verified items across all 7 subculture categories and East Asia", () => {
+    expect(ITEMS.length).toBeGreaterThanOrEqual(180);
 
     const byMedia = new Map<MediaType, number>();
+    const byCategory = new Map<ArchiveCategory, number>();
+    const byCountry = new Map<CountryCode, number>();
+
     for (const item of ITEMS) {
       byMedia.set(item.mediaType, (byMedia.get(item.mediaType) ?? 0) + 1);
+      const cat = resolveItemCategory(item);
+      const country = resolveItemCountry(item);
+      byCategory.set(cat, (byCategory.get(cat) ?? 0) + 1);
+      byCountry.set(country, (byCountry.get(country) ?? 0) + 1);
     }
 
-    expect(byMedia.get("TVCF") ?? 0).toBeGreaterThanOrEqual(28);
+    // Backward mediaType depth
+    expect(byMedia.get("TVCF") ?? 0).toBeGreaterThanOrEqual(35);
     expect(byMedia.get("NEWS") ?? 0).toBeGreaterThanOrEqual(25);
-    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(33);
-    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(34);
+    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(50);
+    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(45);
+
+    // V4 7 subculture categories: every category >= 18
+    expect(ARCHIVE_CATEGORIES).toHaveLength(8); // ALL + 7 categories
+    for (const cat of ALL_CATEGORIES) {
+      expect(byCategory.get(cat) ?? 0).toBeGreaterThanOrEqual(18);
+    }
+
+    // V4 East Asia targets: KR >= 10, JP >= 10, TW >= 10, total >= 35
+    const kr = byCountry.get("KR") ?? 0;
+    const jp = byCountry.get("JP") ?? 0;
+    const tw = byCountry.get("TW") ?? 0;
+    expect(kr).toBeGreaterThanOrEqual(10);
+    expect(jp).toBeGreaterThanOrEqual(10);
+    expect(tw).toBeGreaterThanOrEqual(10);
+    expect(kr + jp + tw).toBeGreaterThanOrEqual(35);
 
     const uniqueIds = new Set(ITEMS.map((i) => i.id));
     expect(uniqueIds.size).toBe(ITEMS.length);
   });
 
-  it("contains zero forbidden placeholder strings and zero dead '#' or empty links", () => {
+  it("contains zero forbidden placeholder strings, zero dead links, and valid URLs/palettes/beats", () => {
     const serialized = JSON.stringify(ITEMS);
     for (const phrase of FORBIDDEN_PHRASES) {
       expect(serialized).not.toContain(phrase);
@@ -56,6 +98,8 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
       expect(item.thumbnailUrl).not.toBe("#");
       expect(item.sourceUrl).toMatch(/^https?:\/\//);
       expect(item.sourceUrl).not.toBe("#");
+      expect(item.category).toBeDefined();
+      expect(item.country).toBeDefined();
 
       if (item.mediaSource === "archive_mp4") {
         expect(item.previewVideoUrl).toMatch(/^https?:\/\//);
@@ -81,7 +125,7 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
     }
   });
 
-  it("validates viewfinder coordinates strictly within 0..100 range", () => {
+  it("validates viewfinder coordinates strictly within 0..100 range for schema compatibility", () => {
     for (const item of ITEMS) {
       const [vx, vy] = item.viewfinder.vanishingPoint;
       expect(vx).toBeGreaterThanOrEqual(0);
@@ -103,7 +147,7 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
     }
   });
 
-  it("accurately cross-filters by dual Korean taxonomy (composition x persuasion x media x era) and sorts cleanly", () => {
+  it("accurately filters by V4 7-categories, country codes, era, and sorts cleanly", () => {
     for (const item of ITEMS) {
       expect(item.compositionTags.length).toBeGreaterThanOrEqual(1);
       expect(item.persuasionTags.length).toBeGreaterThanOrEqual(1);
@@ -115,18 +159,26 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
       }
     }
 
-    const sample = ITEMS[0];
-    const crossResult = filterAndSortArchive(ITEMS, {
+    const krFilms = filterAndSortArchive(ITEMS, {
       ...DEFAULT_FILTER_STATE,
-      mediaType: sample.mediaType,
-      compositionTags: [sample.compositionTags[0]],
-      persuasionTags: [sample.persuasionTags[0]],
+      category: "CLASSIC_FILM",
+      country: "KR",
     });
-    expect(crossResult.length).toBeGreaterThanOrEqual(1);
-    for (const matched of crossResult) {
-      expect(matched.mediaType).toBe(sample.mediaType);
-      expect(matched.compositionTags).toContain(sample.compositionTags[0]);
-      expect(matched.persuasionTags).toContain(sample.persuasionTags[0]);
+    expect(krFilms.length).toBeGreaterThanOrEqual(3);
+    for (const item of krFilms) {
+      expect(resolveItemCategory(item)).toBe("CLASSIC_FILM");
+      expect(resolveItemCountry(item)).toBe("KR");
+    }
+
+    const jpTvcf = filterAndSortArchive(ITEMS, {
+      ...DEFAULT_FILTER_STATE,
+      category: "TVCF",
+      country: "JP",
+    });
+    expect(jpTvcf.length).toBeGreaterThanOrEqual(8);
+    for (const item of jpTvcf) {
+      expect(resolveItemCategory(item)).toBe("TVCF");
+      expect(resolveItemCountry(item)).toBe("JP");
     }
 
     const asc = filterAndSortArchive(ITEMS, {
@@ -146,16 +198,19 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
     }
   });
 
-  it("balances chromatic richness and multi-media interleaving across the default first-screen top 16", () => {
+  it("balances chromatic richness and subculture diversity across the default first-screen top 16", () => {
     const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
     expect(defaultSorted).toHaveLength(ITEMS.length);
 
     const top16 = defaultSorted.slice(0, 16);
     const chromaticCount = top16.filter((item) => isChromaticItem(item)).length;
-    expect(chromaticCount).toBeGreaterThanOrEqual(11);
+    expect(chromaticCount).toBeGreaterThanOrEqual(12);
 
     const mediaSet = new Set(top16.map((item) => item.mediaType));
     expect(mediaSet.size).toBe(4);
+
+    const catSet = new Set(top16.map((item) => resolveItemCategory(item)));
+    expect(catSet.size).toBeGreaterThanOrEqual(5);
 
     for (let i = 2; i < top16.length; i += 1) {
       const same3Media =
@@ -184,9 +239,34 @@ describe("KINOFRAME Archive Snapshot Contract", () => {
     const topB = rotB.slice(0, 12).map((i) => i.id).join(",");
     expect(topA).not.toBe(topB);
 
-    // Chromatic balance holds even after smart seed rotation
     const rotAChroma = rotA.slice(0, 16).filter((i) => isChromaticItem(i)).length;
     expect(rotAChroma).toBeGreaterThanOrEqual(11);
+  });
+
+  it("verifies scrypt password hashing and HMAC-SHA256 session token signing/tamper resistance", () => {
+    const hashed = hashPassword("kinoframe-test-pass-2026");
+    expect(hashed).toMatch(/^scrypt\$[0-9a-f]+\$[0-9a-f]+$/);
+    expect(verifyPassword("kinoframe-test-pass-2026", hashed)).toBe(true);
+    expect(verifyPassword("wrong-password", hashed)).toBe(false);
+    expect(verifyPassword("kinoframe-test-pass-2026", "corrupted-hash")).toBe(false);
+
+    const token = createSessionToken({
+      sub: "account:tester@kinoframe.local",
+      provider: "account",
+      name: "아카이브 테스터",
+      email: "tester@kinoframe.local",
+    });
+
+    const verified = verifySessionToken(token);
+    expect(verified).not.toBeNull();
+    expect(verified?.sub).toBe("account:tester@kinoframe.local");
+    expect(verified?.provider).toBe("account");
+
+    // Tampered token must be rejected
+    const [payload, sig] = token.split(".");
+    const tampered = `${payload}.${sig.slice(0, -2)}AA`;
+    expect(verifySessionToken(tampered)).toBeNull();
+    expect(verifySessionToken("invalid.token.shape")).toBeNull();
   });
 
   it("enforces strict SSRF allowlist on media proxy hosts and blocks arbitrary or internal targets", () => {

@@ -3,23 +3,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type {
+  ArchiveCategory,
   ArchiveItem,
   AuthSessionState,
-  CompositionTag,
+  CountryCode,
   Era,
   FilterState,
-  MediaType,
-  PersuasionTag,
   SortOption,
   VaultState,
 } from "@/types/archive";
 import {
-  COMPOSITION_TAGS,
+  ARCHIVE_CATEGORIES,
+  COUNTRIES,
   DEFAULT_FILTER_STATE,
   ERAS,
-  MEDIA_TYPES,
-  PERSUASION_TAGS,
-  SORT_OPTIONS,
   filterAndSortArchive,
   parseBoardIds,
   rotateArchiveWithSeed,
@@ -28,9 +25,9 @@ import {
 import {
   DEFAULT_VAULT_STATE,
   exportVaultToFile,
-  loadLocalVault,
+  loadAccountVault,
   parseImportedVaultJson,
-  saveLocalVault,
+  saveAccountVault,
 } from "@/lib/vault";
 import {
   BoardBookmarkIcon,
@@ -50,7 +47,14 @@ interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
 }
 
-const LOCAL_NICKNAME_KEY = "kinoframe_local_nickname_v3";
+const HEADER_SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
+  { value: "smart_mix", label: "스마트 믹스" },
+  { value: "year_asc", label: "연대 오래된순" },
+  { value: "year_desc", label: "연대 최신순" },
+];
+
+const COUNTRY_TABS: Array<{ value: CountryCode | "ALL"; label: string }> =
+  COUNTRIES.filter((c) => c.value !== "GLOBAL");
 
 export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
@@ -67,78 +71,78 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     boardIds: initialBoardIds,
   }));
 
-  // Client-only visit seed prevents SSR hydration mismatch while shuffling each visit
   const [shuffleSeed, setShuffleSeed] = useState<number | null>(null);
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState<boolean>(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
   const [boardOpen, setBoardOpen] = useState<boolean>(false);
   const [authOpen, setAuthOpen] = useState<boolean>(false);
-  const [localNickname, setLocalNickname] = useState<string>("");
+  const [pendingSave, setPendingSave] = useState<{
+    itemId: string;
+    folderId?: string;
+  } | null>(null);
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
 
-  // Vault & OAuth session states
+  // Account-isolated vault & session states
   const [vault, setVault] = useState<VaultState>(DEFAULT_VAULT_STATE);
-  const [vaultHydrated, setVaultHydrated] = useState<boolean>(false);
+  const [loadedAccountSub, setLoadedAccountSub] = useState<string | null>(null);
   const [session, setSession] = useState<AuthSessionState>({
     authenticated: false,
     user: null,
     cloudSyncAvailable: false,
   });
 
-  // Initialize visit smart-mix seed & hydrate local/cloud vault + auth session
+  const hydrateAccountVault = useCallback(
+    async (userSub: string) => {
+      const localAcc = loadAccountVault(userSub);
+      let resolved = localAcc;
+
+      try {
+        const res = await fetch("/api/vault", { cache: "no-store" });
+        if (res.ok) {
+          const data = (await res.json()) as { vault?: VaultState | null };
+          if (data.vault && Array.isArray(data.vault.folders)) {
+            resolved = data.vault;
+            saveAccountVault(userSub, resolved);
+          }
+        }
+      } catch {
+        // use account-scoped local storage
+      }
+
+      setVault(resolved);
+      setLoadedAccountSub(userSub);
+
+      const accountBoardIds = resolved.bookmarks
+        .map((b) => b.itemId)
+        .filter((id) => validIdSet.has(id));
+
+      setFilterState((prev) => ({
+        ...prev,
+        boardIds:
+          initialBoardIds.length > 0
+            ? Array.from(new Set([...accountBoardIds, ...initialBoardIds]))
+            : accountBoardIds,
+      }));
+    },
+    [initialBoardIds, validIdSet]
+  );
+
+  // Visit seed & initial session hydration
   useEffect(() => {
     const visitSeed =
       Math.floor(Date.now() % 1_000_000) + Math.floor(Math.random() * 9973) + 1;
     setShuffleSeed(visitSeed);
 
-    const savedNick = window.localStorage.getItem(LOCAL_NICKNAME_KEY);
-    if (savedNick) setLocalNickname(savedNick);
-
-    const local = loadLocalVault();
-    setVault(local);
-    setVaultHydrated(true);
-
-    if (initialBoardIds.length === 0 && local.bookmarks.length > 0) {
-      const localIds = local.bookmarks
-        .map((b) => b.itemId)
-        .filter((id) => validIdSet.has(id));
-      if (localIds.length > 0) {
-        setFilterState((prev) => ({
-          ...prev,
-          boardIds: Array.from(new Set([...prev.boardIds, ...localIds])),
-        }));
-      }
-    }
-
     let cancelled = false;
-    fetch("/api/auth/session")
+    fetch("/api/auth/session", { cache: "no-store" })
       .then((res) => res.json())
-      .then(async (sessionData: AuthSessionState) => {
+      .then((data: AuthSessionState) => {
         if (cancelled) return;
-        setSession(sessionData);
-        if (sessionData.cloudSyncAvailable) {
-          const vaultRes = await fetch("/api/vault");
-          if (vaultRes.ok) {
-            const cloud = (await vaultRes.json()) as {
-              vault?: VaultState | null;
-            };
-            if (!cancelled && cloud.vault && cloud.vault.bookmarks.length > 0) {
-              setVault(cloud.vault);
-              saveLocalVault(cloud.vault);
-              const cloudIds = cloud.vault.bookmarks
-                .map((b) => b.itemId)
-                .filter((id) => validIdSet.has(id));
-              if (cloudIds.length > 0) {
-                setFilterState((prev) => ({
-                  ...prev,
-                  boardIds: Array.from(new Set([...prev.boardIds, ...cloudIds])),
-                }));
-              }
-            }
-          }
+        setSession(data);
+        if (data.authenticated && data.user) {
+          hydrateAccountVault(data.user.sub);
         }
       })
       .catch(() => {});
@@ -146,22 +150,22 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return () => {
       cancelled = true;
     };
-  }, [initialBoardIds.length, validIdSet]);
+  }, [hydrateAccountVault]);
 
-  // Persist vault locally and sync to Supabase when authenticated
+  // Persist account-isolated vault whenever changed by the signed-in account
   useEffect(() => {
-    if (!vaultHydrated) return;
-    saveLocalVault(vault);
-    if (session.cloudSyncAvailable) {
-      fetch("/api/vault", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vault }),
-      }).catch(() => {});
-    }
-  }, [vault, vaultHydrated, session.cloudSyncAvailable]);
+    const activeSub = session.authenticated ? session.user?.sub ?? null : null;
+    if (!activeSub || loadedAccountSub !== activeSub) return;
 
-  // Sync URL ?board= parameter cleanly without full page reload
+    saveAccountVault(activeSub, vault);
+    fetch("/api/vault", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vault }),
+    }).catch(() => {});
+  }, [vault, session.authenticated, session.user?.sub, loadedAccountSub]);
+
+  // Sync URL ?board= parameter cleanly without reload
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -182,20 +186,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     }
     return base;
   }, [items, filterState, shuffleSeed]);
-
-  const mediaCounts = useMemo(() => {
-    const counts: Record<MediaType | "ALL", number> = {
-      ALL: items.length,
-      TVCF: 0,
-      NEWS: 0,
-      PRINT: 0,
-      PHOTO: 0,
-    };
-    for (const item of items) {
-      counts[item.mediaType] += 1;
-    }
-    return counts;
-  }, [items]);
 
   const boardItems = useMemo(() => {
     const map = new Map(items.map((i) => [i.id, i]));
@@ -222,17 +212,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return vault.bookmarks.find((b) => b.itemId === selectedItemId);
   }, [vault.bookmarks, selectedItemId]);
 
-  const taxonomyActiveCount =
-    filterState.compositionTags.length +
-    filterState.persuasionTags.length +
-    (filterState.era !== "ALL" ? 1 : 0);
-
-  const filterBadgeCount =
-    taxonomyActiveCount + (filterState.sort !== "smart_mix" ? 1 : 0);
-
   const hasActiveFilters =
-    filterState.mediaType !== "ALL" ||
-    taxonomyActiveCount > 0 ||
+    (filterState.category ?? "ALL") !== "ALL" ||
+    (filterState.country ?? "ALL") !== "ALL" ||
+    filterState.era !== "ALL" ||
     filterState.query.trim().length > 0 ||
     filterState.boardOnly;
 
@@ -241,80 +224,58 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     setShuffleSeed((prev) => (prev ?? 1) + Math.floor(Math.random() * 997) + 17);
   }, []);
 
-  const handleToggleComposition = useCallback((tag: CompositionTag) => {
-    setFilterState((prev) => ({
-      ...prev,
-      compositionTags: prev.compositionTags.includes(tag)
-        ? prev.compositionTags.filter((t) => t !== tag)
-        : [...prev.compositionTags, tag],
-    }));
-  }, []);
-
-  const handleTogglePersuasion = useCallback((tag: PersuasionTag) => {
-    setFilterState((prev) => ({
-      ...prev,
-      persuasionTags: prev.persuasionTags.includes(tag)
-        ? prev.persuasionTags.filter((t) => t !== tag)
-        : [...prev.persuasionTags, tag],
-    }));
-  }, []);
-
-  const handleApplyCompositionFromModal = useCallback((tag: CompositionTag) => {
-    setFilterState((prev) => ({
-      ...prev,
-      compositionTags: prev.compositionTags.includes(tag)
-        ? prev.compositionTags
-        : [...prev.compositionTags, tag],
-    }));
-    setSelectedItemId(null);
-  }, []);
-
-  const handleApplyPersuasionFromModal = useCallback((tag: PersuasionTag) => {
-    setFilterState((prev) => ({
-      ...prev,
-      persuasionTags: prev.persuasionTags.includes(tag)
-        ? prev.persuasionTags
-        : [...prev.persuasionTags, tag],
-    }));
-    setSelectedItemId(null);
-  }, []);
-
-  const handleToggleBoard = useCallback((id: string) => {
-    setFilterState((prev) => {
-      const exists = prev.boardIds.includes(id);
-      const nextBoardIds = exists
-        ? prev.boardIds.filter((b) => b !== id)
-        : [...prev.boardIds, id];
-      return {
-        ...prev,
-        boardIds: nextBoardIds,
-        boardOnly: nextBoardIds.length === 0 ? false : prev.boardOnly,
-      };
-    });
-
-    setVault((prev) => {
-      const exists = prev.bookmarks.some((b) => b.itemId === id);
-      if (exists) {
+  const performToggleBoard = useCallback(
+    (id: string, folderId?: string) => {
+      setFilterState((prev) => {
+        const exists = prev.boardIds.includes(id);
+        const nextBoardIds = exists
+          ? prev.boardIds.filter((b) => b !== id)
+          : [...prev.boardIds, id];
         return {
           ...prev,
-          bookmarks: prev.bookmarks.filter((b) => b.itemId !== id),
+          boardIds: nextBoardIds,
+          boardOnly: nextBoardIds.length === 0 ? false : prev.boardOnly,
         };
+      });
+
+      setVault((prev) => {
+        const exists = prev.bookmarks.some((b) => b.itemId === id);
+        if (exists) {
+          return {
+            ...prev,
+            bookmarks: prev.bookmarks.filter((b) => b.itemId !== id),
+          };
+        }
+        return {
+          ...prev,
+          bookmarks: [
+            ...prev.bookmarks,
+            {
+              itemId: id,
+              folderId: folderId || prev.folders[0]?.id || "jp-vintage-cf",
+              timestampSec: null,
+              memo: "",
+              savedAt: new Date().toISOString(),
+            },
+          ],
+        };
+      });
+    },
+    []
+  );
+
+  // Pinterest gate: guests clicking [저장] open login modal; logged-in users save immediately
+  const handleToggleBoard = useCallback(
+    (id: string, folderId?: string) => {
+      if (!session.authenticated) {
+        setPendingSave({ itemId: id, folderId });
+        setAuthOpen(true);
+        return;
       }
-      return {
-        ...prev,
-        bookmarks: [
-          ...prev.bookmarks,
-          {
-            itemId: id,
-            folderId: prev.folders[0]?.id || "hook-3s",
-            timestampSec: null,
-            memo: "",
-            savedAt: new Date().toISOString(),
-          },
-        ],
-      };
-    });
-  }, []);
+      performToggleBoard(id, folderId);
+    },
+    [session.authenticated, performToggleBoard]
+  );
 
   const handleSaveToVault = useCallback(
     (payload: {
@@ -323,6 +284,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       timestampSec: number | null;
       memo: string;
     }) => {
+      if (!session.authenticated) {
+        setPendingSave({ itemId: payload.itemId, folderId: payload.folderId });
+        setAuthOpen(true);
+        return;
+      }
       setVault((prev) => {
         const filtered = prev.bookmarks.filter(
           (b) => b.itemId !== payload.itemId
@@ -331,10 +297,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           ...prev,
           bookmarks: [
             ...filtered,
-            {
-              ...payload,
-              savedAt: new Date().toISOString(),
-            },
+            { ...payload, savedAt: new Date().toISOString() },
           ],
         };
       });
@@ -344,16 +307,39 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           : { ...prev, boardIds: [...prev.boardIds, payload.itemId] }
       );
     },
-    []
+    [session.authenticated]
   );
 
   const handleCreateFolder = useCallback((name: string): string => {
-    const id = `folder-${Date.now().toString(36)}`;
+    const id = `board-${Date.now().toString(36)}`;
     setVault((prev) => ({
       ...prev,
       folders: [...prev.folders, { id, name }],
     }));
     return id;
+  }, []);
+
+  const handleRenameFolder = useCallback((folderId: string, newName: string) => {
+    setVault((prev) => ({
+      ...prev,
+      folders: prev.folders.map((f) =>
+        f.id === folderId ? { ...f, name: newName } : f
+      ),
+    }));
+  }, []);
+
+  const handleDeleteFolder = useCallback((folderId: string) => {
+    setVault((prev) => {
+      const nextFolders = prev.folders.filter((f) => f.id !== folderId);
+      if (nextFolders.length === 0) return prev;
+      const fallbackId = nextFolders[0].id;
+      return {
+        folders: nextFolders,
+        bookmarks: prev.bookmarks.map((b) =>
+          b.folderId === folderId ? { ...b, folderId: fallbackId } : b
+        ),
+      };
+    });
   }, []);
 
   const handleClearBoard = useCallback(() => {
@@ -367,9 +353,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
   const handleToggleCompare = useCallback((id: string) => {
     setCompareIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((c) => c !== id);
-      }
+      if (prev.includes(id)) return prev.filter((c) => c !== id);
       if (prev.length >= 2) return prev;
       return [...prev, id];
     });
@@ -406,7 +390,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         const parsed = parseImportedVaultJson(reader.result, validIdSet);
         if (!parsed) return;
         setVault(parsed.vault);
-        saveLocalVault(parsed.vault);
         setFilterState((prev) => ({
           ...prev,
           boardIds: Array.from(new Set([...prev.boardIds, ...parsed.boardIds])),
@@ -417,17 +400,19 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [validIdSet]
   );
 
-  const handleSaveLocalNickname = useCallback((name: string) => {
-    const trimmed = name.trim();
-    setLocalNickname(trimmed);
-    if (typeof window !== "undefined") {
-      if (trimmed) {
-        window.localStorage.setItem(LOCAL_NICKNAME_KEY, trimmed);
-      } else {
-        window.localStorage.removeItem(LOCAL_NICKNAME_KEY);
+  const handleAuthSuccess = useCallback(
+    async (nextSession: AuthSessionState) => {
+      setSession(nextSession);
+      if (nextSession.authenticated && nextSession.user) {
+        await hydrateAccountVault(nextSession.user.sub);
+        if (pendingSave) {
+          performToggleBoard(pendingSave.itemId, pendingSave.folderId);
+          setPendingSave(null);
+        }
       }
-    }
-  }, []);
+    },
+    [hydrateAccountVault, pendingSave, performToggleBoard]
+  );
 
   const handleLogout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -436,82 +421,71 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       user: null,
       cloudSyncAvailable: false,
     });
-    handleSaveLocalNickname("");
-  }, [handleSaveLocalNickname]);
-
-  const displayAccountLabel =
-    session.authenticated && session.user
-      ? session.user.name
-      : localNickname || "로그인";
+    setLoadedAccountSub(null);
+    setVault(DEFAULT_VAULT_STATE);
+    setFilterState((prev) => ({
+      ...prev,
+      boardIds: [],
+      boardOnly: false,
+    }));
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#09090B]">
-      {/* Cosmos / Savee Minimal Header: Locked Left Tabs + 3 Clean Right Clusters */}
-      <header className="sticky top-0 z-30 border-b border-[#F4F1EA]/[0.08] bg-[#09090B]/90 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-3 py-3 sm:px-5 lg:px-7">
-          {/* Left (LOCKED UNCHANGED): Logo + Media Quick Tabs */}
-          <div className="flex items-center gap-3.5 overflow-x-auto">
+      {/* QHD / 4K Large-Scale 2-Row Sticky Archive Header */}
+      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090B]/92 backdrop-blur-md">
+        {/* Row 1: Main Bar (Logo + 7 Categories + Large Search + My Boards + Account) */}
+        <div className="mx-auto flex min-h-[68px] w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-4 py-3 sm:px-6 2xl:min-h-[76px] 2xl:px-10">
+          {/* Left: Logo + 7 Category Tabs */}
+          <div className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto">
             <button
               type="button"
               onClick={handleResetFilters}
               className="flex shrink-0 items-center gap-2.5 text-left"
               aria-label="KINOFRAME 홈 및 필터 초기화"
             >
-              <KinoframeLogo className="h-7 w-7 shrink-0" />
-              <span className="font-mono text-base font-bold tracking-[0.18em] text-ivory sm:text-lg">
+              <KinoframeLogo className="h-8 w-8 shrink-0 2xl:h-9 2xl:w-9" />
+              <span className="font-mono text-[19px] font-bold tracking-[0.16em] text-[#FAF8F5] 2xl:text-[22px]">
                 KINOFRAME
               </span>
             </button>
 
-            <span
-              className="hidden h-5 w-px bg-[#F4F1EA]/12 sm:inline-block"
-              aria-hidden="true"
-            />
-
             <nav
-              className="flex items-center gap-1"
+              className="flex items-center gap-1.5 overflow-x-auto py-0.5"
               role="tablist"
-              aria-label="매체 카테고리"
+              aria-label="비주얼 카테고리"
             >
-              {MEDIA_TYPES.map((m) => {
-                const active = filterState.mediaType === m.value;
+              {ARCHIVE_CATEGORIES.map((cat) => {
+                const active = (filterState.category ?? "ALL") === cat.value;
                 return (
                   <button
-                    key={m.value}
+                    key={cat.value}
                     type="button"
                     role="tab"
                     aria-selected={active}
                     onClick={() =>
                       setFilterState((prev) => ({
                         ...prev,
-                        mediaType: m.value as MediaType | "ALL",
+                        category: cat.value as ArchiveCategory | "ALL",
                       }))
                     }
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-[4px] px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                    className={`inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-5 2xl:text-[17px] ${
                       active
-                        ? "bg-[#D99B26] font-semibold text-[#09090B]"
-                        : "text-silver hover:bg-[#F4F1EA]/[0.07] hover:text-ivory"
+                        ? "bg-[#FAF8F5] text-[#09090B]"
+                        : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
                     }`}
                   >
-                    <span>{m.label}</span>
-                    <span
-                      className={`font-mono text-xs ${
-                        active ? "text-[#09090B]/75" : "text-silver/65"
-                      }`}
-                    >
-                      {mediaCounts[m.value]}
-                    </span>
+                    {cat.label}
                   </button>
                 );
               })}
             </nav>
           </div>
 
-          {/* Right (3 Minimal Breathable Clusters) */}
-          <div className="flex flex-1 items-center justify-end gap-2.5 sm:gap-3">
-            {/* Cluster 1: Slim Capsule Search */}
-            <div className="relative w-full max-w-[224px] sm:w-56 lg:w-72 lg:max-w-none">
-              <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9E998E]" />
+          {/* Right: Large Capsule Search + My Boards + Account */}
+          <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
+            <div className="relative w-56 xl:w-72 2xl:w-96">
+              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#B8B3A8]" />
               <input
                 type="search"
                 value={filterState.query}
@@ -521,9 +495,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                     query: e.target.value,
                   }))
                 }
-                placeholder="검색..."
-                aria-label="아카이브 키워드 검색"
-                className="h-9 w-full rounded-full border border-[#F4F1EA]/[0.10] bg-[#141519] pl-10 pr-8 text-[14px] text-[#FAF8F5] placeholder:text-[#9E998E] focus:border-[#D99B26]/70 focus:outline-none"
+                placeholder="아카이브 검색..."
+                aria-label="아카이브 검색"
+                className="h-11 w-full rounded-full border border-white/[0.12] bg-[#141519] pl-11 pr-9 text-[15px] text-[#FAF8F5] placeholder:text-[#B8B3A8] focus:border-[#E5A93B] focus:outline-none 2xl:h-12 2xl:text-[17px]"
               />
               {filterState.query && (
                 <button
@@ -532,240 +506,163 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                     setFilterState((prev) => ({ ...prev, query: "" }))
                   }
                   aria-label="검색어 지우기"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9E998E] hover:text-[#FAF8F5]"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#B8B3A8] hover:text-white"
                 >
-                  <CloseIcon className="h-3.5 w-3.5" />
+                  <CloseIcon className="h-4 w-4" />
                 </button>
               )}
             </div>
 
-            {/* Cluster 2: Single Capsule [필터] Button */}
             <button
               type="button"
-              onClick={() => setFilterDrawerOpen((v) => !v)}
-              aria-expanded={filterDrawerOpen}
-              className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-medium transition-colors ${
-                filterDrawerOpen || filterBadgeCount > 0
-                  ? "border-[#D99B26]/65 bg-[#D99B26]/14 text-[#FAF8F5]"
-                  : "border-[#F4F1EA]/[0.10] bg-[#141519] text-[#F4F1EA]/90 hover:border-[#F4F1EA]/25 hover:text-white"
+              onClick={() => setBoardOpen(true)}
+              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors 2xl:h-12 2xl:text-[17px] ${
+                filterState.boardIds.length > 0
+                  ? "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
+                  : "border border-white/[0.14] bg-[#141519] text-[#FAF8F5] hover:border-white/35"
               }`}
             >
-              <span>필터</span>
-              {filterBadgeCount > 0 && (
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D99B26] px-1.5 font-mono text-[11px] font-bold leading-none text-[#09090B]">
-                  {filterBadgeCount}
+              <BoardBookmarkIcon
+                className="h-4 w-4"
+                filled={filterState.boardIds.length > 0}
+              />
+              <span>내 보드</span>
+              {filterState.boardIds.length > 0 && (
+                <span className="font-mono text-[13px] font-bold">
+                  {filterState.boardIds.length}
                 </span>
               )}
             </button>
 
-            {/* Cluster 3: Vault + Borderless Login Text Action */}
-            <div className="flex shrink-0 items-center gap-2 pl-1">
-              <button
-                type="button"
-                onClick={() => setBoardOpen(true)}
-                className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium transition-colors ${
-                  filterState.boardIds.length > 0
-                    ? "bg-[#F4F1EA] font-semibold text-[#09090B] hover:bg-white"
-                    : "text-[#F4F1EA]/90 hover:bg-white/[0.06] hover:text-white"
-                }`}
-              >
-                <BoardBookmarkIcon
-                  className="h-4 w-4"
-                  filled={filterState.boardIds.length > 0}
-                />
-                <span>보관함</span>
-                {filterState.boardIds.length > 0 && (
-                  <span className="font-mono text-[12px] font-bold">
-                    {filterState.boardIds.length}
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors 2xl:h-12 2xl:text-[17px] ${
+                session.authenticated && session.user
+                  ? "border border-[#E5A93B]/50 bg-[#E5A93B]/15 text-[#FAF8F5] hover:bg-[#E5A93B]/25"
+                  : "text-[#FAF8F5] hover:bg-white/[0.08]"
+              }`}
+            >
+              {session.authenticated && session.user ? (
+                <>
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF8F5] text-[12px] font-bold text-[#09090B]">
+                    {session.user.name.slice(0, 1).toUpperCase()}
                   </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setAuthOpen(true)}
-                className="px-2 py-1 text-[14px] font-medium text-[#F4F1EA]/90 transition-colors hover:text-white"
-              >
-                {displayAccountLabel}
-              </button>
-            </div>
+                  <span>{session.user.name}</span>
+                </>
+              ) : (
+                <span>로그인</span>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Clean Collapsible Filter · Sort · Shuffle Panel */}
-        {filterDrawerOpen && (
-          <section
-            aria-label="필터 및 정렬 설정"
-            className="border-t border-white/[0.07] bg-[#0C0D10]/96"
-          >
-            <div className="mx-auto w-full max-w-[2560px] space-y-4 px-3 py-4 sm:px-5 lg:px-7">
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                {/* Axis A: Visual Composition Taxonomy */}
-                <div className="space-y-2 lg:col-span-5">
-                  <span className="block text-[13px] font-semibold text-[#C8C3B8]">
-                    시각 구도
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {COMPOSITION_TAGS.map((tag) => {
-                      const active = filterState.compositionTags.includes(tag);
-                      return (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => handleToggleComposition(tag)}
-                          aria-pressed={active}
-                          className={`rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                            active
-                              ? "border-[#F4F1EA] bg-[#F4F1EA] font-semibold text-[#09090B]"
-                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-white/25 hover:text-white"
-                          }`}
-                        >
-                          {tag}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Axis B: Marketing Persuasion Hook Taxonomy */}
-                <div className="space-y-2 lg:col-span-4">
-                  <span className="block text-[13px] font-semibold text-[#E5A93B]">
-                    마케팅 설득 훅
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {PERSUASION_TAGS.map((tag) => {
-                      const active = filterState.persuasionTags.includes(tag);
-                      return (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => handleTogglePersuasion(tag)}
-                          aria-pressed={active}
-                          className={`rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                            active
-                              ? "border-[#D99B26] bg-[#D99B26] font-semibold text-[#09090B]"
-                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-[#D99B26]/60 hover:text-white"
-                          }`}
-                        >
-                          {tag}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Era Filter */}
-                <div className="space-y-2 lg:col-span-3">
-                  <span className="block text-[13px] font-semibold text-[#C8C3B8]">
-                    제작 연대
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ERAS.map((era) => {
-                      const active = filterState.era === era.value;
-                      return (
-                        <button
-                          key={era.value}
-                          type="button"
-                          onClick={() =>
-                            setFilterState((prev) => ({
-                              ...prev,
-                              era: era.value as Era | "ALL",
-                            }))
-                          }
-                          aria-pressed={active}
-                          className={`rounded-full border px-3 py-1.5 font-mono text-[12px] transition-colors ${
-                            active
-                              ? "border-[#D99B26] bg-[#D99B26]/20 font-semibold text-[#E5A93B]"
-                              : "border-white/[0.10] bg-[#141519] text-[#D4CFC4] hover:border-white/25 hover:text-white"
-                          }`}
-                        >
-                          {era.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Sort Criteria + Shuffle + Telemetry Row */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-3.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-semibold text-[#C8C3B8]">
-                    정렬
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {SORT_OPTIONS.map((opt) => {
-                      const active = filterState.sort === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() =>
-                            setFilterState((prev) => ({
-                              ...prev,
-                              sort: opt.value as SortOption,
-                            }))
-                          }
-                          className={`rounded-full px-3 py-1 text-[13px] font-medium transition-colors ${
-                            active
-                              ? "bg-[#F4F1EA] font-semibold text-[#09090B]"
-                              : "bg-[#141519] text-[#C8C3B8] hover:text-white"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-
+        {/* Row 2: Slim Sub-Filter Bar (Countries + Era + Shuffle + Sort) */}
+        <div className="border-t border-white/[0.06] bg-[#09090B]/95">
+          <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-6 2xl:px-10">
+            {/* Left: Country Pills + Era */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {COUNTRY_TABS.map((c) => {
+                const active = (filterState.country ?? "ALL") === c.value;
+                return (
                   <button
+                    key={c.value}
                     type="button"
-                    onClick={handleShuffleWall}
-                    className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-[#D99B26]/45 bg-[#D99B26]/12 px-3.5 py-1 text-[13px] font-medium text-[#E5A93B] transition-colors hover:bg-[#D99B26] hover:text-[#09090B]"
+                    onClick={() =>
+                      setFilterState((prev) => ({
+                        ...prev,
+                        country: c.value as CountryCode | "ALL",
+                      }))
+                    }
+                    className={`inline-flex h-9 items-center rounded-full px-4 text-[14px] font-medium transition-colors 2xl:h-10 2xl:text-[16px] ${
+                      active
+                        ? "bg-[#E5A93B] font-semibold text-[#09090B]"
+                        : "text-[#DFDAD0] hover:bg-white/[0.08] hover:text-white"
+                    }`}
                   >
-                    순서 새로 섞기 ↻
+                    {c.label}
                   </button>
-                </div>
+                );
+              })}
 
-                <div className="flex items-center gap-3 text-[13px] text-[#C8C3B8]">
-                  <span className="font-mono">
-                    <strong className="text-[#FAF8F5]">{filteredItems.length}</strong> /{" "}
-                    {items.length}
-                  </span>
-                  {hasActiveFilters && (
-                    <button
-                      type="button"
-                      onClick={handleResetFilters}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/[0.12] px-3 py-1 text-[13px] text-[#FAF8F5] hover:border-[#D99B26] hover:text-[#E5A93B]"
-                    >
-                      <ResetIcon className="h-3.5 w-3.5" />
-                      초기화
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setFilterDrawerOpen(false)}
-                    className="px-2 py-1 text-[13px] text-[#C8C3B8] hover:text-white"
-                  >
-                    닫기
-                  </button>
-                </div>
-              </div>
+              <span className="mx-1 h-4 w-px bg-white/15" aria-hidden="true" />
+
+              <select
+                aria-label="제작 연대 선택"
+                value={filterState.era}
+                onChange={(e) =>
+                  setFilterState((prev) => ({
+                    ...prev,
+                    era: e.target.value as Era | "ALL",
+                  }))
+                }
+                className="h-9 rounded-full border border-white/[0.12] bg-[#141519] px-3.5 text-[14px] font-medium text-[#FAF8F5] focus:border-[#E5A93B] focus:outline-none 2xl:h-10 2xl:text-[16px]"
+              >
+                {ERAS.map((era) => (
+                  <option key={era.value} value={era.value}>
+                    {era.label}
+                  </option>
+                ))}
+              </select>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 text-[14px] font-medium text-[#FAF8F5] hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[15px]"
+                >
+                  <ResetIcon className="h-3.5 w-3.5" />
+                  <span>초기화</span>
+                </button>
+              )}
             </div>
-          </section>
-        )}
+
+            {/* Right: Shuffle + Sort */}
+            <div className="flex items-center gap-2">
+              <span className="hidden font-mono text-[13px] text-[#C8C3B8] sm:inline 2xl:text-[14px]">
+                {filteredItems.length}컷
+              </span>
+
+              <button
+                type="button"
+                onClick={handleShuffleWall}
+                className="inline-flex h-9 items-center rounded-full border border-white/[0.14] bg-[#141519] px-4 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[16px]"
+              >
+                셔플 ↻
+              </button>
+
+              <select
+                aria-label="정렬 기준"
+                value={filterState.sort}
+                onChange={(e) =>
+                  setFilterState((prev) => ({
+                    ...prev,
+                    sort: e.target.value as SortOption,
+                  }))
+                }
+                className="h-9 rounded-full border border-white/[0.14] bg-[#141519] px-4 text-[14px] font-medium text-[#FAF8F5] focus:border-[#E5A93B] focus:outline-none 2xl:h-10 2xl:text-[16px]"
+              >
+                {HEADER_SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
       </header>
 
-      {/* Full-Bleed Visual Masonry Wall (LOCKED 100% UNCHANGED) */}
+      {/* Full-Bleed Visual Masonry Wall (LOCKED UNCHANGED) */}
       <main className="mx-auto w-full max-w-[2560px] flex-1 px-3 py-3 sm:px-5 lg:px-7">
-        {/* Shared Moodboard Restoration Banner */}
+        {/* Shared ?board= Restoration Banner */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#D99B26]/40 bg-[#D99B26]/10 px-4 py-2.5 text-sm">
-            <div className="flex items-center gap-2 text-ivory">
-              <BoardBookmarkIcon className="h-4 w-4 text-[#D99B26]" filled />
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5A93B]/45 bg-[#E5A93B]/12 px-5 py-3 text-[15px]">
+            <div className="flex items-center gap-2 text-[#FAF8F5]">
+              <BoardBookmarkIcon className="h-4 w-4 text-[#E5A93B]" filled />
               <span>
-                공유 링크(<code className="font-mono text-[#D99B26]">?board=</code>)에서{" "}
-                <strong>{initialBoardIds.length}개</strong>의 레퍼런스 보관함이 복원되었습니다.
+                공유 보드 링크에서 <strong>{initialBoardIds.length}개</strong>의
+                아카이브가 열렸습니다.
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -777,123 +674,26 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                     boardOnly: !prev.boardOnly,
                   }))
                 }
-                className="rounded-full border border-[#D99B26]/50 bg-[#09090B] px-3 py-1 text-xs font-medium text-[#D99B26] hover:bg-[#D99B26] hover:text-[#09090B]"
+                className="rounded-full border border-[#E5A93B]/60 bg-[#09090B] px-3.5 py-1 text-[13px] font-semibold text-[#E5A93B]"
               >
-                {filterState.boardOnly ? "전체 아카이브 보기" : "보관함 컷만 모아보기"}
+                {filterState.boardOnly ? "전체 보기" : "공유 컷만 보기"}
               </button>
               <button
                 type="button"
                 onClick={() => setBoardOpen(true)}
-                className="rounded-full bg-[#D99B26] px-3 py-1 text-xs font-semibold text-[#09090B]"
+                className="rounded-full bg-[#E5A93B] px-3.5 py-1 text-[13px] font-bold text-[#09090B]"
               >
-                보관함 열기
+                보드 열기
               </button>
               <button
                 type="button"
                 onClick={() => setSharedBannerDismissed(true)}
                 aria-label="알림 닫기"
-                className="p-1 text-silver hover:text-ivory"
+                className="p-1 text-[#D0CBC0] hover:text-white"
               >
                 <CloseIcon className="h-4 w-4" />
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Active Filter Micro-Chips Bar */}
-        {hasActiveFilters && (
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="font-mono text-xs text-[#C8C3B8]">
-                <strong className="text-[#FAF8F5]">{filteredItems.length}</strong> /{" "}
-                {items.length}
-              </span>
-
-              {filterState.boardOnly && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilterState((prev) => ({ ...prev, boardOnly: false }))
-                  }
-                  className="inline-flex items-center gap-1 rounded-full border border-[#D99B26]/50 bg-[#D99B26]/15 px-3 py-1 text-xs font-medium text-[#E5A93B]"
-                >
-                  보관함만 보기
-                  <CloseIcon className="h-3 w-3" />
-                </button>
-              )}
-
-              {filterState.mediaType !== "ALL" && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilterState((prev) => ({ ...prev, mediaType: "ALL" }))
-                  }
-                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 text-xs font-medium text-[#FAF8F5]"
-                >
-                  {filterState.mediaType}
-                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
-                </button>
-              )}
-
-              {filterState.era !== "ALL" && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilterState((prev) => ({ ...prev, era: "ALL" }))
-                  }
-                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 font-mono text-xs text-[#FAF8F5]"
-                >
-                  {filterState.era}
-                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
-                </button>
-              )}
-
-              {filterState.compositionTags.map((tag) => (
-                <button
-                  key={`active-c-${tag}`}
-                  type="button"
-                  onClick={() => handleToggleComposition(tag)}
-                  className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-medium text-[#FAF8F5]"
-                >
-                  {tag}
-                  <CloseIcon className="h-3 w-3" />
-                </button>
-              ))}
-
-              {filterState.persuasionTags.map((tag) => (
-                <button
-                  key={`active-p-${tag}`}
-                  type="button"
-                  onClick={() => handleTogglePersuasion(tag)}
-                  className="inline-flex items-center gap-1 rounded-full border border-[#D99B26]/50 bg-[#D99B26]/15 px-3 py-1 text-xs font-medium text-[#E5A93B]"
-                >
-                  {tag}
-                  <CloseIcon className="h-3 w-3" />
-                </button>
-              ))}
-
-              {filterState.query.trim() && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilterState((prev) => ({ ...prev, query: "" }))
-                  }
-                  className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-[#141519] px-3 py-1 text-xs text-[#FAF8F5]"
-                >
-                  &ldquo;{filterState.query.trim()}&rdquo;
-                  <CloseIcon className="h-3 w-3 text-[#C8C3B8]" />
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] bg-[#141519] px-3 py-1 text-xs font-medium text-[#FAF8F5] transition-colors hover:border-[#D99B26] hover:text-[#E5A93B]"
-            >
-              <ResetIcon className="h-3.5 w-3.5" />
-              초기화
-            </button>
           </div>
         )}
 
@@ -917,44 +717,39 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             ))}
           </section>
         ) : (
-          <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-20 text-center">
-            <p className="font-mono text-xs uppercase tracking-widest text-[#E5A93B]">
-              NO MATCHING FRAMES
-            </p>
-            <h2 className="mt-2 text-lg font-semibold text-[#FAF8F5]">
-              선택한 필터 조건에 일치하는 아카이브 프레임이 없습니다
+          <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-24 text-center">
+            <h2 className="text-[20px] font-bold text-[#FAF8F5]">
+              선택한 조건에 일치하는 아카이브가 없습니다
             </h2>
-            <p className="mt-1.5 text-sm text-[#C8C3B8]">
-              일부 구도·설득 태그를 해제하거나 전체 필터를 초기화해 모든 프레임을 확인하세요.
+            <p className="mt-2 text-[15px] text-[#D0CBC0]">
+              다른 카테고리나 국가 필터를 선택하거나 전체 아카이브로 돌아가세요.
             </p>
             <button
               type="button"
               onClick={handleResetFilters}
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-[#F4F1EA] px-5 py-2 text-sm font-semibold text-[#09090B] hover:bg-white"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#FAF8F5] px-6 py-2.5 text-[15px] font-bold text-[#09090B] hover:bg-white"
             >
-              <ResetIcon className="h-3.5 w-3.5" />
-              모든 필터 초기화
+              <ResetIcon className="h-4 w-4" />
+              전체 아카이브 보기
             </button>
           </section>
         )}
       </main>
 
       {/* Minimal Darkroom Footer */}
-      <footer className="mt-8 border-t border-[#F4F1EA]/[0.07] bg-[#09090B] py-4">
-        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-3 font-mono text-xs text-silver/75 sm:flex-row sm:items-center sm:px-5 lg:px-7">
+      <footer className="mt-8 border-t border-white/[0.07] bg-[#09090B] py-4">
+        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-4 font-mono text-[13px] text-[#B8B3A8] sm:flex-row sm:items-center sm:px-6 2xl:px-10">
+          <span>KINOFRAME · VISUAL ARCHIVE · {items.length} VERIFIED ITEMS</span>
           <span>
-            KINOFRAME · 35MM DARKROOM VISUAL ARCHIVE · {items.length} VERIFIED FRAMES
-          </span>
-          <span>
-            Internet Archive (Prelinger / Newsreels) · NASA Images · Wikimedia Commons / LOC · YouTube Official Embed
+            Internet Archive · Wikimedia Commons · NASA Images · YouTube Official Embed
           </span>
         </div>
       </footer>
 
-      {/* Floating Bottom Compare Dock (Only surfaces when 1~2 items selected) */}
+      {/* Floating Bottom Compare Dock */}
       {compareIds.length > 0 && !compareOpen && (
-        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#D99B26]/55 bg-[#111216]/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
-          <div className="flex items-center gap-2 text-sm text-[#FAF8F5]">
+        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#E5A93B]/60 bg-[#111216]/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-2 text-[14px] text-[#FAF8F5]">
             <CompareIcon className="h-4 w-4 text-[#E5A93B]" />
             <span>
               비교 선택{" "}
@@ -966,7 +761,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           <button
             type="button"
             onClick={() => setCompareOpen(true)}
-            className="rounded-full bg-[#F4F1EA] px-3.5 py-1 text-xs font-semibold text-[#09090B] hover:bg-white"
+            className="rounded-full bg-[#FAF8F5] px-4 py-1 text-[13px] font-bold text-[#09090B] hover:bg-white"
           >
             좌우 비교 열기
           </button>
@@ -974,14 +769,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             type="button"
             onClick={() => setCompareIds([])}
             aria-label="비교 슬롯 비우기"
-            className="text-[#C8C3B8] hover:text-white"
+            className="text-[#D0CBC0] hover:text-white"
           >
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Full-Screen ShotDeck Theater View & Editorial Sheet Modal */}
+      {/* Pure Visual Full-Screen Detail Lightbox */}
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
@@ -990,6 +785,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           hasNext={
             selectedIndex >= 0 && selectedIndex < filteredItems.length - 1
           }
+          isAuthenticated={session.authenticated}
           isInBoard={filterState.boardIds.includes(selectedItem.id)}
           isInCompare={compareIds.includes(selectedItem.id)}
           compareFull={compareIds.length >= 2}
@@ -1013,13 +809,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           onToggleBoard={handleToggleBoard}
           onToggleCompare={handleToggleCompare}
           onSaveToVault={handleSaveToVault}
-          onCreateFolder={handleCreateFolder}
-          onSelectCompositionTag={handleApplyCompositionFromModal}
-          onSelectPersuasionTag={handleApplyPersuasionFromModal}
         />
       )}
 
-      {/* Side-by-Side Compare Modal */}
+      {/* Side-by-Side Visual Compare Modal */}
       {compareOpen && (
         <CompareDrawer
           allItems={items}
@@ -1030,7 +823,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         />
       )}
 
-      {/* Cosmos-Style Clean Collection Vault Drawer */}
+      {/* Pinterest-Style Multi-Board Drawer */}
       {boardOpen && (
         <MoodboardDrawer
           items={boardItems}
@@ -1038,7 +831,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           session={session}
           boardOnly={filterState.boardOnly}
           onClose={() => setBoardOpen(false)}
-          onRemoveItem={handleToggleBoard}
+          onRemoveItem={(id) => performToggleBoard(id)}
           onClearBoard={handleClearBoard}
           onToggleBoardOnly={() =>
             setFilterState((prev) => ({
@@ -1047,6 +840,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             }))
           }
           onOpenDetail={(target) => setSelectedItemId(target.id)}
+          onCreateFolder={handleCreateFolder}
+          onRenameFolder={handleRenameFolder}
+          onDeleteFolder={handleDeleteFolder}
           onExportBackup={handleExportBackup}
           onImportBackupFile={handleImportBackupFile}
           onOpenAuth={() => {
@@ -1056,16 +852,18 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         />
       )}
 
-      {/* Clean Minimal Profile & Vault Entry Modal */}
+      {/* Multi-Account Login / Register Modal */}
       {authOpen && (
         <AuthModal
           session={session}
-          localNickname={localNickname}
-          onSaveLocalNickname={handleSaveLocalNickname}
-          onClose={() => setAuthOpen(false)}
+          savedCount={filterState.boardIds.length}
+          boardCount={vault.folders.length}
+          onClose={() => {
+            setAuthOpen(false);
+            setPendingSave(null);
+          }}
+          onAuthSuccess={handleAuthSuccess}
           onLogout={handleLogout}
-          onExportBackup={handleExportBackup}
-          onImportBackupFile={handleImportBackupFile}
         />
       )}
     </div>

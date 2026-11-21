@@ -1,10 +1,10 @@
 import type { VaultBookmark, VaultFolder, VaultState } from "@/types/archive";
 
 export const DEFAULT_VAULT_FOLDERS: VaultFolder[] = [
-  { id: "hook-3s", name: "초반 3초 훅" },
-  { id: "perspective", name: "1점 투시 구도" },
-  { id: "vintage-color", name: "빈티지 색감" },
-  { id: "campaign-ref", name: "캠페인 레퍼런스" },
+  { id: "jp-vintage-cf", name: "일본 빈티지 CF" },
+  { id: "rock-posters", name: "락 포스터" },
+  { id: "tshirt-graphics", name: "티셔츠 그래픽" },
+  { id: "classic-cinema", name: "고전영화" },
 ];
 
 export const DEFAULT_VAULT_STATE: VaultState = {
@@ -12,12 +12,14 @@ export const DEFAULT_VAULT_STATE: VaultState = {
   bookmarks: [],
 };
 
-const STORAGE_KEY = "kinoframe_vault_v3";
+function getAccountStorageKey(accountKey: string): string {
+  return `kinoframe_vault_v4:${accountKey}`;
+}
 
-export function loadLocalVault(): VaultState {
-  if (typeof window === "undefined") return DEFAULT_VAULT_STATE;
+export function loadAccountVault(accountKey: string): VaultState {
+  if (typeof window === "undefined" || !accountKey) return DEFAULT_VAULT_STATE;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(getAccountStorageKey(accountKey));
     if (!raw) return DEFAULT_VAULT_STATE;
     const parsed = JSON.parse(raw) as Partial<VaultState>;
     const folders =
@@ -39,18 +41,21 @@ export function loadLocalVault(): VaultState {
   }
 }
 
-export function saveLocalVault(vault: VaultState): void {
-  if (typeof window === "undefined") return;
+export function saveAccountVault(accountKey: string, vault: VaultState): void {
+  if (typeof window === "undefined" || !accountKey) return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(vault));
+    window.localStorage.setItem(
+      getAccountStorageKey(accountKey),
+      JSON.stringify(vault)
+    );
   } catch {
-    // ignore quota error
+    // ignore storage quota errors
   }
 }
 
 export function exportVaultToFile(vault: VaultState, boardIds: string[]): void {
   const payload = {
-    schema: "kinoframe.vault.v3",
+    schema: "kinoframe.vault.v4",
     exportedAt: new Date().toISOString(),
     boardIds,
     vault,
@@ -61,7 +66,7 @@ export function exportVaultToFile(vault: VaultState, boardIds: string[]): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `kinoframe-vault-${new Date().toISOString().slice(0, 10)}.kinoframe.json`;
+  a.download = `kinoframe-boards-${new Date().toISOString().slice(0, 10)}.kinoframe.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();

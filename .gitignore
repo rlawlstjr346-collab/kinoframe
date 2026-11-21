@@ -23,6 +23,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local server runtime data (accounts & vaults)
+.data/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

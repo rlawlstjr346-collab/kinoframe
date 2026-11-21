@@ -2,6 +2,17 @@ export type Era = "1950-60s" | "1970s" | "1980s" | "1990-00s";
 
 export type MediaType = "TVCF" | "NEWS" | "PRINT" | "PHOTO";
 
+export type ArchiveCategory =
+  | "TVCF"
+  | "CLASSIC_FILM"
+  | "ROCK_POSTER"
+  | "AD_POSTER"
+  | "PROPAGANDA"
+  | "TSHIRT_GRAPHIC"
+  | "PHOTO";
+
+export type CountryCode = "KR" | "JP" | "TW" | "US" | "EU" | "GLOBAL";
+
 export type AspectRatio = "4:3" | "3:2" | "4:5" | "16:9" | "2.39:1";
 
 export type MediaSource = "archive_mp4" | "youtube_embed" | "still_image";
@@ -53,6 +64,9 @@ export interface ArchiveItem {
   year: number;
   era: Era;
   mediaType: MediaType;
+  category?: ArchiveCategory;
+  country?: CountryCode;
+  priorityBoost?: number;
   aspectRatio: AspectRatio;
   durationSec: number | null;
   mediaSource: MediaSource;
@@ -80,6 +94,8 @@ export type SortOption =
 
 export interface FilterState {
   mediaType: MediaType | "ALL";
+  category?: ArchiveCategory | "ALL";
+  country?: CountryCode | "ALL";
   era: Era | "ALL";
   compositionTags: CompositionTag[];
   persuasionTags: PersuasionTag[];
@@ -118,7 +134,7 @@ export interface AuthSessionState {
   authenticated: boolean;
   user: {
     sub: string;
-    provider: "google" | "naver";
+    provider: "google" | "naver" | "account";
     name: string;
     email?: string;
     avatar?: string;

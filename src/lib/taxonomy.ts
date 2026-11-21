@@ -1,7 +1,9 @@
 import type {
+  ArchiveCategory,
   ArchiveItem,
   AspectRatio,
   CompositionTag,
+  CountryCode,
   Era,
   FilterState,
   MediaType,
@@ -9,7 +11,35 @@ import type {
   SortOption,
 } from "@/types/archive";
 
-export const MEDIA_TYPES: Array<{ value: MediaType | "ALL"; label: string; desc: string }> = [
+export const ARCHIVE_CATEGORIES: Array<{
+  value: ArchiveCategory | "ALL";
+  label: string;
+}> = [
+  { value: "ALL", label: "전체" },
+  { value: "TVCF", label: "TV광고" },
+  { value: "CLASSIC_FILM", label: "고전영화" },
+  { value: "ROCK_POSTER", label: "락·공연 포스터" },
+  { value: "AD_POSTER", label: "광고 포스터" },
+  { value: "PROPAGANDA", label: "정치 선전물" },
+  { value: "TSHIRT_GRAPHIC", label: "티셔츠·그래픽" },
+  { value: "PHOTO", label: "사진" },
+];
+
+export const COUNTRIES: Array<{ value: CountryCode | "ALL"; label: string }> = [
+  { value: "ALL", label: "전체 국가" },
+  { value: "KR", label: "한국" },
+  { value: "JP", label: "일본" },
+  { value: "TW", label: "대만" },
+  { value: "US", label: "미국" },
+  { value: "EU", label: "유럽" },
+  { value: "GLOBAL", label: "글로벌" },
+];
+
+export const MEDIA_TYPES: Array<{
+  value: MediaType | "ALL";
+  label: string;
+  desc: string;
+}> = [
   { value: "ALL", label: "전체", desc: "전 매체 큐레이션" },
   { value: "TVCF", label: "TVCF", desc: "빈티지 광고 필름" },
   { value: "NEWS", label: "뉴스", desc: "뉴스릴·우주 기록" },
@@ -18,7 +48,7 @@ export const MEDIA_TYPES: Array<{ value: MediaType | "ALL"; label: string; desc:
 ];
 
 export const ERAS: Array<{ value: Era | "ALL"; label: string }> = [
-  { value: "ALL", label: "전 연대" },
+  { value: "ALL", label: "전체 연대" },
   { value: "1950-60s", label: "1950–60s" },
   { value: "1970s", label: "1970s" },
   { value: "1980s", label: "1980s" },
@@ -47,15 +77,17 @@ export const PERSUASION_TAGS: PersuasionTag[] = [
 
 export const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
   { value: "smart_mix", label: "스마트 믹스" },
-  { value: "curation_density", label: "큐레이션 밀도순" },
-  { value: "recent_added", label: "최신 등록순" },
   { value: "year_asc", label: "연대 오래된순" },
   { value: "year_desc", label: "연대 최신순" },
+  { value: "curation_density", label: "큐레이션 밀도순" },
+  { value: "recent_added", label: "최신 등록순" },
   { value: "duration_asc", label: "짧은 러닝타임순" },
 ];
 
 export const DEFAULT_FILTER_STATE: FilterState = {
   mediaType: "ALL",
+  category: "ALL",
+  country: "ALL",
   era: "ALL",
   compositionTags: [],
   persuasionTags: [],
@@ -64,6 +96,28 @@ export const DEFAULT_FILTER_STATE: FilterState = {
   boardOnly: false,
   boardIds: [],
 };
+
+export function resolveItemCategory(item: ArchiveItem): ArchiveCategory {
+  if (item.category) return item.category;
+  if (item.mediaType === "TVCF") return "TVCF";
+  if (item.mediaType === "PRINT") return "AD_POSTER";
+  if (item.mediaType === "PHOTO") return "PHOTO";
+  return "CLASSIC_FILM";
+}
+
+export function resolveItemCountry(item: ArchiveItem): CountryCode {
+  return item.country ?? "US";
+}
+
+export function getCategoryLabel(category: ArchiveCategory): string {
+  return (
+    ARCHIVE_CATEGORIES.find((c) => c.value === category)?.label ?? category
+  );
+}
+
+export function getCountryLabel(country: CountryCode): string {
+  return COUNTRIES.find((c) => c.value === country)?.label ?? country;
+}
 
 export function getAspectRatioClass(ratio: AspectRatio): string {
   switch (ratio) {
@@ -171,40 +225,59 @@ export function isChromaticItem(item: ArchiveItem): boolean {
   return analyzePaletteChroma(item.palette).isChromatic;
 }
 
+const SUBCULTURE_BOOST_CATS = new Set<ArchiveCategory>([
+  "ROCK_POSTER",
+  "PROPAGANDA",
+  "TSHIRT_GRAPHIC",
+  "CLASSIC_FILM",
+  "AD_POSTER",
+  "TVCF",
+]);
+
+const EAST_ASIA_COUNTRIES = new Set<CountryCode>(["KR", "JP", "TW"]);
+
 export function computeCurationDensityScore(item: ArchiveItem): number {
   const chroma = analyzePaletteChroma(item.palette);
-  const tagScore = item.compositionTags.length * 2.2 + item.persuasionTags.length * 2.2;
+  const cat = resolveItemCategory(item);
+  const country = resolveItemCountry(item);
+
   const chromaScore =
     chroma.avgSaturation * 16 +
     (chroma.isChromatic ? 8.5 : 0) +
     chroma.vividCount * 1.4 +
     chroma.luminanceSpread * 3.2;
 
+  const eastAsiaBonus = EAST_ASIA_COUNTRIES.has(country) ? 6.5 : 0;
+  const subcultureBonus = SUBCULTURE_BOOST_CATS.has(cat) ? 4.0 : 1.5;
+  const manualPriority = item.priorityBoost ?? 0;
+
   const motionBonus =
     item.mediaSource === "archive_mp4"
       ? chroma.isChromatic
-        ? 4.2
-        : 1.4
+        ? 3.8
+        : 1.0
       : item.mediaSource === "youtube_embed"
       ? chroma.isChromatic
-        ? 3.8
-        : 1.8
+        ? 4.2
+        : 2.0
       : chroma.isChromatic
       ? 3.2
-      : 1.2;
+      : 1.0;
 
-  const noteDepth =
-    (item.breakdown.hook3s.length +
-      item.breakdown.framing.length +
-      item.breakdown.marketingApply.length) /
-    90;
-
-  return tagScore + chromaScore + motionBonus + noteDepth;
+  return chromaScore + eastAsiaBonus + subcultureBonus + motionBonus + manualPriority;
 }
 
-const RHYTHM_MEDIA_CYCLE: MediaType[] = ["PRINT", "TVCF", "PHOTO", "NEWS"];
+const RHYTHM_CATEGORY_CYCLE: ArchiveCategory[] = [
+  "ROCK_POSTER",
+  "TVCF",
+  "CLASSIC_FILM",
+  "PROPAGANDA",
+  "TSHIRT_GRAPHIC",
+  "AD_POSTER",
+  "PHOTO",
+];
 
-function interleaveByColorAndMedia(
+function interleaveBySubcultureAndColor(
   scoredDesc: ArchiveItem[],
   scoreFn: (item: ArchiveItem) => number = computeCurationDensityScore,
   cycleOffset = 0
@@ -215,7 +288,8 @@ function interleaveByColorAndMedia(
     item,
     score: scoreFn(item),
     chromatic: isChromaticItem(item),
-    isLoopMp4: item.mediaSource === "archive_mp4",
+    category: resolveItemCategory(item),
+    country: resolveItemCountry(item),
   }));
 
   const result: ArchiveItem[] = [];
@@ -223,51 +297,51 @@ function interleaveByColorAndMedia(
 
   let lastMedia: MediaType | null = null;
   let sameMediaRun = 0;
+  let lastCategory: ArchiveCategory | null = null;
   let monoRun = 0;
   let monoCountInTop16 = 0;
+  const seenMediaTop16 = new Set<MediaType>();
 
   while (remaining.length > 0) {
     const pos = result.length;
-    const preferredMedia =
-      RHYTHM_MEDIA_CYCLE[(pos + cycleOffset) % RHYTHM_MEDIA_CYCLE.length];
-    const wantLoopSlot = (pos + cycleOffset) % 4 === 1;
+    const preferredCategory =
+      RHYTHM_CATEGORY_CYCLE[(pos + cycleOffset) % RHYTHM_CATEGORY_CYCLE.length];
     const inTop16 = pos < 16;
 
     let bestIdx = 0;
     let bestUtility = Number.NEGATIVE_INFINITY;
 
-    const searchLimit = Math.min(remaining.length, 36);
+    const searchLimit = Math.min(remaining.length, 48);
     for (let i = 0; i < searchLimit; i += 1) {
       const cand = remaining[i];
-      let utility = cand.score;
-
-      utility -= i * 0.22;
+      let utility = cand.score - i * 0.2;
 
       if (cand.item.mediaType === lastMedia) {
-        if (sameMediaRun >= 2) {
-          utility -= 45;
-        } else {
-          utility -= 6;
-        }
+        utility -= sameMediaRun >= 2 ? 50 : 6;
       }
 
-      if (cand.item.mediaType === preferredMedia) {
-        utility += 5.5;
+      if (cand.category === lastCategory) {
+        utility -= 9;
       }
 
-      if (wantLoopSlot && cand.isLoopMp4) {
-        utility += 4.5;
+      if (cand.category === preferredCategory) {
+        utility += 7.5;
+      }
+
+      // Guarantee all 4 legacy mediaTypes appear in top 16 for backward contract
+      if (inTop16 && pos >= 8 && !seenMediaTop16.has(cand.item.mediaType)) {
+        utility += 18;
       }
 
       if (!cand.chromatic) {
         if (monoRun >= 2) {
-          utility -= 60;
+          utility -= 65;
         } else if (monoRun >= 1) {
-          utility -= 14;
+          utility -= 15;
         }
         if (inTop16) {
           if (monoCountInTop16 >= 3) {
-            utility -= 38;
+            utility -= 40;
           } else if (pos < 4) {
             utility -= 22;
           }
@@ -288,6 +362,11 @@ function interleaveByColorAndMedia(
     } else {
       lastMedia = picked.item.mediaType;
       sameMediaRun = 1;
+    }
+    lastCategory = picked.category;
+
+    if (inTop16) {
+      seenMediaTop16.add(picked.item.mediaType);
     }
 
     if (picked.chromatic) {
@@ -312,8 +391,8 @@ function hashSeedString(input: string, seed: number): number {
 }
 
 /**
- * Deterministic seeded smart rotation that preserves color vitality & 4-media
- * interleaving while surfacing fresh combinations on each visit or shuffle click.
+ * Deterministic seeded smart rotation preserving chromatic richness & 7-category
+ * subculture / East Asia interleaving across visits and shuffle clicks.
  */
 export function rotateArchiveWithSeed(
   items: ArchiveItem[],
@@ -327,8 +406,11 @@ export function rotateArchiveWithSeed(
   for (const item of items) {
     const r = hashSeedString(item.id, normalizedSeed);
     const chroma = analyzePaletteChroma(item.palette);
-    // Keep chromatic works buoyant at the top while rotating strongly by seed
-    const baseLift = chroma.isChromatic ? 18 : 2;
+    const country = resolveItemCountry(item);
+    const baseLift =
+      (chroma.isChromatic ? 18 : 2) +
+      (EAST_ASIA_COUNTRIES.has(country) ? 5 : 0) +
+      (item.priorityBoost ?? 0);
     const score = baseLift + r * 26 + chroma.avgSaturation * 4;
     jitterMap.set(item.id, score);
   }
@@ -339,8 +421,8 @@ export function rotateArchiveWithSeed(
     return a.id.localeCompare(b.id);
   });
 
-  const cycleOffset = normalizedSeed % RHYTHM_MEDIA_CYCLE.length;
-  return interleaveByColorAndMedia(
+  const cycleOffset = normalizedSeed % RHYTHM_CATEGORY_CYCLE.length;
+  return interleaveBySubcultureAndColor(
     preSorted,
     (item) => jitterMap.get(item.id) ?? 0,
     cycleOffset
@@ -350,28 +432,25 @@ export function rotateArchiveWithSeed(
 export function findRelatedArchiveItems(
   target: ArchiveItem,
   allItems: ArchiveItem[],
-  limit = 4
+  limit = 8
 ): ArchiveItem[] {
-  const targetComp = new Set(target.compositionTags);
-  const targetPers = new Set(target.persuasionTags);
+  const targetCat = resolveItemCategory(target);
+  const targetCountry = resolveItemCountry(target);
 
   const scored = allItems
     .filter((candidate) => candidate.id !== target.id)
     .map((candidate) => {
-      let overlap = 0;
-      for (const c of candidate.compositionTags) {
-        if (targetComp.has(c)) overlap += 3;
-      }
-      for (const p of candidate.persuasionTags) {
-        if (targetPers.has(p)) overlap += 2.5;
-      }
-      if (candidate.mediaType === target.mediaType) overlap += 1;
-      if (isChromaticItem(candidate)) overlap += 0.5;
-      return { candidate, overlap };
+      let score = 0;
+      if (resolveItemCategory(candidate) === targetCat) score += 6;
+      if (resolveItemCountry(candidate) === targetCountry) score += 4;
+      if (candidate.era === target.era) score += 2;
+      if (candidate.mediaSource === target.mediaSource) score += 1;
+      if (isChromaticItem(candidate)) score += 1;
+      return { candidate, score };
     })
     .sort(
       (a, b) =>
-        b.overlap - a.overlap ||
+        b.score - a.score ||
         computeCurationDensityScore(b.candidate) -
           computeCurationDensityScore(a.candidate) ||
         a.candidate.id.localeCompare(b.candidate.id)
@@ -391,12 +470,20 @@ export function filterAndSortArchive(
 ): ArchiveItem[] {
   const q = state.query.trim().toLowerCase();
   const boardSet = new Set(state.boardIds);
+  const activeCategory = state.category ?? "ALL";
+  const activeCountry = state.country ?? "ALL";
 
   const filtered = items.filter((item) => {
     if (state.boardOnly && !boardSet.has(item.id)) {
       return false;
     }
     if (state.mediaType !== "ALL" && item.mediaType !== state.mediaType) {
+      return false;
+    }
+    if (activeCategory !== "ALL" && resolveItemCategory(item) !== activeCategory) {
+      return false;
+    }
+    if (activeCountry !== "ALL" && resolveItemCountry(item) !== activeCountry) {
       return false;
     }
     if (state.era !== "ALL" && item.era !== state.era) {
@@ -415,6 +502,8 @@ export function filterAndSortArchive(
       if (!hasAllPersuasion) return false;
     }
     if (q.length > 0) {
+      const cat = resolveItemCategory(item);
+      const country = resolveItemCountry(item);
       const haystack = [
         item.id,
         item.titleKo,
@@ -422,12 +511,11 @@ export function filterAndSortArchive(
         item.brandOrSource,
         String(item.year),
         item.mediaType,
+        cat,
+        getCategoryLabel(cat),
+        country,
+        getCountryLabel(country),
         item.era,
-        ...item.compositionTags,
-        ...item.persuasionTags,
-        item.breakdown.hook3s,
-        item.breakdown.framing,
-        item.breakdown.marketingApply,
       ]
         .join(" ")
         .toLowerCase();
@@ -457,7 +545,8 @@ export function filterAndSortArchive(
       case "smart_mix":
       case "curation_density":
       default: {
-        const diff = computeCurationDensityScore(b) - computeCurationDensityScore(a);
+        const diff =
+          computeCurationDensityScore(b) - computeCurationDensityScore(a);
         if (Math.abs(diff) > 0.01) return diff;
         return a.id.localeCompare(b.id);
       }
@@ -465,7 +554,7 @@ export function filterAndSortArchive(
   });
 
   if (state.sort === "curation_density" || state.sort === "smart_mix") {
-    return interleaveByColorAndMedia(sorted);
+    return interleaveBySubcultureAndColor(sorted);
   }
 
   return sorted;
@@ -507,24 +596,25 @@ export function generateMoodboardMarkdown(
   shareUrl: string
 ): string {
   const lines: string[] = [
-    `# KINOFRAME 레퍼런스 무드보드 브리프 (${items.length}컷)`,
+    `# KINOFRAME 레퍼런스 보드 (${items.length}컷)`,
     "",
-    `- 공유 뷰파인더 링크: ${shareUrl}`,
-    `- 구성 매체: ${Array.from(new Set(items.map((i) => i.mediaType))).join(" · ")}`,
+    `- 공유 링크: ${shareUrl}`,
+    `- 구성 카테고리: ${Array.from(
+      new Set(items.map((i) => getCategoryLabel(resolveItemCategory(i))))
+    ).join(" · ")}`,
     "",
     "---",
     "",
   ];
 
   for (const item of items) {
+    const catLabel = getCategoryLabel(resolveItemCategory(item));
+    const countryLabel = getCountryLabel(resolveItemCountry(item));
     lines.push(`## [${item.id}] ${item.titleKo} (${item.year})`);
     lines.push(`- **원제 / 출처**: ${item.originalTitle} — ${item.brandOrSource}`);
-    lines.push(`- **매체 / 화면비**: ${item.mediaType} · ${item.aspectRatio} · ${formatDuration(item.durationSec)}`);
-    lines.push(`- **구도 택소노미**: ${item.compositionTags.join(", ")}`);
-    lines.push(`- **설득 훅 택소노미**: ${item.persuasionTags.join(", ")}`);
-    lines.push(`- **초반 3초 시선 고정**: ${item.breakdown.hook3s}`);
-    lines.push(`- **프레이밍·명암 설계**: ${item.breakdown.framing}`);
-    lines.push(`- **캠페인·숏폼 실무 적용**: ${item.breakdown.marketingApply}`);
+    lines.push(
+      `- **카테고리 / 국가 / 화면비**: ${catLabel} · ${countryLabel} · ${item.aspectRatio} · ${formatDuration(item.durationSec)}`
+    );
     lines.push(`- **대표 5색 팔레트**: \`${item.palette.join("` `")}\``);
     lines.push(`- **원본 아카이브**: ${item.sourceUrl}`);
     lines.push("");
