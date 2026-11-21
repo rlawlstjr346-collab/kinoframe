@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type {
   ArchiveCategory,
@@ -17,8 +17,13 @@ import {
   COUNTRIES,
   DEFAULT_FILTER_STATE,
   ERAS,
+  INITIAL_VISIBLE_COUNT,
+  LOAD_MORE_STEP,
+  computeCurationDensityScore,
   filterAndSortArchive,
+  getVisibleArchiveSlice,
   parseBoardIds,
+  resolveItemCategory,
   rotateArchiveWithSeed,
   serializeBoardIds,
 } from "@/lib/taxonomy";
@@ -72,6 +77,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   }));
 
   const [shuffleSeed, setShuffleSeed] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
+  const [genreMenuOpen, setGenreMenuOpen] = useState<boolean>(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
@@ -83,6 +90,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   } | null>(null);
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
+
+  const catNavRef = useRef<HTMLElement | null>(null);
+  const genreMenuRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Account-isolated vault & session states
   const [vault, setVault] = useState<VaultState>(DEFAULT_VAULT_STATE);
@@ -186,6 +197,109 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     }
     return base;
   }, [items, filterState, shuffleSeed]);
+
+  const visibleItems = useMemo(
+    () => getVisibleArchiveSlice(filteredItems, visibleCount),
+    [filteredItems, visibleCount]
+  );
+
+  const hasMoreItems = visibleItems.length < filteredItems.length;
+
+  // Reset progressive render window whenever active filters or shuffle seed change
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+  }, [
+    filterState.category,
+    filterState.country,
+    filterState.era,
+    filterState.query,
+    filterState.sort,
+    filterState.boardOnly,
+    shuffleSeed,
+  ]);
+
+  // Pinterest-style infinite scroll sentinel (640px ahead of viewport bottom)
+  useEffect(() => {
+    if (!hasMoreItems) return;
+    const node = loadMoreSentinelRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisibleCount((prev) =>
+            Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
+          );
+        }
+      },
+      { rootMargin: "640px 0px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMoreItems, filteredItems.length]);
+
+  // Close [전체 장르 12] popover on outside click or Escape
+  useEffect(() => {
+    if (!genreMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setGenreMenuOpen(false);
+    };
+    const onMouseDown = (e: MouseEvent) => {
+      if (
+        genreMenuRef.current &&
+        !genreMenuRef.current.contains(e.target as Node)
+      ) {
+        setGenreMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("mousedown", onMouseDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("mousedown", onMouseDown);
+    };
+  }, [genreMenuOpen]);
+
+  // Precompute 12-genre counts + highest-density representative thumbnail
+  const genreMatrix = useMemo(() => {
+    const grouped = new Map<ArchiveCategory, ArchiveItem[]>();
+    for (const item of items) {
+      const cat = resolveItemCategory(item);
+      const list = grouped.get(cat);
+      if (list) list.push(item);
+      else grouped.set(cat, [item]);
+    }
+    return ARCHIVE_CATEGORIES.filter(
+      (c): c is { value: ArchiveCategory; label: string; desc?: string } =>
+        c.value !== "ALL"
+    ).map((cat) => {
+      const list = grouped.get(cat.value) ?? [];
+      let cover = list[0];
+      let bestScore = Number.NEGATIVE_INFINITY;
+      for (const candidate of list) {
+        const s = computeCurationDensityScore(candidate);
+        if (s > bestScore) {
+          bestScore = s;
+          cover = candidate;
+        }
+      }
+      return {
+        value: cat.value,
+        label: cat.label,
+        desc: cat.desc ?? "",
+        count: list.length,
+        coverUrl: cover?.thumbnailUrl ?? "",
+      };
+    });
+  }, [items]);
+
+  const handleScrollCategories = useCallback((direction: -1 | 1) => {
+    catNavRef.current?.scrollBy({
+      left: direction * 340,
+      behavior: "smooth",
+    });
+  }, []);
 
   const boardItems = useMemo(() => {
     const map = new Map(items.map((i) => [i.id, i]));
@@ -436,8 +550,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090B]/92 backdrop-blur-md">
         {/* Row 1: Main Bar (Logo + 7 Categories + Large Search + My Boards + Account) */}
         <div className="mx-auto flex min-h-[68px] w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-4 py-3 sm:px-6 2xl:min-h-[76px] 2xl:px-10">
-          {/* Left: Logo + 7 Category Tabs */}
-          <div className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto">
+          {/* Left: Logo + 12 Category Tabs with Scroll Arrows & Visual Genre Matrix */}
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
               onClick={handleResetFilters}
@@ -450,36 +564,168 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               </span>
             </button>
 
-            <nav
-              className="flex items-center gap-1.5 overflow-x-auto py-0.5"
-              role="tablist"
-              aria-label="비주얼 카테고리"
-            >
-              {ARCHIVE_CATEGORIES.map((cat) => {
-                const active = (filterState.category ?? "ALL") === cat.value;
-                return (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() =>
-                      setFilterState((prev) => ({
-                        ...prev,
-                        category: cat.value as ArchiveCategory | "ALL",
-                      }))
-                    }
-                    className={`inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-5 2xl:text-[17px] ${
-                      active
-                        ? "bg-[#FAF8F5] text-[#09090B]"
-                        : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </nav>
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handleScrollCategories(-1)}
+                aria-label="이전 카테고리 보기"
+                className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-[#141519] text-[15px] font-semibold text-[#E5E0D5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
+              >
+                ‹
+              </button>
+
+              <nav
+                ref={catNavRef}
+                className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                role="tablist"
+                aria-label="비주얼 카테고리"
+              >
+                {ARCHIVE_CATEGORIES.map((cat) => {
+                  const active = (filterState.category ?? "ALL") === cat.value;
+                  return (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() =>
+                        setFilterState((prev) => ({
+                          ...prev,
+                          category: cat.value as ArchiveCategory | "ALL",
+                        }))
+                      }
+                      className={`inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-5 2xl:text-[17px] ${
+                        active
+                          ? "bg-[#FAF8F5] text-[#09090B]"
+                          : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <button
+                type="button"
+                onClick={() => handleScrollCategories(1)}
+                aria-label="다음 카테고리 보기"
+                className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-[#141519] text-[15px] font-semibold text-[#E5E0D5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
+              >
+                ›
+              </button>
+            </div>
+
+            {/* Visual 12-Genre Matrix Popover Trigger */}
+            <div ref={genreMenuRef} className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setGenreMenuOpen((prev) => !prev)}
+                aria-expanded={genreMenuOpen}
+                aria-haspopup="dialog"
+                className={`inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-[14px] font-semibold transition-colors 2xl:h-11 2xl:text-[16px] ${
+                  genreMenuOpen
+                    ? "border-[#E5A93B] bg-[#E5A93B] text-[#09090B]"
+                    : "border-white/[0.16] bg-[#141519] text-[#FAF8F5] hover:border-[#E5A93B] hover:text-[#E5A93B]"
+                }`}
+              >
+                <span>전체 장르</span>
+                <span className="font-mono text-[13px] opacity-85">12</span>
+              </button>
+
+              {genreMenuOpen && (
+                <div
+                  role="dialog"
+                  aria-label="12대 비주얼 장르 매트릭스"
+                  className="fixed left-4 right-4 top-[78px] z-50 mx-auto max-w-[1160px] rounded-2xl border border-white/[0.14] bg-[#0D0E12]/98 p-5 shadow-2xl backdrop-blur-xl sm:left-6 sm:right-6"
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+                    <div>
+                      <h2 className="text-[17px] font-bold text-[#FAF8F5]">
+                        12대 비주얼 아카이브 장르
+                      </h2>
+                      <p className="text-[13px] text-[#C8C3B8]">
+                        총 {items.length}컷 · 원하는 장르를 선택해 즉시 필터링하세요
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFilterState((prev) => ({
+                            ...prev,
+                            category: "ALL",
+                          }));
+                          setGenreMenuOpen(false);
+                        }}
+                        className={`rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+                          (filterState.category ?? "ALL") === "ALL"
+                            ? "bg-[#FAF8F5] text-[#09090B]"
+                            : "border border-white/[0.16] text-[#FAF8F5] hover:border-[#E5A93B]"
+                        }`}
+                      >
+                        전체 보기 ({items.length}컷)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGenreMenuOpen(false)}
+                        aria-label="장르 매트릭스 닫기"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] text-[#D0CBC0] hover:text-white"
+                      >
+                        <CloseIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid max-h-[68vh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-4">
+                    {genreMatrix.map((g) => {
+                      const active = filterState.category === g.value;
+                      return (
+                        <button
+                          key={g.value}
+                          type="button"
+                          onClick={() => {
+                            setFilterState((prev) => ({
+                              ...prev,
+                              category: g.value,
+                            }));
+                            setGenreMenuOpen(false);
+                          }}
+                          className={`group relative overflow-hidden rounded-xl border text-left transition-all ${
+                            active
+                              ? "border-[#E5A93B] ring-1 ring-[#E5A93B]"
+                              : "border-white/[0.1] hover:border-white/35"
+                          }`}
+                        >
+                          <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#14151A]">
+                            {g.coverUrl && (
+                              <img
+                                src={g.coverUrl}
+                                alt={g.label}
+                                loading="lazy"
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-[#09090B]/45 to-transparent" />
+                            <span className="absolute right-2.5 top-2.5 rounded-full bg-[#09090B]/80 px-2.5 py-0.5 font-mono text-[12px] font-semibold text-[#FAF8F5]">
+                              {g.count}컷
+                            </span>
+                            <div className="absolute bottom-2.5 left-3 right-3">
+                              <div className="text-[15px] font-bold text-[#FAF8F5]">
+                                {g.label}
+                              </div>
+                              <div className="truncate text-[12px] text-[#D8D3C8]">
+                                {g.desc}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right: Large Capsule Search + My Boards + Account */}
@@ -699,23 +945,48 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
         {/* True Multi-Column Full-Bleed Masonry Wall (LOCKED UNCHANGED) */}
         {filteredItems.length > 0 ? (
-          <section
-            aria-label="큐레이션 아카이브 그리드"
-            className="columns-1 gap-3 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
-          >
-            {filteredItems.map((item) => (
-              <SlideMountCard
-                key={item.id}
-                item={item}
-                isInBoard={filterState.boardIds.includes(item.id)}
-                isInCompare={compareIds.includes(item.id)}
-                compareFull={compareIds.length >= 2}
-                onOpenDetail={(target) => setSelectedItemId(target.id)}
-                onToggleBoard={handleToggleBoard}
-                onToggleCompare={handleToggleCompare}
-              />
-            ))}
-          </section>
+          <>
+            <section
+              aria-label="큐레이션 아카이브 그리드"
+              className="columns-1 gap-3 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
+            >
+              {visibleItems.map((item) => (
+                <SlideMountCard
+                  key={item.id}
+                  item={item}
+                  isInBoard={filterState.boardIds.includes(item.id)}
+                  isInCompare={compareIds.includes(item.id)}
+                  compareFull={compareIds.length >= 2}
+                  onOpenDetail={(target) => setSelectedItemId(target.id)}
+                  onToggleBoard={handleToggleBoard}
+                  onToggleCompare={handleToggleCompare}
+                />
+              ))}
+            </section>
+
+            {/* Infinite Scroll Sentinel & Accessible Load-More Fallback */}
+            {hasMoreItems && (
+              <div
+                ref={loadMoreSentinelRef}
+                className="mt-6 flex flex-col items-center justify-center gap-2 py-4"
+              >
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVisibleCount((prev) =>
+                      Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
+                    )
+                  }
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-white/[0.16] bg-[#141519] px-7 text-[15px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
+                >
+                  <span>더 보기</span>
+                  <span className="font-mono text-[13px] text-[#C8C3B8]">
+                    ({visibleItems.length} / {filteredItems.length}컷)
+                  </span>
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-24 text-center">
             <h2 className="text-[20px] font-bold text-[#FAF8F5]">
@@ -802,7 +1073,13 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               selectedIndex >= 0 &&
               selectedIndex < filteredItems.length - 1
             ) {
-              setSelectedItemId(filteredItems[selectedIndex + 1].id);
+              const nextIdx = selectedIndex + 1;
+              setSelectedItemId(filteredItems[nextIdx].id);
+              if (nextIdx >= visibleCount) {
+                setVisibleCount((prev) =>
+                  Math.min(filteredItems.length, Math.max(prev, nextIdx + LOAD_MORE_STEP))
+                );
+              }
             }
           }}
           onSelectItem={(target) => setSelectedItemId(target.id)}

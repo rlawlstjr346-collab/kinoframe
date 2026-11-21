@@ -11,18 +11,32 @@ import type {
   SortOption,
 } from "@/types/archive";
 
+export const INITIAL_VISIBLE_COUNT = 48;
+export const LOAD_MORE_STEP = 36;
+
+export function getVisibleArchiveSlice<T>(items: readonly T[], visibleCount: number): T[] {
+  const safeCount = Math.max(INITIAL_VISIBLE_COUNT, Math.floor(visibleCount) || INITIAL_VISIBLE_COUNT);
+  return items.slice(0, safeCount);
+}
+
 export const ARCHIVE_CATEGORIES: Array<{
   value: ArchiveCategory | "ALL";
   label: string;
+  desc?: string;
 }> = [
-  { value: "ALL", label: "전체" },
-  { value: "TVCF", label: "TV광고" },
-  { value: "CLASSIC_FILM", label: "고전영화" },
-  { value: "ROCK_POSTER", label: "락·공연 포스터" },
-  { value: "AD_POSTER", label: "광고 포스터" },
-  { value: "PROPAGANDA", label: "정치 선전물" },
-  { value: "TSHIRT_GRAPHIC", label: "티셔츠·그래픽" },
-  { value: "PHOTO", label: "사진" },
+  { value: "ALL", label: "전체", desc: "전 장르 큐레이션" },
+  { value: "TVCF", label: "TV광고", desc: "빈티지·동아시아·글로벌 TVCF" },
+  { value: "CLASSIC_FILM", label: "고전영화", desc: "고전 시네마·포스터·예고편" },
+  { value: "ROCK_POSTER", label: "락·음악·바이닐", desc: "락 포스터·플라이어·LP 재킷" },
+  { value: "AD_POSTER", label: "광고·매거진 지면", desc: "상업 포스터·매거진 커버·화보" },
+  { value: "PROPAGANDA", label: "정치 선전물", desc: "구성주의·냉전기·전시 포스터" },
+  { value: "TSHIRT_GRAPHIC", label: "티셔츠·서브컬처", desc: "밴드 티·스트리트·인디 진" },
+  { value: "BILLBOARD_SIGN", label: "네온·옥외간판", desc: "서울·도쿄·타이베이·홍콩 네온" },
+  { value: "ANIME_COMIC", label: "고전 애니·만화", desc: "셀 애니·골든에이지 코믹·만화" },
+  { value: "PACKAGING_EPHEMERA", label: "패키지·성냥갑·지류", desc: "쇼와 성냥갑·라벨·옛 티켓·우표" },
+  { value: "INDUSTRIAL_DESIGN", label: "하드웨어·제품조형", desc: "브라운·필름카메라·음향·머신" },
+  { value: "EXHIBITION_SPORTS", label: "올림픽·전시 그래픽", desc: "올림픽·바우하우스·미술전·SF" },
+  { value: "PHOTO", label: "다큐·스트리트 사진", desc: "보도사진·도시 스냅·뉴스릴" },
 ];
 
 export const COUNTRIES: Array<{ value: CountryCode | "ALL"; label: string }> = [
@@ -232,6 +246,11 @@ const SUBCULTURE_BOOST_CATS = new Set<ArchiveCategory>([
   "CLASSIC_FILM",
   "AD_POSTER",
   "TVCF",
+  "BILLBOARD_SIGN",
+  "ANIME_COMIC",
+  "PACKAGING_EPHEMERA",
+  "INDUSTRIAL_DESIGN",
+  "EXHIBITION_SPORTS",
 ]);
 
 const EAST_ASIA_COUNTRIES = new Set<CountryCode>(["KR", "JP", "TW"]);
@@ -270,9 +289,14 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
 const RHYTHM_CATEGORY_CYCLE: ArchiveCategory[] = [
   "ROCK_POSTER",
   "TVCF",
+  "BILLBOARD_SIGN",
   "CLASSIC_FILM",
+  "ANIME_COMIC",
   "PROPAGANDA",
+  "PACKAGING_EPHEMERA",
   "TSHIRT_GRAPHIC",
+  "INDUSTRIAL_DESIGN",
+  "EXHIBITION_SPORTS",
   "AD_POSTER",
   "PHOTO",
 ];

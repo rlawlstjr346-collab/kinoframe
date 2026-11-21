@@ -186,15 +186,19 @@ function nextKfId(existingItems) {
 
 async function discoverWikimediaCandidates(existingUrls, cache) {
   const queries = [
-    { mediaType: "PRINT", q: '"National Park" poster WPA color' },
-    { mediaType: "PHOTO", q: 'Jack Delano OR Alfred T. Palmer Kodachrome color 1942' },
+    { mediaType: "PRINT", category: "EXHIBITION_SPORTS", country: "US", q: '"National Park" poster WPA color' },
+    { mediaType: "PRINT", category: "PACKAGING_EPHEMERA", country: "JP", q: '"Matchbox label" Japan vintage' },
+    { mediaType: "PRINT", category: "ANIME_COMIC", country: "US", q: '"Planet Comics" OR "Weird Science" cover' },
+    { mediaType: "PHOTO", category: "BILLBOARD_SIGN", country: "JP", q: 'Tokyo Shinjuku neon signs night' },
+    { mediaType: "PHOTO", category: "INDUSTRIAL_DESIGN", country: "EU", q: '"Braun" OR "Leica" vintage design' },
+    { mediaType: "PHOTO", category: "PHOTO", country: "US", q: 'Jack Delano OR Alfred T. Palmer Kodachrome color 1942' },
   ];
   const candidates = [];
 
-  for (const { mediaType, q } of queries) {
+  for (const { mediaType, category, country, q } of queries) {
     const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
       q
-    )}&gsrlimit=8&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=1280&format=json`;
+    )}&gsrlimit=6&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=960&format=json`;
     const res = await politeFetch(apiUrl, { method: "GET" }, cache);
     if (!res || res.skippedByBreaker || res.status !== 200) continue;
 
@@ -214,10 +218,12 @@ async function discoverWikimediaCandidates(existingUrls, cache) {
       if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl)) continue;
       candidates.push({
         mediaType,
+        category,
+        country,
         mediaSource: "still_image",
         originalTitle: page.title.replace(/^File:/i, "").replace(/\.[a-z0-9]+$/i, ""),
         brandOrSource: "Wikimedia Commons / Public Domain",
-        year: mediaType === "PRINT" ? 1958 : 1942,
+        year: mediaType === "PRINT" ? 1958 : 1972,
         aspectRatio: mapAspectRatio(info.width, info.height),
         durationSec: null,
         thumbnailUrl: thumbUrl,
@@ -252,6 +258,8 @@ async function discoverNasaCandidates(existingUrls, cache) {
     const year = Number(String(d.date_created || "1969").slice(0, 4)) || 1969;
     candidates.push({
       mediaType: "NEWS",
+      category: "EXHIBITION_SPORTS",
+      country: "US",
       mediaSource: "still_image",
       originalTitle: d.title || d.nasa_id,
       brandOrSource: "NASA Image Archive",
@@ -316,6 +324,16 @@ function buildArchiveItem(idNum, cand, tCache) {
     year: cand.year,
     era: mapEra(cand.year),
     mediaType: cand.mediaType,
+    category:
+      cand.category ||
+      (cand.mediaType === "PRINT"
+        ? "AD_POSTER"
+        : cand.mediaType === "TVCF"
+        ? "TVCF"
+        : cand.mediaType === "NEWS"
+        ? "EXHIBITION_SPORTS"
+        : "PHOTO"),
+    country: cand.country || "US",
     aspectRatio: cand.aspectRatio,
     durationSec: cand.durationSec,
     mediaSource: cand.mediaSource,

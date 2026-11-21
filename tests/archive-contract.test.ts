@@ -5,9 +5,12 @@ import {
   ARCHIVE_CATEGORIES,
   COMPOSITION_TAGS,
   DEFAULT_FILTER_STATE,
+  INITIAL_VISIBLE_COUNT,
+  LOAD_MORE_STEP,
   PERSUASION_TAGS,
   filterAndSortArchive,
   generateMoodboardMarkdown,
+  getVisibleArchiveSlice,
   isChromaticItem,
   parseBoardIds,
   resolveItemCategory,
@@ -40,12 +43,17 @@ const ALL_CATEGORIES: ArchiveCategory[] = [
   "AD_POSTER",
   "PROPAGANDA",
   "TSHIRT_GRAPHIC",
+  "BILLBOARD_SIGN",
+  "ANIME_COMIC",
+  "PACKAGING_EPHEMERA",
+  "INDUSTRIAL_DESIGN",
+  "EXHIBITION_SPORTS",
   "PHOTO",
 ];
 
-describe("KINOFRAME V4 Archive & Security Contract", () => {
-  it("contains at least 180 real verified items across all 7 subculture categories and East Asia", () => {
-    expect(ITEMS.length).toBeGreaterThanOrEqual(180);
+describe("KINOFRAME V4.5 Archive, Infinite Scroll & Security Contract", () => {
+  it("contains at least 400 real verified items across all 12 high-density categories and East Asia", () => {
+    expect(ITEMS.length).toBeGreaterThanOrEqual(400);
 
     const byMedia = new Map<MediaType, number>();
     const byCategory = new Map<ArchiveCategory, number>();
@@ -62,23 +70,23 @@ describe("KINOFRAME V4 Archive & Security Contract", () => {
     // Backward mediaType depth
     expect(byMedia.get("TVCF") ?? 0).toBeGreaterThanOrEqual(35);
     expect(byMedia.get("NEWS") ?? 0).toBeGreaterThanOrEqual(25);
-    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(50);
-    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(45);
+    expect(byMedia.get("PRINT") ?? 0).toBeGreaterThanOrEqual(100);
+    expect(byMedia.get("PHOTO") ?? 0).toBeGreaterThanOrEqual(80);
 
-    // V4 7 subculture categories: every category >= 18
-    expect(ARCHIVE_CATEGORIES).toHaveLength(8); // ALL + 7 categories
+    // V4.5 12 high-density categories: ALL + 12 categories, zero empty tabs, each >= 24
+    expect(ARCHIVE_CATEGORIES).toHaveLength(13);
     for (const cat of ALL_CATEGORIES) {
-      expect(byCategory.get(cat) ?? 0).toBeGreaterThanOrEqual(18);
+      expect(byCategory.get(cat) ?? 0).toBeGreaterThanOrEqual(24);
     }
 
-    // V4 East Asia targets: KR >= 10, JP >= 10, TW >= 10, total >= 35
+    // V4.5 East Asia targets: KR >= 28, JP >= 32, TW >= 22, total >= 85
     const kr = byCountry.get("KR") ?? 0;
     const jp = byCountry.get("JP") ?? 0;
     const tw = byCountry.get("TW") ?? 0;
-    expect(kr).toBeGreaterThanOrEqual(10);
-    expect(jp).toBeGreaterThanOrEqual(10);
-    expect(tw).toBeGreaterThanOrEqual(10);
-    expect(kr + jp + tw).toBeGreaterThanOrEqual(35);
+    expect(kr).toBeGreaterThanOrEqual(28);
+    expect(jp).toBeGreaterThanOrEqual(32);
+    expect(tw).toBeGreaterThanOrEqual(22);
+    expect(kr + jp + tw).toBeGreaterThanOrEqual(85);
 
     const uniqueIds = new Set(ITEMS.map((i) => i.id));
     expect(uniqueIds.size).toBe(ITEMS.length);
@@ -147,7 +155,29 @@ describe("KINOFRAME V4 Archive & Security Contract", () => {
     }
   });
 
-  it("accurately filters by V4 7-categories, country codes, era, and sorts cleanly", () => {
+  it("slices progressive infinite scroll windows cleanly (initial 48 + step 36)", () => {
+    expect(INITIAL_VISIBLE_COUNT).toBe(48);
+    expect(LOAD_MORE_STEP).toBe(36);
+
+    const firstPage = getVisibleArchiveSlice(ITEMS, INITIAL_VISIBLE_COUNT);
+    expect(firstPage).toHaveLength(48);
+    expect(firstPage[0].id).toBe(ITEMS[0].id);
+
+    const secondPage = getVisibleArchiveSlice(
+      ITEMS,
+      INITIAL_VISIBLE_COUNT + LOAD_MORE_STEP
+    );
+    expect(secondPage).toHaveLength(84);
+
+    // Lower than minimum clamps to INITIAL_VISIBLE_COUNT
+    expect(getVisibleArchiveSlice(ITEMS, 10)).toHaveLength(48);
+    // Larger than array length caps cleanly at total length
+    expect(getVisibleArchiveSlice(ITEMS, ITEMS.length + 500)).toHaveLength(
+      ITEMS.length
+    );
+  });
+
+  it("accurately filters by V4.5 12-categories, country codes, era, and sorts cleanly", () => {
     for (const item of ITEMS) {
       expect(item.compositionTags.length).toBeGreaterThanOrEqual(1);
       expect(item.persuasionTags.length).toBeGreaterThanOrEqual(1);
@@ -198,7 +228,7 @@ describe("KINOFRAME V4 Archive & Security Contract", () => {
     }
   });
 
-  it("balances chromatic richness and subculture diversity across the default first-screen top 16", () => {
+  it("balances chromatic richness and 12-genre diversity across the default first-screen top 16", () => {
     const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
     expect(defaultSorted).toHaveLength(ITEMS.length);
 
@@ -210,7 +240,7 @@ describe("KINOFRAME V4 Archive & Security Contract", () => {
     expect(mediaSet.size).toBe(4);
 
     const catSet = new Set(top16.map((item) => resolveItemCategory(item)));
-    expect(catSet.size).toBeGreaterThanOrEqual(5);
+    expect(catSet.size).toBeGreaterThanOrEqual(6);
 
     for (let i = 2; i < top16.length; i += 1) {
       const same3Media =

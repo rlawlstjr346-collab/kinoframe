@@ -9,6 +9,11 @@ export type ArchiveCategory =
   | "AD_POSTER"
   | "PROPAGANDA"
   | "TSHIRT_GRAPHIC"
+  | "BILLBOARD_SIGN"
+  | "ANIME_COMIC"
+  | "PACKAGING_EPHEMERA"
+  | "INDUSTRIAL_DESIGN"
+  | "EXHIBITION_SPORTS"
   | "PHOTO";
 
 export type CountryCode = "KR" | "JP" | "TW" | "US" | "EU" | "GLOBAL";
