@@ -1,0 +1,1682 @@
+[
+  {
+    "id": "KF-001",
+    "titleKo": "1960 포드(Ford) '경이로운 새 세계' 와이드 쇼룸 TVCF",
+    "originalTitle": "A Wonderful New World of Fords (1960 Ford Spot)",
+    "brandOrSource": "Ford Motor Company / Filmways (Prelinger Archives)",
+    "year": 1960,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 182,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/Wonderfu1960",
+    "previewVideoUrl": "https://archive.org/download/Wonderfu1960/Wonderfu1960.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/Wonderfu1960",
+    "licenseNote": "퍼블릭 도메인 (Prelinger Archives / Internet Archive)",
+    "compositionTags": ["1점 투시", "대칭 구도", "기하학 조형"],
+    "persuasionTags": ["초반 3초 시선 강탈", "스케일 반전"],
+    "palette": ["#16171A", "#4A4D52", "#9A968C", "#D6CFC0", "#D99B26"],
+    "viewfinder": {
+      "vanishingPoint": [50, 46],
+      "eyePath": [[18, 72], [50, 46], [82, 34]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 하이앵글 쇼룸",
+        "timeOrZone": "0:03",
+        "noteKo": "거대한 기하학 무대 중앙으로 신차 실루엣이 진입하며 즉각적인 스케일감을 확보한다.",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "크롬 그릴 정면 대칭",
+        "timeOrZone": "0:24",
+        "noteKo": "좌우 완벽 대칭 헤드라이트와 범퍼 라인이 브랜드의 권위와 견고함을 각인시킨다.",
+        "focusCrop": "50% 58%"
+      },
+      {
+        "label": "유선형 측면 패닝",
+        "timeOrZone": "0:55",
+        "noteKo": "수평 리딩 라인을 따라 차체 곡선을 훑으며 속도감을 시각적으로 번역한다.",
+        "focusCrop": "32% 52%"
+      },
+      {
+        "label": "라인업 군집 피날레",
+        "timeOrZone": "1:40",
+        "noteKo": "단일 제품에서 전체 라인업으로 줌아웃하며 미래적 풍요 이미지를 완성한다.",
+        "focusCrop": "68% 44%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "단조로운 설명 대신 스튜디오 전체를 가로지르는 자동차의 대각선 진입과 광택 반사로 초반 3초 시선을 무대 중앙에 묶어둔다.",
+      "framing": "1점 투시 소실점을 차체 보닛 중앙에 고정하고, 고대비 흑백 조명 아래 크롬 하이라이트만 날카롭게 띄워 조각품 같은 입체감을 만든다.",
+      "marketingApply": "테크·모빌리티·스니커즈 드롭 티저에서 제품을 '일상 소품'이 아니라 '건축적 오브제'로 격상시키는 오프닝 3초 정면 대칭 컷에 즉시 응용할 수 있다."
+    }
+  },
+  {
+    "id": "KF-002",
+    "titleKo": "1960 폴저스 커피(Folgers) 주방 서스펜스 TVCF",
+    "originalTitle": "Folgers Coffee Commercial (1960)",
+    "brandOrSource": "Folgers Coffee (Prelinger Archives)",
+    "year": 1960,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 60,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/FolgersCoffe",
+    "previewVideoUrl": "https://archive.org/download/FolgersCoffe/FolgersCoffe.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/FolgersCoffe",
+    "licenseNote": "퍼블릭 도메인 (Prelinger Archives / Internet Archive)",
+    "compositionTags": ["초근접 클로즈업", "프레임 속 프레임"],
+    "persuasionTags": ["무대사 직관 전달", "초반 3초 시선 강탈"],
+    "palette": ["#121110", "#3D3934", "#867E72", "#C9C0B1", "#E7DFD2"],
+    "viewfinder": {
+      "vanishingPoint": [54, 42],
+      "eyePath": [[34, 38], [56, 48], [68, 72]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "표정 클로즈업 훅",
+        "timeOrZone": "0:02",
+        "noteKo": "커피 향을 맡는 찰나의 표정 변화를 삼분할 교차점에 배치해 감각을 즉시 전이시킨다.",
+        "focusCrop": "42% 32%"
+      },
+      {
+        "label": "김이 오르는 컵 디테일",
+        "timeOrZone": "0:16",
+        "noteKo": "역광에 비친 수증기 궤적을 클로즈업해 TV 화면 너머로 향기를 시각화한다.",
+        "focusCrop": "58% 60%"
+      },
+      {
+        "label": "주방 창틀 프레이밍",
+        "timeOrZone": "0:34",
+        "noteKo": "테이블과 인물 팔이 만드는 내부 프레임 중심에 캔 패키지를 정확히 안착시킨다.",
+        "focusCrop": "52% 48%"
+      },
+      {
+        "label": "패키지 풀샷 클로징",
+        "timeOrZone": "0:50",
+        "noteKo": "배경 명도를 낮추고 제품 라벨의 대비를 극대화해 회상률을 고정한다.",
+        "focusCrop": "64% 66%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "기능 설명보다 '향을 맡고 눈을 감는 인간의 즉각적 반응'을 초근접 클로즈업으로 먼저 던져 소리가 꺼진 상태에서도 욕구를 자극한다.",
+      "framing": "어두운 배경 대비 백라이트로 피어오르는 커피 김을 강조하고, 인물 시선 끝자락에 자연스럽게 패키지를 배치하는 삼분할 구도를 구사한다.",
+      "marketingApply": "F&B·향수·뷰티 숏폼에서 '제품 스펙 자막' 대신 텍스처·김·사용자의 미세 표정 반응 1.5초 인서트를 최전방에 배치하는 공식으로 직결된다."
+    }
+  },
+  {
+    "id": "KF-003",
+    "titleKo": "1960 치리오스 × V-8 리드미컬 매치 컷 스팟 TVCF",
+    "originalTitle": "Cheerios / V-8 Commercial Spot (1960)",
+    "brandOrSource": "General Mills / Campbell's (Prelinger Archives)",
+    "year": 1960,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 61,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/Cheerios1960",
+    "previewVideoUrl": "https://archive.org/download/Cheerios1960/Cheerios1960.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/Cheerios1960",
+    "licenseNote": "퍼블릭 도메인 (Prelinger Archives / Internet Archive)",
+    "compositionTags": ["매치 컷", "기하학 조형", "초근접 클로즈업"],
+    "persuasionTags": ["무대사 직관 전달", "시각적 은유"],
+    "palette": ["#141517", "#3A3D42", "#7C8087", "#C6C4BC", "#EBE7DF"],
+    "viewfinder": {
+      "vanishingPoint": [50, 50],
+      "eyePath": [[26, 30], [50, 50], [74, 70]],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "원형 도형 매치 컷",
+        "timeOrZone": "0:03",
+        "noteKo": "시리얼의 링 형태를 화면 정중앙 원형 오브제와 겹쳐 1초 만에 제품 정체성을 각인한다.",
+        "focusCrop": "50% 50%"
+      },
+      {
+        "label": "낙하 모션 리듬",
+        "timeOrZone": "0:18",
+        "noteKo": "우유와 시리얼이 그릇으로 떨어지는 수직 운동으로 정적 화면에 생동감을 불어넣는다.",
+        "focusCrop": "48% 62%"
+      },
+      {
+        "label": "신선 재료 그래픽 배열",
+        "timeOrZone": "0:36",
+        "noteKo": "채소 원재료와 컵을 기하학적 대각선으로 배치해 원물 신뢰도를 직관적으로 전달한다.",
+        "focusCrop": "62% 42%"
+      },
+      {
+        "label": "로고 스탬프 피니시",
+        "timeOrZone": "0:53",
+        "noteKo": "고대비 타이포그래피 박스를 정중앙에 고정해 60초 리듬을 깔끔하게 매듭짓는다.",
+        "focusCrop": "50% 52%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "원형 링이라는 제품의 물리적 형태 자체를 그래픽 매치 컷의 주인공으로 삼아 내레이션 없이도 3초 안에 브랜드 심볼을 뇌리에 박는다.",
+      "framing": "중앙 집중형 기하학 조형과 빠른 컷 리듬을 결합해 저해상도 브라운관에서도 실루엣만으로 식별되는 명쾌한 명암비를 유지한다.",
+      "marketingApply": "릴스·쇼츠에서 로고의 기하학적 형태(원, 사선, 사각)를 실제 제품 클로즈업과 매치 컷으로 연결하는 트랜지션 레퍼런스로 완벽하다."
+    }
+  },
+  {
+    "id": "KF-004",
+    "titleKo": "1970 샤프(Sharp) ELSI-8 초소형 전자계산기 TVCF",
+    "originalTitle": "Sharp ELSI-8 Calculator Commercial (1970)",
+    "brandOrSource": "Sharp Corporation (Prelinger Archives)",
+    "year": 1970,
+    "era": "1970s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 61,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/sharp_calculator_2",
+    "previewVideoUrl": "https://archive.org/download/sharp_calculator_2/sharp_calculator_2.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/sharp_calculator_2",
+    "licenseNote": "퍼블릭 도메인 (Prelinger Archives / Internet Archive)",
+    "compositionTags": ["초근접 클로즈업", "극단적 여백", "기하학 조형"],
+    "persuasionTags": ["스케일 반전", "무대사 직관 전달"],
+    "palette": ["#181412", "#4E3A2B", "#8F7152", "#C9B08A", "#EFE3CC"],
+    "viewfinder": {
+      "vanishingPoint": [50, 52],
+      "eyePath": [[28, 66], [50, 52], [72, 28]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "손바닥 위 스케일 대비",
+        "timeOrZone": "0:04",
+        "noteKo": "거대한 기존 계산기 대신 한 손바닥에 올라가는 크기를 즉시 비교해 기술 혁신을 증명한다.",
+        "focusCrop": "50% 56%"
+      },
+      {
+        "label": "LED 숫자 점등 매크로",
+        "timeOrZone": "0:20",
+        "noteKo": "어두운 베젤 속에서 발광하는 디지털 숫자를 초근접 촬영해 미래적 촉감을 전한다.",
+        "focusCrop": "52% 42%"
+      },
+      {
+        "label": "손가락 키패드 리듬",
+        "timeOrZone": "0:38",
+        "noteKo": "기계적 타건 동작을 정갈한 사선 구도로 담아 사용 편의성을 무대사로 입증한다.",
+        "focusCrop": "40% 60%"
+      },
+      {
+        "label": "미니멀 스튜디오 팩샷",
+        "timeOrZone": "0:54",
+        "noteKo": "넓은 단색 여백 위에 기기 하나만 고립 배치해 하드웨어 디자인 완성도를 각인한다.",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "복잡한 반도체(LSI) 스펙을 읊지 않고 '인간의 손바닥 vs 초소형 기기'라는 직관적 스케일 반전 한 컷으로 혁신을 증명한다.",
+      "framing": "불필요한 배경 소품을 덜어낸 극단적 여백과 매크로 클로즈업의 교차로 기기의 엣지와 발광 디스플레이에 시선을 집중시킨다.",
+      "marketingApply": "웨어러블·모바일 디바이스·패션 액세서리 론칭에서 신체 부위와의 1:1 크기 대비 컷으로 휴대성과 정밀도를 3초 만에 설득하는 정석이다."
+    }
+  },
+  {
+    "id": "KF-005",
+    "titleKo": "1971 코카콜라 '힐탑(Hilltop)' 글로벌 합창 TVCF",
+    "originalTitle": "Coca-Cola 1971 'Hilltop' — I'd Like to Buy the World a Coke",
+    "brandOrSource": "The Coca-Cola Company / McCann Erickson (Project ReBrief)",
+    "year": 1971,
+    "era": "1970s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 60,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/1VM2eLhvsSM/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "1VM2eLhvsSM",
+    "sourceUrl": "https://www.youtube.com/watch?v=1VM2eLhvsSM",
+    "licenseNote": "YouTube 공식 oEmbed 임베드 (Project ReBrief 아카이브)",
+    "compositionTags": ["초근접 클로즈업", "역광 실루엣", "대칭 구도"],
+    "persuasionTags": ["초반 3초 시선 강탈", "스케일 반전"],
+    "palette": ["#1D231C", "#5B6448", "#A39472", "#D4B684", "#B82925"],
+    "viewfinder": {
+      "vanishingPoint": [50, 44],
+      "eyePath": [[50, 38], [32, 56], [76, 48]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "단독 정면 응시 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "카메라를 똑바로 바라보는 한 명의 얼굴로 시작해 시청자와 1:1 정서적 연결을 만든다.",
+        "focusCrop": "50% 35%"
+      },
+      {
+        "label": "연속 줌아웃 군중 확장",
+        "timeOrZone": "0:22",
+        "noteKo": "한 명에서 수십 명, 수백 명으로 끊김 없이 시야가 넓어지며 극적인 스케일 반전을 일으킨다.",
+        "focusCrop": "48% 48%"
+      },
+      {
+        "label": "병 실루엣 황금빛 역광",
+        "timeOrZone": "0:40",
+        "noteKo": "이탈리아 언덕의 석양 역광 속 각국 언어가 적힌 콜라병이 하나의 상징으로 수렴한다.",
+        "focusCrop": "56% 52%"
+      },
+      {
+        "label": "헬리캠 언덕 풀샷",
+        "timeOrZone": "0:55",
+        "noteKo": "광활한 언덕 위 대칭 군집을 부감으로 담아 '세계의 연대'라는 브랜드 철학을 완성한다.",
+        "focusCrop": "50% 44%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "제품 로고나 내레이션 대신 정면을 응시하며 아카펠라 첫 소절을 여는 인물 클로즈업으로 3초 안에 시청자의 방어벽을 무장해제한다.",
+      "framing": "1인의 친밀한 클로즈업에서 헬리캠 와이드 샷으로 이어지는 점진적 줌아웃(Scale Escalation)과 자연광 역광 림라이트가 핵심 설계다.",
+      "marketingApply": "커뮤니티 기반 브랜드(KREAM·스트리트웨어·컬처 플랫폼)의 브랜드 필름에서 '개인 취향 → 거대 팬덤 연대'로 확장되는 카메라 워킹의 교과서다."
+    }
+  },
+  {
+    "id": "KF-006",
+    "titleKo": "1984 애플 매킨토시 '1984' 슈퍼볼 TVCF (리들리 스콧)",
+    "originalTitle": "Apple 1984 Super Bowl Commercial — Introducing Macintosh",
+    "brandOrSource": "Apple Computer / Chiat/Day / Ridley Scott",
+    "year": 1984,
+    "era": "1980s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 60,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/2zfqw8nhUwA/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "2zfqw8nhUwA",
+    "sourceUrl": "https://www.youtube.com/watch?v=2zfqw8nhUwA",
+    "licenseNote": "YouTube 공식 oEmbed 임베드 (역사적 광고 아카이브)",
+    "compositionTags": ["1점 투시", "역광 실루엣", "대칭 구도"],
+    "persuasionTags": ["초반 3초 시선 강탈", "시각적 은유", "무대사 직관 전달"],
+    "palette": ["#0B141D", "#253B4E", "#5A7B92", "#D8CFC0", "#D93B26"],
+    "viewfinder": {
+      "vanishingPoint": [50, 48],
+      "eyePath": [[50, 48], [26, 62], [74, 34]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "1점 투시 디스토피아 터널",
+        "timeOrZone": "0:03",
+        "noteKo": "무채색 청회빛 통로를 줄지어 걷는 군중의 1점 투시가 즉각적인 압박감과 영화적 몰입을 만든다.",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "단독 원색 러너의 침투",
+        "timeOrZone": "0:18",
+        "noteKo": "온통 잿빛인 화면을 붉은 반바지의 선수가 가로지르며 색채 대비만으로 서사 갈등을 선언한다.",
+        "focusCrop": "46% 58%"
+      },
+      {
+        "label": "해머 투척과 스크린 폭발",
+        "timeOrZone": "0:42",
+        "noteKo": "거대 빅브라더 스크린을 해머가 산산조각 내는 순간, 섬광과 바람이 관객에게 물리적 해방감을 준다.",
+        "focusCrop": "50% 40%"
+      },
+      {
+        "label": "제품 없는 카피 엔딩",
+        "timeOrZone": "0:54",
+        "noteKo": "컴퓨터 실물을 끝까지 숨기고 단 한 줄의 선언문과 로고만으로 역사상 최강의 기대감을 만든다.",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "일반 광고 문법을 완전히 배반하고, 시네마스코프급 안개·역광·1점 투시 행진 샷을 첫 프레임에 던져 시청자가 TV 채널을 멈추게 만든다.",
+      "framing": "청회색 무채색(억압) 대비 강렬한 주홍빛 원색(혁신)의 컬러 분리, 그리고 거대 스크린을 향한 완벽한 1점 투시 대칭 구도가 파괴 쾌감을 극대화한다.",
+      "marketingApply": "신규 카테고리 파괴형 제품의 티저 캠페인에서 '기존 질서(무채색 반복)'를 깨는 '단 하나의 이질적 색채·움직임' 은유로 완벽히 치환된다."
+    }
+  },
+  {
+    "id": "KF-007",
+    "titleKo": "2005 소니 브라비아 '바운시 볼(Bouncy Balls)' 실사 TVCF",
+    "originalTitle": "Sony Bravia — Bouncy Balls (250,000 Coloured Balls)",
+    "brandOrSource": "Sony / Fallon London / Nicolai Fuglsig",
+    "year": 2005,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "16:9",
+    "durationSec": 150,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/0_bx8bnCoiU/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "0_bx8bnCoiU",
+    "sourceUrl": "https://www.youtube.com/watch?v=0_bx8bnCoiU",
+    "licenseNote": "YouTube 공식 oEmbed 임베드 (역사적 광고 아카이브)",
+    "compositionTags": ["1점 투시", "매치 컷", "극단적 여백"],
+    "persuasionTags": ["무대사 직관 전달", "시각적 은유", "스케일 반전"],
+    "palette": ["#1E2630", "#D94436", "#E5B43C", "#2E9A74", "#F2EFE9"],
+    "viewfinder": {
+      "vanishingPoint": [50, 32],
+      "eyePath": [[50, 26], [38, 62], [72, 78]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "언덕 정점의 첫 낙하",
+        "timeOrZone": "0:05",
+        "noteKo": "샌프란시스코 급경사 도로 소실점에서 수십만 개의 원색 공이 쏟아지며 압도적 3초 훅을 만든다.",
+        "focusCrop": "50% 34%"
+      },
+      {
+        "label": "초고속 슬로모션 바운스",
+        "timeOrZone": "0:36",
+        "noteKo": "1000fps 초고속 촬영으로 아스팔트에 튀어 오르는 색채 입자를 시적으로 분해한다.",
+        "focusCrop": "36% 64%"
+      },
+      {
+        "label": "정적 도시와 동적 색채 대비",
+        "timeOrZone": "1:08",
+        "noteKo": "고요한 주택가 창틀과 주차된 차 사이로 범람하는 색감이 '압도적 발색력'의 은유가 된다.",
+        "focusCrop": "66% 52%"
+      },
+      {
+        "label": "단 한 줄 카피 귀결",
+        "timeOrZone": "2:12",
+        "noteKo": "CG 없이 실사로 촬영한 스펙터클 끝에 'Colour, like no other' 카피로 설득을 마침표 찍는다.",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "TV 화질 스펙 숫자를 단 한 글자도 보여주지 않고, 25만 개 실제 고무공이 언덕을 덮치는 순수 물리적 스펙터클만으로 초반 3초를 장악한다.",
+      "framing": "샌프란시스코 도로의 가파른 1점 투시 경사면을 거대한 캔버스로 활용해 화면 상단 소실점에서 하단 렌즈 바로 앞까지 색채가 쏟아지는 입체감을 설계했다.",
+      "marketingApply": "AI 합성 이미지가 범람하는 시대에 오히려 '실제 물리적 질량과 물량'을 초고속 슬로모션으로 보여주는 오프라인 퍼포먼스형 바이럴 필름의 원형이다."
+    }
+  },
+  {
+    "id": "KF-008",
+    "titleKo": "1957 유니버설 뉴스릴 '새로운 달: 스푸트니크 1호 발사'",
+    "originalTitle": "New Moon. Reds Launch First Space Satellite (1957/10/07)",
+    "brandOrSource": "Universal Newsreels (Internet Archive)",
+    "year": 1957,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 45,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1957-10-07_New_Moon",
+    "previewVideoUrl": "https://archive.org/download/1957-10-07_New_Moon/1957-10-07_New_Moon.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1957-10-07_New_Moon",
+    "licenseNote": "퍼블릭 도메인 (Universal Newsreels / NARA / Internet Archive)",
+    "compositionTags": ["기하학 조형", "극단적 여백", "초근접 클로즈업"],
+    "persuasionTags": ["초반 3초 시선 강탈", "다큐 리얼리즘"],
+    "palette": ["#0C0D0F", "#2D3036", "#6D727A", "#B5B8BD", "#ECEAE4"],
+    "viewfinder": {
+      "vanishingPoint": [50, 48],
+      "eyePath": [[50, 46], [72, 34], [28, 66]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "뉴스릴 타이틀 임팩트",
+        "timeOrZone": "0:02",
+        "noteKo": "굵은 고대비 속보 타이틀과 회전 지구 그래픽이 시대적 긴박감을 2초 만에 전달한다.",
+        "focusCrop": "50% 46%"
+      },
+      {
+        "label": "궤도 도해 애니메이션",
+        "timeOrZone": "0:12",
+        "noteKo": "칠흑 같은 우주 여백 위 흰색 선 하나로 위성 궤도를 그려 보이지 않는 사건을 즉시 시각화한다.",
+        "focusCrop": "52% 48%"
+      },
+      {
+        "label": "전파 수신기 클로즈업",
+        "timeOrZone": "0:26",
+        "noteKo": "계측 바늘과 오실로스코프 파형을 클로즈업해 시청각적 현장 증거를 제시한다.",
+        "focusCrop": "42% 54%"
+      },
+      {
+        "label": "하늘을 올려다보는 시민들",
+        "timeOrZone": "0:38",
+        "noteKo": "모두가 같은 각도로 상단을 응시하는 군중 샷으로 미지의 우주 시대에 대한 경외를 남긴다.",
+        "focusCrop": "60% 38%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "실제 위성 촬영본이 없던 상황에서 굵은 속보 타이포그래피와 단순한 흑백 궤도 도해만으로 45초 안에 전 세계를 뒤흔든 사건을 압축했다.",
+      "framing": "완전한 흑배경의 극단적 여백 속에 빛나는 원형 궤도와 계측기 바늘만 부각해 시선 분산을 원천 차단한다.",
+      "marketingApply": "데이터·AI·테크 신기능 발표 영상에서 눈에 보이지 않는 알고리즘을 '흑배경 + 정밀 화이트 벡터 그래픽 + 계측 HUD'로 번역하는 모션 디자인의 교과서다."
+    }
+  },
+  {
+    "id": "KF-009",
+    "titleKo": "1958 미국 최초 인공위성 익스플로러 1호 야간 발사 속보",
+    "originalTitle": "First U.S. Satellite Launched! (1958/02/03)",
+    "brandOrSource": "Universal Newsreels (Internet Archive)",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 170,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1958-02-03_First_US_Satellite_Launched",
+    "previewVideoUrl": "https://archive.org/download/1958-02-03_First_US_Satellite_Launched/1958-02-03_First_US_Satellite_Launched.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1958-02-03_First_US_Satellite_Launched",
+    "licenseNote": "퍼블릭 도메인 (Universal Newsreels / Internet Archive)",
+    "compositionTags": ["역광 실루엣", "대칭 구도", "1점 투시"],
+    "persuasionTags": ["다큐 리얼리즘", "초반 3초 시선 강탈"],
+    "palette": ["#0A0A0D", "#25262C", "#616268", "#B4B1A8", "#F4EFE2"],
+    "viewfinder": {
+      "vanishingPoint": [50, 22],
+      "eyePath": [[50, 82], [50, 48], [50, 18]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "야간 서치라이트 발사대",
+        "timeOrZone": "0:06",
+        "noteKo": "암흑 속 수직으로 선 로켓을 가로지르는 서치라이트 광선이 극적인 수직 대칭을 형성한다.",
+        "focusCrop": "50% 50%"
+      },
+      {
+        "label": "점화 섬광 화이트아웃",
+        "timeOrZone": "0:42",
+        "noteKo": "하단 화염이 화면 전체를 하얗게 태우며 수직 상승 운동 에너지를 폭발시킨다.",
+        "focusCrop": "50% 74%"
+      },
+      {
+        "label": "궤적 추적 망원 컷",
+        "timeOrZone": "1:18",
+        "noteKo": "검은 밤하늘을 수직으로 뚫고 올라가는 한 줄기 빛의 점으로 스케일을 반전한다.",
+        "focusCrop": "50% 26%"
+      },
+      {
+        "label": "관제실 환호 다큐 컷",
+        "timeOrZone": "2:10",
+        "noteKo": "거친 16mm 그레인 속 엔지니어들의 꾸밈없는 환호가 진정성 있는 클라이맥스를 완성한다.",
+        "focusCrop": "44% 46%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "칠흑 같은 밤하늘을 수직으로 가르는 로켓과 서치라이트 실루엣이 1초 만에 '역사적 카운트다운'의 긴장감을 호출한다.",
+      "framing": "프레임 정중앙 수직축을 따라 하단(화염)에서 상단(우주)으로 시선이 수직 관통하도록 설계된 강력한 중앙 대칭 구도다.",
+      "marketingApply": "한정판 런칭 카운트다운이나 플래그십 공개 티저에서 '어둠 → 단일 광원 → 수직 상승'의 리듬을 그대로 차용하면 압도적 기대감을 설계할 수 있다."
+    }
+  },
+  {
+    "id": "KF-010",
+    "titleKo": "1962 베를린 장벽 1주년 '더 월(The Wall)' 현장 뉴스릴",
+    "originalTitle": "The Wall (Berlin Wall, 1962/08/16)",
+    "brandOrSource": "Universal Newsreels (Internet Archive)",
+    "year": 1962,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 103,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1962-08-16_The_Wall",
+    "previewVideoUrl": "https://archive.org/download/1962-08-16_The_Wall/1962-08-16_The_Wall.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1962-08-16_The_Wall",
+    "licenseNote": "퍼블릭 도메인 (Universal Newsreels / Internet Archive)",
+    "compositionTags": ["1점 투시", "프레임 속 프레임", "역광 실루엣"],
+    "persuasionTags": ["다큐 리얼리즘", "시각적 은유"],
+    "palette": ["#141517", "#383B40", "#76797E", "#B6B5B0", "#E8E5DD"],
+    "viewfinder": {
+      "vanishingPoint": [64, 44],
+      "eyePath": [[22, 68], [52, 50], [66, 44]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "끝없이 이어진 장벽 투시",
+        "timeOrZone": "0:05",
+        "noteKo": "화면을 대각선으로 가르는 콘크리트 장벽이 도심을 물리적으로 양단하는 긴장을 시각화한다.",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "철조망 너머 프레이밍",
+        "timeOrZone": "0:28",
+        "noteKo": "전경의 가시철망을 아웃포커스로 배치해 '프레임 속 프레임'으로 단절의 감각을 극대화한다.",
+        "focusCrop": "36% 42%"
+      },
+      {
+        "label": "건너편을 응시하는 뒷모습",
+        "timeOrZone": "0:54",
+        "noteKo": "장벽 너머를 향해 손을 흔드는 시민의 실루엣이 설명 없는 강력한 정서적 은유가 된다.",
+        "focusCrop": "48% 58%"
+      },
+      {
+        "label": "경계 초소 정적 클로징",
+        "timeOrZone": "1:30",
+        "noteKo": "차가운 석조 건축과 초소의 정적 구도로 냉전의 무게를 여운 있게 남긴다.",
+        "focusCrop": "66% 40%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "해설보다 먼저 화면을 칼로 베듯 가로지르는 장벽의 강한 사선 투시와 전경 철조망이 3초 안에 '분단과 긴장'을 직관적으로 각인한다.",
+      "framing": "전경(철조망)—중경(장벽)—원경(건너편 도시)의 3단 레이어 깊이를 활용해 평면 화면에 묵직한 현장 리얼리즘을 부여한다.",
+      "marketingApply": "다큐멘터리 톤 브랜드 필름이나 사회·컬처 스토리텔링에서 전경 장애물(창살, 문틀, 철망)을 활용한 3단 심도 프레이밍 레퍼런스로 탁월하다."
+    }
+  },
+  {
+    "id": "KF-011",
+    "titleKo": "1963 스페이스 무비: 로켓 탑재 카메라 비행 실황 필름",
+    "originalTitle": "Space Movie. Camera Records Missile In Flight (1963/11/14)",
+    "brandOrSource": "Universal Newsreels (Internet Archive)",
+    "year": 1963,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 59,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1963-11-14_Space_Movie",
+    "previewVideoUrl": "https://archive.org/download/1963-11-14_Space_Movie/1963-11-14_Space_Movie.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1963-11-14_Space_Movie",
+    "licenseNote": "퍼블릭 도메인 (Universal Newsreels / Internet Archive)",
+    "compositionTags": ["극단적 여백", "기하학 조형"],
+    "persuasionTags": ["스케일 반전", "무대사 직관 전달"],
+    "palette": ["#090A0D", "#282D35", "#6B727E", "#BAC0C8", "#F1F0EC"],
+    "viewfinder": {
+      "vanishingPoint": [50, 56],
+      "eyePath": [[50, 24], [50, 56], [78, 78]],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "단 분리 순간 POV",
+        "timeOrZone": "0:04",
+        "noteKo": "로켓 동체에 장착된 1인칭 시점으로 떨어져 나가는 추진체를 포착해 초현실적 몰입을 준다.",
+        "focusCrop": "50% 54%"
+      },
+      {
+        "label": "지구 곡률 출현",
+        "timeOrZone": "0:18",
+        "noteKo": "어두운 우주 공간 위로 둥근 지평선이 드러나며 인간 시야의 한계를 깨는 스케일 반전이 일어난다.",
+        "focusCrop": "50% 66%"
+      },
+      {
+        "label": "무중력 회전 프레임",
+        "timeOrZone": "0:36",
+        "noteKo": "기체 회전에 따라 수평선이 기울어지며 무중력의 물리 감각을 고스란히 전달한다.",
+        "focusCrop": "64% 48%"
+      },
+      {
+        "label": "칠흑 우주 속 부유체",
+        "timeOrZone": "0:50",
+        "noteKo": "화면 80%를 차지하는 암흑 여백 속 작은 기체 실루엣이 압도적 고독감과 경외를 남긴다.",
+        "focusCrop": "48% 36%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "지상 관찰자 시점을 버리고 로켓 동체 부착 카메라(On-board POV)로 지구에서 멀어지는 장면을 곧바로 열어 1초 만에 현기증 나는 몰입을 만든다.",
+      "framing": "완전한 흑색 우주 여백과 밝게 빛나는 구름층 지평선의 극단적 명도 대비가 별도 보정 없이도 최강의 미니멀 구도를 완성한다.",
+      "marketingApply": "액션캠·아웃도어·러닝·스트리트 브랜드 숏폼에서 '대상 자체에 카메라를 고정하는 1인칭 마운트 POV' 훅 설계에 직접 적용할 수 있다."
+    }
+  },
+  {
+    "id": "KF-012",
+    "titleKo": "1964 유니버설 뉴스릴: 스페이스 에이지 기하학 패션 리포트",
+    "originalTitle": "Fashions — Space-Age Silhouette Report (1964/10/26)",
+    "brandOrSource": "Universal Newsreels (Internet Archive)",
+    "year": 1964,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 128,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1964-10-26_Fashions",
+    "previewVideoUrl": "https://archive.org/download/1964-10-26_Fashions/1964-10-26_Fashions.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1964-10-26_Fashions",
+    "licenseNote": "퍼블릭 도메인 (Universal Newsreels / Internet Archive)",
+    "compositionTags": ["대칭 구도", "기하학 조형", "매치 컷"],
+    "persuasionTags": ["무대사 직관 전달", "초반 3초 시선 강탈"],
+    "palette": ["#161618", "#414246", "#838487", "#C6C4BE", "#F2EFE9"],
+    "viewfinder": {
+      "vanishingPoint": [50, 48],
+      "eyePath": [[50, 26], [50, 56], [50, 84]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "런웨이 전신 수직 대칭",
+        "timeOrZone": "0:06",
+        "noteKo": "모델의 A라인 코트와 기하학 모자를 프레임 중앙 수직선에 맞춰 실루엣을 또렷이 각인한다.",
+        "focusCrop": "50% 44%"
+      },
+      {
+        "label": "회전 턴 디테일 컷",
+        "timeOrZone": "0:34",
+        "noteKo": "360도 회전 순간 원단의 주름과 구조적 볼륨감을 끊김 없이 보여준다.",
+        "focusCrop": "48% 58%"
+      },
+      {
+        "label": "액세서리 클로즈업 매치",
+        "timeOrZone": "1:06",
+        "noteKo": "전신 샷에서 장갑·모자·패턴 클로즈업으로 리듬감 있게 컷을 전환한다.",
+        "focusCrop": "54% 32%"
+      },
+      {
+        "label": "듀오 미러링 피날레",
+        "timeOrZone": "1:50",
+        "noteKo": "두 명의 모델이 좌우 대칭 포즈로 서며 컬렉션 전체의 통일된 조형미를 완성한다.",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "정갈한 흑백 대비 속 과감한 기하학 실루엣 모델이 화면 중앙으로 걸어 들어오며 룩북 영상 특유의 몰입을 즉시 연다.",
+      "framing": "장식 없는 단순 배경 위에 인물의 머리부터 구두 끝까지 수직축을 정렬하고, 전신-상반신-디테일의 3단계 컷 리듬을 반복한다.",
+      "marketingApply": "KREAM·무신사·컨템포러리 패션 룩북 숏폼에서 16mm 빈티지 뉴스릴 특유의 질감과 '전신 대칭 → 회전 → 소재 클로즈업' 편집 공식으로 바로 활용 가능하다."
+    }
+  },
+  {
+    "id": "KF-013",
+    "titleKo": "1969 NASA 공식 기록 영화 '독수리가 착륙했다: 아폴로 11호'",
+    "originalTitle": "HQ-194, Eagle Has Landed: The Flight of Apollo 11",
+    "brandOrSource": "NASA Kennedy Space Center (Official Archive)",
+    "year": 1969,
+    "era": "1950-60s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 1710,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928",
+    "licenseNote": "퍼블릭 도메인 (NASA Official Media Library)",
+    "compositionTags": ["1점 투시", "역광 실루엣", "프레임 속 프레임"],
+    "persuasionTags": ["다큐 리얼리즘", "스케일 반전"],
+    "palette": ["#0C1320", "#2A3E59", "#B95826", "#D99B26", "#EDE9DF"],
+    "viewfinder": {
+      "vanishingPoint": [50, 44],
+      "eyePath": [[50, 78], [50, 46], [52, 20]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "새턴 V 거대 기립",
+        "timeOrZone": "0:15",
+        "noteKo": "로켓 하단 엔지니어들과 110m 발사체를 한 프레임에 담아 경이로운 스케일 격차를 보여준다.",
+        "focusCrop": "50% 42%"
+      },
+      {
+        "label": "화염 슬로모션 이륙",
+        "timeOrZone": "2:10",
+        "noteKo": "초고속 카메라로 포착한 주황빛 화염과 거대한 얼음 파편 낙하가 코닥 컬러의 정점을 보여준다.",
+        "focusCrop": "50% 68%"
+      },
+      {
+        "label": "휴스턴 관제실 군집",
+        "timeOrZone": "6:30",
+        "noteKo": "줄지어 선 콘솔 모니터의 1점 투시가 인류 최초 프로젝트의 집단 긴장감을 응축한다.",
+        "focusCrop": "46% 52%"
+      },
+      {
+        "label": "달 표면 첫 발자국",
+        "timeOrZone": "14:20",
+        "noteKo": "거친 흑백 중계 화면의 불완전함 자체가 조작 불가능한 역사적 리얼리즘을 완성한다.",
+        "focusCrop": "54% 58%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "코닥 16mm 컬러 필름 특유의 짙은 코발트 블루와 화염 앰버의 보색 충돌이 인류 최대 도전의 서사를 단숨에 열어젖힌다.",
+      "framing": "극단적 로우 앵글로 피사체(새턴 V)를 신화적 크기로 키운 뒤, 직후 관제실의 정밀한 1점 투시로 인간적 긴장을 교차 편집한다.",
+      "marketingApply": "테크·엔지니어링 브랜드 다큐에서 '거대 결과물의 압도적 로우 앵글 + 제작진의 정밀한 작업실 1점 투시' 교차 구성의 바이블이다."
+    }
+  },
+  {
+    "id": "KF-014",
+    "titleKo": "1981 NASA 컬럼비아호(STS-1) 최초 우주왕복선 이륙 프레임",
+    "originalTitle": "Space Shuttle Projects — STS-1 Columbia Launch (1981)",
+    "brandOrSource": "NASA Kennedy Space Center (Official Archive)",
+    "year": 1981,
+    "era": "1980s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/8111969/8111969~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/8111969",
+    "licenseNote": "퍼블릭 도메인 (NASA Official Media Library)",
+    "compositionTags": ["대칭 구도", "역광 실루엣", "극단적 여백"],
+    "persuasionTags": ["초반 3초 시선 강탈", "다큐 리얼리즘"],
+    "palette": ["#14243B", "#3B5B82", "#D98A2B", "#E8C374", "#F4F1EA"],
+    "viewfinder": {
+      "vanishingPoint": [50, 36],
+      "eyePath": [[50, 78], [50, 44], [50, 18]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "수직 이륙축 정렬",
+        "timeOrZone": "중앙 수직선",
+        "noteKo": "세로 4:5 프레임 중앙을 수직으로 관통하는 기체와 화염 기둥이 강력한 상승감을 형성한다.",
+        "focusCrop": "50% 42%"
+      },
+      {
+        "label": "순백 외부탱크 대비",
+        "timeOrZone": "상단 35%",
+        "noteKo": "STS-1에만 칠해졌던 흰색 외부연료탱크가 짙은 청색 하늘과 칼 같은 명도 대비를 만든다.",
+        "focusCrop": "50% 30%"
+      },
+      {
+        "label": "수증기·화염 하단 질량",
+        "timeOrZone": "하단 30%",
+        "noteKo": "하단을 가득 채우는 거대한 배기 구름이 프레임 하중을 단단히 받쳐 안정감을 준다.",
+        "focusCrop": "50% 78%"
+      },
+      {
+        "label": "상단 하늘 여백",
+        "timeOrZone": "상단 20%",
+        "noteKo": "기체 위쪽으로 열어둔 맑은 하늘 여백이 앞으로 날아오를 방향성과 공간감을 보장한다.",
+        "focusCrop": "50% 14%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "하단의 폭발적 앰버 화염과 상단의 차가운 코발트 하늘이 완벽한 수직 보색 대비를 이루며 피드 스크롤을 즉각 정지시킨다.",
+      "framing": "세로형 4:5 구도에서 피사체 상단에 의도적인 여백(Lead Room)을 남겨 정지 사진임에도 상승하는 속도감을 느끼게 한다.",
+      "marketingApply": "인스타그램 4:5 피드 및 모바일 세로 포스터에서 '하단 무거운 시각 질량 + 중앙 수직 피사체 + 상단 20% 헤드룸 여백' 공식으로 최적화된다."
+    }
+  },
+  {
+    "id": "KF-015",
+    "titleKo": "2004 NASA 케네디 우주센터 '왜 케네디인가' 50년 아카이브 릴",
+    "originalTitle": "KSC-04-S-00378 — Why Kennedy Space Center (2004)",
+    "brandOrSource": "NASA Kennedy Space Center (Official Archive)",
+    "year": 2004,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": 240,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_112904_why_kennedy/ksc_112904_why_kennedy~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_112904_why_kennedy/ksc_112904_why_kennedy~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_112904_why_kennedy",
+    "licenseNote": "퍼블릭 도메인 (NASA Official Media Library)",
+    "compositionTags": ["매치 컷", "1점 투시", "역광 실루엣"],
+    "persuasionTags": ["다큐 리얼리즘", "스케일 반전"],
+    "palette": ["#101826", "#2F486B", "#788EA6", "#D48834", "#EFECE4"],
+    "viewfinder": {
+      "vanishingPoint": [50, 48],
+      "eyePath": [[22, 66], [50, 48], [76, 30]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "시대 교차 매치 컷",
+        "timeOrZone": "0:06",
+        "noteKo": "1950년대 초기 실험 로켓과 현대 우주왕복선 발사 컷을 동일 각도로 연결해 헤리티지를 증명한다.",
+        "focusCrop": "50% 46%"
+      },
+      {
+        "label": "조립동(VAB) 거대 내부",
+        "timeOrZone": "0:48",
+        "noteKo": "거대한 수직 조립동 천장으로 뻗은 1점 투시가 시설의 압도적 규모를 실감케 한다.",
+        "focusCrop": "52% 40%"
+      },
+      {
+        "label": "크롤러 이동 로우 앵글",
+        "timeOrZone": "1:45",
+        "noteKo": "지표면 가까이 낮춘 카메라로 기체 이동을 담아 묵직한 기계적 위용을 극대화한다.",
+        "focusCrop": "46% 62%"
+      },
+      {
+        "label": "야간 발사 섬광 피날레",
+        "timeOrZone": "3:20",
+        "noteKo": "반세기의 도전이 하나로 응집되는 야간 점화 샷으로 브랜드 권위를 완성한다.",
+        "focusCrop": "50% 52%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "과거 흑백 아카이브와 현대 컬러 실사를 같은 수직 궤적으로 이어 붙인 매치 컷으로 초반 3초 안에 '50년 헤리티지'를 설명 없이 설득한다.",
+      "framing": "거대 건축물(조립동)과 초광각 로우 앵글 발사대의 반복으로 브랜드가 축적해 온 물리적 시간의 무게를 시각화한다.",
+      "marketingApply": "헤리티지 브랜드(나이키·리바이스·포르쉐 등)의 리브랜딩 필름에서 과거 아카이브 컷과 신제품 컷을 동일 구도로 매치 컷하는 핵심 전략이다."
+    }
+  },
+  {
+    "id": "KF-016",
+    "titleKo": "1950년대 펩시(Pepsi Please) 빈티지 빌보드·지면 타이포 광고",
+    "originalTitle": "1950's Pepsi Please Print & Billboard Advertisement",
+    "brandOrSource": "Pepsi-Cola Company (Wikimedia Commons Archive)",
+    "year": 1954,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "16:9",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/4/43/1950%27s_Pepsi_Please.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:1950%27s_Pepsi_Please.jpg",
+    "licenseNote": "퍼블릭 도메인 (Wikimedia Commons)",
+    "compositionTags": ["기하학 조형", "극단적 여백"],
+    "persuasionTags": ["카피×구도 일체형", "초반 3초 시선 강탈"],
+    "palette": ["#B92A2A", "#1C3B78", "#E6D8B8", "#2B2523", "#F3EFE4"],
+    "viewfinder": {
+      "vanishingPoint": [52, 50],
+      "eyePath": [[22, 46], [56, 48], [82, 54]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "좌측 시선 앵커",
+        "timeOrZone": "좌측 30%",
+        "noteKo": "강렬한 원색 포인트와 미소 짓는 시각 앵커가 가로 배너의 시선 시작점을 고정한다.",
+        "focusCrop": "24% 48%"
+      },
+      {
+        "label": "2단어 핵심 카피",
+        "timeOrZone": "중앙 40%",
+        "noteKo": "'Pepsi Please' 단 두 단어를 최대 크기로 배치해 시속 60km 주행 중에도 1초 판독이 가능하다.",
+        "focusCrop": "52% 48%"
+      },
+      {
+        "label": "적·청·백 아이덴티티",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "3가지 브랜드 키 컬러 외의 잡색을 배제해 멀리서도 즉시 브랜드를 식별시킨다.",
+        "focusCrop": "50% 50%"
+      },
+      {
+        "label": "우측 병캡 시그니처",
+        "timeOrZone": "우측 25%",
+        "noteKo": "시선 종착점에 왕관 병뚜껑 로고를 배치해 카피 읽기가 곧 브랜드 기억으로 끝나게 설계했다.",
+        "focusCrop": "82% 52%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "긴 설명을 완전히 포기하고 '2단어 헤드라인 + 3원색 대비 + 좌→우 수평 시선 흐름'만으로 1초 안에 메시지를 완독시킨다.",
+      "framing": "가로 와이드 비율에서 좌측 훅 → 중앙 대형 타이포 → 우측 로고 스탬프의 교과서적 Z-패턴 리딩 라인을 구현한다.",
+      "marketingApply": "웹 히어로 배너, 유튜브 썸네일, 옥외 디지털 사이니지에서 1초 판독성을 보장하는 '2단어 카피 + 3색 제한' 레이아웃의 원형이다."
+    }
+  },
+  {
+    "id": "KF-017",
+    "titleKo": "1956 토마스 빌트 버스(Thomas Built) 투시 라인업 지면 광고",
+    "originalTitle": "1950s Thomas Built Buses Model Line Illustration",
+    "brandOrSource": "Perley A. Thomas Car Works (Wikimedia Commons)",
+    "year": 1956,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/1950s_Thomas_Built_Buses_model_line_illustration.jpg/1280px-1950s_Thomas_Built_Buses_model_line_illustration.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:1950s_Thomas_Built_Buses_model_line_illustration.jpg",
+    "licenseNote": "퍼블릭 도메인 (Wikimedia Commons)",
+    "compositionTags": ["1점 투시", "기하학 조형"],
+    "persuasionTags": ["스케일 반전", "카피×구도 일체형"],
+    "palette": ["#1E2326", "#D49B2A", "#4C6A5B", "#C8BEAA", "#EFE9DC"],
+    "viewfinder": {
+      "vanishingPoint": [76, 42],
+      "eyePath": [[22, 64], [52, 50], [78, 40]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "전경 주력 모델 강조",
+        "timeOrZone": "좌하단 40%",
+        "noteKo": "가장 큰 비율로 전경 좌하단에 배치된 주력 차체가 즉각적인 시선 진입점이 된다.",
+        "focusCrop": "26% 62%"
+      },
+      {
+        "label": "대각선 반복 투시열",
+        "timeOrZone": "중앙 대각선",
+        "noteKo": "동일 각도로 늘어선 차량들이 우측 상단 소실점으로 빨려 들어가며 라인업의 방대함을 증명한다.",
+        "focusCrop": "54% 48%"
+      },
+      {
+        "label": "로우 앵글 차체 위용",
+        "timeOrZone": "하단 30%",
+        "noteKo": "낮은 눈높이 일러스트 시점이 상용차의 견고함과 신뢰도를 과장 없이 격상시킨다.",
+        "focusCrop": "42% 72%"
+      },
+      {
+        "label": "상단 헤드라인 여백",
+        "timeOrZone": "상단 22%",
+        "noteKo": "투시선이 비워둔 상단 공간이 깔끔한 카피와 모델명 배치 영역으로 기능한다.",
+        "focusCrop": "50% 18%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "단일 제품 나열이 아니라 대각선 1점 투시 배열로 '전 모델 라인업을 한눈에 압도하는 규모감'을 2초 안에 전달한다.",
+      "framing": "우측 상단 소실점(76%, 42%)을 향해 단계적으로 작아지는 리듬감 있는 반복 조형과 미드센추리 앰버-그린 색채 조합이 돋보인다.",
+      "marketingApply": "컬러웨이별 스니커즈·테크 하드웨어·패키지 라인업 키비주얼에서 다수 SKU를 정돈된 사선 투시로 묶어내는 카탈로그 구도에 최적화되어 있다."
+    }
+  },
+  {
+    "id": "KF-018",
+    "titleKo": "1960 영국 국철 '홀리데이 혼츠(Holiday Haunts)' 포스터 커버",
+    "originalTitle": "British Railways Holiday Haunts 1960 NW and Wales Cover",
+    "brandOrSource": "British Railways (Wikimedia Commons Archive)",
+    "year": 1960,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/Holiday_haunts_1960_NW_and_Wales_cover.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Holiday_haunts_1960_NW_and_Wales_cover.jpg",
+    "licenseNote": "CC BY-SA 4.0 (Wikimedia Commons 아카이브 스캔)",
+    "compositionTags": ["프레임 속 프레임", "기하학 조형"],
+    "persuasionTags": ["카피×구도 일체형", "시각적 은유"],
+    "palette": ["#1E3B5C", "#D65B3A", "#E6B63E", "#4A7C59", "#F3ECD8"],
+    "viewfinder": {
+      "vanishingPoint": [50, 52],
+      "eyePath": [[50, 20], [48, 54], [52, 84]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "상단 타이포 마스트헤드",
+        "timeOrZone": "상단 25%",
+        "noteKo": "명쾌한 산세리프·스크립트 대비 타이틀이 여행 가이드의 경쾌한 톤앤매너를 즉시 선언한다.",
+        "focusCrop": "50% 18%"
+      },
+      {
+        "label": "미드센추리 플랫 일러스트",
+        "timeOrZone": "중앙 45%",
+        "noteKo": "과감한 색면 분할과 기하학적 단순화로 먼 거리에서도 한눈에 들어오는 포스터 주목도를 확보한다.",
+        "focusCrop": "50% 52%"
+      },
+      {
+        "label": "원색 대비 리듬",
+        "timeOrZone": "중하단 30%",
+        "noteKo": "코발트·버밀리온·머스터드의 3원색 균형이 1960년대 특유의 낙관적 무드를 완성한다.",
+        "focusCrop": "42% 66%"
+      },
+      {
+        "label": "하단 정보 그리드",
+        "timeOrZone": "하단 18%",
+        "noteKo": "지역명과 발행 정보를 하단 띠에 수평 정렬해 시각 노이즈 없이 정보를 종결한다.",
+        "focusCrop": "50% 86%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "복잡한 사진 콜라주 대신 3원색 플랫 색면과 큼직한 타이틀의 수직 위계로 서점 가판대에서 1초 만에 손이 가게 만든다.",
+      "framing": "상단 헤드라인(25%)—중앙 핵심 비주얼(55%)—하단 메타 정보(20%)의 황금 3단 수직 그리드가 완벽하게 작동한다.",
+      "marketingApply": "시즌 팝업 스토어 포스터, 매거진 이슈 커버, 앱 프로모션 카드 뉴스의 4:5 세로 타이포×일러스트 레이아웃 표준으로 활용된다."
+    }
+  },
+  {
+    "id": "KF-019",
+    "titleKo": "1964 NASA 제트추진연구소(JPL) 우주공학자 채용 지면 광고",
+    "originalTitle": "A 1960s Advert for Working at NASA's Jet Propulsion Laboratories (JPL)",
+    "brandOrSource": "NASA Jet Propulsion Laboratory (Caltech / Wikimedia Commons)",
+    "year": 1964,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_%28JPL%29.jpeg/1280px-A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_%28JPL%29.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_(JPL).jpeg",
+    "licenseNote": "CC BY 2.0 (Wikimedia Commons 아카이브)",
+    "compositionTags": ["극단적 여백", "대칭 구도", "기하학 조형"],
+    "persuasionTags": ["카피×구도 일체형", "시각적 은유"],
+    "palette": ["#121316", "#3E4045", "#8B8982", "#D5D0C3", "#F1ECE0"],
+    "viewfinder": {
+      "vanishingPoint": [50, 38],
+      "eyePath": [[50, 34], [50, 62], [50, 86]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "상단 여백의 도발적 오브제",
+        "timeOrZone": "상단 45%",
+        "noteKo": "지면을 압도하는 여백과 단일 우주 시각 은유가 독자의 시선을 첫눈에 고정한다.",
+        "focusCrop": "50% 30%"
+      },
+      {
+        "label": "도전적 헤드라인 훅",
+        "timeOrZone": "중단 20%",
+        "noteKo": "조건 나열 대신 '인류의 다음 탐사'를 묻는 한 줄 헤드라인이 최상위 인재의 자존심을 자극한다.",
+        "focusCrop": "50% 56%"
+      },
+      {
+        "label": "정갈한 2단 에디토리얼 본문",
+        "timeOrZone": "하단 25%",
+        "noteKo": "호기심이 발동한 독자만 읽도록 본문을 정교한 스위스 그리드로 응축해 신뢰도를 높인다.",
+        "focusCrop": "50% 76%"
+      },
+      {
+        "label": "JPL 기관 시그니처",
+        "timeOrZone": "최하단 10%",
+        "noteKo": "절제된 기관 로고와 칼텍(Caltech) 명기가 광고의 품격과 희소성을 마무리한다.",
+        "focusCrop": "50% 90%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "연봉이나 복지를 내세우는 평범한 채용 공고를 거부하고, 압도적 여백 + 단일 우주 심볼 + 지적인 질문 카피로 최정상급 인재만 선별해 끌어들인다.",
+      "framing": "1960년대 DDB 'Think Small' 계열의 정수를 이어받은 극단적 여백과 정중앙 수직 대칭 타이포그래피가 고급스러운 권위를 만든다.",
+      "marketingApply": "테크 스타트업 채용 캠페인, 하이엔드 브랜드 매니페스토 지면/랜딩페이지에서 '여백이 곧 자신감'임을 증명하는 카피×구도 일체형 레퍼런스다."
+    }
+  },
+  {
+    "id": "KF-020",
+    "titleKo": "1966 에소(Esso) × 이스턴 내셔널 그래픽 티켓 지면 광고",
+    "originalTitle": "1960s Esso & Eastern National Coach Tours Print Adverts",
+    "brandOrSource": "Esso / Eastern National (Wikimedia Commons)",
+    "year": 1966,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "16:9",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Bus_ticket_advertisements._1960s._Esso%2C_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg/1280px-Bus_ticket_advertisements._1960s._Esso%2C_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bus_ticket_advertisements._1960s._Esso,_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg",
+    "licenseNote": "CC BY-SA 2.0 (Wikimedia Commons)",
+    "compositionTags": ["프레임 속 프레임", "기하학 조형", "대칭 구도"],
+    "persuasionTags": ["카피×구도 일체형", "무대사 직관 전달"],
+    "palette": ["#1E2538", "#C83E2B", "#D8A94B", "#C5BCAA", "#ECE4D3"],
+    "viewfinder": {
+      "vanishingPoint": [50, 50],
+      "eyePath": [[26, 48], [50, 50], [74, 52]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "초소형 지면 경계선",
+        "timeOrZone": "외곽 보더",
+        "noteKo": "손가락 두 마디 크기의 버스 승차권 뒷면을 굵은 보더로 감싸 즉각적인 시각 프레임을 세운다.",
+        "focusCrop": "50% 50%"
+      },
+      {
+        "label": "타원형 엠블럼 집중",
+        "timeOrZone": "좌측 카드",
+        "noteKo": "에소(Esso) 타원 로고 하나가 초소형 인쇄 면적에서도 절대적인 브랜드 존재감을 확보한다.",
+        "focusCrop": "28% 50%"
+      },
+      {
+        "label": "2색 리소그래프 대비",
+        "timeOrZone": "우측 카드",
+        "noteKo": "제한된 저가 인쇄 잉크 2색만으로 타이포 위계와 명암 대비를 극대화했다.",
+        "focusCrop": "72% 50%"
+      },
+      {
+        "label": "지류 질감과 잉크 번짐",
+        "timeOrZone": "중앙 접합부",
+        "noteKo": "거친 재생지 텍스처와 레터프레스 잉크 밀도가 아날로그 그래픽의 손맛을 완성한다.",
+        "focusCrop": "50% 48%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "극도로 좁은 물리 면적(승차권)에서 장식을 모두 덜어내고 굵은 엠블럼·고대비 2색·단문 슬로건만으로 승부한다.",
+      "framing": "사각 보더 내부에 둥근 브랜드 엠블럼을 가두는 '프레임 속 프레임' 구조가 모바일 배지·카드 UI의 원형과 정확히 닮아 있다.",
+      "marketingApply": "오프라인 팝업 티켓, 영수증 브랜딩, 모바일 앱 소형 배너 및 패키지 스티커 디자인에서 최소 면적·최대 가독성을 설계할 때 최고의 레퍼런스다."
+    }
+  },
+  {
+    "id": "KF-021",
+    "titleKo": "1975 오스트리아 국영교통(Kursbuch) 스위스 그리드 모더니즘 표지",
+    "originalTitle": "Amtliches Kursbuch Österreich Kraftfahrlinien Ost 1975-76",
+    "brandOrSource": "Österreichische Post / Swiss-Style Print Archive",
+    "year": 1975,
+    "era": "1970s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg/1280px-Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg",
+    "licenseNote": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "compositionTags": ["기하학 조형", "대칭 구도", "극단적 여백"],
+    "persuasionTags": ["카피×구도 일체형", "무대사 직관 전달"],
+    "palette": ["#191A1D", "#C73A2B", "#E2B22C", "#42464D", "#EAE5DA"],
+    "viewfinder": {
+      "vanishingPoint": [50, 50],
+      "eyePath": [[24, 24], [52, 48], [76, 76]],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "국제 타이포그래피 그리드",
+        "timeOrZone": "상단 좌측",
+        "noteKo": "엄격한 수학적 모듈 그리드 위에 정렬된 산세리프 서체가 공공 시스템의 신뢰감을 구축한다.",
+        "focusCrop": "30% 24%"
+      },
+      {
+        "label": "연도 숫자의 거대 스케일",
+        "timeOrZone": "중앙 50%",
+        "noteKo": "연도 숫자 자체를 그래픽 주인공으로 키워 단 1초 만에 유효 기간과 판본을 인지시킨다.",
+        "focusCrop": "52% 48%"
+      },
+      {
+        "label": "고대비 원색 컬러 블록",
+        "timeOrZone": "중하단 40%",
+        "noteKo": "기능적 색면 분할이 노선 권역을 직관적으로 구분하며 시각적 리듬을 만든다.",
+        "focusCrop": "64% 64%"
+      },
+      {
+        "label": "정밀 인쇄 여백 비율",
+        "timeOrZone": "우측 여백",
+        "noteKo": "여백을 정보만큼 중요한 구조 요소로 다뤄 1970년대 유럽 모더니즘의 정수를 보여준다.",
+        "focusCrop": "76% 40%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "화려한 사진 없이도 '거대한 숫자 타이포 + 원색 기하학 블록 + 칼 같은 정렬'만으로 현대 미니멀 디자인 이상의 시각적 쾌감을 준다.",
+      "framing": "스위스 국제 타이포그래피 양식(International Typographic Style)의 엄격한 그리드와 비대칭 균형이 시선을 좌상단에서 우하단으로 매끄럽게 이끈다.",
+      "marketingApply": "연례 리포트, 드롭 캘린더, 테크 컨퍼런스 키비주얼, 룩북 시즌 넘버링 그래픽에 그대로 이식할 수 있는 타임리스 디자인 시스템이다."
+    }
+  },
+  {
+    "id": "KF-022",
+    "titleKo": "1980년대 핀란드 UU 모더니스트 지면 광고 포스터",
+    "originalTitle": "1980s UU Mainos Vintage Print Advertisement",
+    "brandOrSource": "Nordic 1980s Print Archive (Wikimedia Commons)",
+    "year": 1984,
+    "era": "1980s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/UU_mainos.jpg/1280px-UU_mainos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:UU_mainos.jpg",
+    "licenseNote": "CC BY-SA 3.0 (Wikimedia Commons)",
+    "compositionTags": ["기하학 조형", "극단적 여백", "초근접 클로즈업"],
+    "persuasionTags": ["카피×구도 일체형", "초반 3초 시선 강탈"],
+    "palette": ["#16181E", "#2C568C", "#D44835", "#D9A83B", "#EFECE5"],
+    "viewfinder": {
+      "vanishingPoint": [50, 46],
+      "eyePath": [[50, 22], [50, 50], [50, 82]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "80년대 볼드 헤드라인",
+        "timeOrZone": "상단 24%",
+        "noteKo": "두꺼운 지오메트릭 헤드라인이 지면 상단에서 단번에 주목도를 끌어올린다.",
+        "focusCrop": "50% 18%"
+      },
+      {
+        "label": "중앙 오브제 히어로",
+        "timeOrZone": "중앙 46%",
+        "noteKo": "강한 대비의 중앙 비주얼이 주변 텍스트와 충돌 없이 시선의 중심축을 붙잡는다.",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "포인트 컬러 액센트",
+        "timeOrZone": "중하단 20%",
+        "noteKo": "절제된 80년대 북유럽 포인트 컬러가 지면 전체의 리듬을 단단하게 조율한다.",
+        "focusCrop": "46% 68%"
+      },
+      {
+        "label": "하단 정보 앵커",
+        "timeOrZone": "하단 14%",
+        "noteKo": "정렬된 하단 콜투액션 블록이 시선의 최종 착지점이 된다.",
+        "focusCrop": "50% 88%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "1980년대 북유럽 인쇄 광고 특유의 대담한 타이포 스케일과 명확한 중앙 오브제 배치로 정보 전달 속도를 극대화했다.",
+      "framing": "상단 타이틀—중앙 히어로—하단 CTA의 수직 3단 축을 엄격하게 유지하면서도 과감한 원색 대비로 지루함을 깼다.",
+      "marketingApply": "모바일 앱 풀스크린 이벤트 배너나 스트리트 브랜드 포스터에서 즉각적인 계층 구조(Hierarchy)를 세우는 데 바로 적용할 수 있다."
+    }
+  },
+  {
+    "id": "KF-023",
+    "titleKo": "스탠리 큐브릭 '시카고 고가철도 L-트레인' (1점 투시 아키타입)",
+    "originalTitle": "Stanley Kubrick, \"L\" Elevated Railway, Chicago, Illinois (1949)",
+    "brandOrSource": "Stanley Kubrick / Look Magazine (Library of Congress)",
+    "year": 1949,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Stanley_Kubrick%2C_%22L%22_elevated_railway%2C_Chicago%2C_Illinois%2C_1949.jpg/1280px-Stanley_Kubrick%2C_%22L%22_elevated_railway%2C_Chicago%2C_Illinois%2C_1949.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick,_%22L%22_elevated_railway,_Chicago,_Illinois,_1949.jpg",
+    "licenseNote": "퍼블릭 도메인 (미국 의회도서관 Look Magazine 컬렉션)",
+    "compositionTags": ["1점 투시", "대칭 구도", "프레임 속 프레임"],
+    "persuasionTags": ["초반 3초 시선 강탈", "시각적 은유", "다큐 리얼리즘"],
+    "palette": ["#0B0C0E", "#2C2E32", "#686B70", "#AFAFA9", "#EAE6DC"],
+    "viewfinder": {
+      "vanishingPoint": [50, 48],
+      "eyePath": [[16, 78], [50, 48], [84, 24]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "강철 트러스 1점 소실점",
+        "timeOrZone": "정중앙 [50%, 48%]",
+        "noteKo": "고가철도의 철골 기둥과 레일이 단 하나의 중심 소실점으로 수렴하며 후일 큐브릭 영화 미학의 원형을 보여준다.",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "전경 어두운 아치 프레임",
+        "timeOrZone": "상단 좌우 테두리",
+        "noteKo": "어두운 철골 구조물이 화면 외곽을 자연스럽게 비네팅하며 시선을 중앙 깊숙이 밀어 넣는다.",
+        "focusCrop": "24% 24%"
+      },
+      {
+        "label": "철로 위 빛의 리듬",
+        "timeOrZone": "하단 35%",
+        "noteKo": "침목과 레일에 맺힌 금속 반사광이 깊은 원근감에 시각적 리듬을 부여한다.",
+        "focusCrop": "50% 76%"
+      },
+      {
+        "label": "도시 실루엣과 군중 스케일",
+        "timeOrZone": "중경 좌우",
+        "noteKo": "거대한 강철 구조물 아래 작게 포착된 도시 풍경이 인간의 왜소함과 근대의 웅장함을 대비시킨다.",
+        "focusCrop": "74% 56%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "21세 사진기자 스탠리 큐브릭이 포착한 절대적 1점 투시는 보는 이의 동공을 0.5초 만에 프레임 정중앙 소실점으로 강제 흡입한다.",
+      "framing": "어두운 철골 트러스로 외곽을 잠그고 모든 건축 직선을 정중앙(50%, 48%)으로 집중시킨 '샤이닝·2001 스페이스 오디세이' 투시 미학의 출발점이다.",
+      "marketingApply": "오프라인 플래그십 스토어 인테리어 촬영, 런웨이 티저, 도시 스트리트 룩북에서 '복도·교각·터널 중앙 1점 투시'의 절대 기준점이다."
+    }
+  },
+  {
+    "id": "KF-024",
+    "titleKo": "스탠리 큐브릭 '시카고 기차역 통근자들' (프레임 속 프레임)",
+    "originalTitle": "Stanley Kubrick, Commuters in Train Station, Chicago (1949)",
+    "brandOrSource": "Stanley Kubrick / Look Magazine (Library of Congress)",
+    "year": 1949,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Stanley_Kubrick%2C_Commuters_in_train_station%2C_Chicago%2C_1949.jpg/1280px-Stanley_Kubrick%2C_Commuters_in_train_station%2C_Chicago%2C_1949.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick,_Commuters_in_train_station,_Chicago,_1949.jpg",
+    "licenseNote": "퍼블릭 도메인 (미국 의회도서관 Look Magazine 컬렉션)",
+    "compositionTags": ["프레임 속 프레임", "역광 실루엣", "1점 투시"],
+    "persuasionTags": ["다큐 리얼리즘", "무대사 직관 전달"],
+    "palette": ["#0C0D10", "#303236", "#717275", "#B8B5AD", "#ECE8DF"],
+    "viewfinder": {
+      "vanishingPoint": [52, 44],
+      "eyePath": [[28, 34], [52, 54], [76, 68]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "대합실 빛줄기 역광",
+        "timeOrZone": "상단 40%",
+        "noteKo": "높은 창을 뚫고 대각선으로 내려꽂히는 빛줄기가 공간의 공기 밀도를 가시화한다.",
+        "focusCrop": "36% 28%"
+      },
+      {
+        "label": "군중 속 실루엣 레이어",
+        "timeOrZone": "하단 40%",
+        "noteKo": "어두운 코트 차림의 통근자들이 밝은 바닥 반사 위로 날카로운 실루엣을 형성한다.",
+        "focusCrop": "52% 68%"
+      },
+      {
+        "label": "건축 기둥 내부 프레임",
+        "timeOrZone": "좌우 경계",
+        "noteKo": "기차역의 아치와 기둥이 화면 안에 또 하나의 영화 스크린 같은 경계를 구축한다.",
+        "focusCrop": "76% 42%"
+      },
+      {
+        "label": "시간표·시계 디테일",
+        "timeOrZone": "중상단 30%",
+        "noteKo": "도시의 리듬과 분주함을 상징하는 역사 디테일이 다큐멘터리 서사를 완결한다.",
+        "focusCrop": "54% 38%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "인위적 조명 없이 대합실 천창에서 쏟아지는 자연 역광과 통근자들의 실루엣만으로 한 편의 느와르 영화 스틸 같은 몰입을 만든다.",
+      "framing": "어두운 전경 실루엣과 밝은 중경 역광 바닥의 극명한 명암 분리가 복잡한 군중 장면에서도 시선을 흐트러뜨리지 않는다.",
+      "marketingApply": "도심 출근길·라이프스타일·아우터 캠페인 촬영에서 '역광 하이라이트 + 건축 아치 프레이밍'으로 영화적 서사를 입히는 핵심 레퍼런스다."
+    }
+  },
+  {
+    "id": "KF-025",
+    "titleKo": "스탠리 큐브릭 '제련소의 역광 실루엣' (Look 매거진)",
+    "originalTitle": "Stanley Kubrick — Smelter Worker in Backlight (1949)",
+    "brandOrSource": "Stanley Kubrick / Look Magazine (Library of Congress)",
+    "year": 1949,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Stanley_Kubrick_-_Smelter_cph.3d02342.jpg/1280px-Stanley_Kubrick_-_Smelter_cph.3d02342.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick_-_Smelter_cph.3d02342.jpg",
+    "licenseNote": "퍼블릭 도메인 (미국 의회도서관 Look Magazine 컬렉션)",
+    "compositionTags": ["역광 실루엣", "극단적 여백", "기하학 조형"],
+    "persuasionTags": ["초반 3초 시선 강탈", "시각적 은유"],
+    "palette": ["#09090B", "#262524", "#5F5C57", "#B5AFA4", "#F4EFE2"],
+    "viewfinder": {
+      "vanishingPoint": [50, 56],
+      "eyePath": [[50, 54], [46, 36], [56, 76]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "용광로 백라이트 폭발",
+        "timeOrZone": "중앙 45%",
+        "noteKo": "피사체 등 뒤에서 터져 나오는 강렬한 백라이트가 인물의 외곽선을 조각처럼 도려낸다.",
+        "focusCrop": "50% 52%"
+      },
+      {
+        "label": "검은 실루엣 제스처",
+        "timeOrZone": "중하단 40%",
+        "noteKo": "얼굴 디테일을 지우고 동작 실루엣만 남김으로써 노동의 숭고함과 극적인 긴장을 극대화한다.",
+        "focusCrop": "48% 64%"
+      },
+      {
+        "label": "상단 암흑 연기 여백",
+        "timeOrZone": "상단 35%",
+        "noteKo": "짙은 어둠과 연기가 차지하는 상단 여백이 불꽃의 휘도를 체감상 2배 이상 밝게 만든다.",
+        "focusCrop": "50% 22%"
+      },
+      {
+        "label": "불티 입자 텍스처",
+        "timeOrZone": "하단 25%",
+        "noteKo": "허공을 가르는 밝은 불꽃 입자가 정지 사진에 뜨거운 현장감과 움직임을 불어넣는다.",
+        "focusCrop": "56% 74%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "90%의 순수 어둠 속에 10%의 강렬한 역광과 인물 실루엣만 남겨, 작은 모바일 썸네일에서도 압도적 명암 대비로 시선을 강탈한다.",
+      "framing": "로우 키(Low-Key) 노출로 암부를 완전히 눌러버리고 림라이트(Rim Light)만으로 피사체 윤곽을 그리는 키아로스쿠로 명암법의 정점이다.",
+      "marketingApply": "워크웨어·크래프트맨십·시계·퍼포먼스 스포츠 브랜드의 '장인정신' 4:5 화보에서 얼굴 대신 손·동작 실루엣과 역광 연기를 쓰는 최고의 레퍼런스다."
+    }
+  },
+  {
+    "id": "KF-026",
+    "titleKo": "빌 앤더스 '지구돋이(Earthrise)' 아폴로 8호 달 궤도 기록",
+    "originalTitle": "NASA Apollo 8 — Earthrise (AS08-14-2383, 1968)",
+    "brandOrSource": "NASA / William Anders (Apollo 8 Mission)",
+    "year": 1968,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/NASA-Apollo8-Dec24-Earthrise.jpg/1280px-NASA-Apollo8-Dec24-Earthrise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg",
+    "licenseNote": "퍼블릭 도메인 (NASA / Wikimedia Commons)",
+    "compositionTags": ["극단적 여백", "기하학 조형"],
+    "persuasionTags": ["스케일 반전", "무대사 직관 전달", "시각적 은유"],
+    "palette": ["#050608", "#2B4F8A", "#7C7973", "#BDB9B0", "#F3F2EE"],
+    "viewfinder": {
+      "vanishingPoint": [50, 68],
+      "eyePath": [[48, 34], [52, 74], [24, 80]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "칠흑 속 푸른 구체",
+        "timeOrZone": "상단 삼분할 교차점",
+        "noteKo": "완전한 암흑의 삼분할 상단 교차점에 떠 있는 단 하나의 푸른 지구가 인류 관점을 뒤집는다.",
+        "focusCrop": "48% 34%"
+      },
+      {
+        "label": "무채색 달 지평선",
+        "timeOrZone": "하단 32%",
+        "noteKo": "생명 없는 회색 분화구 지평선이 상단의 푸른 지구 색채를 극한으로 부각시킨다.",
+        "focusCrop": "50% 78%"
+      },
+      {
+        "label": "65% 순수 우주 여백",
+        "timeOrZone": "상단 좌우",
+        "noteKo": "아무것도 없는 검은 여백이 지구의 유한함과 소중함을 침묵으로 설득한다.",
+        "focusCrop": "26% 26%"
+      },
+      {
+        "label": "반구 명암 경계(터미네이터)",
+        "timeOrZone": "지구 하단 엣지",
+        "noteKo": "절반이 그림자에 잠긴 지구의 입체 음영이 평면 그래픽이 아닌 실제 천체의 질감을 증명한다.",
+        "focusCrop": "50% 40%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "하단의 무채색 달 표면과 상단 칠흑 여백 속 단 하나의 푸른 구체가 0.5초 만에 '거대한 관점 전환(Perspective Shift)'을 일으킨다.",
+      "framing": "화면의 60% 이상을 순수 블랙으로 비워두고 삼분할 교차점에 유일한 유채색 오브제를 올린 극단적 여백 구도의 역사적 정점이다.",
+      "marketingApply": "지속가능성·ESG 캠페인, 하이엔드 테크 오브제 키비주얼에서 '극단적 블랙 네거티브 스페이스 + 단일 유채색 히어로 오브제' 배치의 교과서다."
+    }
+  },
+  {
+    "id": "KF-027",
+    "titleKo": "닐 암스트롱 '버즈 올드린 바이저 반사' 아폴로 11호 인물 사진",
+    "originalTitle": "Buzz Aldrin on the Moon — Visor Reflection (AS11-40-5903, 1969)",
+    "brandOrSource": "NASA / Neil Armstrong (Apollo 11 Mission)",
+    "year": 1969,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Aldrin_Apollo_11_original.jpg/1280px-Aldrin_Apollo_11_original.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aldrin_Apollo_11_original.jpg",
+    "licenseNote": "퍼블릭 도메인 (NASA / Wikimedia Commons)",
+    "compositionTags": ["프레임 속 프레임", "극단적 여백", "역광 실루엣"],
+    "persuasionTags": ["시각적 은유", "초반 3초 시선 강탈"],
+    "palette": ["#08080A", "#383735", "#8B8477", "#C8A045", "#F0EEE8"],
+    "viewfinder": {
+      "vanishingPoint": [54, 28],
+      "eyePath": [[54, 28], [52, 62], [28, 86]],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "황금 바이저 속 두 번째 세계",
+        "timeOrZone": "상단 중앙 [54%, 28%]",
+        "noteKo": "금빛 헬멧 바이저 안에 촬영자 닐 암스트롱과 착륙선 이글이 고스란히 반사되어 이중 서사를 만든다.",
+        "focusCrop": "54% 26%"
+      },
+      {
+        "label": "우주복 순백 하이라이트",
+        "timeOrZone": "중앙 45%",
+        "noteKo": "대기 없는 태양 직사광이 우주복의 주름과 그림자를 칼 같은 콘트라스트로 조각한다.",
+        "focusCrop": "52% 56%"
+      },
+      {
+        "label": "대각선 긴 그림자",
+        "timeOrZone": "좌하단 30%",
+        "noteKo": "달 표면으로 길게 뻗은 검은 그림자가 시선을 하단으로 이끌며 광원의 각도를 증명한다.",
+        "focusCrop": "30% 82%"
+      },
+      {
+        "label": "칠흑 하늘과 지평선 경계",
+        "timeOrZone": "상단 35%",
+        "noteKo": "별 하나 없는 순수 블랙 우주 배경이 인물의 실루엣을 절대적으로 고립시킨다.",
+        "focusCrop": "24% 24%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "인물 전신 사진이지만 시선이 닿는 순간 금빛 바이저 안의 '반사된 또 하나의 세계(촬영자와 착륙선)'를 발견하게 만드는 이중 레이어 훅이다.",
+      "framing": "순수 블랙 배경의 극단적 여백 + 정밀한 삼분할 인물 배치 + 헬멧 바이저라는 구형 거울을 이용한 '프레임 속 프레임'의 완성형이다.",
+      "marketingApply": "아이웨어·헬멧·자동차·스마트폰 디스플레이 광고에서 '반사면 속에 고객이 열망하는 풍경이나 시선을 담아내는' 시각적 은유 연출에 즉시 쓰인다."
+    }
+  },
+  {
+    "id": "KF-028",
+    "titleKo": "1974 부다페스트 블라하 루이자 지하철역 대칭 건축 기록 (Fortepan)",
+    "originalTitle": "Blaha Lujza tér Metro Station, Budapest (Fortepan 94876, 1974)",
+    "brandOrSource": "Fortepan Archival Photography (Wikimedia Commons)",
+    "year": 1974,
+    "era": "1970s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Blaha_Lujza_t%C3%A9r%2C_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg/1280px-Blaha_Lujza_t%C3%A9r%2C_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Blaha_Lujza_t%C3%A9r,_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg",
+    "licenseNote": "CC BY-SA 3.0 (Fortepan / Wikimedia Commons)",
+    "compositionTags": ["1점 투시", "대칭 구도", "기하학 조형"],
+    "persuasionTags": ["다큐 리얼리즘", "무대사 직관 전달"],
+    "palette": ["#16181A", "#3D4245", "#7B8285", "#C2C3BE", "#EFECE4"],
+    "viewfinder": {
+      "vanishingPoint": [50, 50],
+      "eyePath": [[20, 24], [50, 50], [80, 74]],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "천장 형광등 리딩 라인",
+        "timeOrZone": "상단 35%",
+        "noteKo": "일렬로 뻗은 기하학 조명 패턴이 시선을 터널 중심 소실점으로 고속 안내한다.",
+        "focusCrop": "50% 24%"
+      },
+      {
+        "label": "좌우 에스컬레이터 대칭",
+        "timeOrZone": "중앙 50%",
+        "noteKo": "1970년대 동유럽 모더니즘 지하공간의 완벽한 좌우 대칭이 최면적 몰입감을 형성한다.",
+        "focusCrop": "50% 50%"
+      },
+      {
+        "label": "광택 바닥 반사 레이어",
+        "timeOrZone": "하단 30%",
+        "noteKo": "타일 바닥에 비친 천장 불빛이 상하 대칭의 깊이를 배가시킨다.",
+        "focusCrop": "50% 78%"
+      },
+      {
+        "label": "빈티지 표지판 타이포",
+        "timeOrZone": "중상단 40%",
+        "noteKo": "1970년대 공공 사이니지가 공간에 시대적 아우라와 리얼리티를 각인한다.",
+        "focusCrop": "36% 42%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "천장 조명선과 에스컬레이터 난간이 이루는 완벽한 X자 1점 투시가 1970년대 브루탈리즘·모더니즘 공간의 세련된 긴장감을 즉시 호출한다.",
+      "framing": "카메라 높이를 공간의 정확히 중앙(50%, 50%)에 맞춰 상하좌우 4방향 대칭을 달성한 건축 다큐멘터리 구도의 모범이다.",
+      "marketingApply": "테크웨어·스트리트 패션 룩북이나 언더그라운드 뮤직비디오·팝업 티저에서 차갑고 정밀한 도시적 무드를 구현하는 공간 로케이션 레퍼런스다."
+    }
+  },
+  {
+    "id": "KF-029",
+    "titleKo": "1981 NASA 케네디 우주센터 STS-1 야간 발사대 조명 프레임",
+    "originalTitle": "PREFLIGHT — STS-1 Columbia Illuminated on Pad 39A (1981)",
+    "brandOrSource": "NASA Kennedy Space Center (S81-28974)",
+    "year": 1981,
+    "era": "1980s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/S81-28974/S81-28974~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/S81-28974",
+    "licenseNote": "퍼블릭 도메인 (NASA Official Media Library)",
+    "compositionTags": ["역광 실루엣", "대칭 구도", "극단적 여백"],
+    "persuasionTags": ["초반 3초 시선 강탈", "스케일 반전"],
+    "palette": ["#080D18", "#1E304F", "#7D6A4E", "#D99B26", "#F4F1EA"],
+    "viewfinder": {
+      "vanishingPoint": [50, 52],
+      "eyePath": [[50, 62], [50, 34], [76, 72]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "야간 텅스텐 투광 빔",
+        "timeOrZone": "중앙 50%",
+        "noteKo": "암흑 속 텅스텐 서치라이트가 순백 기체를 황금빛으로 감싸며 압도적인 발사 전야 긴장감을 만든다.",
+        "focusCrop": "50% 48%"
+      },
+      {
+        "label": "강철 타워 격자 실루엣",
+        "timeOrZone": "좌측 35%",
+        "noteKo": "기하학적 발사대 트러스가 유선형 우주왕복선과 날카로운 조형 대비를 이룬다.",
+        "focusCrop": "34% 52%"
+      },
+      {
+        "label": "칠흑 밤하늘 네거티브 스페이스",
+        "timeOrZone": "상단 35%",
+        "noteKo": "광활한 야간 여백이 피사체를 우주적 기념비처럼 보이게 만든다.",
+        "focusCrop": "50% 18%"
+      },
+      {
+        "label": "지상 조명 반사 앵커",
+        "timeOrZone": "하단 22%",
+        "noteKo": "하단의 따뜻한 앰버 광원들이 화면 바닥을 단단하게 고정한다.",
+        "focusCrop": "52% 82%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "발사 장면이 아닌 '발사 직전의 고요한 야간 조명 컷'으로 오히려 폭발 직전의 팽팽한 정적 서스펜스를 3초 만에 완성한다.",
+      "framing": "어두운 남청색 밤하늘과 따뜻한 텅스텐 앰버 조명의 보색 대비(Teal & Amber)가 시네마틱 다크룸 색채의 교과서를 보여준다.",
+      "marketingApply": "신차 공개, 플래그십 스토어 오프닝 전야 티저, 테크 키노트 예고 이미지에서 '공개 직전의 고요한 스포트라이트' 무드 설계에 직결된다."
+    }
+  },
+  {
+    "id": "KF-030",
+    "titleKo": "고든 팍스 '아메리칸 고딕(American Gothic)' 대칭 풍자 보도사진",
+    "originalTitle": "Gordon Parks — American Gothic, Washington, D.C. (1942)",
+    "brandOrSource": "Gordon Parks / FSA-OWI (Library of Congress)",
+    "year": 1942,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Gordon_Parks_-_American_Gothic.jpg/1280px-Gordon_Parks_-_American_Gothic.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gordon_Parks_-_American_Gothic.jpg",
+    "licenseNote": "퍼블릭 도메인 (미국 의회도서관 FSA/OWI 컬렉션)",
+    "compositionTags": ["대칭 구도", "프레임 속 프레임", "초근접 클로즈업"],
+    "persuasionTags": ["시각적 은유", "무대사 직관 전달", "다큐 리얼리즘"],
+    "palette": ["#121213", "#3B3B3C", "#787773", "#B9B5AC", "#ECE8DF"],
+    "viewfinder": {
+      "vanishingPoint": [50, 44],
+      "eyePath": [[50, 34], [24, 56], [76, 56]],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "정면 응시 수직 대칭",
+        "timeOrZone": "중앙 [50%, 36%]",
+        "noteKo": "인물(엘라 왓슨)이 카메라를 정면 응시하며 프레임 정중앙 수직축을 단호하게 장악한다.",
+        "focusCrop": "50% 34%"
+      },
+      {
+        "label": "빗자루와 대걸레의 대칭 소품",
+        "timeOrZone": "좌우 양손",
+        "noteKo": "명화 '아메리칸 고딕'의 쇠스랑을 청소 도구로 치환해 단 한 줄의 설명 없이 날카로운 시각적 은유를 만든다.",
+        "focusCrop": "50% 60%"
+      },
+      {
+        "label": "배경 성조기 프레임",
+        "timeOrZone": "배경 전체",
+        "noteKo": "화면을 가득 채운 국기 패턴이 인물과 정면으로 충돌하며 역사적 아이러니를 완성한다.",
+        "focusCrop": "50% 24%"
+      },
+      {
+        "label": "고대비 흑백 인물 질감",
+        "timeOrZone": "인물 상반신",
+        "noteKo": "과장 없는 사실적 조명과 정면 눈빛이 다큐멘터리 사진의 윤리적 무게를 극대화한다.",
+        "focusCrop": "50% 42%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "대중이 이미 아는 명화 구도(아메리칸 고딕)의 도상을 정면 대칭으로 차용하고 소품만 현실의 도구로 뒤틀어 1초 만에 강렬한 메시지를 꽂아 넣는다.",
+      "framing": "완벽한 좌우 대칭 인물 배치와 배경 상징물(성조기)의 직설적 충돌이 어떤 카피보다 강한 시각적 변증법을 만들어낸다.",
+      "marketingApply": "컬처·패션·소셜 임팩트 캠페인에서 '익숙한 클래식 도상 패러디 + 현실 오브제 치환'으로 단 1컷에 깊은 화제성을 만드는 정석 공식이다."
+    }
+  }
+]
