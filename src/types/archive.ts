@@ -67,10 +67,13 @@ export interface ArchiveItem {
   viewfinder: ViewfinderSpec;
   beats: [ContactBeat, ContactBeat, ContactBeat, ContactBeat];
   breakdown: BreakdownSpec;
+  addedAt?: string;
 }
 
 export type SortOption =
+  | "smart_mix"
   | "curation_density"
+  | "recent_added"
   | "year_asc"
   | "year_desc"
   | "duration_asc";
@@ -91,4 +94,34 @@ export interface OverlayVisibility {
   thirds: boolean;
   symmetry: boolean;
   eyePath: boolean;
+}
+
+export interface VaultFolder {
+  id: string;
+  name: string;
+}
+
+export interface VaultBookmark {
+  itemId: string;
+  folderId: string;
+  timestampSec: number | null;
+  memo: string;
+  savedAt: string;
+}
+
+export interface VaultState {
+  folders: VaultFolder[];
+  bookmarks: VaultBookmark[];
+}
+
+export interface AuthSessionState {
+  authenticated: boolean;
+  user: {
+    sub: string;
+    provider: "google" | "naver";
+    name: string;
+    email?: string;
+    avatar?: string;
+  } | null;
+  cloudSyncAvailable: boolean;
 }

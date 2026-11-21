@@ -12,9 +12,9 @@ import type {
 export const MEDIA_TYPES: Array<{ value: MediaType | "ALL"; label: string; desc: string }> = [
   { value: "ALL", label: "전체", desc: "전 매체 큐레이션" },
   { value: "TVCF", label: "TVCF", desc: "빈티지 광고 필름" },
-  { value: "NEWS", label: "NEWS", desc: "뉴스릴·우주 기록" },
-  { value: "PRINT", label: "PRINT", desc: "지면 광고·포스터" },
-  { value: "PHOTO", label: "PHOTO", desc: "보도·다큐멘터리 사진" },
+  { value: "NEWS", label: "뉴스", desc: "뉴스릴·우주 기록" },
+  { value: "PRINT", label: "지면·포스터", desc: "지면 광고·포스터" },
+  { value: "PHOTO", label: "사진", desc: "보도·다큐멘터리 사진" },
 ];
 
 export const ERAS: Array<{ value: Era | "ALL"; label: string }> = [
@@ -46,7 +46,9 @@ export const PERSUASION_TAGS: PersuasionTag[] = [
 ];
 
 export const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
+  { value: "smart_mix", label: "스마트 믹스" },
   { value: "curation_density", label: "큐레이션 밀도순" },
+  { value: "recent_added", label: "최신 등록순" },
   { value: "year_asc", label: "연대 오래된순" },
   { value: "year_desc", label: "연대 최신순" },
   { value: "duration_asc", label: "짧은 러닝타임순" },
@@ -84,6 +86,15 @@ export function formatDuration(durationSec: number | null): string {
   const secs = Math.round(durationSec % 60);
   if (mins === 0) return `${secs}s`;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+export function formatPreciseTimestamp(seconds: number): string {
+  const safe = Math.max(0, seconds);
+  const mins = Math.floor(safe / 60);
+  const rem = safe - mins * 60;
+  const wholeSecs = Math.floor(rem);
+  const tenths = Math.floor((rem - wholeSecs) * 10);
+  return `${String(mins).padStart(2, "0")}:${String(wholeSecs).padStart(2, "0")}.${tenths}`;
 }
 
 export function parseTimestampToSeconds(timeOrZone: string): number | null {
@@ -145,7 +156,7 @@ export function analyzePaletteChroma(palette: readonly string[]): PaletteChromaM
   const avgSaturation = satSum / palette.length;
   const luminanceSpread = Math.max(0, maxLum - minLum);
   const isChromatic =
-    avgSaturation >= 0.27 || (maxSaturationCheck(maxSat) && vividCount >= 2);
+    avgSaturation >= 0.27 || (maxSat >= 0.48 && vividCount >= 2);
 
   return {
     avgSaturation,
@@ -154,10 +165,6 @@ export function analyzePaletteChroma(palette: readonly string[]): PaletteChromaM
     luminanceSpread,
     isChromatic,
   };
-}
-
-function maxSaturationCheck(maxSat: number): boolean {
-  return maxSat >= 0.48;
 }
 
 export function isChromaticItem(item: ArchiveItem): boolean {
@@ -173,7 +180,6 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
     chroma.vividCount * 1.4 +
     chroma.luminanceSpread * 3.2;
 
-  // Balance live motion presence without letting B&W archive_mp4 dominate the wall
   const motionBonus =
     item.mediaSource === "archive_mp4"
       ? chroma.isChromatic
@@ -198,12 +204,16 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
 
 const RHYTHM_MEDIA_CYCLE: MediaType[] = ["PRINT", "TVCF", "PHOTO", "NEWS"];
 
-function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
+function interleaveByColorAndMedia(
+  scoredDesc: ArchiveItem[],
+  scoreFn: (item: ArchiveItem) => number = computeCurationDensityScore,
+  cycleOffset = 0
+): ArchiveItem[] {
   if (scoredDesc.length <= 2) return scoredDesc;
 
   const pool = scoredDesc.map((item) => ({
     item,
-    score: computeCurationDensityScore(item),
+    score: scoreFn(item),
     chromatic: isChromaticItem(item),
     isLoopMp4: item.mediaSource === "archive_mp4",
   }));
@@ -218,22 +228,21 @@ function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
 
   while (remaining.length > 0) {
     const pos = result.length;
-    const preferredMedia = RHYTHM_MEDIA_CYCLE[pos % RHYTHM_MEDIA_CYCLE.length];
-    const wantLoopSlot = pos % 4 === 1;
+    const preferredMedia =
+      RHYTHM_MEDIA_CYCLE[(pos + cycleOffset) % RHYTHM_MEDIA_CYCLE.length];
+    const wantLoopSlot = (pos + cycleOffset) % 4 === 1;
     const inTop16 = pos < 16;
 
     let bestIdx = 0;
     let bestUtility = Number.NEGATIVE_INFINITY;
 
-    const searchLimit = Math.min(remaining.length, 32);
+    const searchLimit = Math.min(remaining.length, 36);
     for (let i = 0; i < searchLimit; i += 1) {
       const cand = remaining[i];
       let utility = cand.score;
 
-      // Mild rank decay so high-scoring curated works rise first
       utility -= i * 0.22;
 
-      // Strictly discourage 3 consecutive identical media types
       if (cand.item.mediaType === lastMedia) {
         if (sameMediaRun >= 2) {
           utility -= 45;
@@ -242,17 +251,14 @@ function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
         }
       }
 
-      // Encourage rhythmic 4-media alternation
       if (cand.item.mediaType === preferredMedia) {
         utility += 5.5;
       }
 
-      // Encourage auto-looping MP4 presence across the wall
       if (wantLoopSlot && cand.isLoopMp4) {
         utility += 4.5;
       }
 
-      // Prevent monochrome clustering and ensure >= 75% chromatic vitality in top 16
       if (!cand.chromatic) {
         if (monoRun >= 2) {
           utility -= 60;
@@ -263,7 +269,6 @@ function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
           if (monoCountInTop16 >= 3) {
             utility -= 38;
           } else if (pos < 4) {
-            // Open the top row with rich chromatic impact
             utility -= 22;
           }
         }
@@ -294,6 +299,90 @@ function interleaveByColorAndMedia(scoredDesc: ArchiveItem[]): ArchiveItem[] {
   }
 
   return result;
+}
+
+function hashSeedString(input: string, seed: number): number {
+  let h = (seed ^ 0x9e3779b9) >>> 0;
+  for (let i = 0; i < input.length; i += 1) {
+    h = Math.imul(h ^ input.charCodeAt(i), 0x85ebca6b) >>> 0;
+    h = ((h << 13) | (h >>> 19)) >>> 0;
+  }
+  h = Math.imul(h ^ (h >>> 16), 0xc2b2ae35) >>> 0;
+  return ((h ^ (h >>> 16)) >>> 0) / 0xffffffff;
+}
+
+/**
+ * Deterministic seeded smart rotation that preserves color vitality & 4-media
+ * interleaving while surfacing fresh combinations on each visit or shuffle click.
+ */
+export function rotateArchiveWithSeed(
+  items: ArchiveItem[],
+  seed: number
+): ArchiveItem[] {
+  if (items.length <= 2) return [...items];
+
+  const normalizedSeed = Math.abs(Math.floor(seed)) || 1;
+  const jitterMap = new Map<string, number>();
+
+  for (const item of items) {
+    const r = hashSeedString(item.id, normalizedSeed);
+    const chroma = analyzePaletteChroma(item.palette);
+    // Keep chromatic works buoyant at the top while rotating strongly by seed
+    const baseLift = chroma.isChromatic ? 18 : 2;
+    const score = baseLift + r * 26 + chroma.avgSaturation * 4;
+    jitterMap.set(item.id, score);
+  }
+
+  const preSorted = [...items].sort((a, b) => {
+    const diff = (jitterMap.get(b.id) ?? 0) - (jitterMap.get(a.id) ?? 0);
+    if (Math.abs(diff) > 0.0001) return diff;
+    return a.id.localeCompare(b.id);
+  });
+
+  const cycleOffset = normalizedSeed % RHYTHM_MEDIA_CYCLE.length;
+  return interleaveByColorAndMedia(
+    preSorted,
+    (item) => jitterMap.get(item.id) ?? 0,
+    cycleOffset
+  );
+}
+
+export function findRelatedArchiveItems(
+  target: ArchiveItem,
+  allItems: ArchiveItem[],
+  limit = 4
+): ArchiveItem[] {
+  const targetComp = new Set(target.compositionTags);
+  const targetPers = new Set(target.persuasionTags);
+
+  const scored = allItems
+    .filter((candidate) => candidate.id !== target.id)
+    .map((candidate) => {
+      let overlap = 0;
+      for (const c of candidate.compositionTags) {
+        if (targetComp.has(c)) overlap += 3;
+      }
+      for (const p of candidate.persuasionTags) {
+        if (targetPers.has(p)) overlap += 2.5;
+      }
+      if (candidate.mediaType === target.mediaType) overlap += 1;
+      if (isChromaticItem(candidate)) overlap += 0.5;
+      return { candidate, overlap };
+    })
+    .sort(
+      (a, b) =>
+        b.overlap - a.overlap ||
+        computeCurationDensityScore(b.candidate) -
+          computeCurationDensityScore(a.candidate) ||
+        a.candidate.id.localeCompare(b.candidate.id)
+    );
+
+  return scored.slice(0, limit).map((entry) => entry.candidate);
+}
+
+function getArchiveNumericId(id: string): number {
+  const m = id.match(/(\d+)/);
+  return m ? Number(m[1]) : 0;
 }
 
 export function filterAndSortArchive(
@@ -359,6 +448,13 @@ export function filterAndSortArchive(
         const db = b.durationSec ?? Number.POSITIVE_INFINITY;
         return da - db || a.year - b.year || a.id.localeCompare(b.id);
       }
+      case "recent_added": {
+        const ta = a.addedAt ? Date.parse(a.addedAt) : 0;
+        const tb = b.addedAt ? Date.parse(b.addedAt) : 0;
+        if (tb !== ta) return tb - ta;
+        return getArchiveNumericId(b.id) - getArchiveNumericId(a.id);
+      }
+      case "smart_mix":
       case "curation_density":
       default: {
         const diff = computeCurationDensityScore(b) - computeCurationDensityScore(a);
@@ -368,7 +464,7 @@ export function filterAndSortArchive(
     }
   });
 
-  if (state.sort === "curation_density") {
+  if (state.sort === "curation_density" || state.sort === "smart_mix") {
     return interleaveByColorAndMedia(sorted);
   }
 

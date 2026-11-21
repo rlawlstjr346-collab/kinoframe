@@ -1,0 +1,63 @@
+name: KINOFRAME Weekly Auto Archive Curator
+
+on:
+  schedule:
+    # 매주 수요일·일요일 새벽 04:00 KST (화요일·토요일 19:00 UTC)
+    - cron: "0 19 * * 2,6"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Maximum number of new verified archive items to add"
+        required: false
+        default: "4"
+
+permissions:
+  contents: write
+
+jobs:
+  weekly-curate-and-verify:
+    name: Discover, Verify Links, Test, Build & Commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Auto-discover verified public domain archives
+        run: node scripts/auto-discover-archive.mjs --limit=${{ github.event.inputs.limit || '4' }}
+
+      - name: Run Respectful Link Shield across entire snapshot
+        run: npm run verify:links
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Run Vitest contract tests
+        run: npx vitest run
+
+      - name: Verify Next.js production build
+        run: npm run build
+
+      - name: Commit & push newly curated items if changed
+        run: |
+          if git diff --quiet src/data/archive-snapshot.json; then
+            echo "No new archive items added."
+            exit 0
+          fi
+          git config user.name "kinoframe-curator-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/data/archive-snapshot.json src/data/link-health-cache.json src/data/translation-cache.json
+          git commit -m "chore(archive): weekly auto-curated verified public domain frames"
+          git push origin HEAD:main

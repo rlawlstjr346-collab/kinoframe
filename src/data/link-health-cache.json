@@ -3,1197 +3,2079 @@
     "etag": "\"1331306043\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:04.377Z",
+    "lastCheckedAt": "2026-11-21T13:01:50.942Z",
     "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D1VM2eLhvsSM&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:04.448Z",
+    "lastCheckedAt": "2026-11-21T13:01:50.990Z",
     "status": 200
   },
   "https://archive.org/services/img/Wonderfu1960": {
     "etag": "\"63220e43-17af\"",
     "lastModified": "Wed, 14 Sep 2022 17:24:19 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:06.052Z",
+    "lastCheckedAt": "2026-11-21T13:01:51.333Z",
     "status": 304
   },
   "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~thumb.jpg": {
     "etag": "\"9ed6960708f430866525930fbcf937da\"",
     "lastModified": "Tue, 14 May 2019 19:16:07 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:04.889Z",
+    "lastCheckedAt": "2026-11-21T13:01:50.881Z",
     "status": 304
   },
   "https://upload.wikimedia.org/wikipedia/commons/4/43/1950%27s_Pepsi_Please.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled": {
     "etag": "db60d9f0ac9ed66ad91b2677a5e4719e",
     "lastModified": "Fri, 04 Oct 2013 22:36:46 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:04.557Z",
+    "lastCheckedAt": "2026-11-21T13:01:51.031Z",
     "status": 304
   },
   "https://images.nasa.gov/details/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:05.566Z",
+    "lastCheckedAt": "2026-11-21T13:01:52.062Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:1950%27s_Pepsi_Please.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:36:51 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:04.555Z",
+    "lastCheckedAt": "2026-11-21T13:01:51.050Z",
     "status": 304
   },
   "https://i.ytimg.com/vi/2zfqw8nhUwA/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:06.143Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.168Z",
     "status": 304
   },
   "https://upload.wikimedia.org/wikipedia/commons/7/77/Holiday_haunts_1960_NW_and_Wales_cover.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled": {
     "etag": "b411843aac2a29d1ac15550622a44c37",
     "lastModified": "Wed, 29 Apr 2020 10:12:16 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:06.501Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.317Z",
     "status": 304
   },
   "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~mobile.mp4": {
     "etag": "\"3753c7718c27dc95fa0e347ac9f0c6bb-15\"",
     "lastModified": "Tue, 14 May 2019 19:16:23 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:07.185Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.364Z",
     "status": 304
   },
   "https://www.youtube.com/watch?v=1VM2eLhvsSM": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:07.042Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.228Z",
     "status": 200
   },
   "https://archive.org/download/Wonderfu1960/Wonderfu1960.mp4": {
     "etag": "\"57bfa01e-120f763\"",
     "lastModified": "Fri, 26 Aug 2016 01:49:18 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:10.799Z",
+    "lastCheckedAt": "2026-11-21T13:01:54.870Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/1950s_Thomas_Built_Buses_model_line_illustration.jpg/1280px-1950s_Thomas_Built_Buses_model_line_illustration.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "088bde0d2a5c2c57b72dc1189663af9d",
     "lastModified": "Fri, 28 Aug 2026 20:41:16 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:04.556Z",
+    "lastCheckedAt": "2026-11-21T13:01:51.050Z",
     "status": 304
   },
   "https://i.ytimg.com/vi/0_bx8bnCoiU/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:07.830Z",
+    "lastCheckedAt": "2026-11-21T13:01:54.941Z",
     "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2zfqw8nhUwA&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:08.870Z",
+    "lastCheckedAt": "2026-11-21T13:01:55.296Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:1950s_Thomas_Built_Buses_model_line_illustration.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:36:55 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:06.725Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.368Z",
     "status": 304
   },
   "https://images.nasa.gov/details/8111969": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:08.487Z",
+    "lastCheckedAt": "2026-11-21T13:01:55.100Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_%28JPL%29.jpeg/1280px-A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_%28JPL%29.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "4a0ce41259dc99a4e87be8e4ece07d46",
     "lastModified": "Sat, 10 Oct 2026 01:20:11 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:06.376Z",
+    "lastCheckedAt": "2026-11-21T13:01:53.444Z",
     "status": 304
   },
   "https://images-assets.nasa.gov/image/8111969/8111969~thumb.jpg": {
     "etag": "\"ad179461ffa768bf5096a7b5fa1a9e9f\"",
     "lastModified": "Wed, 15 Feb 2017 10:09:17 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:10.278Z",
+    "lastCheckedAt": "2026-11-21T13:01:56.434Z",
     "status": 304
   },
   "https://archive.org/details/Wonderfu1960": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:13.560Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.781Z",
     "status": 200
   },
   "https://www.youtube.com/watch?v=2zfqw8nhUwA": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:11.382Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.106Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/ksc_112904_why_kennedy/ksc_112904_why_kennedy~thumb.jpg": {
     "etag": "\"839b245702736b5e732b0d5c0b7cab9a\"",
     "lastModified": "Tue, 09 Nov 2021 13:11:13 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:12.943Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.835Z",
     "status": 304
   },
   "https://images.nasa.gov/details/ksc_112904_why_kennedy": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:12.094Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.647Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Bus_ticket_advertisements._1960s._Esso%2C_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg/1280px-Bus_ticket_advertisements._1960s._Esso%2C_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "87ff3348c4ce987bc12ab68a13c33ece",
     "lastModified": "Sat, 31 Oct 2026 09:41:27 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:08.726Z",
+    "lastCheckedAt": "2026-11-21T13:01:55.631Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Holiday_haunts_1960_NW_and_Wales_cover.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:36:57 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:08.398Z",
+    "lastCheckedAt": "2026-11-21T13:01:55.665Z",
     "status": 304
   },
   "https://archive.org/services/img/FolgersCoffe": {
     "etag": "\"64ce216e-1a9c\"",
     "lastModified": "Sat, 05 Aug 2023 10:16:14 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:15.772Z",
+    "lastCheckedAt": "2026-11-21T13:02:01.298Z",
     "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D0_bx8bnCoiU&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:13.313Z",
+    "lastCheckedAt": "2026-11-21T13:01:59.919Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/ksc_112904_why_kennedy/ksc_112904_why_kennedy~mobile.mp4": {
     "etag": "\"055049ed7782ac2ac25bbf96a81f5a8b\"",
     "lastModified": "Tue, 09 Nov 2021 13:11:13 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:15.517Z",
+    "lastCheckedAt": "2026-11-21T13:02:01.279Z",
     "status": 304
   },
   "https://images.nasa.gov/details/S81-28974": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:15.492Z",
+    "lastCheckedAt": "2026-11-21T13:02:01.922Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:A_1960s_advert_for_working_at_NASA%27s_Jet_Propulsion_Laboratories_(JPL).jpeg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:01 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:10.707Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.024Z",
     "status": 304
   },
   "https://www.youtube.com/watch?v=0_bx8bnCoiU": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:16.585Z",
+    "lastCheckedAt": "2026-11-21T13:02:03.020Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/image/S81-28974/S81-28974~thumb.jpg": {
     "etag": "\"782f582c89da2811ada4f8fe2a013a55\"",
     "lastModified": "Fri, 17 Feb 2017 08:51:42 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:17.900Z",
+    "lastCheckedAt": "2026-11-21T13:02:03.794Z",
     "status": 304
   },
   "https://archive.org/download/FolgersCoffe/FolgersCoffe.mp4": {
     "etag": "\"57bf217e-5fe9cb\"",
     "lastModified": "Thu, 25 Aug 2016 16:49:02 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:18.931Z",
+    "lastCheckedAt": "2026-11-21T13:02:04.743Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg/1280px-Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": null,
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:10.906Z",
+    "lastCheckedAt": "2026-11-21T13:01:58.100Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:Bus_ticket_advertisements._1960s._Esso,_Eastern_National_Coach_Tours._-_Flickr_-_sludgegulper.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:05 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:12.443Z",
+    "lastCheckedAt": "2026-11-21T13:02:00.572Z",
     "status": 304
   },
   "https://archive.org/details/FolgersCoffe": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:23.226Z",
+    "lastCheckedAt": "2026-11-21T13:02:07.351Z",
     "status": 200
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/UU_mainos.jpg/1280px-UU_mainos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": null,
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:13.120Z",
+    "lastCheckedAt": "2026-11-21T13:02:00.623Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:Amtliches_Kursbuch_%C3%96sterreich_Kraftfahrlinien_Ost_1975-76.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:07 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:14.794Z",
+    "lastCheckedAt": "2026-11-21T13:02:02.708Z",
     "status": 304
   },
   "https://archive.org/services/img/Cheerios1960": {
     "etag": "\"63220d1f-e5e\"",
     "lastModified": "Wed, 14 Sep 2022 17:19:27 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:25.610Z",
+    "lastCheckedAt": "2026-11-21T13:02:09.812Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Stanley_Kubrick%2C_%22L%22_elevated_railway%2C_Chicago%2C_Illinois%2C_1949.jpg/1280px-Stanley_Kubrick%2C_%22L%22_elevated_railway%2C_Chicago%2C_Illinois%2C_1949.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "72fe03043fd4246b5398001a831749c0",
     "lastModified": "Fri, 11 Sep 2026 19:32:48 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:15.598Z",
+    "lastCheckedAt": "2026-11-21T13:02:02.924Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:UU_mainos.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 23:52:47 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:16.841Z",
+    "lastCheckedAt": "2026-11-21T13:02:04.360Z",
     "status": 304
   },
   "https://archive.org/download/Cheerios1960/Cheerios1960.mp4": {
     "etag": "\"57bf199c-60b94e\"",
     "lastModified": "Thu, 25 Aug 2016 16:15:24 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:28.198Z",
+    "lastCheckedAt": "2026-11-21T13:02:22.300Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Stanley_Kubrick%2C_Commuters_in_train_station%2C_Chicago%2C_1949.jpg/1280px-Stanley_Kubrick%2C_Commuters_in_train_station%2C_Chicago%2C_1949.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "278a9aaa56db8f82f89fd8591d130a63",
     "lastModified": "Fri, 04 Sep 2026 18:25:48 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:17.172Z",
+    "lastCheckedAt": "2026-11-21T13:02:05.335Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick,_%22L%22_elevated_railway,_Chicago,_Illinois,_1949.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:14 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:18.627Z",
+    "lastCheckedAt": "2026-11-21T13:02:06.477Z",
     "status": 304
   },
   "https://archive.org/details/Cheerios1960": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:30.849Z",
+    "lastCheckedAt": "2026-11-21T13:02:26.371Z",
     "status": 200
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Stanley_Kubrick_-_Smelter_cph.3d02342.jpg/1280px-Stanley_Kubrick_-_Smelter_cph.3d02342.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "6c8669acd9c645efcb7d0c14cee0cc49",
     "lastModified": "Sat, 22 Aug 2026 20:50:25 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:19.524Z",
+    "lastCheckedAt": "2026-11-21T13:02:07.473Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick,_Commuters_in_train_station,_Chicago,_1949.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:17 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:20.628Z",
+    "lastCheckedAt": "2026-11-21T13:02:08.161Z",
     "status": 304
   },
   "https://archive.org/services/img/sharp_calculator_2": {
     "etag": "\"61ee5613-5df\"",
     "lastModified": "Mon, 24 Jan 2022 07:32:35 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:33.293Z",
+    "lastCheckedAt": "2026-11-21T13:02:28.739Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/NASA-Apollo8-Dec24-Earthrise.jpg/1280px-NASA-Apollo8-Dec24-Earthrise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "fd2c3dee0dfed3ab181b625b9bb02605",
     "lastModified": "Fri, 30 Oct 2026 19:01:48 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:21.376Z",
+    "lastCheckedAt": "2026-11-21T13:02:09.246Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Stanley_Kubrick_-_Smelter_cph.3d02342.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:20 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:22.915Z",
+    "lastCheckedAt": "2026-11-21T13:02:10.401Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Aldrin_Apollo_11_original.jpg/1280px-Aldrin_Apollo_11_original.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "e8280045c0c27f45e67425c73664577c",
     "lastModified": "Fri, 04 Sep 2026 21:48:59 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:23.752Z",
+    "lastCheckedAt": "2026-11-21T13:02:11.775Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Blaha_Lujza_t%C3%A9r%2C_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg/1280px-Blaha_Lujza_t%C3%A9r%2C_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "e0d1dd6f3f7826c313c399a90404b875",
     "lastModified": "Mon, 03 Aug 2026 00:08:10 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:25.968Z",
+    "lastCheckedAt": "2026-11-21T13:02:13.604Z",
     "status": 304
   },
   "https://archive.org/download/sharp_calculator_2/sharp_calculator_2.mp4": {
     "etag": "\"57bf91e0-611ccd\"",
     "lastModified": "Fri, 26 Aug 2016 00:48:32 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:45.853Z",
+    "lastCheckedAt": "2026-11-21T13:02:32.262Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg": {
     "etag": null,
     "lastModified": "Sat, 21 Nov 2026 10:06:04 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:25.180Z",
+    "lastCheckedAt": "2026-11-21T13:02:12.451Z",
     "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Gordon_Parks_-_American_Gothic.jpg/1280px-Gordon_Parks_-_American_Gothic.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail": {
     "etag": "15052dfe572d8836a21ba045bc1dcbe3",
     "lastModified": "Thu, 06 Aug 2026 22:23:04 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:27.886Z",
+    "lastCheckedAt": "2026-11-21T13:02:15.934Z",
     "status": 304
   },
   "https://archive.org/details/sharp_calculator_2": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:51.642Z",
+    "lastCheckedAt": "2026-11-21T13:02:35.364Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:Aldrin_Apollo_11_original.jpg": {
     "etag": null,
     "lastModified": "Sat, 14 Nov 2026 04:50:00 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:27.037Z",
+    "lastCheckedAt": "2026-11-21T13:02:14.721Z",
     "status": 304
   },
   "https://archive.org/services/img/1957-10-07_New_Moon": {
     "etag": "\"636606b3-c07\"",
     "lastModified": "Sat, 05 Nov 2022 06:46:11 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:54.781Z",
+    "lastCheckedAt": "2026-11-21T13:02:37.620Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Blaha_Lujza_t%C3%A9r,_metr%C3%B3%C3%A1llom%C3%A1s._Fortepan_94876.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 11:37:30 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:29.543Z",
+    "lastCheckedAt": "2026-11-21T13:02:16.836Z",
     "status": 304
   },
   "https://archive.org/download/1957-10-07_New_Moon/1957-10-07_New_Moon.mp4": {
     "etag": "\"63660d58-42482a\"",
     "lastModified": "Sat, 05 Nov 2022 07:14:32 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:58.035Z",
+    "lastCheckedAt": "2026-11-21T13:02:40.904Z",
     "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Gordon_Parks_-_American_Gothic.jpg": {
     "etag": null,
     "lastModified": "Mon, 16 Nov 2026 05:37:07 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:31.709Z",
+    "lastCheckedAt": "2026-11-21T13:02:19.281Z",
     "status": 304
   },
   "https://archive.org/details/1957-10-07_New_Moon": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:01.003Z",
+    "lastCheckedAt": "2026-11-21T13:02:43.587Z",
     "status": 200
   },
   "https://archive.org/services/img/1958-02-03_First_US_Satellite_Launched": {
     "etag": "\"69f50e92-2470\"",
     "lastModified": "Fri, 01 May 2026 20:35:30 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:03.257Z",
+    "lastCheckedAt": "2026-11-21T13:02:46.177Z",
     "status": 304
   },
   "https://archive.org/download/1958-02-03_First_US_Satellite_Launched/1958-02-03_First_US_Satellite_Launched.mp4": {
     "etag": "\"6366110c-f906ac\"",
     "lastModified": "Sat, 05 Nov 2022 07:30:20 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:06.879Z",
+    "lastCheckedAt": "2026-11-21T13:02:50.085Z",
     "status": 304
   },
   "https://archive.org/details/1958-02-03_First_US_Satellite_Launched": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:09.362Z",
+    "lastCheckedAt": "2026-11-21T13:02:52.706Z",
     "status": 200
   },
   "https://archive.org/services/img/1962-08-16_The_Wall": {
     "etag": "\"62d515da-1730\"",
     "lastModified": "Mon, 18 Jul 2022 08:12:10 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:12.171Z",
+    "lastCheckedAt": "2026-11-21T13:02:55.203Z",
     "status": 304
   },
   "https://archive.org/download/1962-08-16_The_Wall/1962-08-16_The_Wall.mp4": {
     "etag": "\"63661164-96798f\"",
     "lastModified": "Sat, 05 Nov 2022 07:31:48 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:15.565Z",
+    "lastCheckedAt": "2026-11-21T13:02:59.982Z",
     "status": 304
   },
   "https://archive.org/details/1962-08-16_The_Wall": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:18.015Z",
+    "lastCheckedAt": "2026-11-21T13:03:03.590Z",
     "status": 200
   },
   "https://archive.org/services/img/1963-11-14_Space_Movie": {
     "etag": "\"62d30912-e06\"",
     "lastModified": "Sat, 16 Jul 2022 18:53:06 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:21.023Z",
+    "lastCheckedAt": "2026-11-21T13:03:05.623Z",
     "status": 304
   },
   "https://archive.org/download/1963-11-14_Space_Movie/1963-11-14_Space_Movie.mp4": {
     "etag": "\"6366198f-566c6f\"",
     "lastModified": "Sat, 05 Nov 2022 08:06:39 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:24.108Z",
+    "lastCheckedAt": "2026-11-21T13:03:09.295Z",
     "status": 304
   },
   "https://archive.org/details/1963-11-14_Space_Movie": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:26.189Z",
+    "lastCheckedAt": "2026-11-21T13:03:13.567Z",
     "status": 200
   },
   "https://archive.org/services/img/1964-10-26_Fashions": {
     "etag": "\"62d41a80-2953\"",
     "lastModified": "Sun, 17 Jul 2022 14:19:44 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:28.222Z",
+    "lastCheckedAt": "2026-11-21T13:03:15.950Z",
     "status": 304
   },
   "https://archive.org/download/1964-10-26_Fashions/1964-10-26_Fashions.mp4": {
     "etag": "\"63661271-baf1b0\"",
     "lastModified": "Sat, 05 Nov 2022 07:36:17 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:31.099Z",
+    "lastCheckedAt": "2026-11-21T13:03:19.123Z",
     "status": 304
   },
   "https://archive.org/details/1964-10-26_Fashions": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:34.057Z",
+    "lastCheckedAt": "2026-11-21T13:03:22.116Z",
     "status": 200
   },
   "https://upload.wikimedia.org/wikipedia/commons/e/e0/Ostend-Cologne-Pullman%2C_1931%2C_Southern.jpg": {
     "etag": "7ff35a28fa1d20fee8f5a1966de82ded",
     "lastModified": "Mon, 07 Oct 2013 13:09:35 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:08.670Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:01:55.802Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/bl2U1p3fVRk/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:10.200Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:01:57.296Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/GURvHJNmGrc/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:12.003Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:01:59.461Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/TnzFRV1LwIo/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:14.397Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:01.106Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/xffOCZYX6F8/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:16.935Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:03.174Z",
+    "status": 304
   },
   "https://images.nasa.gov/details/ksc_082809_sts128_open": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:18.538Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:04.716Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/vtnhmy_KcgM/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:18.882Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:04.859Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dbl2U1p3fVRk&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:19.090Z",
+    "lastCheckedAt": "2026-11-21T13:02:05.127Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/ksc_082809_sts128_open/ksc_082809_sts128_open~thumb.jpg": {
     "etag": "\"a44b28e2d7df6de37848c42a6a95dcd7\"",
     "lastModified": "Tue, 09 Nov 2021 18:40:53 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:20.761Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:05.559Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/owGykVbfgUE/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:21.380Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:06.413Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=bl2U1p3fVRk": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:21.489Z",
+    "lastCheckedAt": "2026-11-21T13:02:07.693Z",
     "status": 200
   },
   "https://images.nasa.gov/details/ksc_051410_sts132_open": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:22.129Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:07.749Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/ksc_082809_sts128_open/ksc_082809_sts128_open~mobile.mp4": {
     "etag": "\"c9f2d48e4346dfb22e7f5d60c432d3d7\"",
     "lastModified": "Tue, 09 Nov 2021 18:40:54 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:22.958Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:08.590Z",
+    "status": 304
   },
   "https://i.ytimg.com/vi/5sMBhDv4sik/hqdefault.jpg": {
     "etag": "\"0\"",
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:23.269Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:08.208Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DGURvHJNmGrc&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:23.674Z",
+    "lastCheckedAt": "2026-11-21T13:02:09.612Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/ksc_051410_sts132_open/ksc_051410_sts132_open~thumb.jpg": {
     "etag": "\"22c338e7fc512310503cb4b0287dbf3f\"",
     "lastModified": "Tue, 09 Nov 2021 19:00:45 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:25.519Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:10.906Z",
+    "status": 304
   },
   "https://images.nasa.gov/details/ksc_042310_sts132_rollout": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:25.676Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:10.703Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=GURvHJNmGrc": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:26.086Z",
+    "lastCheckedAt": "2026-11-21T13:02:12.305Z",
     "status": 200
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DTnzFRV1LwIo&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:28.200Z",
+    "lastCheckedAt": "2026-11-21T13:02:14.310Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/ksc_051410_sts132_open/ksc_051410_sts132_open~mobile.mp4": {
     "etag": "\"0e3462488a305e94656f87b1b8768aa5\"",
     "lastModified": "Tue, 09 Nov 2021 19:00:47 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:28.257Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:13.106Z",
+    "status": 304
   },
   "https://images.nasa.gov/details/ksc_051109_sts125_open": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:28.588Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:13.957Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/ksc_042310_sts132_rollout/ksc_042310_sts132_rollout~thumb.jpg": {
     "etag": "\"b7748f8a19ccc36dcb788a1217526f76\"",
     "lastModified": "Tue, 09 Nov 2021 15:59:58 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:30.723Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:15.473Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=TnzFRV1LwIo": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:31.207Z",
+    "lastCheckedAt": "2026-11-21T13:02:16.681Z",
     "status": 200
   },
   "https://images.nasa.gov/details/GSFC_20160721_HST_m12323_Spot_Short": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:31.379Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:17.595Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/WRC-TV_Tokyo_1964.jpg/1280px-WRC-TV_Tokyo_1964.jpg": {
     "etag": "9467cd57e64c1646c9f3efdd6c713db3",
     "lastModified": "Sun, 02 Aug 2026 17:57:36 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:31.980Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:18.172Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/ksc_042310_sts132_rollout/ksc_042310_sts132_rollout~mobile.mp4": {
     "etag": "\"388fca9caffe4fccc03ecfeae29b604d\"",
     "lastModified": "Tue, 09 Nov 2021 15:59:59 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:33.176Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:18.036Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DxffOCZYX6F8&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:33.774Z",
+    "lastCheckedAt": "2026-11-21T13:02:19.031Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:WRC-TV_Tokyo_1964.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:34 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:34.447Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:21.497Z",
+    "status": 304
   },
   "https://images.nasa.gov/details/201107080006HQ": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:34.464Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:20.377Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/TWA_New_York_Travel_Poster_%281958%29._David_Klein_Full-Bleed_Poster.jpg/1280px-TWA_New_York_Travel_Poster_%281958%29._David_Klein_Full-Bleed_Poster.jpg": {
     "etag": "afe6a866da12826b6b5e8b009199693e",
     "lastModified": "Tue, 08 Sep 2026 05:08:39 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:34.521Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:19.771Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/ksc_051109_sts125_open/ksc_051109_sts125_open~thumb.jpg": {
     "etag": "\"93fa814b574d85565849fbf8c81a9697\"",
     "lastModified": "Tue, 09 Nov 2021 18:37:48 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:35.304Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:20.267Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=xffOCZYX6F8": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:36.275Z",
+    "lastCheckedAt": "2026-11-21T13:02:22.108Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:TWA_New_York_Travel_Poster_(1958)._David_Klein_Full-Bleed_Poster.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:36 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:36.608Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:23.904Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Grand_Canyon_National_Park%2C_a_free_government_service_LCCN2007676131.jpg/1280px-Grand_Canyon_National_Park%2C_a_free_government_service_LCCN2007676131.jpg": {
     "etag": "c176001dbd1fc7a01b3f551b4041b820",
     "lastModified": "Fri, 24 Jul 2026 22:53:53 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:37.177Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:21.913Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/ksc_051109_sts125_open/ksc_051109_sts125_open~mobile.mp4": {
     "etag": "\"bc7d39b796dfca28bf54494bbd67902b\"",
     "lastModified": "Tue, 09 Nov 2021 18:37:50 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:37.623Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:22.471Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dvtnhmy_KcgM&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:37.924Z",
+    "lastCheckedAt": "2026-11-21T13:02:24.258Z",
     "status": 200
   },
   "https://images.nasa.gov/details/as17-148-22727": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:38.069Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:23.693Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Zion_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676134.jpg/1280px-Zion_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676134.jpg": {
     "etag": "f175aba151d87be756c005cd2c8c6f7e",
     "lastModified": "Tue, 25 Aug 2026 09:21:36 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:39.659Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:23.867Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=vtnhmy_KcgM": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:40.143Z",
+    "lastCheckedAt": "2026-11-21T13:02:27.232Z",
     "status": 200
   },
   "https://images-assets.nasa.gov/video/GSFC_20160721_HST_m12323_Spot_Short/GSFC_20160721_HST_m12323_Spot_Short~thumb.jpg": {
     "etag": "\"cd2d3db32b7e773f4c154df4a47bd049\"",
     "lastModified": "Fri, 02 Aug 2019 16:56:08 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:40.575Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:24.233Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Grand_Canyon_National_Park,_a_free_government_service_LCCN2007676131.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:39 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:40.583Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:26.369Z",
+    "status": 304
   },
   "https://images.nasa.gov/details/s65-30431": {
     "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
     "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
     "contentType": "text/html",
-    "lastCheckedAt": "2026-11-21T12:21:41.438Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:27.229Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DowGykVbfgUE&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:42.072Z",
+    "lastCheckedAt": "2026-11-21T13:02:29.481Z",
     "status": 200
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Yellowstone_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676133.jpg/1280px-Yellowstone_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676133.jpg": {
     "etag": "fb172347ecd470912934c714d89cb6fa",
     "lastModified": "Thu, 16 Jul 2026 14:13:50 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:42.630Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:26.341Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Zion_National_Park,_Ranger_Naturalist_Service_LCCN2007676134.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:42 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:42.648Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:28.606Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/video/GSFC_20160721_HST_m12323_Spot_Short/GSFC_20160721_HST_m12323_Spot_Short~mobile.mp4": {
     "etag": "\"0e4587d8dbb27d13926ee718aecd7d28\"",
     "lastModified": "Fri, 02 Aug 2019 16:56:24 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:21:43.379Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:26.813Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=owGykVbfgUE": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:44.474Z",
+    "lastCheckedAt": "2026-11-21T13:02:32.797Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:Yellowstone_National_Park,_Ranger_Naturalist_Service_LCCN2007676133.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:45 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:45.746Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:30.488Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/image/201107080006HQ/201107080006HQ~thumb.jpg": {
     "etag": "\"48b2ed62cb645ddf4fb8601ae51dd368\"",
     "lastModified": "Wed, 15 Feb 2017 04:56:33 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:45.868Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:29.713Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Lassen_Volcanic_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676132.jpg/1280px-Lassen_Volcanic_National_Park%2C_Ranger_Naturalist_Service_LCCN2007676132.jpg": {
     "etag": "c96a8d7a8dc362ddfd7debc473cdfe94",
     "lastModified": "Sun, 20 Sep 2026 01:11:14 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:46.569Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:28.591Z",
+    "status": 304
   },
   "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D5sMBhDv4sik&format=json": {
     "etag": null,
     "lastModified": null,
     "contentType": "application/json",
-    "lastCheckedAt": "2026-11-21T12:21:47.042Z",
+    "lastCheckedAt": "2026-11-21T13:02:34.799Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:Lassen_Volcanic_National_Park,_Ranger_Naturalist_Service_LCCN2007676132.jpg": {
     "etag": null,
     "lastModified": "Mon, 09 Nov 2026 10:08:37 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:48.430Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:32.913Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/image/as17-148-22727/as17-148-22727~thumb.jpg": {
     "etag": "\"271e2cbbb48c38c5c62cd3f37cc11413\"",
     "lastModified": "Fri, 17 Feb 2017 10:22:49 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:48.840Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:32.794Z",
+    "status": 304
   },
   "https://www.youtube.com/watch?v=5sMBhDv4sik": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=utf-8",
-    "lastCheckedAt": "2026-11-21T12:21:50.091Z",
+    "lastCheckedAt": "2026-11-21T13:02:37.481Z",
     "status": 200
   },
   "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Mars.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:50 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:50.498Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:35.009Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/JPL_Visions_of_the_Future%2C_Mars.jpg/1280px-JPL_Visions_of_the_Future%2C_Mars.jpg": {
     "etag": "44a8f4d80ba8db9b0d9a6b25cc5e9285",
     "lastModified": "Sat, 08 Aug 2026 19:44:14 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:50.812Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:31.035Z",
+    "status": 304
   },
   "https://images-assets.nasa.gov/image/s65-30431/s65-30431~thumb.jpg": {
     "etag": "\"1dd5dbcb09b90608914f7234be555463\"",
     "lastModified": "Sat, 18 Feb 2017 00:32:36 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:51.561Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:35.320Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Ceres.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:53 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:53.381Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:36.827Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/JPL_Visions_of_the_Future%2C_Ceres.jpg/1280px-JPL_Visions_of_the_Future%2C_Ceres.jpg": {
     "etag": "b24761a8054c7819aaa2723065f95c08",
     "lastModified": "Sun, 13 Sep 2026 03:49:18 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:54.740Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:33.320Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Venus.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:55 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:55.457Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:38.449Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/JPL_Visions_of_the_Future%2C_Venus.jpg/1280px-JPL_Visions_of_the_Future%2C_Venus.jpg": {
     "etag": "6f1538846c8c5df9c7a25065e2213de3",
     "lastModified": "Sat, 26 Sep 2026 00:15:47 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:21:57.570Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:35.282Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Bitter_Campari_(%22Lo_Spiritello%22)_-_Leonetto_Cappiello,_lithography_(Italy,_1921).png": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:21:57 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:21:58.933Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:40.754Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Bitter_Campari_%28%22Lo_Spiritello%22%29_-_Leonetto_Cappiello%2C_lithography_%28Italy%2C_1921%29.png/1280px-Bitter_Campari_%28%22Lo_Spiritello%22%29_-_Leonetto_Cappiello%2C_lithography_%28Italy%2C_1921%29.png": {
     "etag": "25a3ac00977ac37daa35e1174b18d676",
     "lastModified": "Fri, 21 Aug 2026 00:56:37 GMT",
     "contentType": "image/png",
-    "lastCheckedAt": "2026-11-21T12:21:59.386Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:37.648Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Ostend-Cologne-Pullman,_1931,_Southern.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:01 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:02.524Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:42.997Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Vintage_Zenith_%22Zenette%22_Transistor_Radio%2C_Model_Royal_100%2C_Price_-_%2439.95_%289706663741%29.jpg/1280px-Vintage_Zenith_%22Zenette%22_Transistor_Radio%2C_Model_Royal_100%2C_Price_-_%2439.95_%289706663741%29.jpg": {
     "etag": null,
     "lastModified": null,
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:03.118Z",
+    "lastCheckedAt": "2026-11-21T13:02:40.118Z",
     "status": 200
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Locomotives-Roundhouse2.jpg/1280px-Locomotives-Roundhouse2.jpg": {
     "etag": "262bbc0af714f4ddaa821434454b31e9",
     "lastModified": "Wed, 29 Jul 2026 02:32:20 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:05.583Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:42.290Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Vintage_Zenith_%22Zenette%22_Transistor_Radio,_Model_Royal_100,_Price_-_$39.95_(9706663741).jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:04 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:05.885Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:44.967Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Amarillo_Rail_Yard_1942a.jpg/1280px-Amarillo_Rail_Yard_1942a.jpg": {
     "etag": "c46fc5c0f4bf53dd51f781e2b7396e58",
     "lastModified": "Sun, 02 Aug 2026 04:10:58 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:07.805Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:44.645Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Locomotives-Roundhouse2.jpg": {
     "etag": null,
     "lastModified": "Mon, 16 Nov 2026 06:49:34 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:08.028Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:47.450Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Amarillo_Rail_Yard_1942a.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:10 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:11.275Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:49.836Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Jack_Delano_-_Welder_at_the_C_%26_NW_RR_locomotive_shops%2C_40th_Street_shops%2C_Chicago%2C_Ill..jpg/1280px-Jack_Delano_-_Welder_at_the_C_%26_NW_RR_locomotive_shops%2C_40th_Street_shops%2C_Chicago%2C_Ill..jpg": {
     "etag": "3c488c6c418aa32ef6a7fe5754f50899",
     "lastModified": "Thu, 13 Aug 2026 13:02:33 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:12.900Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:46.743Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Jack_Delano_-_Welder_at_the_C_%26_NW_RR_locomotive_shops,_40th_Street_shops,_Chicago,_Ill..jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:13 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:13.909Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:51.559Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/WomanFactory1940s.jpg/1280px-WomanFactory1940s.jpg": {
     "etag": "05bf5daa5d7bf303b4a99b40344f2b69",
     "lastModified": "Thu, 27 Aug 2026 21:21:06 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:15.082Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:48.850Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:WomanFactory1940s.jpg": {
     "etag": null,
     "lastModified": "Sat, 14 Nov 2026 19:31:37 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:16.311Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:53.265Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/AlfredPalmerRamagosa.jpg/1280px-AlfredPalmerRamagosa.jpg": {
     "etag": "6a007026418073559470ccffc7292876",
     "lastModified": "Mon, 27 Jul 2026 12:49:49 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:17.944Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:51.235Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:AlfredPalmerRamagosa.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:18 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:18.872Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:55.398Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Russell_Lee_street_corner_Dillon_Montana.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:21 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:22.981Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:57.323Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Russell_Lee_street_corner_Dillon_Montana.jpg/1280px-Russell_Lee_street_corner_Dillon_Montana.jpg": {
     "etag": "413a23b4a62228fe98619e71847ab237",
     "lastModified": "Mon, 24 Aug 2026 20:31:10 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:23.108Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:53.189Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Grain_elevators_Caldwell_Idaho_fsac.1a34206u.jpg/1280px-Grain_elevators_Caldwell_Idaho_fsac.1a34206u.jpg": {
     "etag": "f7227c40f66f4e9f7b0d1db49078ca26",
     "lastModified": "Thu, 08 Oct 2026 23:57:02 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:25.263Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:54.869Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Grain_elevators_Caldwell_Idaho_fsac.1a34206u.jpg": {
     "etag": null,
     "lastModified": "Sat, 07 Nov 2026 12:22:25 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:25.440Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:59.124Z",
+    "status": 304
   },
   "https://commons.wikimedia.org/wiki/File:Higgins1942ColorView.jpg": {
     "etag": null,
     "lastModified": "Fri, 20 Nov 2026 16:51:37 GMT",
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:27.547Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:00.737Z",
+    "status": 304
   },
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Higgins1942ColorView.jpg/1280px-Higgins1942ColorView.jpg": {
     "etag": "e804f38f762ff12e778d1243e850ef45",
     "lastModified": "Thu, 25 Jun 2026 14:54:47 GMT",
     "contentType": "image/jpeg",
-    "lastCheckedAt": "2026-11-21T12:22:28.931Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:02:56.572Z",
+    "status": 304
   },
   "https://archive.org/services/img/Corvairi1960": {
     "etag": "\"69386825-1ec8\"",
     "lastModified": "Tue, 09 Dec 2025 18:19:17 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:36.367Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:24.398Z",
+    "status": 304
   },
   "https://archive.org/download/Corvairi1960/Corvairi1960_512kb.mp4": {
     "etag": "\"4929b451-1a3538e\"",
     "lastModified": "Sun, 23 Nov 2008 19:51:45 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:39.565Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:27.910Z",
+    "status": 304
   },
   "https://archive.org/details/Corvairi1960": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:46.421Z",
+    "lastCheckedAt": "2026-11-21T13:03:31.241Z",
     "status": 200
   },
   "https://archive.org/services/img/American1958_2": {
     "etag": "\"64cddc02-14c2\"",
     "lastModified": "Sat, 05 Aug 2023 05:20:02 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:48.688Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:33.273Z",
+    "status": 304
   },
   "https://archive.org/download/American1958_2/American1958_2_512kb.mp4": {
     "etag": "\"49275c7f-245f4e2\"",
     "lastModified": "Sat, 22 Nov 2008 01:12:31 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:22:52.102Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:37.403Z",
+    "status": 304
   },
   "https://archive.org/details/American1958_2": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:55.043Z",
+    "lastCheckedAt": "2026-11-21T13:03:40.002Z",
     "status": 200
   },
   "https://archive.org/services/img/OnceUpon1956": {
     "etag": "\"63220dc1-181c\"",
     "lastModified": "Wed, 14 Sep 2022 17:22:09 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:22:57.225Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:42.536Z",
+    "status": 304
   },
   "https://archive.org/download/OnceUpon1956/OnceUpon1956_512kb.mp4": {
     "etag": "\"492f96ea-3aae3db\"",
     "lastModified": "Fri, 28 Nov 2008 06:59:54 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:23:00.470Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:45.811Z",
+    "status": 304
   },
   "https://archive.org/details/OnceUpon1956": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:23:03.743Z",
+    "lastCheckedAt": "2026-11-21T13:03:49.030Z",
     "status": 200
   },
   "https://archive.org/services/img/Countdow1960": {
     "etag": "\"61eef54e-1a2d\"",
     "lastModified": "Mon, 24 Jan 2022 18:51:58 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:23:06.054Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:51.439Z",
+    "status": 304
   },
   "https://archive.org/download/Countdow1960/Countdow1960_512kb.mp4": {
     "etag": "\"4929f52a-102cc0\"",
     "lastModified": "Mon, 24 Nov 2008 00:28:26 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:23:09.145Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:54.720Z",
+    "status": 304
   },
   "https://archive.org/details/Countdow1960": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:23:12.382Z",
+    "lastCheckedAt": "2026-11-21T13:03:57.909Z",
     "status": 200
   },
   "https://archive.org/services/img/American1956": {
     "etag": "\"6aca94a0-1889\"",
     "lastModified": "Sat, 10 Oct 2026 19:40:16 GMT",
     "contentType": "image/jpeg; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:23:14.660Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:03:59.901Z",
+    "status": 304
   },
   "https://archive.org/download/American1956/American1956_512kb.mp4": {
     "etag": "\"4928ae2e-2616aca\"",
     "lastModified": "Sun, 23 Nov 2008 01:13:18 GMT",
     "contentType": "video/mp4",
-    "lastCheckedAt": "2026-11-21T12:23:17.414Z",
-    "status": 200
+    "lastCheckedAt": "2026-11-21T13:04:02.849Z",
+    "status": 304
   },
   "https://archive.org/details/American1956": {
     "etag": null,
     "lastModified": null,
     "contentType": "text/html; charset=UTF-8",
-    "lastCheckedAt": "2026-11-21T12:23:19.929Z",
+    "lastCheckedAt": "2026-11-21T13:04:05.567Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/d/d4/Exhibition_WPA_Federal_Art_Project_LCCN98507148.jpg": {
+    "etag": "f827a99e503fb9b974f84bbd2443ebdb",
+    "lastModified": "Tue, 22 May 2018 18:15:52 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:01:58.206Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/b/b2/WPA_Federal_Art_Project_general_exhibition_LCCN98513158.jpg": {
+    "etag": "a19cc86213aa3ec833640fc44e63b30f",
+    "lastModified": "Thu, 17 Jan 2019 22:23:22 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:00.404Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/d/d4/Exhibition_color_lithography_by_Federal_Art_Project_Work_Projects_Administration_LCCN98516682.jpg": {
+    "etag": "5668ec397ab15e662280e74bb38b84a0",
+    "lastModified": "Tue, 22 May 2018 17:38:32 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:02.520Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/a/a2/Abatilles_poster_-_Leonetto_Cappiello_-_1926.jpg": {
+    "etag": "393b5161d68b01f63f629d342d7e195b",
+    "lastModified": "Thu, 31 Jan 2019 17:35:44 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:04.836Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/b/bb/Anisette_Marie_Brizard_l%27%C3%A9ternelle_favorite_-_%28affiche%29_-_%28Leonetto_Cappiello%29.jpg": {
+    "etag": "8a3813ccf2304b46b742c2d7c80207a4",
+    "lastModified": "Sun, 15 Dec 2019 15:45:25 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:07.324Z",
+    "status": 200
+  },
+  "https://upload.wikimedia.org/wikipedia/commons/9/99/Marion_Post_Wolcott_1940.jpg": {
+    "etag": "65378b267612bfb4473dfbff831587fb",
+    "lastModified": "Sun, 06 Oct 2013 10:50:00 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:09.308Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/M7FIvfx5J10/hqdefault.jpg": {
+    "etag": "\"1384412453\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:10.460Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/IJNR2EpS0jw/hqdefault.jpg": {
+    "etag": "\"1546384284\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:12.778Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/BOM1k4oLGJU/hqdefault.jpg": {
+    "etag": "\"0\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:15.117Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/W16qzZ7J5YQ/hqdefault.jpg": {
+    "etag": "\"0\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:17.594Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/Ug75diEyiA0/hqdefault.jpg": {
+    "etag": "\"0\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:19.514Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/OLSsswr6z9Y/hqdefault.jpg": {
+    "etag": "\"1312511492\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:21.320Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/Tc3PZ3Im5aQ/hqdefault.jpg": {
+    "etag": "\"0\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:23.834Z",
+    "status": 200
+  },
+  "https://i.ytimg.com/vi/SKL254Y_jtc/hqdefault.jpg": {
+    "etag": "\"0\"",
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:26.331Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/ksc_061709_sts127_open": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:30.341Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/ksc_022411_sts133_launch": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:33.818Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/ksc_020111_sts133_rollout": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:36.863Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_061709_sts127_open/ksc_061709_sts127_open~thumb.jpg": {
+    "etag": "\"88e7996bcfe6132a76dbb9a248558a93\"",
+    "lastModified": "Tue, 09 Nov 2021 18:38:40 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:38.097Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/ksc_041709_sts127_rollout2": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:39.949Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DM7FIvfx5J10&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:02:39.954Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_061709_sts127_open/ksc_061709_sts127_open~mobile.mp4": {
+    "etag": "\"6bde2a6c0200d228b5b75d206a764d6b\"",
+    "lastModified": "Tue, 09 Nov 2021 18:38:41 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:02:40.598Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=M7FIvfx5J10": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:02:42.519Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_022411_sts133_launch/ksc_022411_sts133_launch~thumb.jpg": {
+    "etag": "\"37f3e39746fb0da50c792c01206c4715\"",
+    "lastModified": "Tue, 09 Nov 2021 16:25:15 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:43.019Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/ksc_102808_126_rollaround": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:43.550Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DIJNR2EpS0jw&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:02:44.648Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_022411_sts133_launch/ksc_022411_sts133_launch~mobile.mp4": {
+    "etag": "\"782cc512521629c59b20bfbb51ffb769\"",
+    "lastModified": "Tue, 09 Nov 2021 16:25:16 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:02:45.967Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/GSFC_20130805_HappyBirthday_m11331_Curiosity": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:47.103Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=IJNR2EpS0jw": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:02:47.191Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_020111_sts133_rollout/ksc_020111_sts133_rollout~thumb.jpg": {
+    "etag": "\"e84a4f1d6484c490ba2c27016668a272\"",
+    "lastModified": "Tue, 09 Nov 2021 16:21:55 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:48.428Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DBOM1k4oLGJU&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:02:48.976Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/James_Webb_Space_Telescope__An_Overview_1080": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:50.478Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_020111_sts133_rollout/ksc_020111_sts133_rollout~mobile.mp4": {
+    "etag": "\"744df026d9f20cb3469afda1e85546e1\"",
+    "lastModified": "Tue, 09 Nov 2021 16:21:57 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:02:51.259Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=BOM1k4oLGJU": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:02:51.448Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_041709_sts127_rollout2/ksc_041709_sts127_rollout2~thumb.jpg": {
+    "etag": "\"75324c7dadef89e21f9e274564b0647c\"",
+    "lastModified": "Tue, 09 Nov 2021 14:05:34 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:53.471Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/s82-32169": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:53.554Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DW16qzZ7J5YQ&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:02:53.934Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_041709_sts127_rollout2/ksc_041709_sts127_rollout2~mobile.mp4": {
+    "etag": "\"3b89e1f66b244e78282b095275a8678f\"",
+    "lastModified": "Tue, 09 Nov 2021 14:05:35 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:02:56.102Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=W16qzZ7J5YQ": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:02:56.688Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/KSC-89PC-1262": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:02:56.906Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_102808_126_rollaround/ksc_102808_126_rollaround~thumb.jpg": {
+    "etag": "\"9d06c77b9b7b6b301f93f9aa5f32281e\"",
+    "lastModified": "Tue, 09 Nov 2021 13:52:17 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:57.733Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/JPL_Visions_of_the_Future%2C_Enceladus.jpg/1280px-JPL_Visions_of_the_Future%2C_Enceladus.jpg": {
+    "etag": "b1e17ca47d090b00152dedd0f4dfe480",
+    "lastModified": "Sun, 13 Sep 2026 03:49:18 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:02:58.684Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DUg75diEyiA0&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:02:58.751Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/ksc_102808_126_rollaround/ksc_102808_126_rollaround~mobile.mp4": {
+    "etag": "\"3295b350cc4d3534167230ab55a630c7\"",
+    "lastModified": "Tue, 09 Nov 2021 13:52:18 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:02:59.941Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/EC03-0082-1": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:00.442Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/JPL_Visions_of_the_Future%2C_HD_40307g.jpg/1280px-JPL_Visions_of_the_Future%2C_HD_40307g.jpg": {
+    "etag": "b4ebd1b7bfbdcfbe352970ad285934b0",
+    "lastModified": "Fri, 04 Sep 2026 15:35:08 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:01.144Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/GSFC_20130805_HappyBirthday_m11331_Curiosity/GSFC_20130805_HappyBirthday_m11331_Curiosity~thumb.jpg": {
+    "etag": "\"50254f51df5d1fc350bca182ce305c2b\"",
+    "lastModified": "Tue, 05 Mar 2019 16:34:45 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:01.461Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=Ug75diEyiA0": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:03:01.926Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/JPL_Visions_of_the_Future%2C_Titan.jpg/1280px-JPL_Visions_of_the_Future%2C_Titan.jpg": {
+    "etag": "a50680dd8d6b0afd0b13ce918d4f2b00",
+    "lastModified": "Fri, 16 Oct 2026 06:27:06 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:03.092Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DOLSsswr6z9Y&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:03:03.782Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/GSFC_20130805_HappyBirthday_m11331_Curiosity/GSFC_20130805_HappyBirthday_m11331_Curiosity~mobile.mp4": {
+    "etag": "\"a49b419ca51d2c0088575b265a3d6597\"",
+    "lastModified": "Tue, 05 Mar 2019 16:35:08 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:03:03.843Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/GRC-1977-C-04657": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:04.011Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg/1280px-Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg": {
+    "etag": "6349c90695dfa33ce61816f89bda5de6",
+    "lastModified": "Sun, 21 Jun 2026 21:10:17 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:05.084Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Enceladus.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:03 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:05.631Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/James_Webb_Space_Telescope__An_Overview_1080/James_Webb_Space_Telescope__An_Overview_1080~thumb.jpg": {
+    "etag": "\"0b512f209f1842373e053274f6056c7a\"",
+    "lastModified": "Wed, 13 Mar 2019 14:48:58 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:06.223Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=OLSsswr6z9Y": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:03:06.499Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/GSFC_20171208_Archive_e000842": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:06.727Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg/1280px-Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg": {
+    "etag": "837ab668966d3a902a37bf11446b536e",
+    "lastModified": "Sun, 04 Oct 2026 12:56:52 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:06.749Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_HD_40307g.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:07 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:08.039Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DTc3PZ3Im5aQ&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:03:08.275Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/video/James_Webb_Space_Telescope__An_Overview_1080/James_Webb_Space_Telescope__An_Overview_1080~mobile.mp4": {
+    "etag": "\"e50138252424681479b0587bcda907de\"",
+    "lastModified": "Wed, 13 Mar 2019 14:54:07 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:03:08.659Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/WPA_Federal_Art_Project_paintings%2C_Barnstable_High_School%2C_Hyannis_LCCN98513147.jpg/1280px-WPA_Federal_Art_Project_paintings%2C_Barnstable_High_School%2C_Hyannis_LCCN98513147.jpg": {
+    "etag": "5892a2280c1fad4b717a5db73ca31abd",
+    "lastModified": "Sat, 10 Oct 2026 18:23:51 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:09.436Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/GSFC_20171208_Archive_e000382": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:10.299Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Titan.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:10 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:10.623Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/s82-32169/s82-32169~thumb.jpg": {
+    "etag": "\"c6916619544c19e80160e6031fbceda5\"",
+    "lastModified": "Sat, 18 Feb 2017 00:58:41 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:10.634Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=Tc3PZ3Im5aQ": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:03:11.119Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/KSC-89PC-1262/KSC-89PC-1262~thumb.jpg": {
+    "etag": "\"ccd76934a482676bb8bd5b4d06c91e2e\"",
+    "lastModified": "Mon, 20 Dec 2021 17:29:48 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:12.731Z",
+    "status": 200
+  },
+  "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DSKL254Y_jtc&format=json": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "application/json",
+    "lastCheckedAt": "2026-11-21T13:03:12.999Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/iss038e013587": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:13.334Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Le_Frou_Frou%2C_journal_humoristique%2C_poster_by_Leonetto_Cappiello%2C_1899.jpg/1280px-Le_Frou_Frou%2C_journal_humoristique%2C_poster_by_Leonetto_Cappiello%2C_1899.jpg": {
+    "etag": "f3ed3edcec12eaa7adb167dbe2fffdbc",
+    "lastModified": "Sat, 26 Sep 2026 04:45:47 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:13.793Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/EC03-0082-1/EC03-0082-1~thumb.jpg": {
+    "etag": "\"da27dc1a5b03fc8005f512c67e1c54b3\"",
+    "lastModified": "Wed, 05 Jul 2017 19:42:31 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:14.448Z",
+    "status": 200
+  },
+  "https://www.youtube.com/watch?v=SKL254Y_jtc": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=utf-8",
+    "lastCheckedAt": "2026-11-21T13:03:15.036Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Exhibition_WPA_Federal_Art_Project_LCCN98507148.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:12 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:15.785Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Royal_Melchior_Grand_Mousseux_affiche%2C_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg/1280px-Royal_Melchior_Grand_Mousseux_affiche%2C_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg": {
+    "etag": "fd026e43b2d91aa487ceba7d7ac5eba5",
+    "lastModified": "Sat, 05 Sep 2026 11:09:26 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:15.809Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/GRC-1977-C-04657/GRC-1977-C-04657~thumb.jpg": {
+    "etag": "\"1f69f78daa3dd4176b4cf050c47727c6\"",
+    "lastModified": "Wed, 15 Feb 2017 16:02:42 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:16.291Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/iss039e005387": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:16.482Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:WPA_Federal_Art_Project_general_exhibition_LCCN98513158.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:17 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:17.813Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Perrier_advertisement_in_Life_%28magazine%29_on_February_24%2C_1910.jpg/1280px-Perrier_advertisement_in_Life_%28magazine%29_on_February_24%2C_1910.jpg": {
+    "etag": "3f0b137c103107adb7b9ed38cdb5389a",
+    "lastModified": "Tue, 28 Jul 2026 02:31:06 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:18.063Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000842/GSFC_20171208_Archive_e000842~thumb.jpg": {
+    "etag": "\"f5f55e62e7f03b57a23b930832c50fcb\"",
+    "lastModified": "Fri, 08 Dec 2017 20:25:06 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:18.258Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/as15-89-12100": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:19.799Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000382/GSFC_20171208_Archive_e000382~thumb.jpg": {
+    "etag": "\"9a82a27c5de8df7f19de28a25d651bf7\"",
+    "lastModified": "Fri, 08 Dec 2017 19:37:04 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:20.085Z",
+    "status": 200
+  },
+  "https://images.nasa.gov/details/PIA03096": {
+    "etag": "\"c5bb8db5e80d5474b9f7233ac16c3c5f\"",
+    "lastModified": "Mon, 06 Apr 2026 22:32:13 GMT",
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-21T13:03:22.522Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Pan-American_Exposition_map.jpg/1280px-Pan-American_Exposition_map.jpg": {
+    "etag": "4c36a30e7390991afc82fd3c6dc4dfa8",
+    "lastModified": "Tue, 22 Sep 2026 05:35:14 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:22.535Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/iss038e013587/iss038e013587~thumb.jpg": {
+    "etag": "\"09c8ae4d92b8ec41b17c54048265fb38\"",
+    "lastModified": "Tue, 09 Jun 2020 16:04:21 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:22.801Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:20 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:23.331Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Glacier_Trail%2C_Mt._Rainier_National_Park%2C_Washington_LCCN90709644.jpg/1280px-Glacier_Trail%2C_Mt._Rainier_National_Park%2C_Washington_LCCN90709644.jpg": {
+    "etag": "9e5e7521a5adc51b19bcafd9f6ad355b",
+    "lastModified": "Tue, 03 Nov 2026 02:49:18 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:24.415Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/iss039e005387/iss039e005387~thumb.jpg": {
+    "etag": "\"4f50d9b5d5944004a91d4b3aca939f92\"",
+    "lastModified": "Fri, 17 Feb 2017 16:18:44 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:25.015Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Exhibition_color_lithography_by_Federal_Art_Project_Work_Projects_Administration_LCCN98516682.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:25 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:25.364Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/as15-89-12100/as15-89-12100~thumb.jpg": {
+    "etag": "\"2d04326de393f270cf901cab4727cdfc\"",
+    "lastModified": "Fri, 17 Feb 2017 10:19:54 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:26.773Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:27 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:28.119Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/NoonDayRestWomanAlfredTPalmer.jpg/1280px-NoonDayRestWomanAlfredTPalmer.jpg": {
+    "etag": "a6727e61f2a328b9343d8dc0b9011697",
+    "lastModified": "Sun, 09 Aug 2026 20:22:57 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:28.792Z",
+    "status": 200
+  },
+  "https://images-assets.nasa.gov/image/PIA03096/PIA03096~thumb.jpg": {
+    "etag": "\"a19b186f2df09fa7a9ee93eeca96363b\"",
+    "lastModified": "Fri, 17 Feb 2017 01:32:54 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:29.138Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:WPA_Federal_Art_Project_paintings,_Barnstable_High_School,_Hyannis_LCCN98513147.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:30 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:32.663Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg/1280px-Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg": {
+    "etag": "06ba69f4a1058b0d675b05d2c6926d54",
+    "lastModified": "Fri, 07 Aug 2026 06:28:17 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:33.900Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/R-1830_engine_on_C-47_at_factory_1942.jpg/1280px-R-1830_engine_on_C-47_at_factory_1942.jpg": {
+    "etag": "c2027b65b74b61a2b0d849480df98b34",
+    "lastModified": "Tue, 04 Aug 2026 00:34:53 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:36.107Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Le_Frou_Frou,_journal_humoristique,_poster_by_Leonetto_Cappiello,_1899.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:34 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:36.793Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg/1280px-Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg": {
+    "etag": "4a52bd7e324311c0b76f73720c09ceb8",
+    "lastModified": "Fri, 11 Sep 2026 10:22:35 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:37.905Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Chicago_and_North_Western_Railway%3F.jpg/1280px-Chicago_and_North_Western_Railway%3F.jpg": {
+    "etag": "de3cb6f48515acd8d5a9d6ce823060a2",
+    "lastModified": "Sun, 30 Aug 2026 15:57:34 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:39.832Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Abatilles_poster_-_Leonetto_Cappiello_-_1926.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:38 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:40.038Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_5705.jpg/1280px-Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_5705.jpg": {
+    "etag": "ea7dde46dbffe68c9dd370e2df123251",
+    "lastModified": "Mon, 27 Jul 2026 03:23:17 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:41.715Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Anisette_Marie_Brizard_l%27%C3%A9ternelle_favorite_-_(affiche)_-_(Leonetto_Cappiello).jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:42 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:42.529Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_1.jpg/1280px-Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_1.jpg": {
+    "etag": "9dbba4fa1c07f9b71d7391810ed5ca76",
+    "lastModified": "Sat, 14 Nov 2026 14:25:34 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:43.404Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Royal_Melchior_Grand_Mousseux_affiche,_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg": {
+    "etag": null,
+    "lastModified": "Sun, 08 Nov 2026 01:17:49 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:44.626Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Bir-Hakeim_bridge%2C_Paris_24_June_2021.jpg/1280px-Bir-Hakeim_bridge%2C_Paris_24_June_2021.jpg": {
+    "etag": "af8b95b77e6b6052629641a9d81bdc9f",
+    "lastModified": "Sat, 05 Sep 2026 16:07:18 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:45.649Z",
+    "status": 200
+  },
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Prokudin-Gorskii-25.jpg/1280px-Prokudin-Gorskii-25.jpg": {
+    "etag": "7de9fbd6f7ffffdc065afcce76677b79",
+    "lastModified": "Fri, 21 Aug 2026 18:50:41 GMT",
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-21T13:03:47.647Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Perrier_advertisement_in_Life_(magazine)_on_February_24,_1910.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:46 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:48.098Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Pan-American_Exposition_map.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:49 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:50.995Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Glacier_Trail,_Mt._Rainier_National_Park,_Washington_LCCN90709644.jpg": {
+    "etag": null,
+    "lastModified": "Tue, 17 Nov 2026 19:21:35 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:53.816Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:NoonDayRestWomanAlfredTPalmer.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:56 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:03:57.050Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:03:59 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:00.054Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:R-1830_engine_on_C-47_at_factory_1942.jpg": {
+    "etag": null,
+    "lastModified": "Mon, 16 Nov 2026 10:40:09 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:03.313Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:04:05 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:06.849Z",
+    "status": 200
+  },
+  "https://archive.org/services/img/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00": {
+    "etag": "\"61f46d59-1188\"",
+    "lastModified": "Fri, 28 Jan 2022 22:25:29 GMT",
+    "contentType": "image/jpeg; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:08.129Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Chicago_and_North_Western_Railway%3F.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:04:08 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:09.523Z",
+    "status": 200
+  },
+  "https://archive.org/download/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00.mp4": {
+    "etag": "\"52543aeb-12d071e\"",
+    "lastModified": "Tue, 08 Oct 2013 17:03:39 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:04:11.215Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Marion_Post_Wolcott_1940.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:04:11 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:12.080Z",
+    "status": 200
+  },
+  "https://archive.org/details/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:14.651Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Amboy_(California,_USA),_Hist._Route_66_--_2012_--_5705.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 21 Nov 2026 10:28:56 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:15.052Z",
+    "status": 200
+  },
+  "https://archive.org/services/img/Magicint1955": {
+    "etag": "\"64cfd3ec-19c7\"",
+    "lastModified": "Sun, 06 Aug 2023 17:10:04 GMT",
+    "contentType": "image/jpeg; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:17.378Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Amboy_(California,_USA),_Hist._Route_66_--_2012_--_1.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 21 Nov 2026 10:28:56 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:18.019Z",
+    "status": 200
+  },
+  "https://archive.org/download/Magicint1955/Magicint1955_512kb.mp4": {
+    "etag": "\"492db6c9-2170179\"",
+    "lastModified": "Wed, 26 Nov 2008 20:51:21 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:04:19.989Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Bir-Hakeim_bridge,_Paris_24_June_2021.jpg": {
+    "etag": null,
+    "lastModified": "Sun, 08 Nov 2026 00:59:20 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:20.485Z",
+    "status": 200
+  },
+  "https://commons.wikimedia.org/wiki/File:Prokudin-Gorskii-25.jpg": {
+    "etag": null,
+    "lastModified": "Sat, 07 Nov 2026 13:04:22 GMT",
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:23.363Z",
+    "status": 200
+  },
+  "https://archive.org/details/Magicint1955": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:23.815Z",
+    "status": 200
+  },
+  "https://archive.org/services/img/Televisi1961": {
+    "etag": "\"6ad70e89-18f1\"",
+    "lastModified": "Tue, 20 Oct 2026 06:47:37 GMT",
+    "contentType": "image/jpeg; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:26.551Z",
+    "status": 200
+  },
+  "https://archive.org/download/Televisi1961/Televisi1961_512kb.mp4": {
+    "etag": "\"4932750a-1779488\"",
+    "lastModified": "Sun, 30 Nov 2008 11:12:10 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-21T13:04:29.711Z",
+    "status": 200
+  },
+  "https://archive.org/details/Televisi1961": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html; charset=UTF-8",
+    "lastCheckedAt": "2026-11-21T13:04:36.506Z",
     "status": 200
   }
 }

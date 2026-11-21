@@ -5968,5 +5968,4666 @@
       "framing": "대량 반복 패턴과 천장 트러스의 1점 투시가 결합해 산업 생산력의 질서와 에너지를 한 프레임에 응축한다.",
       "marketingApply": "제조·패키징·리테일 캠페인에서 동일 제품/오브제를 수십 개 반복 정렬하고 하이 앵글 투시로 규모감을 증명하는 구도."
     }
+  },
+  {
+    "id": "KF-071",
+    "titleKo": "2013 볼보 트럭 '에픽 스플릿(The Epic Split)' 골든아워 원테이크 TVCF",
+    "originalTitle": "Volvo Trucks — The Epic Split feat. Van Damme",
+    "brandOrSource": "Volvo Trucks · Cannes Lions Film Grand Prix",
+    "year": 2013,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "16:9",
+    "durationSec": 77,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/M7FIvfx5J10/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "M7FIvfx5J10",
+    "sourceUrl": "https://www.youtube.com/watch?v=M7FIvfx5J10",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "대칭 구도",
+      "1점 투시",
+      "역광 실루엣"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "무대사 직관 전달",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1A1718",
+      "#5C3D2E",
+      "#D97A2B",
+      "#F2B84B",
+      "#F4EAD5"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        52
+      ],
+      "eyePath": [
+        [
+          50,
+          42
+        ],
+        [
+          26,
+          56
+        ],
+        [
+          74,
+          56
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "황금빛 일출 역광 속에 눈을 감은 반담의 클로즈업으로 시작해 천천히 뒤로 빠지며 두 트",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "완벽한 좌우 대칭축과 활주로 1점 투시가 후진 주행의 초정밀 직진 안정성을 단 한 번의",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#5C3D2E·#D97A2B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "B2B 기술 스펙(다이나믹 스티어링)을 0초의 설명 없이 극한의 물리 스턴트와 대칭 미",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "황금빛 일출 역광 속에 눈을 감은 반담의 클로즈업으로 시작해 천천히 뒤로 빠지며 두 트럭 사이 다리 찢기를 드러낸다.",
+      "framing": "완벽한 좌우 대칭축과 활주로 1점 투시가 후진 주행의 초정밀 직진 안정성을 단 한 번의 원테이크로 입증한다.",
+      "marketingApply": "B2B 기술 스펙(다이나믹 스티어링)을 0초의 설명 없이 극한의 물리 스턴트와 대칭 미장센으로 바이럴화한 전설적 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-072",
+    "titleKo": "2012 멜버른 메트로 '덤 웨이즈 투 다이' 칸 5관왕 캠페인",
+    "originalTitle": "Metro Trains Melbourne — Dumb Ways to Die (McCann)",
+    "brandOrSource": "Metro Trains · Cannes Lions 5x Grand Prix",
+    "year": 2012,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "16:9",
+    "durationSec": 182,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/IJNR2EpS0jw/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "IJNR2EpS0jw",
+    "sourceUrl": "https://www.youtube.com/watch?v=IJNR2EpS0jw",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "기하학 조형",
+      "극단적 여백",
+      "매치 컷"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#2A9D8F",
+      "#E76F51",
+      "#F4A261",
+      "#E9C46A",
+      "#F7F3E9"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        52
+      ],
+      "eyePath": [
+        [
+          32,
+          46
+        ],
+        [
+          52,
+          50
+        ],
+        [
+          74,
+          54
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "파스텔 민트·코랄 플랫 색면 위 귀여운 캐릭터와 블랙 코미디의 극단적 톤 반전으로 3초",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "불필요한 배경을 소거한 극단적 단색 여백과 리드미컬한 매치 컷이 3분 내내 지루함 없는",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#E76F51·#F4A261 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "지루하기 쉬운 공공 안전·B2C 경고 메시지를 팝아트 파스텔 팔레트와 반전 유머로 글로",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "파스텔 민트·코랄 플랫 색면 위 귀여운 캐릭터와 블랙 코미디의 극단적 톤 반전으로 3초 만에 시청자를 무장해제시킨다.",
+      "framing": "불필요한 배경을 소거한 극단적 단색 여백과 리드미컬한 매치 컷이 3분 내내 지루함 없는 시각 중독성을 만든다.",
+      "marketingApply": "지루하기 쉬운 공공 안전·B2C 경고 메시지를 팝아트 파스텔 팔레트와 반전 유머로 글로벌 밈화하는 캠페인 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-073",
+    "titleKo": "1996 나이키 '굿 vs 이블(Good vs. Evil)' 콜로세움 스펙터클 TVCF",
+    "originalTitle": "Nike Soccer — Good vs. Evil (Wieden+Kennedy)",
+    "brandOrSource": "Nike · Tarsem Singh",
+    "year": 1996,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 90,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/BOM1k4oLGJU/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "BOM1k4oLGJU",
+    "sourceUrl": "https://www.youtube.com/watch?v=BOM1k4oLGJU",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "역광 실루엣",
+      "대칭 구도",
+      "초근접 클로즈업"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#120B0D",
+      "#8C1D18",
+      "#D95D26",
+      "#E5B44C",
+      "#EAE2D3"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          30,
+          58
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          76,
+          36
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "불타는 원형 경기장의 짙은 크림슨·골드 역광 실루엣이 1990년대 스포츠 광고를 신화적",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "로우 앵글 영웅 샷과 공이 날아가는 초근접 고속 컷이 선과 악의 대결 구도를 강렬한 영",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#8C1D18·#D95D26 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "스포츠·게이밍 브랜드에서 단순 제품 기능 대신 '신화적 대결 구도'와 강렬한 적색-금색",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "불타는 원형 경기장의 짙은 크림슨·골드 역광 실루엣이 1990년대 스포츠 광고를 신화적 서사시로 끌어올린다.",
+      "framing": "로우 앵글 영웅 샷과 공이 날아가는 초근접 고속 컷이 선과 악의 대결 구도를 강렬한 영화적 리듬으로 직조한다.",
+      "marketingApply": "스포츠·게이밍 브랜드에서 단순 제품 기능 대신 '신화적 대결 구도'와 강렬한 적색-금색 조명으로 팬덤을 결집하는 법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-074",
+    "titleKo": "2000 버드와이저 '와썹(Whassup)' 칸 그랑프리 매치컷 TVCF",
+    "originalTitle": "Budweiser — Whassup? (DDB Chicago)",
+    "brandOrSource": "Budweiser · Cannes Lions Grand Prix",
+    "year": 2000,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 60,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/W16qzZ7J5YQ/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "W16qzZ7J5YQ",
+    "sourceUrl": "https://www.youtube.com/watch?v=W16qzZ7J5YQ",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "매치 컷",
+      "초근접 클로즈업",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#1D1A18",
+      "#C82828",
+      "#D99B26",
+      "#4A6B82",
+      "#EFEAE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          28,
+          44
+        ],
+        [
+          52,
+          46
+        ],
+        [
+          76,
+          52
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "전화 수화기를 든 친구들의 얼굴이 고속 매치 컷으로 연쇄 폭발하며 단 한 단어 유행어를",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "점점 가까워지는 초근접 클로즈업과 빠른 리액션 컷 편집이 일상적 우정을 중독적인 리듬 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#C82828·#D99B26 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "숏폼 챌린지·바이럴 캠페인에서 누구나 1초 만에 따라 할 수 있는 음성 훅과 고속 리액",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "전화 수화기를 든 친구들의 얼굴이 고속 매치 컷으로 연쇄 폭발하며 단 한 단어 유행어를 전 세계에 각인시켰다.",
+      "framing": "점점 가까워지는 초근접 클로즈업과 빠른 리액션 컷 편집이 일상적 우정을 중독적인 리듬 코미디로 증폭한다.",
+      "marketingApply": "숏폼 챌린지·바이럴 캠페인에서 누구나 1초 만에 따라 할 수 있는 음성 훅과 고속 리액션 컷 구조를 설계하는 원형."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-075",
+    "titleKo": "1984 웬디스 '고기는 어디 있나(Where's the Beef)' 스케일 반전 TVCF",
+    "originalTitle": "Wendy's — Where's the Beef? (Dancer Fitzgerald Sample)",
+    "brandOrSource": "Wendy's · 1984 Classic Commercial",
+    "year": 1984,
+    "era": "1980s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 30,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/Ug75diEyiA0/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "Ug75diEyiA0",
+    "sourceUrl": "https://www.youtube.com/watch?v=Ug75diEyiA0",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "대칭 구도",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#1F1D1B",
+      "#C93B2B",
+      "#E6B245",
+      "#5C8EAD",
+      "#F4EFE6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          56
+        ],
+        [
+          50,
+          42
+        ],
+        [
+          72,
+          48
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "거대한 햄버거 번을 열었을 때 드러나는 초소형 패티의 극단적 스케일 반전이 5초 만에 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "제품 클로즈업과 할머니 캐릭터의 정면 리액션을 단호하게 교차해 비교 광고의 핵심 메시지",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#C93B2B·#E6B245 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "경쟁 제품 대비 압도적 우위(양·품질)를 장황한 설명 대신 과장된 시각 스케일 대비 한",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "거대한 햄버거 번을 열었을 때 드러나는 초소형 패티의 극단적 스케일 반전이 5초 만에 경쟁사의 약점을 웃음으로 찌른다.",
+      "framing": "제품 클로즈업과 할머니 캐릭터의 정면 리액션을 단호하게 교차해 비교 광고의 핵심 메시지를 단번에 못 박는다.",
+      "marketingApply": "경쟁 제품 대비 압도적 우위(양·품질)를 장황한 설명 대신 과장된 시각 스케일 대비 한 컷으로 증명하는 비교 광고 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-076",
+    "titleKo": "1993 갓 밀크(Got Milk?) '에런 버' 마이클 베이 연출 TVCF",
+    "originalTitle": "Got Milk? — Aaron Burr (Goodby Silverstein / Michael Bay)",
+    "brandOrSource": "California Milk Processor Board · Michael Bay",
+    "year": 1993,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 60,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/OLSsswr6z9Y/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "OLSsswr6z9Y",
+    "sourceUrl": "https://www.youtube.com/watch?v=OLSsswr6z9Y",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "프레임 속 프레임",
+      "매치 컷"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#1C1510",
+      "#8C4A27",
+      "#D99B38",
+      "#4D6D7A",
+      "#F2E9D8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          34,
+          48
+        ],
+        [
+          54,
+          46
+        ],
+        [
+          74,
+          58
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "우유의 효능을 설명하지 않고 '우유가 없을 때의 절체절명 순간'을 박진감 넘치는 퀴즈 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "따뜻한 호박빛 톤과 타이트한 클로즈업·빈 우유팩 삽입 컷의 고속 편집이 '결핍의 고통'",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#8C4A27·#D99B38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "일상 필수재·구독 서비스 마케팅에서 '제품의 장점' 대신 '제품이 없을 때 벌어지는 낭",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "우유의 효능을 설명하지 않고 '우유가 없을 때의 절체절명 순간'을 박진감 넘치는 퀴즈 스릴러로 연출해 몰입을 끌어낸다.",
+      "framing": "따뜻한 호박빛 톤과 타이트한 클로즈업·빈 우유팩 삽입 컷의 고속 편집이 '결핍의 고통'을 코믹하게 극대화한다.",
+      "marketingApply": "일상 필수재·구독 서비스 마케팅에서 '제품의 장점' 대신 '제품이 없을 때 벌어지는 낭패'를 dramatize하는 결핍 소구 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-077",
+    "titleKo": "2008 나이키 '테이크 잇 투 더 넥스트 레벨' 가이 리치 1인칭 POV TVCF",
+    "originalTitle": "Nike — Take It To The Next Level (Guy Ritchie)",
+    "brandOrSource": "Nike Football · Guy Ritchie",
+    "year": 2008,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "16:9",
+    "durationSec": 120,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/Tc3PZ3Im5aQ/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "Tc3PZ3Im5aQ",
+    "sourceUrl": "https://www.youtube.com/watch?v=Tc3PZ3Im5aQ",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "1점 투시",
+      "매치 컷",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "무대사 직관 전달",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#14241C",
+      "#2E7D4A",
+      "#D93B2B",
+      "#E6B84C",
+      "#EFECE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          68
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          72,
+          34
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "시청자 본인이 선수가 되는 완전한 1인칭 POV 카메라가 잔디밭을 가로지르며 오프닝 2",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "동네 구장에서 챔피언스리그 스타디움으로 이어지는 POV 매치 컷이 성공 서사를 압도적 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#2E7D4A·#D93B2B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "체험형·액션·모빌리티 브랜드 숏폼에서 1인칭 시점(FPV/POV) 연속 매치 컷으로 시",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "시청자 본인이 선수가 되는 완전한 1인칭 POV 카메라가 잔디밭을 가로지르며 오프닝 2초 만에 아드레날린을 분출시킨다.",
+      "framing": "동네 구장에서 챔피언스리그 스타디움으로 이어지는 POV 매치 컷이 성공 서사를 압도적 현장감으로 체험시킨다.",
+      "marketingApply": "체험형·액션·모빌리티 브랜드 숏폼에서 1인칭 시점(FPV/POV) 연속 매치 컷으로 시청자를 주인공으로 편입시키는 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-078",
+    "titleKo": "2011 크라이슬러 '임포티드 프롬 디트로이트' 슈퍼볼 헤리티지 TVCF",
+    "originalTitle": "Chrysler 200 — Born of Fire / Imported From Detroit",
+    "brandOrSource": "Chrysler · Wieden+Kennedy · Super Bowl",
+    "year": 2011,
+    "era": "1990-00s",
+    "mediaType": "TVCF",
+    "aspectRatio": "16:9",
+    "durationSec": 120,
+    "mediaSource": "youtube_embed",
+    "thumbnailUrl": "https://i.ytimg.com/vi/SKL254Y_jtc/hqdefault.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": "SKL254Y_jtc",
+    "sourceUrl": "https://www.youtube.com/watch?v=SKL254Y_jtc",
+    "licenseNote": "Official YouTube Embed",
+    "compositionTags": [
+      "1점 투시",
+      "역광 실루엣",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#0E1117",
+      "#3A495C",
+      "#C87D32",
+      "#E8B959",
+      "#ECE9E2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          26,
+          62
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          76,
+          40
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "겨울빛 디트로이트의 묵직한 산업 건축과 골드 조명 실루엣이 2분짜리 슈퍼볼 필름에 영화",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "도심 도로의 1점 투시 주행 샷과 장인·시민들의 정면 초상이 교차하며 도시의 정체성을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#3A495C·#C87D32 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "브랜드의 출신지·장인정신을 숨기지 않고 정면 돌파해 강력한 로컬 헤리티지 서사로 반전시",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "겨울빛 디트로이트의 묵직한 산업 건축과 골드 조명 실루엣이 2분짜리 슈퍼볼 필름에 영화적 자존심을 불어넣는다.",
+      "framing": "도심 도로의 1점 투시 주행 샷과 장인·시민들의 정면 초상이 교차하며 도시의 정체성을 브랜드 자산으로 승화한다.",
+      "marketingApply": "브랜드의 출신지·장인정신을 숨기지 않고 정면 돌파해 강력한 로컬 헤리티지 서사로 반전시키는 턴어라운드 캠페인 모델."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-079",
+    "titleKo": "1958 GM 자동차 '익스테리어 컬러 스토리' 테크니컬러 컬러 쇼케이스",
+    "originalTitle": "Beginning of '58 Exterior Color Story (GM Color Film)",
+    "brandOrSource": "General Motors · Prelinger Archives",
+    "year": 1957,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 190,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00",
+    "previewVideoUrl": "https://archive.org/download/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/1099_Beginning_of_58_Exterior_Color_Story_M04061_15_21_11_00",
+    "licenseNote": "Public Domain (Prelinger Archives)",
+    "compositionTags": [
+      "기하학 조형",
+      "초근접 클로즈업",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1A3B5C",
+      "#D94436",
+      "#3AA69A",
+      "#E6B84C",
+      "#F4EFE6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          28,
+          48
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          74,
+          48
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "1958년형 신차 컬러 스와치와 터콰이즈·코랄·크림 도장면의 테크니컬러 광택이 첫 3초",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "차체 곡면과 컬러 칩을 나란히 배치한 스튜디오 클로즈업이 자동차를 패션 오브제로 번역한",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#D94436·#3AA69A 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "신규 컬러 라인업 공개 시 도장 질감과 페인트 스와치를 리드미컬하게 교차하는 뷰티·가전",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "1958년형 신차 컬러 스와치와 터콰이즈·코랄·크림 도장면의 테크니컬러 광택이 첫 3초 만에 색채 욕망을 자극한다.",
+      "framing": "차체 곡면과 컬러 칩을 나란히 배치한 스튜디오 클로즈업이 자동차를 패션 오브제로 번역한다.",
+      "marketingApply": "신규 컬러 라인업 공개 시 도장 질감과 페인트 스와치를 리드미컬하게 교차하는 뷰티·가전·모빌리티 론칭 필름 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-080",
+    "titleKo": "1955 쉐보레 '매직 인 디 에어(Magic in the Air)' 테크니컬러 브랜드 필름",
+    "originalTitle": "Magic in the Air (1955, Jam Handy / Chevrolet)",
+    "brandOrSource": "Chevrolet / Jam Handy (Prelinger)",
+    "year": 1955,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 493,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/Magicint1955",
+    "previewVideoUrl": "https://archive.org/download/Magicint1955/Magicint1955_512kb.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/Magicint1955",
+    "licenseNote": "Public Domain (Prelinger Archives)",
+    "compositionTags": [
+      "프레임 속 프레임",
+      "매치 컷",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "무대사 직관 전달"
+    ],
+    "palette": [
+      "#1C3354",
+      "#3E8E9E",
+      "#D95D39",
+      "#E8C15A",
+      "#F3EEE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          30,
+          52
+        ],
+        [
+          52,
+          46
+        ],
+        [
+          76,
+          44
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "보이지 않는 '공기 쾌적함'을 선명한 청록·주황 그래픽 애니메이션과 실사 드라이브 컷으",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "자동차 창틀을 프레임 속 프레임으로 활용해 실내의 시원한 쾌적함과 외부 사막 열기를 한",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#3E8E9E·#D95D39 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "눈에 보이지 않는 기능(냉방·공기청정·소프트웨어 성능)을 컬러 그래픽 오버레이와 외부 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "보이지 않는 '공기 쾌적함'을 선명한 청록·주황 그래픽 애니메이션과 실사 드라이브 컷으로 시각화해 즉각 이해시킨다.",
+      "framing": "자동차 창틀을 프레임 속 프레임으로 활용해 실내의 시원한 쾌적함과 외부 사막 열기를 한 화면에서 대비시킨다.",
+      "marketingApply": "눈에 보이지 않는 기능(냉방·공기청정·소프트웨어 성능)을 컬러 그래픽 오버레이와 외부 대조 컷으로 시각화하는 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-081",
+    "titleKo": "1961 제니스(Zenith) 무선 리모컨 텔레비전 테크 데모 필름",
+    "originalTitle": "Television Remote Control Tuner Demo (1961)",
+    "brandOrSource": "Zenith / Prelinger Archives",
+    "year": 1961,
+    "era": "1950-60s",
+    "mediaType": "TVCF",
+    "aspectRatio": "4:3",
+    "durationSec": 347,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://archive.org/services/img/Televisi1961",
+    "previewVideoUrl": "https://archive.org/download/Televisi1961/Televisi1961_512kb.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://archive.org/details/Televisi1961",
+    "licenseNote": "Public Domain (Prelinger Archives)",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "기하학 조형",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "무대사 직관 전달",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#19222E",
+      "#C84B31",
+      "#D9A441",
+      "#4C7C8C",
+      "#EFE9DC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          32,
+          54
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          72,
+          44
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "초음파 리모컨 버튼 클릭과 동시에 기계식 다이얼이 회전하는 초근접 컷이 첨단 편의성을 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "거실 소파와 TV 세트를 수평 투시로 연결해 '일어나지 않고 제어한다'는 핵심 가치를 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#C84B31·#D9A441 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "신기술 UX 데모 영상에서 '단 1회의 손가락 조작 → 즉각적 공간 변화'를 3초 루프",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "초음파 리모컨 버튼 클릭과 동시에 기계식 다이얼이 회전하는 초근접 컷이 첨단 편의성을 직관적으로 증명한다.",
+      "framing": "거실 소파와 TV 세트를 수평 투시로 연결해 '일어나지 않고 제어한다'는 핵심 가치를 한눈에 보여준다.",
+      "marketingApply": "신기술 UX 데모 영상에서 '단 1회의 손가락 조작 → 즉각적 공간 변화'를 3초 루프로 압축하는 제품 시연 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-082",
+    "titleKo": "2009 NASA STS-127 엔데버호 발사 하이라이트 컬러 릴",
+    "originalTitle": "STS-127 Endeavour Launch Opening Reel (NASA KSC)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 2009,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 94,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_061709_sts127_open/ksc_061709_sts127_open~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_061709_sts127_open/ksc_061709_sts127_open~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_061709_sts127_open",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "대칭 구도",
+      "역광 실루엣",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#102542",
+      "#2E6EA6",
+      "#E06D2B",
+      "#F2BE4B",
+      "#F5F2EB"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          50,
+          72
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          50,
+          22
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "청명한 대서양 하늘과 강렬한 오렌지 추진 화염이 화면 정중앙에서 수직 상승하며 시청자의",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "수직 발사축과 좌우 구름 띠의 완벽한 대칭이 우주 탐사 뉴스릴의 장엄한 리듬을 완성한다",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#2E6EA6·#E06D2B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "브랜드 론칭·성장 리포트 오프닝에서 수직 상승 동선과 블루-오렌지 보색으로 추진력을 시",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "청명한 대서양 하늘과 강렬한 오렌지 추진 화염이 화면 정중앙에서 수직 상승하며 시청자의 시선을 단숨에 끌어올린다.",
+      "framing": "수직 발사축과 좌우 구름 띠의 완벽한 대칭이 우주 탐사 뉴스릴의 장엄한 리듬을 완성한다.",
+      "marketingApply": "브랜드 론칭·성장 리포트 오프닝에서 수직 상승 동선과 블루-오렌지 보색으로 추진력을 시각화하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-083",
+    "titleKo": "2011 NASA STS-133 디스커버리호 마지막 비행 발사 릴",
+    "originalTitle": "STS-133 Discovery Final Launch (NASA KSC)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 2011,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 118,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_022411_sts133_launch/ksc_022411_sts133_launch~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_022411_sts133_launch/ksc_022411_sts133_launch~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_022411_sts133_launch",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "1점 투시",
+      "기하학 조형",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "다큐 리얼리즘",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#0E2340",
+      "#3B7BB5",
+      "#D96626",
+      "#E8B84B",
+      "#F4F1EA"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        44
+      ],
+      "eyePath": [
+        [
+          50,
+          70
+        ],
+        [
+          50,
+          42
+        ],
+        [
+          68,
+          22
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "39번째이자 마지막 비행을 떠나는 디스커버리호의 눈부신 분사 섬광과 고속 추적 샷이 역",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "발사대 철골 기하학과 광활한 푸른 하늘 여백의 극적 전환이 이륙의 해방감을 배가시킨다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#3B7BB5·#D96626 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "기념비적 프로젝트의 피날레 영상에서 지상 구조물(밀도)→상공(여백)으로 시야를 열어주는",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "39번째이자 마지막 비행을 떠나는 디스커버리호의 눈부신 분사 섬광과 고속 추적 샷이 역사적 감동을 즉각 전달한다.",
+      "framing": "발사대 철골 기하학과 광활한 푸른 하늘 여백의 극적 전환이 이륙의 해방감을 배가시킨다.",
+      "marketingApply": "기념비적 프로젝트의 피날레 영상에서 지상 구조물(밀도)→상공(여백)으로 시야를 열어주는 편집 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-084",
+    "titleKo": "2011 NASA STS-133 디스커버리호 새벽 발사대 롤아웃 투시 릴",
+    "originalTitle": "STS-133 Discovery Dawn Rollout to Pad 39A (NASA KSC)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 2011,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 92,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_020111_sts133_rollout/ksc_020111_sts133_rollout~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_020111_sts133_rollout/ksc_020111_sts133_rollout~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_020111_sts133_rollout",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "1점 투시",
+      "역광 실루엣",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#0C1526",
+      "#27446B",
+      "#D9822B",
+      "#F0C36D",
+      "#EFECE6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          22,
+          68
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          78,
+          32
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "어스름한 새벽빛 아래 거대한 서치라이트를 받으며 전진하는 우주왕복선 실루엣이 SF 영화",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "크롤러 도로의 1점 투시와 새벽빛의 골드-블루 색온도 대비가 거대 엔지니어링의 긴장감을",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#27446B·#D9822B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "프리미엄 하드웨어 티저에서 새벽빛 역광과 저속 전진 트래킹으로 기대감을 최고조로 끌어올",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "어스름한 새벽빛 아래 거대한 서치라이트를 받으며 전진하는 우주왕복선 실루엣이 SF 영화 오프닝 같은 아우라를 만든다.",
+      "framing": "크롤러 도로의 1점 투시와 새벽빛의 골드-블루 색온도 대비가 거대 엔지니어링의 긴장감을 높인다.",
+      "marketingApply": "프리미엄 하드웨어 티저에서 새벽빛 역광과 저속 전진 트래킹으로 기대감을 최고조로 끌어올리는 연출."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-085",
+    "titleKo": "2009 NASA STS-127 엔데버호 발사대 이동 타임랩스 릴",
+    "originalTitle": "STS-127 Endeavour Rollout Timelapse (NASA KSC)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 2009,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 84,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_041709_sts127_rollout2/ksc_041709_sts127_rollout2~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_041709_sts127_rollout2/ksc_041709_sts127_rollout2~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_041709_sts127_rollout2",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "1점 투시",
+      "기하학 조형",
+      "매치 컷"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#152A45",
+      "#4A82B5",
+      "#D66B2C",
+      "#E6B655",
+      "#F2EFE8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          26,
+          62
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          74,
+          38
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "수 시간 걸리는 거대 기체 이동을 리드미컬한 타임랩스로 압축해 구름과 기체의 속도 대비",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "고정된 광각 트라이포드 구도 속에서 거대 피사체만 정밀하게 전진해 시간의 밀도와 스케일",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#4A82B5·#D66B2C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "오프라인 팝업·전시·건축 프로젝트 메이킹 필름에서 고정 앵글 타임랩스로 제작 스케일을 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "수 시간 걸리는 거대 기체 이동을 리드미컬한 타임랩스로 압축해 구름과 기체의 속도 대비를 선명하게 보여준다.",
+      "framing": "고정된 광각 트라이포드 구도 속에서 거대 피사체만 정밀하게 전진해 시간의 밀도와 스케일을 체감케 한다.",
+      "marketingApply": "오프라인 팝업·전시·건축 프로젝트 메이킹 필름에서 고정 앵글 타임랩스로 제작 스케일을 설득하는 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-086",
+    "titleKo": "2008 NASA STS-126 엔데버호 격납고 롤어라운드 컬러 릴",
+    "originalTitle": "STS-126 Endeavour Orbiter Rollaround (NASA KSC)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 2008,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 78,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/ksc_102808_126_rollaround/ksc_102808_126_rollaround~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/ksc_102808_126_rollaround/ksc_102808_126_rollaround~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/ksc_102808_126_rollaround",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "프레임 속 프레임",
+      "기하학 조형",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#18293E",
+      "#4676A6",
+      "#C95A2B",
+      "#E2B24C",
+      "#F4F2EC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          30,
+          54
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          72,
+          42
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "거대 격납고 문을 빠져나오는 순백 셔틀 날개와 플로리다 청명 하늘의 대비가 깔끔한 산업",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "격납고 구조물의 수직 프레임이 기체의 삼각 델타익 기하학을 선명하게 부각한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#4676A6·#C95A2B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "대형 장비·모빌리티 공개 시 격납고 문틀을 자연스러운 와이프 프레임으로 활용해 등장 임",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "거대 격납고 문을 빠져나오는 순백 셔틀 날개와 플로리다 청명 하늘의 대비가 깔끔한 산업 미학을 드러낸다.",
+      "framing": "격납고 구조물의 수직 프레임이 기체의 삼각 델타익 기하학을 선명하게 부각한다.",
+      "marketingApply": "대형 장비·모빌리티 공개 시 격납고 문틀을 자연스러운 와이프 프레임으로 활용해 등장 임팩트를 키우는 연출."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-087",
+    "titleKo": "2013 NASA 화성 탐사 로버 '큐리오시티' 붉은 대지 컬러 릴",
+    "originalTitle": "Curiosity Mars Rover First Year Visual Reel (NASA GSFC)",
+    "brandOrSource": "NASA Goddard / JPL",
+    "year": 2013,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 65,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/GSFC_20130805_HappyBirthday_m11331_Curiosity/GSFC_20130805_HappyBirthday_m11331_Curiosity~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/GSFC_20130805_HappyBirthday_m11331_Curiosity/GSFC_20130805_HappyBirthday_m11331_Curiosity~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/GSFC_20130805_HappyBirthday_m11331_Curiosity",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "극단적 여백",
+      "1점 투시",
+      "매치 컷"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#1C1311",
+      "#A84A28",
+      "#D97C3E",
+      "#E8B878",
+      "#5E7B8C"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        52,
+        44
+      ],
+      "eyePath": [
+        [
+          28,
+          62
+        ],
+        [
+          52,
+          46
+        ],
+        [
+          78,
+          34
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "실제 화성 게일 분화구의 테라코타·오커 파노라마와 로버 바퀴 자국이 즉각적으로 다른 행",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "광활한 붉은 사막 여백과 정교한 로버 기계 팔의 클로즈업 교차가 탐사의 서사를 생생하게",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#A84A28·#D97C3E 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "오지·아웃도어·테크 캠페인에서 압도적 테라코타 단색 지형 위에 정밀 하드웨어를 단독 배",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "실제 화성 게일 분화구의 테라코타·오커 파노라마와 로버 바퀴 자국이 즉각적으로 다른 행성의 현장감을 전달한다.",
+      "framing": "광활한 붉은 사막 여백과 정교한 로버 기계 팔의 클로즈업 교차가 탐사의 서사를 생생하게 엮어낸다.",
+      "marketingApply": "오지·아웃도어·테크 캠페인에서 압도적 테라코타 단색 지형 위에 정밀 하드웨어를 단독 배치하는 컬러 전략."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-088",
+    "titleKo": "2019 NASA 제임스 웹 우주망원경(JWST) 황금 육각 미러 오버뷰 릴",
+    "originalTitle": "James Webb Space Telescope: An Overview (NASA)",
+    "brandOrSource": "NASA Goddard Space Flight Center",
+    "year": 2019,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "16:9",
+    "durationSec": 135,
+    "mediaSource": "archive_mp4",
+    "thumbnailUrl": "https://images-assets.nasa.gov/video/James_Webb_Space_Telescope__An_Overview_1080/James_Webb_Space_Telescope__An_Overview_1080~thumb.jpg",
+    "previewVideoUrl": "https://images-assets.nasa.gov/video/James_Webb_Space_Telescope__An_Overview_1080/James_Webb_Space_Telescope__An_Overview_1080~mobile.mp4",
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/James_Webb_Space_Telescope__An_Overview_1080",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "기하학 조형",
+      "대칭 구도",
+      "초근접 클로즈업"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#0B0F1A",
+      "#1E3A5F",
+      "#C88A1E",
+      "#F2C94C",
+      "#F4F1EA"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          50,
+          32
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          72
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "0:03",
+        "noteKo": "18개의 순금 코팅 육각 거울이 클린룸 조명 아래 완벽한 벌집 대칭으로 빛나며 단 1초",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "0:18",
+        "noteKo": "정중앙 육각 기하학 패턴과 딥 블랙·골드의 고귀한 명도 대비가 하이테크 제품의 프리미엄",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "0:36",
+        "noteKo": "#1E3A5F·#C88A1E 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "0:55",
+        "noteKo": "반도체·광학·오디오 플래그십 제품 필름에서 금속 기하학 패턴의 정면 대칭 클로즈업으로 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "18개의 순금 코팅 육각 거울이 클린룸 조명 아래 완벽한 벌집 대칭으로 빛나며 단 1초 만에 미래 기술의 아이콘이 된다.",
+      "framing": "정중앙 육각 기하학 패턴과 딥 블랙·골드의 고귀한 명도 대비가 하이테크 제품의 프리미엄 이미지를 극대화한다.",
+      "marketingApply": "반도체·광학·오디오 플래그십 제품 필름에서 금속 기하학 패턴의 정면 대칭 클로즈업으로 기술 권위를 각인하는 법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-089",
+    "titleKo": "1982 NASA STS-4 컬럼비아호 발사 전 발사대 컬러 프레임",
+    "originalTitle": "STS-4 Columbia Preflight at Pad 39A (NASA, 1982)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 1982,
+    "era": "1980s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/s82-32169/s82-32169~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/s82-32169",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "대칭 구도",
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#162E4D",
+      "#4A85B5",
+      "#D96A2B",
+      "#E6B450",
+      "#F3F1EC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          74
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          50,
+          22
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "1980년대 아날로그 컬러 필름 특유의 청량한 하늘과 순백 셔틀·주황 연료탱크의 원색 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "수직 발사 타워와 셔틀의 직선 구조가 1980년대 하이테크 다큐멘터리의 명쾌한 비례감을",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#4A85B5·#D96A2B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "레트로 테크 에디토리얼에서 1980년대 아날로그 컬러 필름의 청색·주황 색 균형을 재현",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "1980년대 아날로그 컬러 필름 특유의 청량한 하늘과 순백 셔틀·주황 연료탱크의 원색 균형이 시선을 사로잡는다.",
+      "framing": "수직 발사 타워와 셔틀의 직선 구조가 1980년대 하이테크 다큐멘터리의 명쾌한 비례감을 보여준다.",
+      "marketingApply": "레트로 테크 에디토리얼에서 1980년대 아날로그 컬러 필름의 청색·주황 색 균형을 재현하는 색보정 기준점."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-090",
+    "titleKo": "1989 NASA 케네디 우주센터 발사대 컬러 아카이브 프레임",
+    "originalTitle": "Kennedy Space Center Launch Complex Color Record (1989)",
+    "brandOrSource": "NASA Kennedy Space Center",
+    "year": 1989,
+    "era": "1980s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/KSC-89PC-1262/KSC-89PC-1262~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/KSC-89PC-1262",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "기하학 조형",
+      "극단적 여백",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#13294B",
+      "#3E7CB1",
+      "#D9602B",
+      "#E5B24C",
+      "#F4EFE6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        48,
+        50
+      ],
+      "eyePath": [
+        [
+          30,
+          66
+        ],
+        [
+          48,
+          48
+        ],
+        [
+          72,
+          28
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "플로리다 해안 습지 너머로 우뚝 솟은 발사대의 선명한 1989년 필름 색감이 자연과 첨",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "낮은 수평선과 넓은 하늘 여백이 거대 우주 시설의 고독하고도 웅장한 실루엣을 조각한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3E7CB1·#D9602B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "자연 풍경 속에 단 하나의 첨단 오브제를 배치해 대조 효과를 극대화하는 글로벌 캠페인 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "플로리다 해안 습지 너머로 우뚝 솟은 발사대의 선명한 1989년 필름 색감이 자연과 첨단 기술의 대조를 극대화한다.",
+      "framing": "낮은 수평선과 넓은 하늘 여백이 거대 우주 시설의 고독하고도 웅장한 실루엣을 조각한다.",
+      "marketingApply": "자연 풍경 속에 단 하나의 첨단 오브제를 배치해 대조 효과를 극대화하는 글로벌 캠페인 키 비주얼 구도."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-091",
+    "titleKo": "2003 NASA 초음속 SR-71B 블랙버드 × F-18 편대 비행 프레임",
+    "originalTitle": "NASA SR-71B Blackbird & F-18 HARV Formation Flight",
+    "brandOrSource": "NASA Dryden Flight Research Center",
+    "year": 2003,
+    "era": "1990-00s",
+    "mediaType": "NEWS",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/EC03-0082-1/EC03-0082-1~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/EC03-0082-1",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "극단적 여백",
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "스케일 반전",
+      "무대사 직관 전달"
+    ],
+    "palette": [
+      "#0D1829",
+      "#28558A",
+      "#689AC4",
+      "#C99A4E",
+      "#EFECE6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        64,
+        42
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          54,
+          46
+        ],
+        [
+          80,
+          34
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "짙은 코발트 고고도 하늘을 대각선으로 가르는 무광 블랙 초음속기 실루엣이 순수한 속도의",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "사선 편대 배치와 광활한 푸른 여백이 공기역학적 긴장감과 미래지향적 속도감을 완벽히 시",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#28558A·#689AC4 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "퍼포먼스 카·게이밍 기어·스포츠웨어 비주얼에서 무광 블랙 피사체를 고채도 블루 여백 위",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "짙은 코발트 고고도 하늘을 대각선으로 가르는 무광 블랙 초음속기 실루엣이 순수한 속도의 미학을 각인시킨다.",
+      "framing": "사선 편대 배치와 광활한 푸른 여백이 공기역학적 긴장감과 미래지향적 속도감을 완벽히 시각화한다.",
+      "marketingApply": "퍼포먼스 카·게이밍 기어·스포츠웨어 비주얼에서 무광 블랙 피사체를 고채도 블루 여백 위에 사선 배치하는 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-092",
+    "titleKo": "1977 NASA 초음속 풍동(Wind Tunnel) 록히드 YF-12 실험 프레임",
+    "originalTitle": "Lockheed YF-12 Blackbird Model in Supersonic Wind Tunnel (1977)",
+    "brandOrSource": "NASA Glenn Research Center",
+    "year": 1977,
+    "era": "1970s",
+    "mediaType": "NEWS",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/GRC-1977-C-04657/GRC-1977-C-04657~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/GRC-1977-C-04657",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "1점 투시",
+      "프레임 속 프레임",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "다큐 리얼리즘",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#161C24",
+      "#3E5870",
+      "#C84B31",
+      "#D9A441",
+      "#ECE7DC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          24,
+          52
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          78,
+          48
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "1970년대 거대 초음속 풍동 터널 내부의 압도적 산업 기하학과 날렵한 실험기 모델이 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "원통·사각 금속 덕트의 1점 투시 소실점 중앙에 항공기 기수를 정렬해 강렬한 공학적 집",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3E5870·#C84B31 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "R&D·엔지니어링 브랜드 스토리에서 테스트 랩·풍동 공간의 1점 투시로 기술 신뢰도를 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "1970년대 거대 초음속 풍동 터널 내부의 압도적 산업 기하학과 날렵한 실험기 모델이 스탠리 큐브릭 영화를 연상시킨다.",
+      "framing": "원통·사각 금속 덕트의 1점 투시 소실점 중앙에 항공기 기수를 정렬해 강렬한 공학적 집중감을 만든다.",
+      "marketingApply": "R&D·엔지니어링 브랜드 스토리에서 테스트 랩·풍동 공간의 1점 투시로 기술 신뢰도를 즉각 높이는 촬영 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-093",
+    "titleKo": "NASA JPL '미래의 비전: 엔셀라두스(Enceladus)' 빙하 간헐천 포스터",
+    "originalTitle": "Visions of the Future: Enceladus (NASA/JPL-Caltech)",
+    "brandOrSource": "NASA Jet Propulsion Laboratory",
+    "year": 2016,
+    "era": "1990-00s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/JPL_Visions_of_the_Future%2C_Enceladus.jpg/1280px-JPL_Visions_of_the_Future%2C_Enceladus.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Enceladus.jpg",
+    "licenseNote": "Public Domain (NASA/JPL-Caltech)",
+    "compositionTags": [
+      "1점 투시",
+      "기하학 조형",
+      "역광 실루엣"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "스케일 반전",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#0B1E36",
+      "#1F5B8C",
+      "#4FB3D9",
+      "#E5B85C",
+      "#F2F6FA"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        44
+      ],
+      "eyePath": [
+        [
+          50,
+          18
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "얼음 위성에서 솟구치는 시안 블루 간헐천과 토성 고리가 차가우면서도 눈부신 미드센추리 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "하단 탐사선 실루엣에서 상단 토성 고리로 이어지는 수직 1점 투시가 압도적 스케일 대비",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#1F5B8C·#4FB3D9 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "청량 음료·쿨링 테크·윈터 스포츠 캠페인에서 아이스 시안×딥 네이비 톤으로 청량한 미래",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "얼음 위성에서 솟구치는 시안 블루 간헐천과 토성 고리가 차가우면서도 눈부신 미드센추리 여행 포스터를 완성한다.",
+      "framing": "하단 탐사선 실루엣에서 상단 토성 고리로 이어지는 수직 1점 투시가 압도적 스케일 대비를 만든다.",
+      "marketingApply": "청량 음료·쿨링 테크·윈터 스포츠 캠페인에서 아이스 시안×딥 네이비 톤으로 청량한 미래감을 구현하는 팔레트."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-094",
+    "titleKo": "NASA JPL '미래의 비전: 슈퍼지구 HD 40307g' 다이빙 포스터",
+    "originalTitle": "Visions of the Future: Super-Earth HD 40307g (NASA/JPL)",
+    "brandOrSource": "NASA Jet Propulsion Laboratory",
+    "year": 2016,
+    "era": "1990-00s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/JPL_Visions_of_the_Future%2C_HD_40307g.jpg/1280px-JPL_Visions_of_the_Future%2C_HD_40307g.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_HD_40307g.jpg",
+    "licenseNote": "Public Domain (NASA/JPL-Caltech)",
+    "compositionTags": [
+      "극단적 여백",
+      "역광 실루엣",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#1A1224",
+      "#C93B4B",
+      "#E87A38",
+      "#F2C14E",
+      "#3B6E8C"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        56
+      ],
+      "eyePath": [
+        [
+          50,
+          20
+        ],
+        [
+          50,
+          52
+        ],
+        [
+          50,
+          86
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "타오르는 주황·크림슨 대기 속을 수직 낙하하는 스카이다이버 실루엣이 중력 2배 행성의 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "하단 거대 행성 곡면과 상단의 작은 낙하 인물 대비가 추상적 과학 수치를 짜릿한 체감 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C93B4B·#E87A38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "익스트림·모험·게임 브랜드에서 숫자 스펙 대신 '극한 체감의 순간'을 역광 실루엣 1컷",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "타오르는 주황·크림슨 대기 속을 수직 낙하하는 스카이다이버 실루엣이 중력 2배 행성의 스릴을 1초 만에 번역한다.",
+      "framing": "하단 거대 행성 곡면과 상단의 작은 낙하 인물 대비가 추상적 과학 수치를 짜릿한 체감 경험으로 바꾼다.",
+      "marketingApply": "익스트림·모험·게임 브랜드에서 숫자 스펙 대신 '극한 체감의 순간'을 역광 실루엣 1컷으로 번역하는 키 비주얼."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-095",
+    "titleKo": "NASA JPL '미래의 비전: 타이탄(Titan)' 메탄 바다 카약 포스터",
+    "originalTitle": "Visions of the Future: Titan (NASA/JPL-Caltech)",
+    "brandOrSource": "NASA Jet Propulsion Laboratory",
+    "year": 2016,
+    "era": "1990-00s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/JPL_Visions_of_the_Future%2C_Titan.jpg/1280px-JPL_Visions_of_the_Future%2C_Titan.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:JPL_Visions_of_the_Future,_Titan.jpg",
+    "licenseNote": "Public Domain (NASA/JPL-Caltech)",
+    "compositionTags": [
+      "대칭 구도",
+      "프레임 속 프레임",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#1C1F2E",
+      "#3A5F7D",
+      "#D97D38",
+      "#EBB85B",
+      "#F4ECE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          22
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          82
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "앰버빛 타이탄 하늘 아래 거대한 토성을 배경으로 노를 젓는 카약 한 척이 낭만적인 SF",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "수평 수면 반사와 정중앙 대칭 토성 구도가 정적인 여유와 우주적 경외감을 동시에 품는다",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3A5F7D·#D97D38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "여행·레저·아웃도어 브랜드에서 익숙한 활동(카약)을 비일상적 컬러 배경에 놓아 신선한 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "앰버빛 타이탄 하늘 아래 거대한 토성을 배경으로 노를 젓는 카약 한 척이 낭만적인 SF 여행 포스터의 정점을 찍는다.",
+      "framing": "수평 수면 반사와 정중앙 대칭 토성 구도가 정적인 여유와 우주적 경외감을 동시에 품는다.",
+      "marketingApply": "여행·레저·아웃도어 브랜드에서 익숙한 활동(카약)을 비일상적 컬러 배경에 놓아 신선한 동경을 유발하는 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-096",
+    "titleKo": "1938 WPA 연방미술프로젝트 모더니즘 전시 실크스크린 포스터",
+    "originalTitle": "Exhibition: WPA Federal Art Project Poster (LCCN 98507148)",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1938,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Exhibition_WPA_Federal_Art_Project_LCCN98507148.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exhibition_WPA_Federal_Art_Project_LCCN98507148.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "대칭 구도",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#171A21",
+      "#C93B2B",
+      "#E6B43C",
+      "#2E6F95",
+      "#F3ECE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          18
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "바우하우스 영향을 받은 과감한 원색 기하학 도형과 강렬한 산세리프 타이포가 1930년대",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "타이포그래피와 기하학 그래픽을 완벽히 하나의 그리드에 결합해 메시지 전달 속도를 극대화",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C93B2B·#E6B43C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "전시·페스티벌·브랜드 팝업 포스터에서 3원색 플랫 도형과 굵은 그리드 타이포만으로 강렬",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "바우하우스 영향을 받은 과감한 원색 기하학 도형과 강렬한 산세리프 타이포가 1930년대 포스터 디자인의 혁신을 보여준다.",
+      "framing": "타이포그래피와 기하학 그래픽을 완벽히 하나의 그리드에 결합해 메시지 전달 속도를 극대화한다.",
+      "marketingApply": "전시·페스티벌·브랜드 팝업 포스터에서 3원색 플랫 도형과 굵은 그리드 타이포만으로 강렬한 인상을 남기는 원형."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-097",
+    "titleKo": "1939 WPA 연방미술프로젝트 종합전 기하학 타이포 포스터",
+    "originalTitle": "WPA Federal Art Project General Exhibition Poster (1939)",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1939,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/WPA_Federal_Art_Project_general_exhibition_LCCN98513158.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:WPA_Federal_Art_Project_general_exhibition_LCCN98513158.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "프레임 속 프레임",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1A222D",
+      "#D94E34",
+      "#E8B94B",
+      "#3F7D7A",
+      "#F4EFE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        48,
+        48
+      ],
+      "eyePath": [
+        [
+          32,
+          22
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          66,
+          82
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "대담한 사선 분할과 따뜻한 오렌지·틸·크림 색면이 정보성 전시 포스터를 현대 그래픽 작",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "비대칭 모던 그리드 안에 제목·일정·그래픽을 위계적으로 배치해 시선이 위에서 아래로 막",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#D94E34·#E8B94B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "에디토리얼 뉴스레터·이벤트 배너에서 텍스트 위계와 색면 블록을 결합해 가독성과 심미성을",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "대담한 사선 분할과 따뜻한 오렌지·틸·크림 색면이 정보성 전시 포스터를 현대 그래픽 작품으로 승격시킨다.",
+      "framing": "비대칭 모던 그리드 안에 제목·일정·그래픽을 위계적으로 배치해 시선이 위에서 아래로 막힘없이 흐른다.",
+      "marketingApply": "에디토리얼 뉴스레터·이벤트 배너에서 텍스트 위계와 색면 블록을 결합해 가독성과 심미성을 동시에 잡는 레이아웃."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-098",
+    "titleKo": "1939 WPA 연방미술프로젝트 컬러 판화 모던 포스터",
+    "originalTitle": "Exhibition — WPA Federal Art Project (LCCN 98513179)",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1939,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg/1280px-Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exhibition_-_WPA_Federal_Art_Project_LCCN98513179.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#1C1E26",
+      "#C84231",
+      "#E5B43C",
+      "#34698C",
+      "#F2EAD8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          50,
+          20
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "선명한 실크스크린 잉크 질감과 절제된 4색 팔레트가 스크린 위에서도 손에 잡힐 듯한 아",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "중앙 상징 오브제와 상하단 타이포 밴드의 명쾌한 3단 분할이 어떤 크기에서도 판독성을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C84231·#E5B43C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "모바일 썸네일과 대형 옥외 광고 양쪽 모두에서 깨지지 않는 3단 중앙 집중 포스터 그리",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 실크스크린 잉크 질감과 절제된 4색 팔레트가 스크린 위에서도 손에 잡힐 듯한 아날로그 물성을 전한다.",
+      "framing": "중앙 상징 오브제와 상하단 타이포 밴드의 명쾌한 3단 분할이 어떤 크기에서도 판독성을 잃지 않는다.",
+      "marketingApply": "모바일 썸네일과 대형 옥외 광고 양쪽 모두에서 깨지지 않는 3단 중앙 집중 포스터 그리드 교과서."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-099",
+    "titleKo": "1938 WPA 컬러 석판화(Color Lithography) 아방가르드 전시 포스터",
+    "originalTitle": "Exhibition Color Lithography by Federal Art Project (1938)",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1938,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Exhibition_color_lithography_by_Federal_Art_Project_Work_Projects_Administration_LCCN98516682.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exhibition_color_lithography_by_Federal_Art_Project_Work_Projects_Administration_LCCN98516682.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "극단적 여백",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#141923",
+      "#D64032",
+      "#E6B43C",
+      "#2E7D8C",
+      "#F3EDE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        48,
+        46
+      ],
+      "eyePath": [
+        [
+          36,
+          24
+        ],
+        [
+          52,
+          48
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "석판화 인쇄의 다중 색판 겹침을 그래픽 모티프로 전면에 내세워 전시 주제 자체를 단번에",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "여백과 색판의 중첩이 리드미컬한 공간감을 형성해 시선을 자연스럽게 전시 타이틀로 유도한",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#D64032·#E6B43C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "인쇄·디자인·패션 룩북에서 제작 공정(색판·패턴 겹침)을 그래픽 키 비주얼로 승화하는 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "석판화 인쇄의 다중 색판 겹침을 그래픽 모티프로 전면에 내세워 전시 주제 자체를 단번에 시각화한다.",
+      "framing": "여백과 색판의 중첩이 리드미컬한 공간감을 형성해 시선을 자연스럽게 전시 타이틀로 유도한다.",
+      "marketingApply": "인쇄·디자인·패션 룩북에서 제작 공정(색판·패턴 겹침)을 그래픽 키 비주얼로 승화하는 메타 디자인 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-100",
+    "titleKo": "1938 WPA 웨스트필드 아테네움 수채화전 컬러 포스터",
+    "originalTitle": "Westfield Athenaeum — Federal Art Project Water Color Show",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1938,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg/1280px-Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Westfield_Athenaeum_-_Federal_Art_Project_water_color_show_LCCN98513161.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "대칭 구도",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1D2D44",
+      "#3E7CB1",
+      "#D95D39",
+      "#F0C35B",
+      "#F5EFE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          20
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "선명한 코발트·코랄·옐로 컬러 블록이 수채화 전시의 생동감을 절제된 모던 포스터 언어로",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "상단 일러스트와 하단 정보 블록의 균형 잡힌 황금비 분할이 고전적 안정감을 준다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3E7CB1·#D95D39 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "문화·전시·브랜드 아카이브 카드에서 여백 비율과 3색 컬러 포인트로 고급스러운 인상을 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "선명한 코발트·코랄·옐로 컬러 블록이 수채화 전시의 생동감을 절제된 모던 포스터 언어로 압축한다.",
+      "framing": "상단 일러스트와 하단 정보 블록의 균형 잡힌 황금비 분할이 고전적 안정감을 준다.",
+      "marketingApply": "문화·전시·브랜드 아카이브 카드에서 여백 비율과 3색 컬러 포인트로 고급스러운 인상을 설계하는 기준."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-101",
+    "titleKo": "1938 WPA 반스터블 모더니스트 회화전 빈티지 포스터",
+    "originalTitle": "WPA Federal Art Project Paintings — Barnstable Poster",
+    "brandOrSource": "WPA Federal Art Project · Library of Congress",
+    "year": 1938,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/WPA_Federal_Art_Project_paintings%2C_Barnstable_High_School%2C_Hyannis_LCCN98513147.jpg/1280px-WPA_Federal_Art_Project_paintings%2C_Barnstable_High_School%2C_Hyannis_LCCN98513147.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:WPA_Federal_Art_Project_paintings,_Barnstable_High_School,_Hyannis_LCCN98513147.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#19283B",
+      "#C84630",
+      "#E3A84B",
+      "#4A8278",
+      "#F3EDE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          40,
+          26
+        ],
+        [
+          52,
+          50
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "강렬한 실크스크린 적색·청록 색면과 손글씨풍 모던 레터링이 따뜻한 빈티지 크래프트 감성",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "내부 액자 틀(프레임 속 프레임)이 메인 아트워크의 주목도를 한 단계 더 끌어올린다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C84630·#E3A84B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "아티잔·로컬 F&B·독립 출판 브랜드에서 판화 질감과 이중 보더 프레임으로 진정성을 높",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "강렬한 실크스크린 적색·청록 색면과 손글씨풍 모던 레터링이 따뜻한 빈티지 크래프트 감성을 전달한다.",
+      "framing": "내부 액자 틀(프레임 속 프레임)이 메인 아트워크의 주목도를 한 단계 더 끌어올린다.",
+      "marketingApply": "아티잔·로컬 F&B·독립 출판 브랜드에서 판화 질감과 이중 보더 프레임으로 진정성을 높이는 디자인 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-102",
+    "titleKo": "레오네토 카피엘로 '르 프루프루(Le Frou Frou)' 잡지 석판화 포스터",
+    "originalTitle": "Le Frou Frou — Journal Humoristique (Leonetto Cappiello)",
+    "brandOrSource": "Leonetto Cappiello · French Lithograph Archive",
+    "year": 1900,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Le_Frou_Frou%2C_journal_humoristique%2C_poster_by_Leonetto_Cappiello%2C_1899.jpg/1280px-Le_Frou_Frou%2C_journal_humoristique%2C_poster_by_Leonetto_Cappiello%2C_1899.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Le_Frou_Frou,_journal_humoristique,_poster_by_Leonetto_Cappiello,_1899.jpg",
+    "licenseNote": "Public Domain (Author died 1942)",
+    "compositionTags": [
+      "극단적 여백",
+      "기하학 조형",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#1A1718",
+      "#D93829",
+      "#E8B938",
+      "#3D738C",
+      "#F4ECE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          50,
+          16
+        ],
+        [
+          48,
+          50
+        ],
+        [
+          52,
+          84
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "단순화된 배경 위에 터져 나오는 생동감 넘치는 캐릭터 실루엣과 원색 레드·옐로가 거리의",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "인물의 경쾌한 S자 동선이 상단 제호와 하단 매체 설명을 하나의 리듬으로 연결한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#D93829·#E8B938 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "매거진·콘텐츠 플랫폼 프로모션에서 과장된 캐릭터 실루엣과 대담한 컬러 여백으로 브랜드를",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "단순화된 배경 위에 터져 나오는 생동감 넘치는 캐릭터 실루엣과 원색 레드·옐로가 거리의 시선을 즉각 멈춰 세운다.",
+      "framing": "인물의 경쾌한 S자 동선이 상단 제호와 하단 매체 설명을 하나의 리듬으로 연결한다.",
+      "marketingApply": "매거진·콘텐츠 플랫폼 프로모션에서 과장된 캐릭터 실루엣과 대담한 컬러 여백으로 브랜드를 기억시키는 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-103",
+    "titleKo": "1926 카피엘로 '아바티유(Abatilles)' 미네랄 워터 석판화 포스터",
+    "originalTitle": "Source des Abatilles Mineral Water Poster (Cappiello, 1926)",
+    "brandOrSource": "Abatilles · Leonetto Cappiello",
+    "year": 1926,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Abatilles_poster_-_Leonetto_Cappiello_-_1926.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Abatilles_poster_-_Leonetto_Cappiello_-_1926.jpg",
+    "licenseNote": "Public Domain (Author died 1942)",
+    "compositionTags": [
+      "극단적 여백",
+      "기하학 조형",
+      "역광 실루엣"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#12243A",
+      "#2B7BA8",
+      "#D94A38",
+      "#EBB844",
+      "#F4F0E6"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          22
+        ],
+        [
+          50,
+          52
+        ],
+        [
+          50,
+          86
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "깊은 청색 배경을 가르며 솟구치는 생명력 넘치는 물줄기 은유가 음료의 청량감을 0.5초",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "대담한 수직 상승 실루엣과 하단 굵은 브랜드명이 한눈에 각인되는 아이코닉 음료 포스터 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#2B7BA8·#D94A38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "음료·뷰티 수분 라인 캠페인에서 원료의 물성을 역동적 캐릭터·색면 은유로 시각화하는 클",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "깊은 청색 배경을 가르며 솟구치는 생명력 넘치는 물줄기 은유가 음료의 청량감을 0.5초 만에 각인시킨다.",
+      "framing": "대담한 수직 상승 실루엣과 하단 굵은 브랜드명이 한눈에 각인되는 아이코닉 음료 포스터 구조를 완성한다.",
+      "marketingApply": "음료·뷰티 수분 라인 캠페인에서 원료의 물성을 역동적 캐릭터·색면 은유로 시각화하는 클래식 포스터 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-104",
+    "titleKo": "카피엘로 '마리 브리자르(Marie Brizard)' 리큐르 석판화 포스터",
+    "originalTitle": "Anisette Marie Brizard Poster (Leonetto Cappiello)",
+    "brandOrSource": "Marie Brizard · Leonetto Cappiello",
+    "year": 1922,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Anisette_Marie_Brizard_l%27%C3%A9ternelle_favorite_-_%28affiche%29_-_%28Leonetto_Cappiello%29.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anisette_Marie_Brizard_l%27%C3%A9ternelle_favorite_-_(affiche)_-_(Leonetto_Cappiello).jpg",
+    "licenseNote": "Public Domain (Author died 1942)",
+    "compositionTags": [
+      "극단적 여백",
+      "대칭 구도",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#18141A",
+      "#C9332B",
+      "#E6A938",
+      "#3B7A68",
+      "#F3EDE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          18
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          86
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "어두운 배경 위 보석처럼 발광하는 에메랄드·골드·크림슨 색채가 프리미엄 주류의 관능적 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "인물과 유리잔, 상하단 타이포가 단일 수직 리듬을 이루어 고급 식음료 포스터의 위엄을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C9332B·#E6A938 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "프리미엄 주류·향수 키 비주얼에서 어두운 배경 위 보석톤 3색 대비로 럭셔리 감도를 끌",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "어두운 배경 위 보석처럼 발광하는 에메랄드·골드·크림슨 색채가 프리미엄 주류의 관능적 무드를 단번에 세운다.",
+      "framing": "인물과 유리잔, 상하단 타이포가 단일 수직 리듬을 이루어 고급 식음료 포스터의 위엄을 완성한다.",
+      "marketingApply": "프리미엄 주류·향수 키 비주얼에서 어두운 배경 위 보석톤 3색 대비로 럭셔리 감도를 끌어올리는 배색 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-105",
+    "titleKo": "카피엘로 '로얄 멜키오르(Royal Melchior)' 스파클링 와인 포스터",
+    "originalTitle": "Royal Melchior Grand Mousseux Poster (Cappiello)",
+    "brandOrSource": "Royal Melchior · Leonetto Cappiello",
+    "year": 1924,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Royal_Melchior_Grand_Mousseux_affiche%2C_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg/1280px-Royal_Melchior_Grand_Mousseux_affiche%2C_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Royal_Melchior_Grand_Mousseux_affiche,_d%27apr%C3%A8s_Leonetto_Cappiello_1928.jpg",
+    "licenseNote": "Public Domain (Author died 1942)",
+    "compositionTags": [
+      "기하학 조형",
+      "극단적 여백",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#14151B",
+      "#D93B2B",
+      "#E8B938",
+      "#4A80A8",
+      "#F4EFE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          48,
+          20
+        ],
+        [
+          52,
+          48
+        ],
+        [
+          50,
+          86
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "화려한 골드·레드 색채와 역동적인 축배 제스처가 스파클링 와인의 축제 에너지를 첫 1초",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "어두운 배경 여백이 중앙의 밝은 피사체와 샴페인 병을 스포트라이트처럼 도드라지게 만든다",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#D93B2B·#E8B938 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "연말·파티·축하 시즌 프로모션에서 딥 블랙 여백 + 골드·레드 스포트라이트 구도로 주목",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "화려한 골드·레드 색채와 역동적인 축배 제스처가 스파클링 와인의 축제 에너지를 첫 1초 만에 폭발시킨다.",
+      "framing": "어두운 배경 여백이 중앙의 밝은 피사체와 샴페인 병을 스포트라이트처럼 도드라지게 만든다.",
+      "marketingApply": "연말·파티·축하 시즌 프로모션에서 딥 블랙 여백 + 골드·레드 스포트라이트 구도로 주목도를 극대화하는 기법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-106",
+    "titleKo": "라이프(Life) 매거진 페리에(Perrier) 빈티지 지면 광고",
+    "originalTitle": "Perrier Vintage Magazine Advertisement (Life Magazine)",
+    "brandOrSource": "Perrier · Life Magazine Archive",
+    "year": 1958,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Perrier_advertisement_in_Life_%28magazine%29_on_February_24%2C_1910.jpg/1280px-Perrier_advertisement_in_Life_%28magazine%29_on_February_24%2C_1910.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Perrier_advertisement_in_Life_(magazine)_on_February_24,_1910.jpg",
+    "licenseNote": "Public Domain (Pre-1964 Magazine Archive)",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "극단적 여백",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "무대사 직관 전달"
+    ],
+    "palette": [
+      "#173B2B",
+      "#2E7D4B",
+      "#D9B438",
+      "#C84B31",
+      "#F4EFE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          36,
+          44
+        ],
+        [
+          52,
+          50
+        ],
+        [
+          72,
+          62
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "시그니처 에메랄드 그린 병 실루엣과 절제된 매거진 여백이 탄산수의 청량함과 프랑스 헤리",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "제품 보틀의 수직 실루엣을 3분할선에 세우고 카피를 여백에 단정히 배치해 완벽한 잡지 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#2E7D4B·#D9B438 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "식음료 지면·디지털 배너에서 브랜드 고유 용기 실루엣과 시그니처 컬러만으로 설명 없는 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "시그니처 에메랄드 그린 병 실루엣과 절제된 매거진 여백이 탄산수의 청량함과 프랑스 헤리티지를 즉각 전달한다.",
+      "framing": "제품 보틀의 수직 실루엣을 3분할선에 세우고 카피를 여백에 단정히 배치해 완벽한 잡지 광고 호흡을 만든다.",
+      "marketingApply": "식음료 지면·디지털 배너에서 브랜드 고유 용기 실루엣과 시그니처 컬러만으로 설명 없는 인지도를 구축하는 공식."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-107",
+    "titleKo": "팬아메리칸 엑스포지션 빈티지 일러스트 컬러 포스터",
+    "originalTitle": "Pan-American Exposition Illustrated Color Poster",
+    "brandOrSource": "Pan-American Exposition · Public Domain",
+    "year": 1901,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Pan-American_Exposition_map.jpg/1280px-Pan-American_Exposition_map.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pan-American_Exposition_map.jpg",
+    "licenseNote": "Public Domain (Pre-1929 US Publication)",
+    "compositionTags": [
+      "대칭 구도",
+      "기하학 조형",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "카피×구도 일체형",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#1A2E44",
+      "#C84B31",
+      "#E2B24C",
+      "#4A8278",
+      "#F3E8D2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          50,
+          18
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          50,
+          84
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "정교한 조감 일러스트와 따뜻한 빈티지 크림·코랄·청록 컬러가 박람회 전체의 압도적 스케",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "화려한 장식 보더(프레임 속 프레임)와 중앙 대칭 축이 방대한 공간 정보를 질서 정연하",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C84B31·#E2B24C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "대형 페스티벌·테마파크·복합 공간 안내 그래픽에서 조감 대칭 일러스트와 빈티지 4색 팔",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "정교한 조감 일러스트와 따뜻한 빈티지 크림·코랄·청록 컬러가 박람회 전체의 압도적 스케일을 한 장에 압축한다.",
+      "framing": "화려한 장식 보더(프레임 속 프레임)와 중앙 대칭 축이 방대한 공간 정보를 질서 정연하게 정리한다.",
+      "marketingApply": "대형 페스티벌·테마파크·복합 공간 안내 그래픽에서 조감 대칭 일러스트와 빈티지 4색 팔레트를 활용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-108",
+    "titleKo": "1938 마운트 레이니어 국립공원 '빙하 트레일' 컬러 트래블 포스터",
+    "originalTitle": "Glacier Trail, Mt. Rainier National Park Poster (LOC)",
+    "brandOrSource": "US National Park Service · Library of Congress",
+    "year": 1938,
+    "era": "1950-60s",
+    "mediaType": "PRINT",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Glacier_Trail%2C_Mt._Rainier_National_Park%2C_Washington_LCCN90709644.jpg/1280px-Glacier_Trail%2C_Mt._Rainier_National_Park%2C_Washington_LCCN90709644.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Glacier_Trail,_Mt._Rainier_National_Park,_Washington_LCCN90709644.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "1점 투시",
+      "기하학 조형",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#17324D",
+      "#3D7BA6",
+      "#C85A38",
+      "#E6B959",
+      "#F3F0E8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        42
+      ],
+      "eyePath": [
+        [
+          28,
+          72
+        ],
+        [
+          50,
+          44
+        ],
+        [
+          50,
+          88
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "설산 봉우리의 코발트 블루와 전경 트레일의 따뜻한 어스 톤 대비가 아웃도어 모험심을 즉",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "하단 등산로에서 거대한 설산 정상으로 수렴하는 투시 구도가 자연의 웅장한 스케일 반전을",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3D7BA6·#C85A38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "아웃도어·등산·여행 캠페인에서 전경 길 리딩라인으로 시청자를 풍경 속으로 걸어 들어가게",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "설산 봉우리의 코발트 블루와 전경 트레일의 따뜻한 어스 톤 대비가 아웃도어 모험심을 즉각 불러일으킨다.",
+      "framing": "하단 등산로에서 거대한 설산 정상으로 수렴하는 투시 구도가 자연의 웅장한 스케일 반전을 강조한다.",
+      "marketingApply": "아웃도어·등산·여행 캠페인에서 전경 길 리딩라인으로 시청자를 풍경 속으로 걸어 들어가게 만드는 포스터 구도."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-109",
+    "titleKo": "NASA 허블 우주망원경 '창조의 기둥(Pillars of Creation)' 초고해상도",
+    "originalTitle": "Hubble High-Definition Pillars of Creation (Eagle Nebula)",
+    "brandOrSource": "NASA / ESA / Hubble Heritage Team",
+    "year": 2015,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000842/GSFC_20171208_Archive_e000842~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/GSFC_20171208_Archive_e000842",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "기하학 조형",
+      "역광 실루엣",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "스케일 반전",
+      "무대사 직관 전달"
+    ],
+    "palette": [
+      "#09131C",
+      "#245C73",
+      "#56A3A6",
+      "#C88A38",
+      "#F2D28B"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        48,
+        36
+      ],
+      "eyePath": [
+        [
+          34,
+          68
+        ],
+        [
+          46,
+          36
+        ],
+        [
+          70,
+          56
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "청록빛 성운 가스 배경 위로 우뚝 솟은 황금·갈색 우주 기둥이 압도적 색채와 질감으로 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "3개의 사선 수직 기둥이 황금비 리듬으로 상승하며 인류가 촬영한 가장 경이로운 우주 풍",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#245C73·#56A3A6 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "고급 다크 테마 비주얼에서 청록-골드(Teal & Gold) 발광 그라데이션과 수직 매",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "청록빛 성운 가스 배경 위로 우뚝 솟은 황금·갈색 우주 기둥이 압도적 색채와 질감으로 시선을 단숨에 빨아들인다.",
+      "framing": "3개의 사선 수직 기둥이 황금비 리듬으로 상승하며 인류가 촬영한 가장 경이로운 우주 풍경 구도를 이룬다.",
+      "marketingApply": "고급 다크 테마 비주얼에서 청록-골드(Teal & Gold) 발광 그라데이션과 수직 매스 리듬으로 압도적 경외감을 만드는 기준."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-110",
+    "titleKo": "NASA 허블 '거품 성운(Bubble Nebula)' 심우주 컬러 관측",
+    "originalTitle": "Hubble Sees a Star Inflating a Giant Bubble (NGC 7635)",
+    "brandOrSource": "NASA / ESA / Hubble Heritage Team",
+    "year": 2016,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000382/GSFC_20171208_Archive_e000382~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/GSFC_20171208_Archive_e000382",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "대칭 구도",
+      "기하학 조형",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#080D18",
+      "#1F5D99",
+      "#46A8D4",
+      "#D96A2B",
+      "#F2C45A"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          48,
+          44
+        ],
+        [
+          56,
+          52
+        ],
+        [
+          32,
+          66
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "우주 공간에 완벽한 기하학 구체를 그리는 시안·오렌지 성운 거품이 초현실적 아트워크 같",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "거대한 반투명 원형 윤곽이 화면 중심을 감싸며 자연이 만들어낸 완벽한 기하학 조형미를 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#1F5D99·#46A8D4 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "오디오·향수·화장품 버블/캡슐 제품 비주얼에서 반투명 구체 림라이트와 시안-오렌지 대비",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "우주 공간에 완벽한 기하학 구체를 그리는 시안·오렌지 성운 거품이 초현실적 아트워크 같은 충격을 준다.",
+      "framing": "거대한 반투명 원형 윤곽이 화면 중심을 감싸며 자연이 만들어낸 완벽한 기하학 조형미를 과시한다.",
+      "marketingApply": "오디오·향수·화장품 버블/캡슐 제품 비주얼에서 반투명 구체 림라이트와 시안-오렌지 대비를 차용하는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-111",
+    "titleKo": "NASA 국제우주정거장(ISS) 큐폴라(Cupola) 7창 지구 전망",
+    "originalTitle": "ISS Cupola Observatory Windows Looking Down at Earth",
+    "brandOrSource": "NASA Johnson Space Center · ISS Expedition 38",
+    "year": 2013,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/iss038e013587/iss038e013587~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/iss038e013587",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "프레임 속 프레임",
+      "대칭 구도",
+      "역광 실루엣"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#0A0D12",
+      "#1C5A99",
+      "#4FA6D9",
+      "#C99A5B",
+      "#F2F4F8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          50,
+          50
+        ],
+        [
+          28,
+          46
+        ],
+        [
+          74,
+          46
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "칠흑 같은 우주정거장 내부 기하학 창틀 너머로 푸른 지구가 파노라마처럼 펼쳐지며 궁극의",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "방사형 다각형 창틀의 어두운 실루엣이 바깥 코발트 블루 지구의 채도를 극한까지 증폭시킨",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#1C5A99·#4FA6D9 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "건축·자동차 선루프·항공 비즈니스석 캠페인에서 어두운 실내 창틀 실루엣으로 바깥 풍경의",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "칠흑 같은 우주정거장 내부 기하학 창틀 너머로 푸른 지구가 파노라마처럼 펼쳐지며 궁극의 프레임 속 프레임을 완성한다.",
+      "framing": "방사형 다각형 창틀의 어두운 실루엣이 바깥 코발트 블루 지구의 채도를 극한까지 증폭시킨다.",
+      "marketingApply": "건축·자동차 선루프·항공 비즈니스석 캠페인에서 어두운 실내 창틀 실루엣으로 바깥 풍경의 가치를 극대화하는 구도."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-112",
+    "titleKo": "NASA ISS 익스페디션 39 지구 대기권 곡선 컬러 관측",
+    "originalTitle": "Earth Observations from ISS Expedition 39 (NASA)",
+    "brandOrSource": "NASA Johnson Space Center · ISS",
+    "year": 2014,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/iss039e005387/iss039e005387~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/iss039e005387",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "극단적 여백",
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "무대사 직관 전달",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#070B14",
+      "#184E8C",
+      "#54A0D4",
+      "#D9A86C",
+      "#F4F5F7"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        56
+      ],
+      "eyePath": [
+        [
+          22,
+          54
+        ],
+        [
+          52,
+          48
+        ],
+        [
+          82,
+          42
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "칠흑 우주와 푸른 지구 대기층을 가르는 눈부신 지평선 호(Arc)가 미니멀리즘의 극치를",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "단순한 곡선 경계 하나만으로 상단 블랙 여백과 하단 블루 텍스처를 갈라 압도적 개방감을",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#184E8C·#54A0D4 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "글로벌 플랫폼·클라우드·항공 브랜드 히어로 배너에서 곡선 지평선과 고대비 블루-블랙 분",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "칠흑 우주와 푸른 지구 대기층을 가르는 눈부신 지평선 호(Arc)가 미니멀리즘의 극치를 보여준다.",
+      "framing": "단순한 곡선 경계 하나만으로 상단 블랙 여백과 하단 블루 텍스처를 갈라 압도적 개방감을 만든다.",
+      "marketingApply": "글로벌 플랫폼·클라우드·항공 브랜드 히어로 배너에서 곡선 지평선과 고대비 블루-블랙 분할을 적용하는 레이아웃."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-113",
+    "titleKo": "1971 NASA 아폴로 15호 해들리 협곡(Hadley Rille) 망원 기록",
+    "originalTitle": "Apollo 15 Telephoto View Across Hadley Rille (1971)",
+    "brandOrSource": "NASA Apollo 15 · Hasselblad 500mm",
+    "year": 1971,
+    "era": "1970s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/as15-89-12100/as15-89-12100~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/as15-89-12100",
+    "licenseNote": "Public Domain (NASA Media Usage Guidelines)",
+    "compositionTags": [
+      "1점 투시",
+      "극단적 여백",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#090A0D",
+      "#3A3E45",
+      "#8C857A",
+      "#C8A464",
+      "#ECE8DF"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        54,
+        46
+      ],
+      "eyePath": [
+        [
+          24,
+          68
+        ],
+        [
+          54,
+          48
+        ],
+        [
+          80,
+          36
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "대기 없는 달의 칼날 같은 그림자와 500mm 초망원 압축 원근이 초현실적인 지질 스펙",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "완전한 흑색 하늘과 은회색·오커 월면 능선의 날카로운 경계가 압도적 정적과 스케일을 전",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3A3E45·#8C857A 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "미니멀 패션·하이엔드 테크 화보에서 망원 렌즈 원근 압축과 극단적 흑색 하늘 대비를 활",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "대기 없는 달의 칼날 같은 그림자와 500mm 초망원 압축 원근이 초현실적인 지질 스펙터클을 포착한다.",
+      "framing": "완전한 흑색 하늘과 은회색·오커 월면 능선의 날카로운 경계가 압도적 정적과 스케일을 전달한다.",
+      "marketingApply": "미니멀 패션·하이엔드 테크 화보에서 망원 렌즈 원근 압축과 극단적 흑색 하늘 대비를 활용하는 구도."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-114",
+    "titleKo": "NASA 스피처 '타오르는 성운 기둥(Towering Infernos)' 적외선 컬러",
+    "originalTitle": "Towering Infernos — Spitzer Space Telescope (PIA03096)",
+    "brandOrSource": "NASA / JPL-Caltech / Spitzer",
+    "year": 2005,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://images-assets.nasa.gov/image/PIA03096/PIA03096~thumb.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://images.nasa.gov/details/PIA03096",
+    "licenseNote": "Public Domain (NASA/JPL-Caltech)",
+    "compositionTags": [
+      "기하학 조형",
+      "역광 실루엣",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#0C0910",
+      "#3B7A57",
+      "#D95D26",
+      "#F2B838",
+      "#68B5A8"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          32,
+          64
+        ],
+        [
+          52,
+          46
+        ],
+        [
+          76,
+          30
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "에메랄드·오렌지·골드가 어두운 우주 속에서 불꽃처럼 일렁이며 추상 표현주의 회화 같은 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "대각선으로 뻗어 오르는 성운의 유기적 조형이 화면 전체에 강한 상승 동선을 형성한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3B7A57·#D95D26 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "음악·아트·크리에이티브 툴 키 비주얼에서 적외선 컬러 팔레트(에메랄드×오렌지)로 독창적",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "에메랄드·오렌지·골드가 어두운 우주 속에서 불꽃처럼 일렁이며 추상 표현주의 회화 같은 시각 에너지를 발산한다.",
+      "framing": "대각선으로 뻗어 오르는 성운의 유기적 조형이 화면 전체에 강한 상승 동선을 형성한다.",
+      "marketingApply": "음악·아트·크리에이티브 툴 키 비주얼에서 적외선 컬러 팔레트(에메랄드×오렌지)로 독창적 비주얼 임팩트를 주는 법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-115",
+    "titleKo": "1942 앨프레드 팔머 '더글러스 항공 공장 정오의 휴식' 코다크롬",
+    "originalTitle": "Noon Day Rest at Douglas Aircraft Plant (Alfred T. Palmer, 1942)",
+    "brandOrSource": "Library of Congress · OWI Kodachrome",
+    "year": 1942,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/NoonDayRestWomanAlfredTPalmer.jpg/1280px-NoonDayRestWomanAlfredTPalmer.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:NoonDayRestWomanAlfredTPalmer.jpg",
+    "licenseNote": "Public Domain (Library of Congress / OWI)",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "기하학 조형",
+      "극단적 여백"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#1C3B5E",
+      "#C93B2B",
+      "#E6B44C",
+      "#5C8EAD",
+      "#F2ECE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        44
+      ],
+      "eyePath": [
+        [
+          48,
+          34
+        ],
+        [
+          52,
+          54
+        ],
+        [
+          64,
+          72
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "푸른 데님 작업복과 선명한 레드·골드 코다크롬 컬러가 80년 전 인물 사진을 오늘 찍은",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "인물의 여유로운 표정을 3분할 상단에 두고 금속 항공기 구조를 배경으로 정리해 친근한 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C93B2B·#E6B44C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "데님·워크웨어·라이프스타일 브랜드 화보에서 자연광 코다크롬 색감(블루×레드)으로 시간 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "푸른 데님 작업복과 선명한 레드·골드 코다크롬 컬러가 80년 전 인물 사진을 오늘 찍은 패션 화보처럼 살아 숨 쉬게 한다.",
+      "framing": "인물의 여유로운 표정을 3분할 상단에 두고 금속 항공기 구조를 배경으로 정리해 친근한 휴먼 스토리를 완성한다.",
+      "marketingApply": "데님·워크웨어·라이프스타일 브랜드 화보에서 자연광 코다크롬 색감(블루×레드)으로 시간 초월적 매력을 만드는 기준."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-116",
+    "titleKo": "1942 앨프레드 팔머 '더글러스 항공기 동체 정밀 작업' 코다크롬",
+    "originalTitle": "Woman Worker in Douglas Aircraft Plant (Alfred T. Palmer, 1942)",
+    "brandOrSource": "Library of Congress · OWI Kodachrome",
+    "year": 1942,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg/1280px-Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Woman_worker_in_the_Douglas_Aircraft_Company_plant1942.jpg",
+    "licenseNote": "Public Domain (Library of Congress / OWI)",
+    "compositionTags": [
+      "프레임 속 프레임",
+      "기하학 조형",
+      "초근접 클로즈업"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#1A2D42",
+      "#C84B31",
+      "#3D7C8C",
+      "#D9A44C",
+      "#ECE6DA"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        52,
+        48
+      ],
+      "eyePath": [
+        [
+          44,
+          38
+        ],
+        [
+          56,
+          52
+        ],
+        [
+          72,
+          64
+        ]
+      ],
+      "primaryGrid": "golden"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "에메랄드빛 항공기 알루미늄 프라이머와 따뜻한 인물 피부·의상 톤의 보색 조화가 한눈에 ",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "동체 곡면 프레임이 인물의 집중된 시선과 손동작을 완벽하게 감싸 장인정신의 몰입도를 높",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C84B31·#3D7C8C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "브랜드 메이킹·장인 인터뷰 사진에서 작업물의 컬러 프레임을 활용해 인물의 집중력을 부각",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "에메랄드빛 항공기 알루미늄 프라이머와 따뜻한 인물 피부·의상 톤의 보색 조화가 한눈에 시선을 붙든다.",
+      "framing": "동체 곡면 프레임이 인물의 집중된 시선과 손동작을 완벽하게 감싸 장인정신의 몰입도를 높인다.",
+      "marketingApply": "브랜드 메이킹·장인 인터뷰 사진에서 작업물의 컬러 프레임을 활용해 인물의 집중력을 부각하는 다큐 촬영법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-117",
+    "titleKo": "1942 앨프레드 팔머 'C-47 수송기 R-1830 성형 엔진 조립' 코다크롬",
+    "originalTitle": "R-1830 Radial Engine Installation on C-47 (Alfred T. Palmer, 1942)",
+    "brandOrSource": "Library of Congress · OWI Kodachrome",
+    "year": 1942,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/R-1830_engine_on_C-47_at_factory_1942.jpg/1280px-R-1830_engine_on_C-47_at_factory_1942.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:R-1830_engine_on_C-47_at_factory_1942.jpg",
+    "licenseNote": "Public Domain (Library of Congress / OWI)",
+    "compositionTags": [
+      "기하학 조형",
+      "대칭 구도",
+      "초근접 클로즈업"
+    ],
+    "persuasionTags": [
+      "스케일 반전",
+      "다큐 리얼리즘"
+    ],
+    "palette": [
+      "#152436",
+      "#C84B31",
+      "#E2B24C",
+      "#4D7C8A",
+      "#EFE9DC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          50,
+          48
+        ],
+        [
+          32,
+          56
+        ],
+        [
+          70,
+          56
+        ]
+      ],
+      "primaryGrid": "symmetry"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "원형으로 배열된 거대 성형 엔진 실린더의 정교한 기계 기하학과 코다크롬 원색 조명이 압",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "엔진 원형 중심과 양옆 엔지니어의 균형 잡힌 배치가 인간과 정밀 기계의 완벽한 협업을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C84B31·#E2B24C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "엔지니어링·시계·모빌리티 캠페인에서 복잡한 기계 내부의 대칭 조형을 클로즈업해 기술 정",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "원형으로 배열된 거대 성형 엔진 실린더의 정교한 기계 기하학과 코다크롬 원색 조명이 압도적 밀도를 만든다.",
+      "framing": "엔진 원형 중심과 양옆 엔지니어의 균형 잡힌 배치가 인간과 정밀 기계의 완벽한 협업을 시각화한다.",
+      "marketingApply": "엔지니어링·시계·모빌리티 캠페인에서 복잡한 기계 내부의 대칭 조형을 클로즈업해 기술 정밀도를 증명하는 컷."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-118",
+    "titleKo": "1942 앨프레드 팔머 '성형 엔진 정밀 조립 세로 포트레이트' 코다크롬",
+    "originalTitle": "Precision Engine Assembly Portrait (Alfred T. Palmer, 1942)",
+    "brandOrSource": "Library of Congress · OWI Kodachrome",
+    "year": 1942,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:5",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg/1280px-Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Woman_working_on_R-1830_engine_at_Douglas_Aircraft_1942.jpg",
+    "licenseNote": "Public Domain (Library of Congress / OWI)",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "기하학 조형",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "초반 3초 시선 강탈"
+    ],
+    "palette": [
+      "#182534",
+      "#C93B2B",
+      "#4A7C9B",
+      "#D9A85B",
+      "#EFEAE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          48,
+          34
+        ],
+        [
+          52,
+          52
+        ],
+        [
+          58,
+          70
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "세로 4:5 포트레이트 안에 금속 엔진의 차가운 디테일과 선명한 컬러 의상이 완벽히 밀",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "상단 인물 시선에서 하단 공구·엔진으로 수직 낙하하는 시선 동선이 모바일 세로 피드에 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#C93B2B·#4A7C9B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "인스타그램·모바일 4:5 세로 인물 콘텐츠에서 '얼굴(상단 1/3) → 제품/도구(중하",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "세로 4:5 포트레이트 안에 금속 엔진의 차가운 디테일과 선명한 컬러 의상이 완벽히 밀착되어 강렬한 존재감을 뿜는다.",
+      "framing": "상단 인물 시선에서 하단 공구·엔진으로 수직 낙하하는 시선 동선이 모바일 세로 피드에 최적화된 구도를 이룬다.",
+      "marketingApply": "인스타그램·모바일 4:5 세로 인물 콘텐츠에서 '얼굴(상단 1/3) → 제품/도구(중하단)' 수직 시선 동선의 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-119",
+    "titleKo": "1943 잭 델라노 '시카고 철도역 증기기관차 선로 투시' 코다크롬",
+    "originalTitle": "Chicago & North Western Railway Yard (Jack Delano, 1943)",
+    "brandOrSource": "Library of Congress · FSA/OWI Kodachrome",
+    "year": 1943,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Chicago_and_North_Western_Railway%3F.jpg/1280px-Chicago_and_North_Western_Railway%3F.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chicago_and_North_Western_Railway%3F.jpg",
+    "licenseNote": "Public Domain (Library of Congress / FSA-OWI)",
+    "compositionTags": [
+      "1점 투시",
+      "역광 실루엣",
+      "기하학 조형"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#182230",
+      "#4A7396",
+      "#C86A32",
+      "#E5B45C",
+      "#EFECE4"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          22,
+          74
+        ],
+        [
+          50,
+          46
+        ],
+        [
+          78,
+          34
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "증기를 내뿜는 기관차 열과 햇살에 반짝이는 다중 강철 선로가 코다크롬 특유의 따뜻한 골",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "부채꼴 선로가 화면 중앙 소실점으로 강력히 수렴하며 산업 시대의 리듬과 깊이감을 만들어",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#4A7396·#C86A32 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "모빌리티·물류·헤리티지 브랜드 필름에서 다중 선로 투시선과 증기 역광으로 묵직한 서사를",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "증기를 내뿜는 기관차 열과 햇살에 반짝이는 다중 강철 선로가 코다크롬 특유의 따뜻한 골드-블루 대비로 펼쳐진다.",
+      "framing": "부채꼴 선로가 화면 중앙 소실점으로 강력히 수렴하며 산업 시대의 리듬과 깊이감을 만들어낸다.",
+      "marketingApply": "모빌리티·물류·헤리티지 브랜드 필름에서 다중 선로 투시선과 증기 역광으로 묵직한 서사를 여는 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-120",
+    "titleKo": "1940 마리온 포스트 월콧 코다크롬 다큐멘터리 아카이브",
+    "originalTitle": "Marion Post Wolcott FSA Documentary Color Frame (1940)",
+    "brandOrSource": "Library of Congress · FSA Color Archive",
+    "year": 1940,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/99/Marion_Post_Wolcott_1940.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Marion_Post_Wolcott_1940.jpg",
+    "licenseNote": "Public Domain (Library of Congress / FSA)",
+    "compositionTags": [
+      "초근접 클로즈업",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1C2B3A",
+      "#B84A32",
+      "#D9A44C",
+      "#4D7A68",
+      "#F0E9DC"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        46
+      ],
+      "eyePath": [
+        [
+          46,
+          38
+        ],
+        [
+          54,
+          52
+        ],
+        [
+          68,
+          66
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "자연광 아래 과장 없는 코다크롬 컬러가 피사체의 진정성과 시대적 온기를 즉각적으로 전달",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "눈높이 자연 앵글과 3분할 배치가 연출되지 않은 다큐멘터리 특유의 신뢰감을 형성한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#B84A32·#D9A44C 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "진정성이 핵심인 브랜드 캠페인에서 인위적 스튜디오 조명을 버리고 자연광 눈높이 앵글로 ",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "자연광 아래 과장 없는 코다크롬 컬러가 피사체의 진정성과 시대적 온기를 즉각적으로 전달한다.",
+      "framing": "눈높이 자연 앵글과 3분할 배치가 연출되지 않은 다큐멘터리 특유의 신뢰감을 형성한다.",
+      "marketingApply": "진정성이 핵심인 브랜드 캠페인에서 인위적 스튜디오 조명을 버리고 자연광 눈높이 앵글로 신뢰를 얻는 전략."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-121",
+    "titleKo": "캘리포니아 앰보이 '루트 66 로이스 모텔' 미드센추리 사막 네온 사인",
+    "originalTitle": "Roy's Motel & Cafe — Historic Route 66, Amboy, California",
+    "brandOrSource": "Wikimedia Commons · Route 66 Heritage",
+    "year": 2012,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "3:2",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_5705.jpg/1280px-Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_5705.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amboy_(California,_USA),_Hist._Route_66_--_2012_--_5705.jpg",
+    "licenseNote": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "compositionTags": [
+      "극단적 여백",
+      "기하학 조형",
+      "1점 투시"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "카피×구도 일체형"
+    ],
+    "palette": [
+      "#1A4D8C",
+      "#5299D3",
+      "#D94436",
+      "#E8B44C",
+      "#EFE6D5"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        52,
+        54
+      ],
+      "eyePath": [
+        [
+          42,
+          34
+        ],
+        [
+          52,
+          52
+        ],
+        [
+          74,
+          62
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "모하비 사막의 짙은 코발트 하늘을 찌르는 1959년 구기(Googie) 스타일 레드·옐",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "광활한 사막 수평선과 뾰족한 수직 네온 사인의 극적 대비가 웨스 앤더슨급 시각 쾌감을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#5299D3·#D94436 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "패션 룩북·로드트립 캠페인·F&B 브랜딩에서 사막 수평선 + 미드센추리 사인 타이포 조",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "모하비 사막의 짙은 코발트 하늘을 찌르는 1959년 구기(Googie) 스타일 레드·옐로 네온 사인이 완벽한 아메리카나 아이콘을 만든다.",
+      "framing": "광활한 사막 수평선과 뾰족한 수직 네온 사인의 극적 대비가 웨스 앤더슨급 시각 쾌감을 선사한다.",
+      "marketingApply": "패션 룩북·로드트립 캠페인·F&B 브랜딩에서 사막 수평선 + 미드센추리 사인 타이포 조합으로 아이코닉 무드를 구축하는 법."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-122",
+    "titleKo": "캘리포니아 루트 66 사막 하이웨이 시네마스코프 1점 투시",
+    "originalTitle": "Historic Route 66 Desert Highway Panorama (Amboy, CA)",
+    "brandOrSource": "Wikimedia Commons · Route 66 Heritage",
+    "year": 2012,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "2.39:1",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_1.jpg/1280px-Amboy_%28California%2C_USA%29%2C_Hist._Route_66_--_2012_--_1.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amboy_(California,_USA),_Hist._Route_66_--_2012_--_1.jpg",
+    "licenseNote": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "compositionTags": [
+      "1점 투시",
+      "극단적 여백",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "무대사 직관 전달",
+      "스케일 반전"
+    ],
+    "palette": [
+      "#1B4B82",
+      "#5A9BD4",
+      "#C88A4B",
+      "#D9A86C",
+      "#F2ECE0"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        52
+      ],
+      "eyePath": [
+        [
+          50,
+          82
+        ],
+        [
+          50,
+          52
+        ],
+        [
+          80,
+          44
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "2.39:1 시네마스코프 와이드 비율 속에 끝없이 뻗은 사막 도로와 푸른 하늘이 즉각적",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "정중앙 소실점으로 수렴하는 아스팔트 도로와 극단적 사막 여백이 자유와 개방감의 원형을 ",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#5A9BD4·#C88A4B 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "자동차·여행·음악 앨범 커버에서 2.39:1 초광폭 비율과 사막 1점 투시로 압도적 여",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "2.39:1 시네마스코프 와이드 비율 속에 끝없이 뻗은 사막 도로와 푸른 하늘이 즉각적인 로드무비 감성을 소환한다.",
+      "framing": "정중앙 소실점으로 수렴하는 아스팔트 도로와 극단적 사막 여백이 자유와 개방감의 원형을 보여준다.",
+      "marketingApply": "자동차·여행·음악 앨범 커버에서 2.39:1 초광폭 비율과 사막 1점 투시로 압도적 여운을 남기는 와이드 구도."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-123",
+    "titleKo": "파리 비르아켐(Bir-Hakeim) 다리 철골 회랑 1점 투시 건축 프레임",
+    "originalTitle": "Pont de Bir-Hakeim Iron Colonnade Perspective (Paris)",
+    "brandOrSource": "Wikimedia Commons · Architectural Photography",
+    "year": 2021,
+    "era": "1990-00s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "16:9",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Bir-Hakeim_bridge%2C_Paris_24_June_2021.jpg/1280px-Bir-Hakeim_bridge%2C_Paris_24_June_2021.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bir-Hakeim_bridge,_Paris_24_June_2021.jpg",
+    "licenseNote": "CC BY-SA 4.0 (Wikimedia Commons)",
+    "compositionTags": [
+      "1점 투시",
+      "대칭 구도",
+      "프레임 속 프레임"
+    ],
+    "persuasionTags": [
+      "초반 3초 시선 강탈",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1A2B2E",
+      "#3B6E68",
+      "#D99B38",
+      "#7A99A8",
+      "#EFEBE2"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        50
+      ],
+      "eyePath": [
+        [
+          22,
+          66
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          78,
+          66
+        ]
+      ],
+      "primaryGrid": "perspective"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "영화 '인셉션'으로도 유명한 청록빛 철골 기둥의 무한 반복과 완벽한 정중앙 소실점이 시",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "좌우 대칭 기둥 리듬과 아치형 천장 프레임이 공간 깊이를 극한까지 확장한다.",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#3B6E68·#D99B38 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "하이엔드 패션 필름·향수·자동차 광고에서 반복 기둥 회랑의 1점 투시로 최면적 몰입감을",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "영화 '인셉션'으로도 유명한 청록빛 철골 기둥의 무한 반복과 완벽한 정중앙 소실점이 시선을 단숨에 빨아들인다.",
+      "framing": "좌우 대칭 기둥 리듬과 아치형 천장 프레임이 공간 깊이를 극한까지 확장한다.",
+      "marketingApply": "하이엔드 패션 필름·향수·자동차 광고에서 반복 기둥 회랑의 1점 투시로 최면적 몰입감을 만드는 촬영 로케이션 정석."
+    },
+    "addedAt": "2026-11-21"
+  },
+  {
+    "id": "KF-124",
+    "titleKo": "1910s 세르게이 프로쿠딘-고르스키 3색 분판 초기 컬러 아카이브",
+    "originalTitle": "Sergey Prokudin-Gorsky Three-Color Separation Photograph (1910s)",
+    "brandOrSource": "Library of Congress · Prokudin-Gorsky Collection",
+    "year": 1910,
+    "era": "1950-60s",
+    "mediaType": "PHOTO",
+    "aspectRatio": "4:3",
+    "durationSec": null,
+    "mediaSource": "still_image",
+    "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Prokudin-Gorskii-25.jpg/1280px-Prokudin-Gorskii-25.jpg",
+    "previewVideoUrl": null,
+    "youtubeId": null,
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prokudin-Gorskii-25.jpg",
+    "licenseNote": "Public Domain (Library of Congress)",
+    "compositionTags": [
+      "기하학 조형",
+      "1점 투시",
+      "대칭 구도"
+    ],
+    "persuasionTags": [
+      "다큐 리얼리즘",
+      "시각적 은유"
+    ],
+    "palette": [
+      "#1E364D",
+      "#4D7C8C",
+      "#B84A32",
+      "#D9A44E",
+      "#EFE8DA"
+    ],
+    "viewfinder": {
+      "vanishingPoint": [
+        50,
+        48
+      ],
+      "eyePath": [
+        [
+          28,
+          60
+        ],
+        [
+          50,
+          48
+        ],
+        [
+          76,
+          42
+        ]
+      ],
+      "primaryGrid": "thirds"
+    },
+    "beats": [
+      {
+        "label": "오프닝 3초 훅",
+        "timeOrZone": "핵심 시선점",
+        "noteKo": "100여 년 전 적·녹·청 3장의 유리 건판을 합성해 얻어낸 경이로운 초기 컬러 사진이",
+        "focusCrop": "50% 45%"
+      },
+      {
+        "label": "구도·프레이밍 축",
+        "timeOrZone": "중앙 축",
+        "noteKo": "삼각대 위에서 치밀하게 계산된 고전적 3분할 풍경 구도와 자연스러운 어스·블루 색채 조",
+        "focusCrop": "40% 52%"
+      },
+      {
+        "label": "색채·명암 대비",
+        "timeOrZone": "보색 영역",
+        "noteKo": "#4D7C8C·#B84A32 중심의 고채도 색채 밸런스",
+        "focusCrop": "60% 48%"
+      },
+      {
+        "label": "실무 적용 포인트",
+        "timeOrZone": "전체 프레임",
+        "noteKo": "헤리티지·아카이브 브랜드 캠페인에서 아날로그 3색 분판 특유의 차분한 색채와 정적 구도",
+        "focusCrop": "50% 50%"
+      }
+    ],
+    "breakdown": {
+      "hook3s": "100여 년 전 적·녹·청 3장의 유리 건판을 합성해 얻어낸 경이로운 초기 컬러 사진이 마법 같은 시간 여행 감각을 준다.",
+      "framing": "삼각대 위에서 치밀하게 계산된 고전적 3분할 풍경 구도와 자연스러운 어스·블루 색채 조화가 돋보인다.",
+      "marketingApply": "헤리티지·아카이브 브랜드 캠페인에서 아날로그 3색 분판 특유의 차분한 색채와 정적 구도를 차용하는 컬러 레퍼런스."
+    },
+    "addedAt": "2026-11-21"
   }
 ]

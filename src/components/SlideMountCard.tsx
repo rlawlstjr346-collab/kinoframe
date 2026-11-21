@@ -112,16 +112,17 @@ export function SlideMountCard({
             }`}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#09090B] p-4 text-center font-mono text-[11px] text-silver">
+          <div className="flex h-full w-full items-center justify-center bg-[#09090B] p-4 text-center font-mono text-xs text-silver">
             {item.id} · {item.originalTitle}
           </div>
         )}
 
-        {/* Viewport Auto-Play Muted Loop for archive_mp4 */}
+        {/* Viewport Auto-Play Muted Loop for archive_mp4 (with poster fallback) */}
         {isAutoLoopVideo && hasEnteredViewport && item.previewVideoUrl && (
           <video
             ref={videoRef}
             src={item.previewVideoUrl}
+            poster={item.thumbnailUrl}
             preload="metadata"
             muted
             loop
@@ -173,15 +174,15 @@ export function SlideMountCard({
                 ? "최대 2개까지 비교 가능"
                 : "비교 추가"
             }
-            className={`inline-flex h-7 w-7 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
               isInCompare
                 ? "border-[#D99B26] bg-[#D99B26]/25 text-[#D99B26]"
                 : compareFull
                 ? "cursor-not-allowed border-[#F4F1EA]/10 bg-[#09090B]/65 text-silver/40"
-                : "border-[#F4F1EA]/15 bg-[#09090B]/72 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
+                : "border-[#F4F1EA]/15 bg-[#09090B]/75 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
             }`}
           >
-            <CompareIcon className="h-3.5 w-3.5" />
+            <CompareIcon className="h-4 w-4" />
           </button>
 
           <button
@@ -190,24 +191,24 @@ export function SlideMountCard({
               e.stopPropagation();
               onToggleBoard(item.id);
             }}
-            aria-label={isInBoard ? "무드보드에서 제거" : "무드보드에 담기"}
-            title={isInBoard ? "보드에 담김 (해제)" : "보드 담기"}
-            className={`inline-flex h-7 w-7 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
+            aria-label={isInBoard ? "보관함에서 제거" : "보관함에 담기"}
+            title={isInBoard ? "보관함에 담김 (해제)" : "보관함 담기"}
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-[4px] border backdrop-blur-md transition-colors ${
               isInBoard
                 ? "border-[#D99B26] bg-[#D99B26] text-[#09090B]"
-                : "border-[#F4F1EA]/15 bg-[#09090B]/72 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
+                : "border-[#F4F1EA]/15 bg-[#09090B]/75 text-ivory hover:border-[#D99B26]/70 hover:text-[#D99B26]"
             }`}
           >
-            <BoardBookmarkIcon className="h-3.5 w-3.5" filled={isInBoard} />
+            <BoardBookmarkIcon className="h-4 w-4" filled={isInBoard} />
           </button>
         </div>
 
-        {/* Whisper Hover Bottom Multi-Stop Gradient + Minimal Caption */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/92 via-[#09090B]/48 to-transparent px-2.5 pb-2.5 pt-12 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-          <p className="truncate text-[13px] font-medium leading-tight tracking-tight text-ivory">
+        {/* Whisper Hover Bottom Multi-Stop Gradient + Readable Caption */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/95 via-[#09090B]/55 to-transparent px-3 pb-3 pt-14 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+          <p className="truncate text-sm font-medium leading-snug tracking-tight text-ivory sm:text-[15px]">
             {item.titleKo}
           </p>
-          <p className="mt-0.5 truncate font-mono text-[10px] tracking-wide text-silver/90">
+          <p className="mt-0.5 truncate font-mono text-xs tracking-wide text-silver/90">
             {item.brandOrSource} · {item.year} · {item.mediaType}
           </p>
         </div>

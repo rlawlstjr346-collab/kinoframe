@@ -9,7 +9,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "verify:links": "node scripts/verify-links.mjs"
+    "verify:links": "node scripts/verify-links.mjs",
+    "curate:discover": "node scripts/auto-discover-archive.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
