@@ -1,57 +1,83 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
-import {
-  getAspectRatioClass,
-  getCategoryLabel,
-  getCountryLabel,
-  resolveItemCategory,
-  resolveItemCountry,
-} from "@/lib/taxonomy";
-import {
-  captureRawFramePngBlob,
-  copyPngBlobToClipboard,
-  downloadBlobAsPng,
-} from "@/lib/frame-capture";
+import { getAspectRatioClass } from "@/lib/taxonomy";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
+
+export interface HighlightWindow {
+  startSec: number;
+  endSec: number | null;
+}
+
+export function computeHighlightWindow(durationSec: number | null): HighlightWindow {
+  if (!durationSec || !Number.isFinite(durationSec) || durationSec < 12) {
+    return { startSec: 0, endSec: null };
+  }
+  if (durationSec >= 60) {
+    return {
+      startSec: 24,
+      endSec: Math.min(durationSec - 1, 36),
+    };
+  }
+  if (durationSec >= 25) {
+    return {
+      startSec: 7,
+      endSec: Math.min(durationSec - 1, 17),
+    };
+  }
+  return {
+    startSec: 2.5,
+    endSec: Math.min(durationSec - 0.5, 10.5),
+  };
+}
 
 interface SlideMountCardProps {
   item: ArchiveItem;
-  isInBoard: boolean;
-  isInCompare: boolean;
-  compareFull: boolean;
+  isInBoard?: boolean;
+  isInCompare?: boolean;
+  compareFull?: boolean;
   onOpenDetail: (item: ArchiveItem) => void;
-  onToggleBoard: (id: string) => void;
-  onToggleCompare: (id: string) => void;
+  onToggleBoard?: (id: string) => void;
+  onToggleCompare?: (id: string) => void;
+  onEvictItem?: (id: string) => void;
 }
+
+const STALL_EVICT_TIMEOUT_MS = 6500;
 
 export function SlideMountCard({
   item,
-  isInBoard,
-  isInCompare,
   onOpenDetail,
-  onToggleBoard,
+  onEvictItem,
 }: SlideMountCardProps) {
   const cardRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const evictedRef = useRef<boolean>(false);
+  const initialSeekDoneRef = useRef<boolean>(false);
+  const windowRef = useRef<HighlightWindow>(computeHighlightWindow(item.durationSec));
 
   const [isNearViewport, setIsNearViewport] = useState(false);
   const [inView, setInView] = useState(false);
   const [slotAllowed, setSlotAllowed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "copied">(
-    "idle"
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const highlightWindow = useMemo(
+    () => computeHighlightWindow(item.durationSec),
+    [item.durationSec]
   );
+  windowRef.current = highlightWindow;
 
   const isAutoLoopVideo =
-    item.mediaSource === "archive_mp4" &&
-    Boolean(item.previewVideoUrl) &&
-    !videoError;
+    item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
 
-  // Offscreen memory reclamation: mount <video> only within 360px of viewport, unmount when scrolled away
+  const triggerEvict = () => {
+    if (evictedRef.current) return;
+    evictedRef.current = true;
+    onEvictItem?.(item.id);
+  };
+
+  // Offscreen memory reclamation: mount <video> only within 360px of viewport
   useEffect(() => {
     if (!isAutoLoopVideo) {
       setIsNearViewport(false);
@@ -68,6 +94,7 @@ export function SlideMountCard({
         setIsNearViewport(near);
         if (!near) {
           setVideoReady(false);
+          initialSeekDoneRef.current = false;
         }
       },
       {
@@ -80,7 +107,7 @@ export function SlideMountCard({
     return () => proximityObserver.disconnect();
   }, [isAutoLoopVideo]);
 
-  // Global concurrent playback slot scheduler (max 18 desktop / 6 mobile, hysteresis + hover priority)
+  // Global concurrent playback slot scheduler (desktop 18 / mobile 6 + hysteresis + modal suspension)
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
@@ -140,25 +167,53 @@ export function SlideMountCard({
     }
   }, [shouldPlayVideo, isAutoLoopVideo, videoReady]);
 
-  const handleQuickCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (copyStatus === "copying") return;
-    setCopyStatus("copying");
-    try {
-      const blob = await captureRawFramePngBlob(item, videoRef.current);
-      const copied = await copyPngBlobToClipboard(blob);
-      if (!copied) {
-        downloadBlobAsPng(blob, `${item.id}_frame.png`);
+  // Auto-evict stalled/unplayable video tiles if not decoded within 6.5s of slot grant
+  useEffect(() => {
+    if (!shouldPlayVideo || videoReady || !onEvictItem) return;
+    const timer = window.setTimeout(() => {
+      if (!videoReady) {
+        triggerEvict();
       }
-      setCopyStatus("copied");
-      window.setTimeout(() => setCopyStatus("idle"), 1600);
-    } catch {
-      setCopyStatus("idle");
+    }, STALL_EVICT_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldPlayVideo, videoReady, onEvictItem, item.id]);
+
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const realDur = Number.isFinite(video.duration) && video.duration > 0
+      ? video.duration
+      : item.durationSec;
+    const win = computeHighlightWindow(realDur);
+    windowRef.current = win;
+
+    if (win.startSec > 0 && realDur && realDur > win.startSec + 2) {
+      try {
+        video.currentTime = win.startSec;
+      } catch {
+        initialSeekDoneRef.current = true;
+      }
+    } else {
+      initialSeekDoneRef.current = true;
     }
   };
 
-  const categoryLabel = getCategoryLabel(resolveItemCategory(item));
-  const countryLabel = getCountryLabel(resolveItemCountry(item));
+  const handleSeeked = () => {
+    initialSeekDoneRef.current = true;
+    setVideoReady(true);
+  };
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const win = windowRef.current;
+    if (win.endSec !== null && video.currentTime >= win.endSec) {
+      try {
+        video.currentTime = win.startSec;
+      } catch {
+        // ignore seek restrictions
+      }
+    }
+  };
 
   return (
     <article
@@ -183,9 +238,9 @@ export function SlideMountCard({
           globalVideoScheduler.update(item.id, { hovered: false });
         }
       }}
-      className="group relative w-full overflow-hidden rounded-[2px] bg-[#111216] ring-0 transition-all duration-200 hover:ring-1 hover:ring-[#FAF8F5]/45"
+      className="relative w-full cursor-pointer overflow-hidden rounded-[16px] bg-[#080808]"
     >
-      {/* Pure Zero-Chrome Visual Frame Window */}
+      {/* Pure Eyecandy Zero-Chrome Tile: zero hover text, zero badges, zero borders */}
       <div
         role="button"
         tabIndex={0}
@@ -196,29 +251,30 @@ export function SlideMountCard({
             onOpenDetail(item);
           }
         }}
+        title={item.titleKo}
         aria-label={`${item.titleKo} 상세 보기`}
-        className={`relative w-full cursor-pointer overflow-hidden bg-[#111216] ${getAspectRatioClass(
+        className={`relative w-full overflow-hidden rounded-[16px] bg-[#080808] ${getAspectRatioClass(
           item.aspectRatio
         )}`}
       >
-        {!imgError ? (
-          <img
-            src={item.thumbnailUrl}
-            alt={`${item.titleKo} (${item.year})`}
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgError(true)}
-            className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025] ${
-              videoReady && !videoError && isNearViewport ? "opacity-0" : "opacity-100"
-            }`}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#09090B] p-4 text-center font-mono text-xs text-silver">
-            {item.id} · {item.originalTitle}
-          </div>
-        )}
+        <img
+          src={item.thumbnailUrl}
+          alt={item.titleKo}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImgLoaded(true)}
+          onError={() => {
+            if (!isAutoLoopVideo) triggerEvict();
+          }}
+          className={`h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
+            videoReady && isNearViewport
+              ? "opacity-0"
+              : imgLoaded
+              ? "opacity-100"
+              : "opacity-0"
+          }`}
+        />
 
-        {/* Viewport Proximity Auto-Play Muted Loop with Zero Poster-Flicker Retention */}
         {isAutoLoopVideo && isNearViewport && item.previewVideoUrl && (
           <video
             ref={videoRef}
@@ -228,65 +284,25 @@ export function SlideMountCard({
             muted
             loop
             playsInline
-            onLoadedData={() => setVideoReady(true)}
-            onCanPlay={() => setVideoReady(true)}
-            onError={() => {
-              setVideoError(true);
-              setVideoReady(false);
+            onLoadedMetadata={handleLoadedMetadata}
+            onSeeked={handleSeeked}
+            onLoadedData={() => {
+              if (windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
+                setVideoReady(true);
+              }
             }}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-              videoReady && !videoError ? "opacity-100" : "opacity-0"
+            onCanPlay={() => {
+              if (windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
+                setVideoReady(true);
+              }
+            }}
+            onTimeUpdate={handleTimeUpdate}
+            onError={triggerEvict}
+            className={`absolute inset-0 h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
+              videoReady ? "opacity-100" : "opacity-0"
             }`}
           />
         )}
-
-        {/* Hover/Focus-Only Action HUD (100% Zero-Chrome Resting Wall) */}
-        <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-          {isInCompare && (
-            <span
-              className="h-2.5 w-2.5 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80"
-              aria-hidden="true"
-            />
-          )}
-          <button
-            type="button"
-            onClick={handleQuickCopy}
-            aria-label="이미지 클립보드 복사"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-white/20 bg-[#09090B]/85 px-3.5 text-[14px] font-semibold text-white backdrop-blur-md transition-colors hover:border-white/50 hover:bg-[#09090B] 2xl:text-[15px]"
-          >
-            {copyStatus === "copied"
-              ? "복사됨"
-              : copyStatus === "copying"
-              ? "..."
-              : "복사"}
-          </button>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleBoard(item.id);
-            }}
-            aria-label={isInBoard ? "보드에서 제거" : "보드에 저장"}
-            className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-[14px] font-bold shadow-lg transition-colors 2xl:text-[15px] ${
-              isInBoard
-                ? "bg-[#D99B26] text-[#09090B] hover:bg-[#e5aa38]"
-                : "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
-            }`}
-          >
-            {isInBoard ? "저장됨" : "저장"}
-          </button>
-        </div>
-
-        {/* High-Contrast QHD/4K Bottom Hover Caption */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#09090B]/96 via-[#09090B]/60 to-transparent px-3.5 pb-3.5 pt-16 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-          <p className="truncate text-[16px] font-bold leading-snug tracking-tight text-white 2xl:text-[18px]">
-            {item.titleKo}
-          </p>
-          <p className="mt-0.5 truncate text-[13px] font-medium tracking-wide text-[#E6E2D8] 2xl:text-[15px]">
-            {countryLabel} · {item.year} · {categoryLabel}
-          </p>
-        </div>
       </div>
     </article>
   );

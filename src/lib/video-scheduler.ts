@@ -14,9 +14,29 @@ export class VideoPlaybackScheduler {
   private entries = new Map<string, VideoSlotRegistration>();
   private activeIds = new Set<string>();
   private maxSlotsOverride: number | null;
+  private suspended = false;
 
   constructor(maxSlotsOverride: number | null = null) {
     this.maxSlotsOverride = maxSlotsOverride;
+  }
+
+  isSuspended(): boolean {
+    return this.suspended;
+  }
+
+  setSuspended(nextSuspended: boolean): void {
+    if (this.suspended === nextSuspended) return;
+    this.suspended = nextSuspended;
+    if (nextSuspended) {
+      for (const entry of this.entries.values()) {
+        if (this.activeIds.has(entry.id)) {
+          entry.onSlotChange(false);
+        }
+      }
+      this.activeIds.clear();
+    } else {
+      this.recompute();
+    }
   }
 
   getMaxConcurrentSlots(): number {
@@ -59,6 +79,16 @@ export class VideoPlaybackScheduler {
   }
 
   recompute(): void {
+    if (this.suspended) {
+      for (const entry of this.entries.values()) {
+        if (this.activeIds.has(entry.id)) {
+          entry.onSlotChange(false);
+        }
+      }
+      this.activeIds.clear();
+      return;
+    }
+
     const limit = this.getMaxConcurrentSlots();
 
     const eligible: VideoSlotRegistration[] = [];

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KINOFRAME — 35mm 빈티지 광고·뉴스·보도사진 구도 & 3초 설득 아카이브",
+  title: "KINOFRAME — Visual Technique & Moving Film Archive",
   description:
-    "빈티지 TVCF, 역사적 뉴스릴, 지면 광고, 보도사진의 1점 투시·시선 동선·초반 3초 설득 공식을 뷰파인더 오버레이와 4컷 콘택트 시트로 해부하는 무서버 레퍼런스 아카이브.",
+    "시네마틱 촬영 기법·빈티지 TVCF·고전 영화·시대 거리·인터넷 망령 무빙 클립을 실시간 수맥으로 탐색하는 비주얼 레퍼런스 아카이브.",
 };
 
 export default function RootLayout({
@@ -14,10 +14,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="bg-darkroom-base font-sans text-ivory antialiased selection:bg-amber-kodak/30 selection:text-ivory">
-        <div className="film-grain-overlay" aria-hidden="true" />
-        <div className="darkroom-vignette" aria-hidden="true" />
-        <div className="relative z-10 min-h-screen">{children}</div>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
+        />
+      </head>
+      <body className="bg-black text-white antialiased selection:bg-[#fc087d]/35 selection:text-white">
+        <div className="relative z-10 min-h-screen bg-black">{children}</div>
       </body>
     </html>
   );

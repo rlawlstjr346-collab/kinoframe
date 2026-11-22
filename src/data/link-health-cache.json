@@ -12948,5 +12948,68 @@
     "contentType": "text/html; charset=UTF-8",
     "lastCheckedAt": "2026-11-22T01:36:57.873Z",
     "status": 200
+  },
+  "https://archive.org/download/Wonderfu1960/Wonderfu1960_512kb.mp4": {
+    "etag": "\"49331272-c61c08\"",
+    "lastModified": "Sun, 30 Nov 2008 22:23:46 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:38.565Z",
+    "status": 200
+  },
+  "https://archive.org/download/FolgersCoffe/FolgersCoffe_512kb.mp4": {
+    "etag": "\"492aed0c-437d25\"",
+    "lastModified": "Mon, 24 Nov 2008 18:06:04 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:42.386Z",
+    "status": 200
+  },
+  "https://archive.org/download/Cheerios1960/Cheerios1960_512kb.mp4": {
+    "etag": "\"4929a3b6-439326\"",
+    "lastModified": "Sun, 23 Nov 2008 18:40:54 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:46.157Z",
+    "status": 200
+  },
+  "https://archive.org/download/1957-10-07_New_Moon/1957-10-07_New_Moon_512kb.mp4": {
+    "etag": "\"4927d139-31bf76\"",
+    "lastModified": "Sat, 22 Nov 2008 09:30:33 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:50.091Z",
+    "status": 200
+  },
+  "https://archive.org/download/1958-02-03_First_US_Satellite_Launched/1958-02-03_First_US_Satellite_Launched_512kb.mp4": {
+    "etag": "\"4927d21f-bc5228\"",
+    "lastModified": "Sat, 22 Nov 2008 09:34:23 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:55.420Z",
+    "status": 200
+  },
+  "https://archive.org/download/1962-08-16_The_Wall/1962-08-16_The_Wall_512kb.mp4": {
+    "etag": "\"4927d0aa-72c755\"",
+    "lastModified": "Sat, 22 Nov 2008 09:28:10 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:09:57.819Z",
+    "status": 200
+  },
+  "https://archive.org/download/1963-11-14_Space_Movie/1963-11-14_Space_Movie_512kb.mp4": {
+    "etag": "\"49280f0d-4230ad\"",
+    "lastModified": "Sat, 22 Nov 2008 13:54:21 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:10:01.273Z",
+    "status": 200
+  },
+  "https://archive.org/download/1964-10-26_Fashions/1964-10-26_Fashions_512kb.mp4": {
+    "etag": "\"4927d0e3-8d5ba4\"",
+    "lastModified": "Sat, 22 Nov 2008 09:29:07 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:10:05.107Z",
+    "status": 200
+  },
+  "https://archive.org/download/NewsMaga1950_3/36656A_512kb.mp4": {
+    "etag": "\"492ee63c-3ac08dc\"",
+    "lastModified": "Thu, 27 Nov 2008 18:26:04 GMT",
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T03:10:24.919Z",
+    "status": 200
   }
 }

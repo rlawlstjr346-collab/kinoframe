@@ -15,6 +15,7 @@ import {
   filterAndSortArchive,
   getVisibleArchiveSlice,
   parseBoardIds,
+  resolveItemCountry,
   rotateArchiveWithSeed,
   serializeBoardIds,
 } from "@/lib/taxonomy";
@@ -29,22 +30,44 @@ import {
   saveAccountVault,
   saveConduitSavedItem,
 } from "@/lib/vault";
+import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import {
-  BoardBookmarkIcon,
-  CloseIcon,
-  CompareIcon,
-  KinoframeLogo,
-} from "@/components/Icons";
+  VISUAL_TECHNIQUES,
+  getTechniqueBySlug,
+  matchesTechnique,
+  searchItemByQuery,
+} from "@/lib/visual-techniques";
+import { EyecandyHeader } from "@/components/EyecandyHeader";
+import {
+  SidebarExplorer,
+  type SidebarFilterSelection,
+} from "@/components/SidebarExplorer";
+import { BreakdownShowcase } from "@/components/BreakdownShowcase";
 import { SlideMountCard } from "@/components/SlideMountCard";
 import { ViewfinderModal } from "@/components/ViewfinderModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
 import { MoodboardDrawer } from "@/components/MoodboardDrawer";
 import { AuthModal } from "@/components/AuthModal";
+import { BoardBookmarkIcon, CloseIcon, CompareIcon } from "@/components/Icons";
 
 interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
   initialSeed?: number;
 }
+
+type EyecandySortMode = "shuffle" | "popular" | "recent" | "title";
+type EyecandyViewMode = "home" | "sidebar" | "technique";
+
+const TYPED_HINTS = [
+  'Search "Neon Noir"',
+  'Search "Symmetry"',
+  'Search "Tracking Shot"',
+  'Search "도쿄 야경"',
+  'Search "Retro TVCF"',
+  'Search "VHS Analog"',
+  'Search "Animation Cell"',
+  'Search "35mm Grain"',
+];
 
 const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
   "4:5": 1.25,
@@ -54,13 +77,11 @@ const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
   "2.39:1": 0.418,
 };
 
-function getColumnCountForWidth(width: number): number {
-  if (width >= 1536) return 6;
-  if (width >= 1280) return 5;
-  if (width >= 1024) return 4;
+// Eyecandy exact responsive columns: >=992px -> 5 cols, 768~991px -> 3 cols, <768px -> 2 cols
+function getEyecandyColumnCount(width: number): number {
+  if (width >= 992) return 5;
   if (width >= 768) return 3;
-  if (width >= 640) return 2;
-  return 1;
+  return 2;
 }
 
 function distributeToColumns(
@@ -87,16 +108,39 @@ function distributeToColumns(
   return cols;
 }
 
+const EMPTY_SIDEBAR_SELECTION: SidebarFilterSelection = {
+  techniques: [],
+  formats: [],
+  decades: [],
+  regions: [],
+};
+
 export function ArchiveWorkbench({
   items,
   initialSeed = 424242,
 }: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
-  const [shuffleSeed] = useState<number>(initialSeed);
-  const [columnCount, setColumnCount] = useState<number>(6);
+  const [shuffleSeed, setShuffleSeed] = useState<number>(initialSeed);
+  const [columnCount, setColumnCount] = useState<number>(5);
+  const [scrolled, setScrolled] = useState<boolean>(false);
+  const [pastHero, setPastHero] = useState<boolean>(false);
 
+  // 4 Eyecandy view modes
+  const [viewMode, setViewMode] = useState<EyecandyViewMode>("home");
+  const [activeTechniqueSlug, setActiveTechniqueSlug] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<EyecandySortMode>("shuffle");
+  const [rawSearch, setRawSearch] = useState<string>("");
+  const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+  const [searchFocused, setSearchFocused] = useState<boolean>(false);
+  const [typedHint, setTypedHint] = useState<string>(TYPED_HINTS[0]);
+  const [sidebarSelection, setSidebarSelection] = useState<SidebarFilterSelection>(
+    EMPTY_SIDEBAR_SELECTION
+  );
+
+  // Conduit & dead-tile eviction states
   const [savedConduitItems, setSavedConduitItems] = useState<ArchiveItem[]>([]);
   const [conduitItems, setConduitItems] = useState<ArchiveItem[]>([]);
+  const [evictedIds, setEvictedIds] = useState<Set<string>>(() => new Set());
   const [conduitLoading, setConduitLoading] = useState<boolean>(false);
   const [conduitHasMore, setConduitHasMore] = useState<boolean>(true);
 
@@ -106,22 +150,24 @@ export function ArchiveWorkbench({
   const exhaustedRef = useRef<boolean>(false);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
+  // Canonical deduplicated master catalog
   const allCatalogItems = useMemo(() => {
-    const map = new Map<string, ArchiveItem>();
-    const seenSources = new Set<string>();
-    const seenVideos = new Set<string>();
+    const out: ArchiveItem[] = [];
+    const seenIds = new Set<string>();
+    const seenCanonical = new Set<string>();
     const appendUnique = (entry: ArchiveItem) => {
-      if (map.has(entry.id) || seenSources.has(entry.sourceUrl)) return;
-      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) return;
-      map.set(entry.id, entry);
-      seenSources.add(entry.sourceUrl);
-      if (entry.previewVideoUrl) seenVideos.add(entry.previewVideoUrl);
+      if (evictedIds.has(entry.id)) return;
+      const canon = getCanonicalMediaKey(entry);
+      if (seenIds.has(entry.id) || seenCanonical.has(canon)) return;
+      seenIds.add(entry.id);
+      seenCanonical.add(canon);
+      out.push(entry);
     };
     for (const entry of items) appendUnique(entry);
     for (const entry of savedConduitItems) appendUnique(entry);
     for (const entry of conduitItems) appendUnique(entry);
-    return Array.from(map.values());
-  }, [items, savedConduitItems, conduitItems]);
+    return out;
+  }, [items, savedConduitItems, conduitItems, evictedIds]);
 
   const validIdSet = useMemo(
     () => new Set(allCatalogItems.map((i) => i.id)),
@@ -154,7 +200,6 @@ export function ArchiveWorkbench({
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
 
-  // Account-isolated vault & session states
   const [vault, setVault] = useState<VaultState>(DEFAULT_VAULT_STATE);
   const [loadedAccountSub, setLoadedAccountSub] = useState<string | null>(null);
   const [session, setSession] = useState<AuthSessionState>({
@@ -163,16 +208,70 @@ export function ArchiveWorkbench({
     cloudSyncAvailable: false,
   });
 
-  // Sync responsive Masonry column count strictly on mount and resize
+  // Responsive 5 / 3 / 2 column sync on mount and resize
   useEffect(() => {
-    const syncColumns = () => {
-      const nextCols = getColumnCountForWidth(window.innerWidth);
+    const syncLayout = () => {
+      const nextCols = getEyecandyColumnCount(window.innerWidth);
       setColumnCount((prev) => (prev === nextCols ? prev : nextCols));
     };
-    syncColumns();
-    window.addEventListener("resize", syncColumns, { passive: true });
-    return () => window.removeEventListener("resize", syncColumns);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      setPastHero(y > 320);
+    };
+    syncLayout();
+    onScroll();
+    window.addEventListener("resize", syncLayout, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("resize", syncLayout);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
+
+  // Debounce search input (220ms)
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setDebouncedQuery(rawSearch.trim());
+    }, 220);
+    return () => window.clearTimeout(t);
+  }, [rawSearch]);
+
+  // Typed.js-style auto-typing hint animation in home search bar when unfocused & empty
+  useEffect(() => {
+    if (searchFocused || rawSearch.length > 0 || viewMode !== "home") return;
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let deleting = false;
+    let timerId = 0;
+
+    const tick = () => {
+      const target = TYPED_HINTS[phraseIdx];
+      if (!deleting) {
+        charIdx += 1;
+        setTypedHint(target.slice(0, charIdx));
+        if (charIdx >= target.length) {
+          deleting = true;
+          timerId = window.setTimeout(tick, 1500);
+          return;
+        }
+        timerId = window.setTimeout(tick, 55);
+      } else {
+        charIdx -= 1;
+        setTypedHint(target.slice(0, charIdx));
+        if (charIdx <= 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % TYPED_HINTS.length;
+          timerId = window.setTimeout(tick, 320);
+          return;
+        }
+        timerId = window.setTimeout(tick, 30);
+      }
+    };
+
+    timerId = window.setTimeout(tick, 800);
+    return () => window.clearTimeout(timerId);
+  }, [searchFocused, rawSearch, viewMode]);
 
   const validIdSetRef = useRef<Set<string>>(validIdSet);
   validIdSetRef.current = validIdSet;
@@ -239,7 +338,7 @@ export function ArchiveWorkbench({
     };
   }, [hydrateAccountVault]);
 
-  // Persist account-isolated vault whenever changed by the signed-in account
+  // Persist account-isolated vault whenever changed by signed-in user
   useEffect(() => {
     const activeSub = session.authenticated ? session.user?.sub ?? null : null;
     if (!activeSub || loadedAccountSub !== activeSub) return;
@@ -266,50 +365,113 @@ export function ArchiveWorkbench({
     window.history.replaceState(null, "", nextUrl);
   }, [boardIds]);
 
-  // Deterministic SSR-matched initial seed wall — computed ONCE per visit, never reshuffled on scroll
+  const handleEvictItem = useCallback((itemId: string) => {
+    setEvictedIds((prev) => {
+      if (prev.has(itemId)) return prev;
+      const next = new Set(prev);
+      next.add(itemId);
+      return next;
+    });
+  }, []);
+
+  // Deterministic SSR-matched initial seed ordering (only re-runs when sortMode or shuffleSeed changes)
   const orderedSeedItems = useMemo(() => {
-    const base = filterAndSortArchive(items, {
+    const cleanSeed = items.filter((i) => !evictedIds.has(i.id));
+    if (sortMode === "recent") {
+      return filterAndSortArchive(cleanSeed, {
+        ...DEFAULT_FILTER_STATE,
+        sort: "year_desc",
+      });
+    }
+    if (sortMode === "title") {
+      return [...cleanSeed].sort((a, b) => a.titleKo.localeCompare(b.titleKo, "ko"));
+    }
+    if (sortMode === "popular") {
+      return filterAndSortArchive(cleanSeed, {
+        ...DEFAULT_FILTER_STATE,
+        sort: "curation_density",
+      });
+    }
+    const base = filterAndSortArchive(cleanSeed, {
       ...DEFAULT_FILTER_STATE,
       sort: "smart_mix",
     });
     return rotateArchiveWithSeed(base, shuffleSeed);
-  }, [items, shuffleSeed]);
+  }, [items, evictedIds, sortMode, shuffleSeed]);
 
-  // Strictly Append-Only list: conduit items only append at the tail, never disturbing existing tiles
+  // Strictly Append-Only combined pool + view/search/technique/sidebar filtering
   const displayedPool = useMemo(() => {
-    if (boardOnly) {
-      const boardSet = new Set(boardIds);
-      return allCatalogItems.filter((item) => boardSet.has(item.id));
-    }
-
-    if (conduitItems.length === 0) {
-      return orderedSeedItems;
-    }
-
-    const seenIds = new Set(orderedSeedItems.map((i) => i.id));
-    const seenSources = new Set(orderedSeedItems.map((i) => i.sourceUrl));
-    const seenVideos = new Set(
-      orderedSeedItems
-        .map((i) => i.previewVideoUrl)
-        .filter((u): u is string => Boolean(u))
-    );
-
-    const appended: ArchiveItem[] = [];
-    for (const entry of conduitItems) {
-      if (seenIds.has(entry.id) || seenSources.has(entry.sourceUrl)) continue;
-      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) {
-        continue;
-      }
+    const baseList: ArchiveItem[] = [];
+    const seenIds = new Set<string>();
+    const seenCanonical = new Set<string>();
+    const pushUnique = (entry: ArchiveItem) => {
+      if (evictedIds.has(entry.id)) return;
+      const canon = getCanonicalMediaKey(entry);
+      if (seenIds.has(entry.id) || seenCanonical.has(canon)) return;
       seenIds.add(entry.id);
-      seenSources.add(entry.sourceUrl);
-      if (entry.previewVideoUrl) seenVideos.add(entry.previewVideoUrl);
-      appended.push(entry);
-    }
+      seenCanonical.add(canon);
+      baseList.push(entry);
+    };
 
-    return appended.length > 0
-      ? [...orderedSeedItems, ...appended]
-      : orderedSeedItems;
-  }, [boardOnly, boardIds, allCatalogItems, orderedSeedItems, conduitItems]);
+    for (const entry of orderedSeedItems) pushUnique(entry);
+    if (boardOnly) {
+      for (const entry of savedConduitItems) pushUnique(entry);
+    }
+    for (const entry of conduitItems) pushUnique(entry);
+
+    return baseList.filter((item) => {
+      if (boardOnly && !boardIds.includes(item.id)) return false;
+
+      if (viewMode === "technique" && activeTechniqueSlug) {
+        if (!matchesTechnique(item, activeTechniqueSlug)) return false;
+      }
+
+      if (viewMode === "sidebar") {
+        if (
+          sidebarSelection.techniques.length > 0 &&
+          !sidebarSelection.techniques.some((slug) => matchesTechnique(item, slug))
+        ) {
+          return false;
+        }
+        if (sidebarSelection.formats.length > 0) {
+          const isMotion = item.mediaSource === "archive_mp4";
+          const ok = sidebarSelection.formats.some((fmt) =>
+            fmt === "MOTION" ? isMotion : !isMotion
+          );
+          if (!ok) return false;
+        }
+        if (
+          sidebarSelection.decades.length > 0 &&
+          !sidebarSelection.decades.includes(item.era)
+        ) {
+          return false;
+        }
+        if (
+          sidebarSelection.regions.length > 0 &&
+          !sidebarSelection.regions.includes(resolveItemCountry(item))
+        ) {
+          return false;
+        }
+      }
+
+      if (debouncedQuery.length > 0 && !searchItemByQuery(item, debouncedQuery)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    orderedSeedItems,
+    savedConduitItems,
+    conduitItems,
+    evictedIds,
+    boardOnly,
+    boardIds,
+    viewMode,
+    activeTechniqueSlug,
+    sidebarSelection,
+    debouncedQuery,
+  ]);
 
   const visibleItems = useMemo(
     () => getVisibleArchiveSlice(displayedPool, visibleCount),
@@ -334,6 +496,11 @@ export function ArchiveWorkbench({
     setConduitLoading(true);
 
     try {
+      const activeTech = activeTechniqueSlug
+        ? getTechniqueBySlug(activeTechniqueSlug)
+        : undefined;
+      const queryText = debouncedQuery || activeTech?.conduitQuery || "";
+
       const qs = new URLSearchParams({
         category: "ALL",
         country: "ALL",
@@ -342,6 +509,9 @@ export function ArchiveWorkbench({
         cursor: String(targetCursor),
         seed: String(shuffleSeed),
       });
+      if (queryText) {
+        qs.set("q", queryText);
+      }
 
       const res = await fetch(`/api/archive/conduit?${qs.toString()}`, {
         cache: "default",
@@ -371,36 +541,19 @@ export function ArchiveWorkbench({
             ...items.map((i) => i.id),
             ...prev.map((i) => i.id),
           ]);
-          const existingSources = new Set<string>([
-            ...items.map((i) => i.sourceUrl),
-            ...prev.map((i) => i.sourceUrl),
-          ]);
-          const existingVideos = new Set<string>([
-            ...items
-              .map((i) => i.previewVideoUrl)
-              .filter((u): u is string => Boolean(u)),
-            ...prev
-              .map((i) => i.previewVideoUrl)
-              .filter((u): u is string => Boolean(u)),
+          const existingCanonical = new Set<string>([
+            ...items.map((i) => getCanonicalMediaKey(i)),
+            ...prev.map((i) => getCanonicalMediaKey(i)),
           ]);
 
           const fresh: ArchiveItem[] = [];
           for (const entry of incoming) {
-            if (
-              existingIds.has(entry.id) ||
-              existingSources.has(entry.sourceUrl)
-            ) {
-              continue;
-            }
-            if (
-              entry.previewVideoUrl &&
-              existingVideos.has(entry.previewVideoUrl)
-            ) {
+            const canon = getCanonicalMediaKey(entry);
+            if (existingIds.has(entry.id) || existingCanonical.has(canon)) {
               continue;
             }
             existingIds.add(entry.id);
-            existingSources.add(entry.sourceUrl);
-            if (entry.previewVideoUrl) existingVideos.add(entry.previewVideoUrl);
+            existingCanonical.add(canon);
             fresh.push(entry);
           }
           return fresh.length > 0 ? [...prev, ...fresh] : prev;
@@ -421,9 +574,9 @@ export function ArchiveWorkbench({
       inFlightCursorRef.current = null;
       setConduitLoading(false);
     }
-  }, [boardOnly, items, shuffleSeed]);
+  }, [boardOnly, activeTechniqueSlug, debouncedQuery, items, shuffleSeed]);
 
-  // Infinite scroll sentinel: strictly advances local window and taps conduit only when <= 18 items remain
+  // Infinite scroll sentinel
   useEffect(() => {
     if (!hasMoreItems && !canLoadConduit) return;
     const node = loadMoreSentinelRef.current;
@@ -432,7 +585,6 @@ export function ArchiveWorkbench({
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
-
         setVisibleCount((prev) => {
           const next = Math.min(displayedPool.length, prev + LOAD_MORE_STEP);
           if (next >= displayedPool.length - 18) {
@@ -473,11 +625,61 @@ export function ArchiveWorkbench({
     return vault.bookmarks.find((b) => b.itemId === selectedItemId);
   }, [vault.bookmarks, selectedItemId]);
 
-  const handleBrandClick = useCallback(() => {
+  const activeTechnique = activeTechniqueSlug
+    ? getTechniqueBySlug(activeTechniqueSlug) ?? null
+    : null;
+
+  // Navigation handlers
+  const handleGoHome = useCallback(() => {
+    setViewMode("home");
+    setActiveTechniqueSlug(null);
     setBoardOnly(false);
+    setRawSearch("");
+    setDebouncedQuery("");
+    setSidebarSelection(EMPTY_SIDEBAR_SELECTION);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  }, []);
+
+  const handleSelectTechnique = useCallback((slug: string) => {
+    setActiveTechniqueSlug(slug);
+    setViewMode("technique");
+    setBoardOnly(false);
+    setRawSearch("");
+    setDebouncedQuery("");
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
+
+  const handleToggleSidebar = useCallback(() => {
+    setViewMode((prev) => (prev === "sidebar" ? "home" : "sidebar"));
+    setActiveTechniqueSlug(null);
+    setBoardOnly(false);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
+
+  const handleGoBreakdowns = useCallback(() => {
+    setViewMode("home");
+    setActiveTechniqueSlug(null);
+    setBoardOnly(false);
+    window.setTimeout(() => {
+      document
+        .getElementById("breakdowns-showcase")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }, 80);
+  }, []);
+
+  const handleShuffleWall = useCallback(() => {
+    setSortMode("shuffle");
+    setShuffleSeed((prev) => prev + Math.floor(Math.random() * 997) + 37);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
   }, []);
 
   const performToggleBoard = useCallback(
@@ -528,7 +730,6 @@ export function ArchiveWorkbench({
     [allCatalogItems]
   );
 
-  // Guest clicking [저장] opens login modal; logged-in users save immediately
   const handleToggleBoard = useCallback(
     (id: string, folderId?: string) => {
       if (!session.authenticated) {
@@ -683,92 +884,129 @@ export function ArchiveWorkbench({
     setBoardOnly(false);
   }, []);
 
-  return (
-    <div className="flex min-h-screen flex-col bg-[#09090B]">
-      {/* Eyecandy Ultra-Minimal Single-Row Sticky Header */}
-      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090B]/92 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-[2560px] items-center justify-between px-4 sm:px-6 2xl:h-[60px] 2xl:px-8">
+  const showHeaderCenterSearch =
+    viewMode === "technique" || (viewMode === "home" && pastHero);
+
+  const renderMasonryGrid = () => (
+    <>
+      {displayedPool.length > 0 ? (
+        <>
+          {/* Exact Eyecandy 5 / 3 / 2 Column Masonry: horizontal 7px, vertical 5px (mobile 2px) */}
+          <section
+            aria-label="큐레이션 무빙 아카이브 월"
+            className="grid grid-cols-2 items-start gap-x-[7px] md:grid-cols-3 lg:grid-cols-5"
+          >
+            {masonryColumns.map((colItems, colIdx) => (
+              <div
+                key={`col-${colIdx}`}
+                className="flex min-w-0 flex-col gap-y-[2px] md:gap-y-[5px]"
+              >
+                {colItems.map((item) => (
+                  <SlideMountCard
+                    key={item.id}
+                    item={item}
+                    isInBoard={boardIds.includes(item.id)}
+                    isInCompare={compareIds.includes(item.id)}
+                    compareFull={compareIds.length >= 2}
+                    onOpenDetail={(target) => setSelectedItemId(target.id)}
+                    onToggleBoard={handleToggleBoard}
+                    onToggleCompare={handleToggleCompare}
+                    onEvictItem={handleEvictItem}
+                  />
+                ))}
+              </div>
+            ))}
+          </section>
+
+          {(hasMoreItems || canLoadConduit) && (
+            <div
+              ref={loadMoreSentinelRef}
+              className="mt-8 flex flex-col items-center justify-center py-4"
+            >
+              {conduitLoading ? (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="inline-flex h-9 items-center gap-2 rounded-[2rem] border border-[#fc087d]/50 bg-black px-5 font-mono text-[12px] tracking-wider text-[#d0d0d0]"
+                >
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#fc087d]" />
+                  <span>STREAMING ARCHIVE CONDUIT</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (hasMoreItems) {
+                      setVisibleCount((prev) =>
+                        Math.min(displayedPool.length, prev + LOAD_MORE_STEP)
+                      );
+                    } else {
+                      void fetchNextConduitPage();
+                    }
+                  }}
+                  className="inline-flex items-center justify-center rounded-[2rem] border border-[#fc087d] bg-black px-9 py-2 text-[0.9rem] font-medium uppercase tracking-wider text-white transition-colors duration-200 hover:bg-[#fc087d] hover:text-black"
+                >
+                  Load more
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <section className="flex flex-col items-center justify-center rounded-[16px] border border-white/15 bg-black px-6 py-24 text-center">
+          <h2 className="text-[1.4rem] font-semibold text-white">
+            일치하는 무빙 클립이 없습니다
+          </h2>
+          <p className="mt-2 text-[0.95rem] text-[#9b9b9b]">
+            검색어를 바꾸거나 전체 아카이브 월로 돌아가세요.
+          </p>
           <button
             type="button"
-            onClick={handleBrandClick}
-            className="flex shrink-0 items-center gap-2.5 text-left"
-            aria-label="KINOFRAME 최상단으로 이동"
+            onClick={handleGoHome}
+            className="mt-6 rounded-[2rem] bg-[#fc087d] px-7 py-2 text-[0.9rem] font-semibold uppercase text-black transition-opacity hover:opacity-90"
           >
-            <KinoframeLogo className="h-7 w-7 shrink-0 2xl:h-8 2xl:w-8" />
-            <span className="font-mono text-[18px] font-bold tracking-[0.16em] text-[#FAF8F5] 2xl:text-[20px]">
-              KINOFRAME
-            </span>
+            Reset to All Clips
           </button>
+        </section>
+      )}
+    </>
+  );
 
-          <div className="flex shrink-0 items-center gap-2">
-            {session.authenticated && session.user ? (
-              <>
-                {compareIds.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setCompareOpen(true)}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#E5A93B]/50 bg-[#E5A93B]/15 px-3.5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:bg-[#E5A93B]/25"
-                  >
-                    <CompareIcon className="h-3.5 w-3.5 text-[#E5A93B]" />
-                    <span>비교</span>
-                    <span className="font-mono text-[12px] font-bold text-[#E5A93B]">
-                      {compareIds.length}
-                    </span>
-                  </button>
-                )}
+  return (
+    <div className="flex min-h-screen flex-col bg-black text-white">
+      <EyecandyHeader
+        scrolled={scrolled}
+        showCenterSearch={showHeaderCenterSearch}
+        searchQuery={rawSearch}
+        onSearchChange={(val) => {
+          setRawSearch(val);
+        }}
+        onSearchSubmit={() => {
+          if (rawSearch.trim()) {
+            setViewMode("sidebar");
+          }
+        }}
+        viewMode={viewMode}
+        activeTechniqueSlug={activeTechniqueSlug}
+        session={session}
+        savedCount={boardIds.length}
+        compareCount={compareIds.length}
+        onGoHome={handleGoHome}
+        onToggleSidebar={handleToggleSidebar}
+        onSelectTechnique={handleSelectTechnique}
+        onGoBreakdowns={handleGoBreakdowns}
+        onShuffleWall={handleShuffleWall}
+        onOpenBoard={() => setBoardOpen(true)}
+        onOpenAuth={() => setAuthOpen(true)}
+        onOpenCompare={() => setCompareOpen(true)}
+      />
 
-                <button
-                  type="button"
-                  onClick={() => setBoardOpen(true)}
-                  className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[14px] font-semibold transition-colors 2xl:h-10 2xl:text-[15px] ${
-                    boardIds.length > 0
-                      ? "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
-                      : "border border-white/[0.14] bg-[#141519] text-[#FAF8F5] hover:border-white/35"
-                  }`}
-                >
-                  <BoardBookmarkIcon
-                    className="h-3.5 w-3.5"
-                    filled={boardIds.length > 0}
-                  />
-                  <span>내 보드</span>
-                  {boardIds.length > 0 && (
-                    <span className="font-mono text-[12px] font-bold">
-                      {boardIds.length}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setAuthOpen(true)}
-                  className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-[#E5A93B]/45 bg-[#E5A93B]/15 px-3.5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:bg-[#E5A93B]/25 2xl:h-10 2xl:text-[15px]"
-                >
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FAF8F5] text-[11px] font-bold text-[#09090B]">
-                    {session.user.name.slice(0, 1).toUpperCase()}
-                  </span>
-                  <span>{session.user.name}</span>
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setAuthOpen(true)}
-                className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/[0.16] bg-[#141519] px-5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[15px]"
-              >
-                로그인
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Full-Bleed Ultra-Tight Moving Wall */}
-      <main className="mx-auto w-full max-w-[2560px] flex-1 px-2 py-2 sm:px-3 lg:px-4">
+      <main className="w-full flex-1 pt-16">
         {/* Shared ?board= Restoration Banner (Accessible to Both Guests & Signed-In Users) */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5A93B]/45 bg-[#E5A93B]/12 px-5 py-2.5 text-[14px]">
-            <div className="flex items-center gap-2 text-[#FAF8F5]">
-              <BoardBookmarkIcon className="h-4 w-4 text-[#E5A93B]" filled />
+          <div className="mx-4 mb-4 mt-2 flex flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#fc087d]/50 bg-[#fc087d]/10 px-5 py-2.5 text-[0.9rem] lg:mx-8">
+            <div className="flex items-center gap-2 text-white">
+              <BoardBookmarkIcon className="h-4 w-4 text-[#fc087d]" filled />
               <span>
                 공유 보드 링크에서 <strong>{initialBoardIds.length}개</strong>의
                 아카이브가 열렸습니다.
@@ -778,14 +1016,14 @@ export function ArchiveWorkbench({
               <button
                 type="button"
                 onClick={() => setBoardOnly((prev) => !prev)}
-                className="rounded-full border border-[#E5A93B]/60 bg-[#09090B] px-3.5 py-1 text-[13px] font-semibold text-[#E5A93B]"
+                className="rounded-[2rem] border border-[#fc087d] bg-black px-3.5 py-1 text-[0.8rem] font-semibold text-[#fc087d]"
               >
                 {boardOnly ? "전체 보기" : "공유 컷만 보기"}
               </button>
               <button
                 type="button"
                 onClick={() => setBoardOpen(true)}
-                className="rounded-full bg-[#E5A93B] px-3.5 py-1 text-[13px] font-bold text-[#09090B]"
+                className="rounded-[2rem] bg-[#fc087d] px-3.5 py-1 text-[0.8rem] font-bold text-black"
               >
                 보드 열기
               </button>
@@ -793,7 +1031,7 @@ export function ArchiveWorkbench({
                 type="button"
                 onClick={() => setSharedBannerDismissed(true)}
                 aria-label="알림 닫기"
-                className="p-1 text-[#D0CBC0] hover:text-white"
+                className="p-1 text-[#d0d0d0] hover:text-white"
               >
                 <CloseIcon className="h-4 w-4" />
               </button>
@@ -801,101 +1039,257 @@ export function ArchiveWorkbench({
           </div>
         )}
 
-        {/* Deterministic Fixed-Column Flex Masonry (Zero Right-Column Tear, Append-Only Stability) */}
-        {displayedPool.length > 0 ? (
+        {/* VIEW 1: HOME HERO (Centered 56px Wordmark + 28 Technique Tag Cloud + Search & Pink Sort Capsule) */}
+        {viewMode === "home" && (
           <>
             <section
-              aria-label="큐레이션 아카이브 그리드"
-              className="grid grid-cols-1 items-start gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+              aria-label="시네마 기법 탐색 허브"
+              className="flex flex-col items-center px-4 pb-8 pt-6 sm:pt-8"
             >
-              {masonryColumns.map((colItems, colIdx) => (
-                <div
-                  key={`col-${colIdx}`}
-                  className="flex min-w-0 flex-col gap-1.5"
-                >
-                  {colItems.map((item) => (
-                    <SlideMountCard
-                      key={item.id}
-                      item={item}
-                      isInBoard={boardIds.includes(item.id)}
-                      isInCompare={compareIds.includes(item.id)}
-                      compareFull={compareIds.length >= 2}
-                      onOpenDetail={(target) => setSelectedItemId(target.id)}
-                      onToggleBoard={handleToggleBoard}
-                      onToggleCompare={handleToggleCompare}
-                    />
-                  ))}
-                </div>
-              ))}
-            </section>
-
-            {/* Infinite Scroll Sentinel, Live Conduit Status & Accessible Load-More Fallback */}
-            {(hasMoreItems || canLoadConduit) && (
-              <div
-                ref={loadMoreSentinelRef}
-                className="mt-4 flex flex-col items-center justify-center gap-2 py-3"
+              <button
+                type="button"
+                onClick={handleGoHome}
+                className="mb-4 text-[2.4rem] font-semibold leading-none tracking-[-0.02em] text-[#fc087d] sm:text-[3.5rem]"
               >
-                {conduitLoading ? (
-                  <div
-                    role="status"
-                    aria-live="polite"
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-white/[0.1] bg-[#141519]/90 px-4 font-mono text-[12px] tracking-wide text-[#D0CBC0]"
-                  >
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#E5A93B]" />
-                    <span>외부 아카이브 수맥 연결 중</span>
-                  </div>
-                ) : (
+                KINOFRAME
+              </button>
+
+              {/* 28 Visual Technique Tag Cloud (60% / max-w 75rem centered flex-wrap) */}
+              <ul className="mx-auto flex w-[94%] max-w-[75rem] flex-wrap justify-center lg:w-[60%]">
+                {VISUAL_TECHNIQUES.map((tech) => (
+                  <li key={tech.slug} className="mx-[0.3rem] mb-[0.3rem]">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTechnique(tech.slug)}
+                      className="eyecandy-tag-link"
+                    >
+                      {tech.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Search Bar (1px #fc087d pill) + Solid #fc087d Sort Capsule */}
+              <div className="mx-auto mt-4 flex w-[94%] max-w-[75rem] flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-0 lg:w-[60%]">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (rawSearch.trim()) setViewMode("sidebar");
+                  }}
+                  className="relative flex-1"
+                >
                   <button
-                    type="button"
-                    onClick={() => {
-                      if (hasMoreItems) {
-                        setVisibleCount((prev) =>
-                          Math.min(displayedPool.length, prev + LOAD_MORE_STEP)
+                    type="submit"
+                    aria-label="검색"
+                    className="absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-[#fc047c]"
+                  >
+                    <svg viewBox="0 0 30 30" className="h-[19px] w-[19px]" fill="currentColor">
+                      <path d="M 13 3 C 7.489 3 3 7.489 3 13 C 3 18.511 7.489 23 13 23 C 15.397 23 17.597 22.149 19.322 20.736 L 25.293 26.707 A 1 1 0 1 0 26.707 25.293 L 20.736 19.322 C 22.149 17.597 23 15.397 23 13 C 23 7.489 18.511 3 13 3 z M 13 5 C 17.43 5 21 8.57 21 13 C 21 17.43 17.43 21 13 21 C 8.57 21 5 17.43 5 13 C 5 8.57 8.57 5 13 5 z" />
+                    </svg>
+                  </button>
+
+                  {!searchFocused && rawSearch.length === 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 truncate text-[0.95rem] text-white/40"
+                    >
+                      {typedHint}
+                      <span className="ml-0.5 inline-block h-3.5 w-[1px] animate-pulse bg-[#fc087d] align-middle" />
+                    </span>
+                  )}
+
+                  <input
+                    type="text"
+                    value={rawSearch}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
+                    onChange={(e) => setRawSearch(e.target.value)}
+                    aria-label="비주얼 아카이브 검색"
+                    placeholder={searchFocused ? "기법, 도시, 연도, 한글·영문 검색..." : ""}
+                    className="w-full rounded-[2rem] border border-[#fc087d] bg-transparent py-[0.45rem] pl-10 pr-8 text-[0.95rem] text-white placeholder:text-[#747474] focus:bg-black focus:outline-none"
+                  />
+
+                  {rawSearch && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRawSearch("");
+                        setDebouncedQuery("");
+                      }}
+                      aria-label="검색어 지우기"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9b9b9b] hover:text-white"
+                    >
+                      <CloseIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </form>
+
+                {/* Right Solid #fc087d Sort Capsule */}
+                <div className="relative sm:ml-4 sm:min-w-[165px]">
+                  <select
+                    aria-label="정렬 방식 선택"
+                    value={sortMode}
+                    onChange={(e) => {
+                      const next = e.target.value as EyecandySortMode;
+                      setSortMode(next);
+                      if (next === "shuffle") {
+                        setShuffleSeed(
+                          (prev) => prev + Math.floor(Math.random() * 997) + 23
                         );
-                      } else {
-                        void fetchNextConduitPage();
                       }
                     }}
-                    className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.16] bg-[#141519] px-6 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
+                    className="w-full appearance-none rounded-[2rem] border border-[#fc087d] bg-[#fc087d] py-[0.5rem] pl-4 pr-9 text-[0.92rem] font-semibold text-black focus:outline-none"
                   >
-                    <span>더 보기</span>
-                  </button>
-                )}
+                    <option value="shuffle">Shuffle</option>
+                    <option value="popular">Most popular</option>
+                    <option value="recent">Recently added</option>
+                    <option value="title">Title</option>
+                  </select>
+                  <svg
+                    viewBox="0 0 12 8"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-3.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-black"
+                    fill="currentColor"
+                  >
+                    <path d="M1.4 0L6 4.6 10.6 0 12 1.4 6 7.4 0 1.4z" />
+                  </svg>
+                </div>
               </div>
-            )}
+            </section>
+
+            {/* Home 5-Column Moving Wall (px-4 lg:px-[2rem]) */}
+            <div className="w-full px-4 lg:px-8">{renderMasonryGrid()}</div>
+
+            {/* VIEW 4: BREAKING DOWN Stacked Full-Bleed Showcase */}
+            <BreakdownShowcase
+              items={allCatalogItems}
+              onExploreTechnique={handleSelectTechnique}
+            />
           </>
-        ) : (
-          <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-24 text-center">
-            <h2 className="text-[20px] font-bold text-[#FAF8F5]">
-              표시할 아카이브가 없습니다
-            </h2>
-            <button
-              type="button"
-              onClick={() => setBoardOnly(false)}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#FAF8F5] px-6 py-2.5 text-[15px] font-bold text-[#09090B] hover:bg-white"
-            >
-              전체 무빙 월 보기
-            </button>
-          </section>
+        )}
+
+        {/* VIEW 2: LEFT ACCORDION SIDEBAR EXPLORER (.sec-search) */}
+        {viewMode === "sidebar" && (
+          <div className="flex w-full flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:px-6">
+            <SidebarExplorer
+              allItems={allCatalogItems}
+              searchQuery={rawSearch}
+              onSearchChange={setRawSearch}
+              selection={sidebarSelection}
+              onChangeSelection={(next) => {
+                setSidebarSelection(next);
+                setVisibleCount(INITIAL_VISIBLE_COUNT);
+              }}
+              onResetAll={() => {
+                setRawSearch("");
+                setDebouncedQuery("");
+                setSidebarSelection(EMPTY_SIDEBAR_SELECTION);
+              }}
+            />
+
+            <div className="min-w-0 flex-1">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[0.85rem] text-[#d0d0d0]">
+                    {displayedPool.length} clips
+                  </span>
+                  {sidebarSelection.techniques.map((slug) => {
+                    const tech = getTechniqueBySlug(slug);
+                    if (!tech) return null;
+                    return (
+                      <button
+                        key={`chip-${slug}`}
+                        type="button"
+                        onClick={() =>
+                          setSidebarSelection((prev) => ({
+                            ...prev,
+                            techniques: prev.techniques.filter((s) => s !== slug),
+                          }))
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-[1rem] border border-[#fc087d] px-2.5 py-0.5 text-[0.8rem] text-white"
+                      >
+                        <span>{tech.label}</span>
+                        <span className="text-[#fc087d]">×</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="relative">
+                  <select
+                    aria-label="결과 정렬"
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as EyecandySortMode)}
+                    className="appearance-none rounded-[1rem] border border-[#fc087d] bg-black py-1 pl-3 pr-7 text-[0.85rem] text-white focus:outline-none"
+                  >
+                    <option value="shuffle">Shuffle</option>
+                    <option value="popular">Most popular</option>
+                    <option value="recent">Recently added</option>
+                    <option value="title">Title</option>
+                  </select>
+                  <svg
+                    viewBox="0 0 12 8"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-2.5 top-1/2 h-2 w-2 -translate-y-1/2 text-white"
+                    fill="currentColor"
+                  >
+                    <path d="M1.4 0L6 4.6 10.6 0 12 1.4 6 7.4 0 1.4z" />
+                  </svg>
+                </div>
+              </div>
+
+              {renderMasonryGrid()}
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 3: TECHNIQUE DETAIL VIEW (Echo print 96px H1 Style) */}
+        {viewMode === "technique" && activeTechnique && (
+          <div className="w-full">
+            <section className="px-4 pb-6 pt-6 lg:px-8">
+              <button
+                type="button"
+                onClick={handleGoHome}
+                className="mb-3 inline-flex items-center gap-1.5 text-[0.9rem] font-medium text-[#fc087d] hover:underline"
+              >
+                <span>← All techniques</span>
+              </button>
+
+              <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white pb-3">
+                <h1 className="text-[clamp(2.4rem,6vw,6rem)] font-normal leading-[1.15] tracking-[-0.02em] text-white">
+                  {activeTechnique.label}
+                </h1>
+                <span className="pb-2 font-mono text-[0.9rem] text-[#d0d0d0]">
+                  {activeTechnique.labelKo} · {displayedPool.length} clips
+                </span>
+              </div>
+
+              <p className="mt-4 max-w-2xl text-[1rem] leading-[1.45] text-[#d0d0d0]">
+                {activeTechnique.descriptionKo}
+              </p>
+            </section>
+
+            <div className="w-full px-2 lg:px-4">{renderMasonryGrid()}</div>
+          </div>
         )}
       </main>
 
-      {/* Minimal Darkroom Footer */}
-      <footer className="mt-6 border-t border-white/[0.07] bg-[#09090B] py-4">
-        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-4 font-mono text-[13px] text-[#B8B3A8] sm:flex-row sm:items-center sm:px-6 2xl:px-8">
-          <span>KINOFRAME · MOVING VISUAL ARCHIVE</span>
+      {/* Minimal Pure-Black Footer */}
+      <footer className="border-t border-white/10 bg-black py-5">
+        <div className="mx-auto flex w-full flex-col items-start justify-between gap-2 px-6 font-mono text-[12px] text-[#9b9b9b] sm:flex-row sm:items-center lg:px-8">
+          <span className="text-[#fc087d]">KINOFRAME · VISUAL TECHNIQUE ARCHIVE</span>
           <span>Internet Archive · Wikimedia Commons · NASA Images</span>
         </div>
       </footer>
 
       {/* Floating Bottom Compare Dock */}
       {compareIds.length > 0 && !compareOpen && (
-        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-[#E5A93B]/60 bg-[#111216]/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
-          <div className="flex items-center gap-2 text-[14px] text-[#FAF8F5]">
-            <CompareIcon className="h-4 w-4 text-[#E5A93B]" />
+        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-[2rem] border border-[#fc087d] bg-black/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-2 text-[14px] text-white">
+            <CompareIcon className="h-4 w-4 text-[#fc087d]" />
             <span>
               비교 선택{" "}
-              <strong className="font-mono text-[#E5A93B]">
+              <strong className="font-mono text-[#fc087d]">
                 {compareIds.join(" × ")}
               </strong>
             </span>
@@ -903,7 +1297,7 @@ export function ArchiveWorkbench({
           <button
             type="button"
             onClick={() => setCompareOpen(true)}
-            className="rounded-full bg-[#FAF8F5] px-4 py-1 text-[13px] font-bold text-[#09090B] hover:bg-white"
+            className="rounded-[2rem] bg-[#fc087d] px-4 py-1 text-[13px] font-bold text-black hover:opacity-90"
           >
             좌우 비교 열기
           </button>
@@ -911,14 +1305,14 @@ export function ArchiveWorkbench({
             type="button"
             onClick={() => setCompareIds([])}
             aria-label="비교 슬롯 비우기"
-            className="text-[#D0CBC0] hover:text-white"
+            className="text-[#d0d0d0] hover:text-white"
           >
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Pure Visual Full-Screen Detail Lightbox */}
+      {/* Eyecandy .grid-popup Lightbox */}
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
@@ -957,6 +1351,7 @@ export function ArchiveWorkbench({
             }
           }}
           onSelectItem={(target) => setSelectedItemId(target.id)}
+          onSelectTechnique={handleSelectTechnique}
           onToggleBoard={handleToggleBoard}
           onToggleCompare={handleToggleCompare}
           onSaveToVault={handleSaveToVault}
@@ -974,7 +1369,7 @@ export function ArchiveWorkbench({
         />
       )}
 
-      {/* Pinterest-Style Multi-Board Drawer */}
+      {/* Account Multi-Board Drawer */}
       {boardOpen && (
         <MoodboardDrawer
           items={boardItems}

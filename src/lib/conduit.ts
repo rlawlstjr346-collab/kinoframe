@@ -8,6 +8,7 @@ import type {
   MediaType,
 } from "@/types/archive";
 import { isAllowedMediaProxyUrl } from "@/lib/media-allowlist";
+import { getCanonicalMediaKey } from "@/lib/canonical-media";
 
 export const CONDUIT_USER_AGENT =
   "KinoframeConduit/6.0 (+https://github.com/rlawlstjr346-collab/kinoframe; stateless-realtime-conduit)";
@@ -647,11 +648,13 @@ export function deduplicateConduitItems(
     ids?: Set<string>;
     sourceUrls?: Set<string>;
     videoUrls?: Set<string>;
+    canonicalKeys?: Set<string>;
   }
 ): ArchiveItem[] {
   const seenIds = new Set<string>(existingKeys?.ids ?? []);
   const seenSources = new Set<string>(existingKeys?.sourceUrls ?? []);
   const seenVideos = new Set<string>(existingKeys?.videoUrls ?? []);
+  const seenCanonical = new Set<string>(existingKeys?.canonicalKeys ?? []);
   const out: ArchiveItem[] = [];
 
   for (const item of items) {
@@ -662,11 +665,19 @@ export function deduplicateConduitItems(
     if (item.previewVideoUrl && !isAllowedMediaUrl(item.previewVideoUrl)) {
       continue;
     }
-    if (seenIds.has(item.id) || seenSources.has(item.sourceUrl)) continue;
+    const canonicalKey = getCanonicalMediaKey(item);
+    if (
+      seenIds.has(item.id) ||
+      seenSources.has(item.sourceUrl) ||
+      seenCanonical.has(canonicalKey)
+    ) {
+      continue;
+    }
     if (item.previewVideoUrl && seenVideos.has(item.previewVideoUrl)) continue;
 
     seenIds.add(item.id);
     seenSources.add(item.sourceUrl);
+    seenCanonical.add(canonicalKey);
     if (item.previewVideoUrl) seenVideos.add(item.previewVideoUrl);
     out.push(item);
   }
