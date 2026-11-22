@@ -40,22 +40,22 @@ export function BreakdownShowcase({
                 className="h-full w-full object-cover opacity-55"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/75" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
 
             <div className="absolute left-1/2 top-1/2 flex w-full max-w-[1160px] -translate-x-1/2 -translate-y-1/2 flex-col items-center px-6 text-center">
-              <p className="text-[0.95rem] font-medium uppercase tracking-[0.18em] text-white">
+              <p className="text-[0.9rem] font-medium uppercase tracking-[0.18em] text-[#C8C4BC]">
                 {card.eyebrow}
               </p>
-              <h2 className="mt-3 text-[2.4rem] font-normal uppercase leading-[1.08] tracking-[-0.02em] text-[#fbea85] sm:text-[3.8rem] lg:text-[5.5rem]">
+              <h2 className="mt-3 text-[2.4rem] font-normal uppercase leading-[1.08] tracking-[-0.02em] text-[#F3A833] sm:text-[3.8rem] lg:text-[5.2rem]">
                 {card.headline}
               </h2>
-              <p className="mt-4 max-w-[34rem] text-[0.95rem] leading-[1.45] text-white/90">
+              <p className="mt-4 max-w-[36rem] text-[0.95rem] leading-[1.5] text-[#FAF7F0]/90">
                 {card.subtitleKo}
               </p>
               <button
                 type="button"
                 onClick={() => onExploreTechnique(card.techniqueSlug)}
-                className="mt-7 inline-flex items-center justify-center rounded-[2rem] border border-white px-10 py-2 text-[0.9rem] font-medium uppercase tracking-wider text-white transition-colors duration-200 hover:bg-white hover:text-[#004fff]"
+                className="mt-7 inline-flex items-center justify-center rounded-[2rem] border border-[#F3A833] bg-black/40 px-10 py-2 text-[0.9rem] font-semibold uppercase tracking-wider text-[#FAF7F0] transition-colors duration-200 hover:bg-[#F3A833] hover:text-black"
               >
                 {card.ctaLabel}
               </button>

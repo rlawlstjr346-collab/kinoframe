@@ -10,10 +10,10 @@ const ARCHIVE_ITEMS = archiveSnapshot as ArchiveItem[];
 
 function WorkbenchFallback() {
   return (
-    <div className="min-h-screen w-full bg-black text-white">
+    <div className="min-h-screen w-full bg-black text-[#FAF7F0]">
       <div className="fixed inset-x-0 top-0 z-50 h-16 bg-black px-6 py-3">
         <div className="flex h-full items-center justify-between">
-          <span className="text-[2rem] font-semibold tracking-tight text-[#fc087d]">
+          <span className="text-[1.7rem] font-semibold tracking-tight text-[#F3A833]">
             KINOFRAME
           </span>
         </div>
@@ -23,9 +23,11 @@ function WorkbenchFallback() {
           {ARCHIVE_ITEMS.slice(0, 15).map((item) => (
             <div
               key={item.id}
-              className={`w-full overflow-hidden rounded-[16px] bg-[#0d0d0d] ${getAspectRatioClass(
-                item.aspectRatio
-              )}`}
+              className={`w-full overflow-hidden rounded-[16px] bg-[#0B0C0F] ring-1 ring-white/[0.08] ${
+                item.aspectRatio === "4:5"
+                  ? "aspect-[4/3]"
+                  : getAspectRatioClass(item.aspectRatio)
+              }`}
             />
           ))}
         </div>

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KINOFRAME — Visual Technique & Moving Film Archive",
+  title: "KINOFRAME — Optical Cinema & Vintage TVCF Reference Archive",
   description:
-    "시네마틱 촬영 기법·빈티지 TVCF·고전 영화·시대 거리·인터넷 망령 무빙 클립을 실시간 수맥으로 탐색하는 비주얼 레퍼런스 아카이브.",
+    "광학·촬영·조명·편집 기법 트리와 빈티지 시네마·TVCF 무빙 클립을 실시간 수맥으로 탐색하는 디렉터용 비주얼 레퍼런스 아카이브.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
         />
       </head>
-      <body className="bg-black text-white antialiased selection:bg-[#fc087d]/35 selection:text-white">
+      <body className="bg-black text-[#FAF7F0] antialiased selection:bg-[#F3A833]/35 selection:text-[#FAF7F0]">
         <div className="relative z-10 min-h-screen bg-black">{children}</div>
       </body>
     </html>

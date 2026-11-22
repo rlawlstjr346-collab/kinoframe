@@ -1,8 +1,27 @@
 import type { ArchiveItem } from "@/types/archive";
-import { analyzePaletteChroma, resolveItemCategory, resolveItemCountry } from "@/lib/taxonomy";
+import {
+  analyzePaletteChroma,
+  resolveItemCategory,
+  resolveItemCountry,
+} from "@/lib/taxonomy";
+
+export type OpticalBranchSlug =
+  | "optics-lens"
+  | "camera-movement"
+  | "framing-angles"
+  | "lighting-color"
+  | "editing-cf-hook";
+
+export interface OpticalBranch {
+  slug: OpticalBranchSlug;
+  label: string;
+  labelKo: string;
+  descriptionKo: string;
+}
 
 export interface VisualTechnique {
   slug: string;
+  branchSlug: OpticalBranchSlug;
   label: string;
   labelKo: string;
   descriptionKo: string;
@@ -10,243 +29,363 @@ export interface VisualTechnique {
   keywords: string[];
 }
 
+export const OPTICAL_BRANCHES: OpticalBranch[] = [
+  {
+    slug: "optics-lens",
+    label: "Optics & Lens",
+    labelKo: "광학 · 렌즈",
+    descriptionKo:
+      "초점 심도, 셔터 블러, 아나모픽 플레어, 초광각 왜곡 등 렌즈 광학계 자체의 시각 질감을 설계하는 기법군.",
+  },
+  {
+    slug: "camera-movement",
+    label: "Camera Movement",
+    labelKo: "카메라 무빙",
+    descriptionKo:
+      "달리 트래킹, 급격한 줌·팬, 360° 회전과 항공 부감으로 공간의 리듬과 에너지를 조형하는 카메라워크.",
+  },
+  {
+    slug: "framing-angles",
+    label: "Framing & Angles",
+    labelKo: "구도 · 앵글",
+    descriptionKo:
+      "1점 소실점 대칭, 극근접 클로즈업, 로우·더치 앵글과 프레임 분할로 심리적 긴장과 권위를 설계하는 구도.",
+  },
+  {
+    slug: "lighting-color",
+    label: "Lighting & Color",
+    labelKo: "조명 · 색보정",
+    descriptionKo:
+      "키아로스쿠로 명암, 네온 텅스텐, 테크니컬러 난색·시안 한색 그레이딩과 하이키 스튜디오 조명 문법.",
+  },
+  {
+    slug: "editing-cf-hook",
+    label: "Editing & CF Hook",
+    labelKo: "편집 · 광고 훅",
+    descriptionKo:
+      "초반 3초 시선을 장악하는 패스트 컷, 매치 컷, 슬로우 모션, 프로덕트 히어로 샷과 분할 타이틀 연출.",
+  },
+];
+
 export const VISUAL_TECHNIQUES: VisualTechnique[] = [
+  // 1. Optics & Lens (5)
   {
-    slug: "symmetry",
-    label: "SYMMETRY",
-    labelKo: "대칭 구도",
-    descriptionKo: "중앙 소실점과 좌우 균형 축으로 강렬한 그래픽 질서를 구축하는 시네마틱 프레이밍.",
-    conduitQuery: "symmetry architecture corridor street",
-    keywords: ["symmetry", "대칭", "중앙", "corridor", "metro", "bridge", "arch"],
+    slug: "motion-blur",
+    branchSlug: "optics-lens",
+    label: "Motion Blur",
+    labelKo: "모션 블러",
+    descriptionKo:
+      "느린 셔터 스피드와 고속 이동 피사체의 잔상으로 속도감과 몽환적 시간 흐름을 각인하는 광학 연출. 왕가위식 스텝 프린팅이나 야간 도심 주행 컷의 오마주 레퍼런스로 활용한다.",
+    conduitQuery: "night driving tram city motion speed film",
+    keywords: ["motion blur", "blur", "speed", "streak", "모션 블러", "잔상", "속도감", "야간 주행"],
   },
   {
-    slug: "neon-noir",
-    label: "NEON NOIR",
-    labelKo: "네온 누아르",
-    descriptionKo: "어두운 밤거리 위 네온 간판과 강렬한 색 대비가 어우러진 도시 야경 시퀀스.",
-    conduitQuery: "neon night city street glow",
-    keywords: ["neon", "night", "noir", "네온", "야경", "심야", "누아르", "kabukicho", "shibuya", "hong kong"],
-  },
-  {
-    slug: "fast-cut",
-    label: "FAST CUT",
-    labelKo: "패스트 컷",
-    descriptionKo: "짧은 러닝타임 안에 리드미컬한 컷 전환으로 시선을 압도하는 몽타주·커머셜 편집.",
-    conduitQuery: "fast cut commercial montage trailer",
-    keywords: ["fast", "cut", "quick", "spot", "trailer", "패스트", "컷", "편집", "예고편"],
-  },
-  {
-    slug: "tracking-shot",
-    label: "TRACKING SHOT",
-    labelKo: "트래킹 샷",
-    descriptionKo: "트램·열차·차량과 함께 이동하며 공간의 깊이와 속도감을 담아내는 주행 카메라워크.",
-    conduitQuery: "tram streetcar train driving tracking city",
-    keywords: ["tracking", "tram", "streetcar", "cable car", "train", "bus", "drive", "walk", "트램", "주행", "열차", "거리"],
-  },
-  {
-    slug: "35mm-grain",
-    label: "35MM GRAIN",
-    labelKo: "35mm 필름 그레인",
-    descriptionKo: "아날로그 셀룰로이드 원판 특유의 입자감과 유기적 톤 커브가 살아 있는 필름 아카이브.",
-    conduitQuery: "35mm vintage film grain cinema",
-    keywords: ["35mm", "grain", "film", "kodachrome", "필름", "그레인", "원판", "셀룰로이드"],
-  },
-  {
-    slug: "commercial-hook",
-    label: "COMMERCIAL HOOK",
-    labelKo: "3초 광고 훅",
-    descriptionKo: "초반 3초 내 제품 실루엣과 시각적 위트로 시청자를 붙잡는 빈티지 광고 연출.",
-    conduitQuery: "vintage television commercial spot",
-    keywords: ["commercial", "tvcf", "ad", "hook", "광고", "커머셜", "브랜드", "스팟"],
-  },
-  {
-    slug: "close-up",
-    label: "CLOSE UP",
-    labelKo: "클로즈업",
-    descriptionKo: "피사체의 표정·질감·디테일을 화면 가득 채워 심리적 밀도를 높이는 근접 프레이밍.",
-    conduitQuery: "close up portrait cinema face detail",
-    keywords: ["close", "closeup", "face", "portrait", "eye", "클로즈업", "근접", "인물"],
-  },
-  {
-    slug: "wide-anamorphic",
-    label: "WIDE ANAMORPHIC",
-    labelKo: "와이드 아나모픽",
-    descriptionKo: "광활한 수평 스케일과 16:9·2.39:1 시네마스코프 비례로 공간을 압도하는 와이드 샷.",
-    conduitQuery: "wide panoramic city skyline highway",
-    keywords: ["wide", "anamorphic", "panorama", "skyline", "와이드", "파노라마", "광각", "시네마스코프"],
-  },
-  {
-    slug: "silhouette",
-    label: "SILHOUETTE",
-    labelKo: "역광 실루엣",
-    descriptionKo: "강한 역광과 암부 대비로 피사체의 윤곽만 날카롭게 추출하는 극적 조명 기법.",
-    conduitQuery: "silhouette backlight shadow dusk night",
-    keywords: ["silhouette", "shadow", "backlight", "실루엣", "역광", "그림자"],
-  },
-  {
-    slug: "chiaroscuro",
-    label: "CHIAROSCURO",
-    labelKo: "키아로스쿠로",
-    descriptionKo: "깊은 어둠과 한 줄기 하이라이트의 극단적 명암비로 긴장감을 조각하는 고전 조명.",
-    conduitQuery: "film noir chiaroscuro dramatic shadow",
-    keywords: ["chiaroscuro", "noir", "contrast", "dark", "shadow", "명암", "누아르", "대비"],
-  },
-  {
-    slug: "montage",
-    label: "MONTAGE",
-    labelKo: "몽타주",
-    descriptionKo: "서로 다른 시공간과 이미지를 충돌·연결해 새로운 의미를 만들어내는 시퀀스 편집.",
-    conduitQuery: "montage trailer newsreel cinema sequence",
-    keywords: ["montage", "sequence", "trailer", "reel", "몽타주", "시퀀스", "뉴스릴"],
-  },
-  {
-    slug: "retro-tvcf",
-    label: "RETRO TVCF",
-    labelKo: "레트로 TV광고",
-    descriptionKo: "1950–90년대 미국·일본·유럽 황금기 텔레비전 커머셜의 대담한 연출과 타이포그래피.",
-    conduitQuery: "retro television commercial 1960s 1970s 1980s",
-    keywords: ["retro", "tvcf", "commercial", "chevrolet", "pepsi", "ford", "코카콜라", "빈티지 광고", "레트로"],
-  },
-  {
-    slug: "low-angle",
-    label: "LOW ANGLE",
-    labelKo: "로우 앵글",
-    descriptionKo: "낮은 시선에서 올려다보며 건축·인물·로켓의 웅장한 스케일을 극대화하는 앵글.",
-    conduitQuery: "low angle skyscraper rocket monument tower",
-    keywords: ["low angle", "rocket", "launch", "tower", "skyscraper", "로우", "발사", "빌딩"],
-  },
-  {
-    slug: "aerial",
-    label: "AERIAL",
-    labelKo: "항공·버즈아이",
-    descriptionKo: "상공과 궤도에서 도시·해안·지구를 내려다보며 기하학적 패턴을 포착하는 부감 시선.",
-    conduitQuery: "aerial flight skyline earth space helicopter",
-    keywords: ["aerial", "flight", "earth", "space", "apollo", "sky", "항공", "우주", "지구", "비행"],
-  },
-  {
-    slug: "dutch-angle",
-    label: "DUTCH ANGLE",
-    labelKo: "더치 앵글",
-    descriptionKo: "수평선을 의도적으로 기울여 불안감·역동성·초현실적 에너지를 주입하는 카메라 틸트.",
-    conduitQuery: "dutch angle thriller horror noir action",
-    keywords: ["dutch", "tilt", "horror", "thriller", "suspense", "더치", "호러", "스릴러", "서스펜스"],
-  },
-  {
-    slug: "slow-motion",
-    label: "SLOW MOTION",
-    labelKo: "슬로우 모션",
-    descriptionKo: "시간의 밀도를 늘려 연기·불꽃·움직임의 미세한 궤적을 조각처럼 드러내는 연출.",
-    conduitQuery: "slow motion launch ocean waves dance",
-    keywords: ["slow", "motion", "space", "launch", "water", "슬로우", "움직임", "궤적"],
-  },
-  {
-    slug: "warm-tungsten",
-    label: "WARM TUNGSTEN",
-    labelKo: "웜 텅스텐",
-    descriptionKo: "호박빛 텅스텐 조명과 테크니컬러 난색 팔레트로 감성적 온도를 높이는 색채 연출.",
-    conduitQuery: "technicolor warm sunset amber tungsten vintage",
-    keywords: ["warm", "tungsten", "technicolor", "gold", "amber", "테크니컬러", "난색", "텅스텐"],
-  },
-  {
-    slug: "vintage-film",
-    label: "VINTAGE FILM",
-    labelKo: "고전 영화",
-    descriptionKo: "할리우드·유럽·아시아 고전 시네마와 극장 예고편에서 추출한 시대를 초월한 미장센.",
-    conduitQuery: "classic cinema movie trailer vintage film",
-    keywords: ["vintage", "classic", "cinema", "movie", "film", "고전", "영화", "시네마"],
-  },
-  {
-    slug: "animation-cell",
-    label: "ANIMATION CELL",
-    labelKo: "셀 애니메이션",
-    descriptionKo: "수작업 잉크·페인트 셀과 과장된 스쿼시 앤 스트레치 리듬이 빛나는 고전 애니메이션.",
-    conduitQuery: "classic cartoon cel animation retro",
-    keywords: ["animation", "cartoon", "anime", "cel", "fleischer", "popeye", "superman", "애니", "만화", "셀"],
-  },
-  {
-    slug: "title-design",
-    label: "TITLE DESIGN",
-    labelKo: "타이틀 디자인",
-    descriptionKo: "오프닝 시퀀스·예고편 카피·그래픽 리더가 화면과 일체화되는 키네틱 타이틀 연출.",
-    conduitQuery: "movie trailer title sequence graphic leader",
-    keywords: ["title", "trailer", "leader", "graphic", "타이틀", "예고편", "그래픽"],
-  },
-  {
-    slug: "urban-night",
-    label: "URBAN NIGHT",
-    labelKo: "도시 야경",
-    descriptionKo: "도쿄·서울·홍콩·뉴욕·파리의 밤거리 불빛과 군중의 흐름을 담은 시티 스케이프.",
-    conduitQuery: "urban night street city lights tokyo new york",
-    keywords: ["urban", "night", "tokyo", "seoul", "hong kong", "taipei", "shinjuku", "shibuya", "도시", "야경", "밤거리"],
-  },
-  {
-    slug: "product-shot",
-    label: "PRODUCT SHOT",
-    labelKo: "프로덕트 샷",
-    descriptionKo: "자동차·음료·오브제를 완벽한 조명과 반사로 조각하는 하이엔드 커머셜 컷.",
-    conduitQuery: "car commercial showroom product vintage ad",
-    keywords: ["product", "car", "chevrolet", "ford", "drink", "coffee", "제품", "쇼룸", "자동차"],
-  },
-  {
-    slug: "archival-still",
-    label: "ARCHIVAL STILL",
-    labelKo: "아카이브 스틸",
-    descriptionKo: "큐브릭·NASA·동아시아 야경 등 단 한 장으로 서사를 완결하는 초고밀도 스틸 프레임.",
-    conduitQuery: "cinematic photography archival frame street",
-    keywords: ["still", "photo", "kubrick", "nasa", "사진", "스틸", "프레임"],
-  },
-  {
-    slug: "vhs-analog",
-    label: "VHS ANALOG",
-    labelKo: "VHS 아날로그",
-    descriptionKo: "심야 브라운관 노이즈·자기 테이프 주사선·잊힌 캠코더 유물이 빚는 인터넷 망령 미학.",
-    conduitQuery: "vhs analog crt tape camcorder retro",
-    keywords: ["vhs", "analog", "crt", "oscilloscope", "camcorder", "tape", "망령", "테이프", "아날로그", "캠코더"],
-  },
-  {
-    slug: "split-frame",
-    label: "SPLIT FRAME",
-    labelKo: "프레임 속 프레임",
-    descriptionKo: "창틀·문·아치·거울로 화면을 이중 분할해 시선을 중심 피사체로 가두는 구도.",
-    conduitQuery: "frame within frame window doorway mirror cinema",
-    keywords: ["split", "frame", "window", "door", "mirror", "프레임", "분할", "창문"],
+    slug: "shallow-focus",
+    branchSlug: "optics-lens",
+    label: "Shallow Focus",
+    labelKo: "얕은 심도 · 보케",
+    descriptionKo:
+      "개방 조리개로 배경을 부드럽게 녹여 인물과 핵심 오브제만 도려내는 선택적 초점 기법. 감성 인물 컷과 제품 디테일 훅에서 시선을 즉각 고정하는 오마주 포인트가 된다.",
+    conduitQuery: "close up portrait vintage cinema soft focus",
+    keywords: ["shallow focus", "bokeh", "depth of field", "portrait", "얕은 심도", "보케", "아웃포커스"],
   },
   {
     slug: "deep-focus",
-    label: "DEEP FOCUS",
+    branchSlug: "optics-lens",
+    label: "Deep Focus",
     labelKo: "딥 포커스",
-    descriptionKo: "전경부터 원경 소실점까지 또렷하게 열어 도시와 군중의 레이어를 동시에 읽게 하는 심도.",
-    conduitQuery: "deep focus street avenue railway perspective",
-    keywords: ["deep", "focus", "perspective", "avenue", "railway", "투시", "심도", "소실점"],
+    descriptionKo:
+      "전경의 인물부터 원경의 건축 소실점까지 모든 레이어를 또렷하게 열어 한 쇼트 안에 복수의 서사를 담는 광학 문법. 오슨 웰스와 고전 35mm 로케이션 미장센의 핵심이다.",
+    conduitQuery: "deep focus street avenue architecture perspective",
+    keywords: ["deep focus", "perspective", "avenue", "railway", "딥 포커스", "팬 포커스", "소실점"],
   },
   {
-    slug: "kinetic-type",
-    label: "KINETIC TYPE",
-    labelKo: "키네틱 타이포",
-    descriptionKo: "화면 속 네온 간판·광고 카피·움직이는 레터링이 리듬을 만드는 타이포그래피 컷.",
-    conduitQuery: "neon signs typography commercial graphic motion",
-    keywords: ["kinetic", "type", "neon", "sign", "copy", "타이포", "간판", "카피"],
+    slug: "anamorphic-flare",
+    branchSlug: "optics-lens",
+    label: "Anamorphic Flare",
+    labelKo: "아나모픽 플레어",
+    descriptionKo:
+      "강한 점광원·네온·헤드라이트가 렌즈 수평축을 따라 번지며 시네마틱 글로우를 만드는 광학 현상. 70~80년대 SF·야경 영화와 하이엔드 자동차 TVCF의 시그니처 오마주 요소다.",
+    conduitQuery: "neon night lights glow flare cinema highway",
+    keywords: ["anamorphic", "flare", "glow", "headlight", "아나모픽", "플레어", "빛번짐", "네온"],
   },
   {
-    slug: "color-contrast",
-    label: "COLOR CONTRAST",
-    labelKo: "색채 보색 대비",
-    descriptionKo: "강렬한 보색 충돌과 높은 채도 밀도로 첫 0.5초 만에 망막을 사로잡는 컬러 시퀀스.",
-    conduitQuery: "technicolor vivid color contrast cinema",
-    keywords: ["color", "contrast", "vivid", "technicolor", "컬러", "색채", "보색", "채도"],
+    slug: "wide-fisheye",
+    branchSlug: "optics-lens",
+    label: "Wide / Fisheye",
+    labelKo: "광각 · 어안 렌즈",
+    descriptionKo:
+      "초광각 원근 과장과 화면 가장자리 곡률 왜곡으로 공간의 스케일과 역동적 위트를 극대화하는 렌즈 연출. 뮤직비디오·스트리트 패션 필름·90년대 TVCF 오마주에 직결된다.",
+    conduitQuery: "wide panoramic skyline highway street lens",
+    keywords: ["wide", "fisheye", "panorama", "skyline", "광각", "어안", "와이드", "파노라마"],
+  },
+
+  // 2. Camera Movement (5)
+  {
+    slug: "dolly-tracking",
+    branchSlug: "camera-movement",
+    label: "Dolly & Tracking",
+    labelKo: "달리 · 트래킹 샷",
+    descriptionKo:
+      "트램·차량·레일 위를 미끄러지듯 전진·평행 이동하며 관객을 공간 내부로 끌어들이는 주행 카메라워크. 오프닝 시퀀스의 공간 몰입도를 결정짓는 고전 시네마 기법이다.",
+    conduitQuery: "tram streetcar train driving tracking city",
+    keywords: ["dolly", "tracking", "tram", "streetcar", "train", "drive", "달리", "트래킹", "주행"],
+  },
+  {
+    slug: "crash-zoom",
+    branchSlug: "camera-movement",
+    label: "Crash Zoom",
+    labelKo: "크래시 줌",
+    descriptionKo:
+      "망원단으로 순식간에 파고들어 표정이나 제품의 결정적 순간에 충격을 주는 초고속 줌인 기법. 1970년대 스릴러·예고편과 임팩트 중심 TVCF 오마주에 강력한 리듬을 부여한다.",
+    conduitQuery: "vintage movie trailer zoom dramatic action",
+    keywords: ["crash zoom", "zoom", "snap zoom", "trailer", "크래시 줌", "급줌", "예고편"],
+  },
+  {
+    slug: "whip-pan",
+    branchSlug: "camera-movement",
+    label: "Whip Pan",
+    labelKo: "휩 팬",
+    descriptionKo:
+      "카메라를 좌우로 채찍처럼 휘둘러 모션 블러 전환과 빠른 시점 이동을 동시에 달성하는 역동적 패닝 기법. 에드가 라이트식 코믹·커머셜 컷 전환의 원형으로 참고된다.",
+    conduitQuery: "fast pan action commercial chase street",
+    keywords: ["whip pan", "swish pan", "pan", "fast", "휩 팬", "스위시 팬", "패닝"],
+  },
+  {
+    slug: "orbit-360",
+    branchSlug: "camera-movement",
+    label: "Orbit 360",
+    labelKo: "오빗 360° 회전",
+    descriptionKo:
+      "중심 피사체 주위를 원형 궤도로 선회하며 입체적 실루엣과 배경의 시차를 드라마틱하게 드러내는 무빙 샷. 히어로 등장 컷과 자동차·오브제 쇼룸 광고의 정석 구도다.",
+    conduitQuery: "car showroom turntable orbit circle dance",
+    keywords: ["orbit", "360", "arc shot", "turntable", "showroom", "오빗", "회전", "선회"],
+  },
+  {
+    slug: "crane-aerial",
+    branchSlug: "camera-movement",
+    label: "Crane & Aerial",
+    labelKo: "크레인 · 항공 부감",
+    descriptionKo:
+      "지상에서 상공·궤도까지 수직 상승하거나 도시 전경을 내려다보며 압도적 스케일과 기하학 패턴을 포착하는 부감 무빙. 에필로그 확장 쇼트와 글로벌 브랜드 오프닝의 정석이다.",
+    conduitQuery: "aerial flight skyline earth space helicopter",
+    keywords: ["crane", "aerial", "bird eye", "flight", "space", "apollo", "크레인", "항공", "부감", "우주"],
+  },
+
+  // 3. Framing & Angles (5)
+  {
+    slug: "one-point-symmetry",
+    branchSlug: "framing-angles",
+    label: "One-Point Symmetry",
+    labelKo: "1점 투시 · 대칭",
+    descriptionKo:
+      "화면 정중앙 소실점과 좌우 완벽한 대칭 축으로 강렬한 그래픽 질서를 세우는 큐브릭·웨스 앤더슨식 시네마 구도. 단 1초 만에 프레임의 완성도를 각인시킨다.",
+    conduitQuery: "symmetry corridor architecture bridge perspective",
+    keywords: ["symmetry", "one point", "kubrick", "corridor", "대칭", "1점 투시", "중앙", "소실점"],
+  },
+  {
+    slug: "extreme-close-up",
+    branchSlug: "framing-angles",
+    label: "Extreme Close-Up",
+    labelKo: "익스트림 클로즈업",
+    descriptionKo:
+      "눈동자·손끝·거품·기계 디테일을 화면 가득 밀착시켜 촉각적 몰입과 심리적 긴장감을 극대화하는 초근접 프레이밍. 세르조 레오네식 대치 컷과 식음료 TVCF의 필수 문법이다.",
+    conduitQuery: "extreme close up eye face detail commercial",
+    keywords: ["extreme close up", "ecu", "close up", "macro", "detail", "클로즈업", "초근접", "디테일"],
+  },
+  {
+    slug: "low-angle",
+    branchSlug: "framing-angles",
+    label: "Low Angle",
+    labelKo: "로우 앵글",
+    descriptionKo:
+      "지면에 바짝 낮춘 카메라로 인물·건축·로켓을 올려다보며 압도적 위압감과 영웅적 스케일을 부여하는 앵글. 건축 포스터와 스펙터클 예고편 오마주의 핵심 축이다.",
+    conduitQuery: "low angle skyscraper rocket tower monument",
+    keywords: ["low angle", "worm eye", "rocket", "tower", "skyscraper", "로우 앵글", "앙각", "스케일"],
+  },
+  {
+    slug: "dutch-angle",
+    branchSlug: "framing-angles",
+    label: "Dutch Angle",
+    labelKo: "더치 앵글",
+    descriptionKo:
+      "수평 축을 의도적으로 비틀어 불안·현기증·초현실적 에너지를 주입하는 틸트 프레이밍. 표현주의 누아르·컬트 호러와 반항적 스트리트 광고 연출의 오마주 교과서다.",
+    conduitQuery: "dutch angle thriller horror film noir tilt",
+    keywords: ["dutch angle", "canted", "tilt", "horror", "noir", "더치 앵글", "기울기", "스릴러"],
+  },
+  {
+    slug: "frame-within-frame",
+    branchSlug: "framing-angles",
+    label: "Frame Within Frame",
+    labelKo: "프레임 속 프레임",
+    descriptionKo:
+      "창틀·아치·문·차창·모니터 윤곽으로 화면 내부에 두 번째 액자를 만들어 시선을 피사체 깊숙이 가두는 다층 구도. 공간의 깊이와 관음적 서사를 동시에 전달한다.",
+    conduitQuery: "frame within frame window doorway arch mirror",
+    keywords: ["frame within frame", "window", "doorway", "arch", "mirror", "프레임 속 프레임", "창틀", "액자"],
+  },
+
+  // 4. Lighting & Color (5)
+  {
+    slug: "chiaroscuro-noir",
+    branchSlug: "lighting-color",
+    label: "Chiaroscuro Noir",
+    labelKo: "키아로스쿠로 누아르",
+    descriptionKo:
+      "깊은 칠흑 암부와 날카로운 한 줄기 키 라이트의 극단적 명암 대비로 인물의 윤곽과 음영을 조각하는 고전 조명. 블라인드 그림자와 역광 실루엣 오마주의 원형이다.",
+    conduitQuery: "film noir chiaroscuro shadow backlight silhouette",
+    keywords: ["chiaroscuro", "noir", "silhouette", "shadow", "contrast", "키아로스쿠로", "누아르", "실루엣", "명암"],
+  },
+  {
+    slug: "neon-tungsten",
+    branchSlug: "lighting-color",
+    label: "Neon Tungsten",
+    labelKo: "네온 · 텅스텐 조명",
+    descriptionKo:
+      "밤거리 네온 사인과 실내 텅스텐 가로등이 젖은 아스팔트 위에 강렬한 색 대비를 흩뿌리는 야간 조명 문법. 도쿄·홍콩·뉴욕 심야 시네마와 사이버펑크 비주얼의 뿌리다.",
+    conduitQuery: "neon night city street lights tokyo new york",
+    keywords: ["neon", "tungsten", "night", "urban", "kabukicho", "shibuya", "네온", "텅스텐", "야경", "밤거리"],
+  },
+  {
+    slug: "technicolor-warm",
+    branchSlug: "lighting-color",
+    label: "Technicolor Warm",
+    labelKo: "테크니컬러 웜 톤",
+    descriptionKo:
+      "코닥 500T 호박빛과 3-스트립 테크니컬러 특유의 진한 크림슨·골드·앰버 난색 밀도로 회화적 온기를 채우는 색보정. 황금기 할리우드와 레트로 TVCF의 시그니처 팔레트다.",
+    conduitQuery: "technicolor vintage color warm gold retro film",
+    keywords: ["technicolor", "warm", "amber", "gold", "kodachrome", "테크니컬러", "웜 톤", "난색", "앰버"],
+  },
+  {
+    slug: "cyan-cold-grade",
+    branchSlug: "lighting-color",
+    label: "Cyan & Cold Grade",
+    labelKo: "시안 · 콜드 그레이드",
+    descriptionKo:
+      "차가운 시안·스틸 블루·에메랄드 색온도로 고독·미래적 정밀함·긴장감을 조형하는 한색 그레이딩. SF 우주 기록·CRT 신호·현대 테크 필름의 컬러 오마주 기준점이다.",
+    conduitQuery: "blue cyan cold night space ocean crt film",
+    keywords: ["cyan", "cold", "blue", "teal", "steel", "시안", "콜드", "한색", "블루"],
+  },
+  {
+    slug: "high-key-studio",
+    branchSlug: "lighting-color",
+    label: "High-Key Studio",
+    labelKo: "하이키 스튜디오",
+    descriptionKo:
+      "그림자를 최소화한 밝고 균일한 스튜디오 조명으로 깔끔한 그래픽 팝과 낙관적 미드센추리 톤을 구현하는 조명 기법. 1950~70년대 가전·식음료·패션 TVCF의 핵심 문법이다.",
+    conduitQuery: "vintage studio commercial kitchen bright fashion",
+    keywords: ["high key", "studio", "bright", "showroom", "kitchen", "하이키", "스튜디오", "밝은 조명"],
+  },
+
+  // 5. Editing & CF Hook (5)
+  {
+    slug: "fast-cut-montage",
+    branchSlug: "editing-cf-hook",
+    label: "Fast-Cut Montage",
+    labelKo: "패스트 컷 몽타주",
+    descriptionKo:
+      "0.5~1.5초 단위의 타이트한 컷 충돌로 짧은 러닝타임 안에 폭발적 정보량과 시각 리듬을 압축하는 편집 기법. 빈티지 극장 예고편과 15초 TVCF 초반 훅의 교과서다.",
+    conduitQuery: "fast cut montage movie trailer commercial spot",
+    keywords: ["fast cut", "montage", "quick", "trailer", "spot", "패스트 컷", "몽타주", "예고편"],
+  },
+  {
+    slug: "match-cut",
+    branchSlug: "editing-cf-hook",
+    label: "Match Cut",
+    labelKo: "매치 컷",
+    descriptionKo:
+      "서로 다른 시공간·오브제를 동일한 도형 윤곽이나 동작 축으로 매끄럽게 이어 시각적 은유를 폭발시키는 편집 기법. 브랜드 메시지와 제품 전환 컷의 가장 세련된 연결 방식이다.",
+    conduitQuery: "match cut transition commercial visual metaphor",
+    keywords: ["match cut", "transition", "metaphor", "매치 컷", "시각적 은유", "컷 전환"],
+  },
+  {
+    slug: "slow-motion",
+    branchSlug: "editing-cf-hook",
+    label: "Slow Motion",
+    labelKo: "슬로우 모션",
+    descriptionKo:
+      "고속 촬영으로 시간의 결을 늘려 화염·물방울·표정의 미세한 운동을 조각처럼 음미하게 만드는 연출. 로켓 점화·액체 포어링·클라이맥스 감정선의 핵심 오마주 소스다.",
+    conduitQuery: "slow motion launch flame water dance cinema",
+    keywords: ["slow motion", "high speed", "launch", "water", "슬로우 모션", "고속 촬영", "궤적"],
+  },
+  {
+    slug: "product-hero-shot",
+    branchSlug: "editing-cf-hook",
+    label: "Product Hero Shot",
+    labelKo: "프로덕트 히어로 샷",
+    descriptionKo:
+      "자동차·음료·소비재를 정교한 림 라이트와 그래픽 구도로 주인공처럼 각인시키는 커머셜 클라이맥스 컷. 초반 3초 시선 점유와 브랜드 리콜을 극대화하는 광고 연출의 정수다.",
+    conduitQuery: "vintage television commercial car drink product ad",
+    keywords: ["product", "hero shot", "tvcf", "commercial", "chevrolet", "ford", "pepsi", "프로덕트", "광고", "제품"],
+  },
+  {
+    slug: "split-screen-title",
+    branchSlug: "editing-cf-hook",
+    label: "Split Screen & Title",
+    labelKo: "분할 화면 · 타이틀",
+    descriptionKo:
+      "대담한 화면 분할·키네틱 레터링·그래픽 타이틀 시퀀스가 영상 프레임과 일체화되는 편집 디자인. 1960년대 사울 배스식 오프닝과 타이포 중심 TVCF 오마주에 직결된다.",
+    conduitQuery: "title sequence graphic typography trailer split screen",
+    keywords: ["split screen", "title", "typography", "graphic", "copy", "분할 화면", "타이틀", "타이포"],
   },
 ];
+
+function parseHexRgb(hex: string): [number, number, number] {
+  const clean = hex.replace("#", "");
+  return [
+    Number.parseInt(clean.slice(0, 2), 16) || 0,
+    Number.parseInt(clean.slice(2, 4), 16) || 0,
+    Number.parseInt(clean.slice(4, 6), 16) || 0,
+  ];
+}
 
 function getWarmthScore(palette: readonly string[]): number {
   let warm = 0;
   for (const hex of palette) {
-    const clean = hex.replace("#", "");
-    const r = Number.parseInt(clean.slice(0, 2), 16) || 0;
-    const g = Number.parseInt(clean.slice(2, 4), 16) || 0;
-    const b = Number.parseInt(clean.slice(4, 6), 16) || 0;
+    const [r, g, b] = parseHexRgb(hex);
     if (r > b + 35 && r >= 150 && g >= 60) warm += 1;
   }
   return warm;
+}
+
+function getCoolScore(palette: readonly string[]): number {
+  let cool = 0;
+  for (const hex of palette) {
+    const [r, g, b] = parseHexRgb(hex);
+    if (b >= r + 18 && (b >= 95 || g >= 105)) cool += 1;
+  }
+  return cool;
+}
+
+function getAvgBrightness(palette: readonly string[]): number {
+  if (palette.length === 0) return 0;
+  let sum = 0;
+  for (const hex of palette) {
+    const [r, g, b] = parseHexRgb(hex);
+    sum += (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  }
+  return sum / palette.length;
+}
+
+export function getBranchBySlug(
+  slug: OpticalBranchSlug
+): OpticalBranch | undefined {
+  return OPTICAL_BRANCHES.find((b) => b.slug === slug);
+}
+
+export function getTechniquesByBranch(
+  branchSlug: OpticalBranchSlug
+): VisualTechnique[] {
+  return VISUAL_TECHNIQUES.filter((t) => t.branchSlug === branchSlug);
+}
+
+export function getTechniqueBySlug(slug: string): VisualTechnique | undefined {
+  return VISUAL_TECHNIQUES.find((t) => t.slug === slug);
+}
+
+export function getSiblingTechniques(techniqueSlug: string): VisualTechnique[] {
+  const target = getTechniqueBySlug(techniqueSlug);
+  if (!target) return [];
+  return getTechniquesByBranch(target.branchSlug);
 }
 
 export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
@@ -254,158 +393,216 @@ export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
   const country = resolveItemCountry(item);
   const chroma = analyzePaletteChroma(item.palette);
   const text = `${item.titleKo} ${item.originalTitle} ${item.brandOrSource}`.toLowerCase();
+  const warmth = getWarmthScore(item.palette);
+  const coolness = getCoolScore(item.palette);
+  const avgLum = getAvgBrightness(item.palette);
 
   switch (slug) {
-    case "symmetry":
+    // 1. Optics & Lens
+    case "motion-blur":
+      return (
+        /speed|motion|night|drive|tram|train|streetcar|race|chase|flight|주행|트램|야경|속도/i.test(
+          text
+        ) ||
+        cat === "STREET_ERA" ||
+        (cat === "WEB_PHANTOM" && item.mediaSource === "archive_mp4")
+      );
+    case "shallow-focus":
+      return (
+        item.compositionTags.includes("초근접 클로즈업") ||
+        /portrait|face|woman|man|coffee|kitchen|fashion|model|인물|클로즈업|패션/i.test(
+          text
+        ) ||
+        (cat === "TVCF" && chroma.isChromatic)
+      );
+    case "deep-focus":
+      return (
+        item.compositionTags.includes("1점 투시") ||
+        item.viewfinder.primaryGrid === "perspective" ||
+        /avenue|street|corridor|railway|bridge|city|거리|투시/i.test(text)
+      );
+    case "anamorphic-flare":
+      return (
+        /neon|night|light|glow|space|launch|sunset|highway|showroom|네온|야경|빛|발사/i.test(
+          text
+        ) ||
+        item.aspectRatio === "16:9" ||
+        item.aspectRatio === "2.39:1"
+      );
+    case "wide-fisheye":
+      return (
+        item.aspectRatio === "16:9" ||
+        item.aspectRatio === "2.39:1" ||
+        item.aspectRatio === "3:2" ||
+        /wide|panorama|skyline|highway|fair|world|와이드|파노라마|광각/i.test(text)
+      );
+
+    // 2. Camera Movement
+    case "dolly-tracking":
+      return (
+        cat === "STREET_ERA" ||
+        /tram|streetcar|cable car|train|subway|metro|street|bus|drive|walk|트램|거리|주행|열차/i.test(
+          text
+        )
+      );
+    case "crash-zoom":
+      return (
+        /trailer|zoom|horror|thriller|action|monster|alien|예고편|호러|스릴러/i.test(
+          text
+        ) ||
+        (cat === "CLASSIC_FILM" &&
+          item.durationSec !== null &&
+          item.durationSec <= 240)
+      );
+    case "whip-pan":
+      return (
+        item.compositionTags.includes("매치 컷") ||
+        /chase|race|sport|dance|cartoon|spot|commercial|패스트|스팟/i.test(text) ||
+        (cat === "TVCF" && item.durationSec !== null && item.durationSec <= 75)
+      );
+    case "orbit-360":
+      return (
+        /showroom|car|chevrolet|ford|motor|dance|stage|earth|orbit|apollo|쇼룸|자동차|회전|지구/i.test(
+          text
+        ) ||
+        (cat === "TVCF" && item.compositionTags.includes("기하학 조형"))
+      );
+    case "crane-aerial":
+      return (
+        /apollo|nasa|space|earth|shuttle|flight|sky|aerial|bridge|cable|city|우주|지구|항공|비행/i.test(
+          text
+        ) ||
+        (cat === "STREET_ERA" &&
+          (country === "US" || country === "EU" || country === "GLOBAL"))
+      );
+
+    // 3. Framing & Angles
+    case "one-point-symmetry":
       return (
         item.compositionTags.includes("대칭 구도") ||
         item.viewfinder.primaryGrid === "symmetry" ||
         item.compositionTags.includes("1점 투시")
       );
-    case "neon-noir":
-      return (
-        /neon|night|noir|kabukicho|shibuya|dotonbori|nathan|ximending|euljiro|네온|야경|심야|누아르/i.test(text) ||
-        cat === "WEB_PHANTOM" ||
-        (cat === "CLASSIC_FILM" && !chroma.isChromatic)
-      );
-    case "fast-cut":
-      return (
-        item.compositionTags.includes("매치 컷") ||
-        item.persuasionTags.includes("초반 3초 시선 강탈") ||
-        (item.durationSec !== null && item.durationSec <= 90)
-      );
-    case "tracking-shot":
-      return (
-        cat === "STREET_ERA" ||
-        /tram|streetcar|cable car|train|subway|metro|street|bus|drive|트램|거리|주행|철도/i.test(text)
-      );
-    case "35mm-grain":
-      return (
-        item.year <= 1989 &&
-        (item.mediaSource === "archive_mp4" || item.compositionTags.includes("1점 투시"))
-      );
-    case "commercial-hook":
-      return (
-        cat === "TVCF" ||
-        item.persuasionTags.includes("초반 3초 시선 강탈") ||
-        item.persuasionTags.includes("무대사 직관 전달")
-      );
-    case "close-up":
+    case "extreme-close-up":
       return (
         item.compositionTags.includes("초근접 클로즈업") ||
-        cat === "TVCF" ||
-        cat === "CLASSIC_FILM"
+        /eye|face|hand|coffee|drink|food|watch|detail|인물|클로즈업|근접/i.test(
+          text
+        ) ||
+        cat === "TVCF"
       );
-    case "wide-anamorphic":
-      return (
-        item.aspectRatio === "16:9" ||
-        item.aspectRatio === "2.39:1" ||
-        item.aspectRatio === "3:2" ||
-        /wide|panorama|skyline|highway|와이드|파노라마/i.test(text)
-      );
-    case "silhouette":
-      return (
-        item.compositionTags.includes("역광 실루엣") ||
-        item.compositionTags.includes("극단적 여백") ||
-        chroma.luminanceSpread >= 0.68
-      );
-    case "chiaroscuro":
-      return (
-        cat === "CLASSIC_FILM" ||
-        !chroma.isChromatic ||
-        chroma.luminanceSpread >= 0.72
-      );
-    case "montage":
-      return (
-        cat === "CLASSIC_FILM" ||
-        cat === "TVCF" ||
-        cat === "WEB_PHANTOM"
-      );
-    case "retro-tvcf":
-      return cat === "TVCF" || /commercial|tvcf|광고|스팟/i.test(text);
     case "low-angle":
       return (
         item.persuasionTags.includes("스케일 반전") ||
-        /launch|rocket|apollo|shuttle|tower|skyline|bridge|godzilla|발사|우주|타워|빌딩/i.test(text) ||
+        /launch|rocket|apollo|shuttle|tower|skyline|bridge|godzilla|monster|발사|우주|타워|빌딩/i.test(
+          text
+        ) ||
         cat === "STREET_ERA"
-      );
-    case "aerial":
-      return (
-        /apollo|nasa|space|earth|shuttle|flight|sky|aerial|bridge|cable|우주|지구|항공|비행/i.test(text) ||
-        (cat === "STREET_ERA" && (country === "US" || country === "EU" || country === "GLOBAL"))
       );
     case "dutch-angle":
       return (
         cat === "CLASSIC_FILM" ||
         cat === "WEB_PHANTOM" ||
-        /horror|noir|thriller|night|glitch|호러|누아르|심야/i.test(text)
+        /horror|noir|thriller|suspense|night|glitch|호러|누아르|심야/i.test(text)
+      );
+    case "frame-within-frame":
+      return (
+        item.compositionTags.includes("프레임 속 프레임") ||
+        item.compositionTags.includes("기하학 조형") ||
+        /window|door|mirror|arch|screen|tv|crt|창|거울|프레임/i.test(text)
+      );
+
+    // 4. Lighting & Color
+    case "chiaroscuro-noir":
+      return (
+        item.compositionTags.includes("역광 실루엣") ||
+        cat === "CLASSIC_FILM" ||
+        !chroma.isChromatic ||
+        chroma.luminanceSpread >= 0.7
+      );
+    case "neon-tungsten":
+      return (
+        /neon|night|noir|kabukicho|shibuya|dotonbori|nathan|ximending|euljiro|tokyo|hong kong|네온|야경|심야|누아르/i.test(
+          text
+        ) ||
+        cat === "WEB_PHANTOM" ||
+        cat === "AD_BILLBOARD"
+      );
+    case "technicolor-warm":
+      return (
+        warmth >= 2 ||
+        /technicolor|kodachrome|color|warm|gold|sunset|테크니컬러|코다크롬/i.test(
+          text
+        )
+      );
+    case "cyan-cold-grade":
+      return (
+        coolness >= 2 ||
+        /space|earth|ocean|blue|crt|cyber|oscilloscope|winter|우주|지구|바다|브라운관/i.test(
+          text
+        )
+      );
+    case "high-key-studio":
+      return (
+        avgLum >= 0.44 ||
+        /studio|kitchen|fashion|showroom|soap|cereal|soda|home|주방|쇼룸|패션/i.test(
+          text
+        ) ||
+        (cat === "TVCF" && item.year >= 1955)
+      );
+
+    // 5. Editing & CF Hook
+    case "fast-cut-montage":
+      return (
+        item.persuasionTags.includes("초반 3초 시선 강탈") ||
+        /trailer|montage|spot|news|reel|예고편|몽타주|스팟/i.test(text) ||
+        (item.durationSec !== null && item.durationSec <= 90)
+      );
+    case "match-cut":
+      return (
+        item.compositionTags.includes("매치 컷") ||
+        item.persuasionTags.includes("시각적 은유") ||
+        item.persuasionTags.includes("무대사 직관 전달")
       );
     case "slow-motion":
       return (
         (item.durationSec !== null && item.durationSec >= 120) ||
-        /nasa|apollo|space|ocean|water|dance|우주|발사/i.test(text) ||
+        /nasa|apollo|space|ocean|water|dance|launch|우주|발사/i.test(text) ||
         cat === "CLASSIC_FILM"
       );
-    case "warm-tungsten":
-      return getWarmthScore(item.palette) >= 2;
-    case "vintage-film":
-      return cat === "CLASSIC_FILM" || (item.mediaSource === "archive_mp4" && item.year <= 1975);
-    case "animation-cell":
-      return cat === "ANIME_COMIC" || /cartoon|animat|fleischer|popeye|superman|애니|만화/i.test(text);
-    case "title-design":
-      return (
-        cat === "CLASSIC_FILM" ||
-        cat === "TVCF" ||
-        item.persuasionTags.includes("카피×구도 일체형")
-      );
-    case "urban-night":
-      return (
-        cat === "STREET_ERA" ||
-        cat === "AD_BILLBOARD" ||
-        /tokyo|seoul|hong kong|taipei|paris|new york|london|berlin|night|street|도쿄|서울|홍콩|타이베이|뉴욕|파리|야경/i.test(text)
-      );
-    case "product-shot":
+    case "product-hero-shot":
       return (
         cat === "TVCF" ||
-        /chevrolet|ford|pepsi|coca|coffee|kodak|motor|showroom|자동차|쇼룸|광고/i.test(text)
+        /chevrolet|ford|pepsi|coca|coffee|kodak|motor|showroom|commercial|자동차|쇼룸|광고/i.test(
+          text
+        )
       );
-    case "archival-still":
-      return item.mediaSource === "still_image";
-    case "vhs-analog":
+    case "split-screen-title":
       return (
-        cat === "WEB_PHANTOM" ||
-        item.era === "1980s" ||
-        item.era === "1990-00s"
-      );
-    case "split-frame":
-      return (
-        item.compositionTags.includes("프레임 속 프레임") ||
-        item.compositionTags.includes("기하학 조형")
-      );
-    case "deep-focus":
-      return (
-        item.compositionTags.includes("1점 투시") ||
-        item.viewfinder.primaryGrid === "perspective"
-      );
-    case "kinetic-type":
-      return (
-        cat === "TVCF" ||
-        cat === "AD_BILLBOARD" ||
         item.persuasionTags.includes("카피×구도 일체형") ||
-        item.compositionTags.includes("기하학 조형")
+        /title|trailer|leader|graphic|sign|neon|billboard|타이틀|예고편|간판|카피/i.test(
+          text
+        ) ||
+        cat === "AD_BILLBOARD" ||
+        cat === "TVCF"
       );
-    case "color-contrast":
-      return chroma.isChromatic && chroma.vividCount >= 2;
     default:
       return true;
   }
 }
 
-export function getTechniqueBySlug(slug: string): VisualTechnique | undefined {
-  return VISUAL_TECHNIQUES.find((t) => t.slug === slug);
+export function matchesBranch(
+  item: ArchiveItem,
+  branchSlug: OpticalBranchSlug
+): boolean {
+  const branchTechs = getTechniquesByBranch(branchSlug);
+  return branchTechs.some((tech) => matchesTechnique(item, tech.slug));
 }
 
-export function getTechniquesForItem(item: ArchiveItem, max = 5): VisualTechnique[] {
+export function getTechniquesForItem(
+  item: ArchiveItem,
+  max = 5
+): VisualTechnique[] {
   const matched: VisualTechnique[] = [];
   for (const tech of VISUAL_TECHNIQUES) {
     if (matchesTechnique(item, tech.slug)) {
@@ -419,6 +616,16 @@ export function getTechniquesForItem(item: ArchiveItem, max = 5): VisualTechniqu
 export function searchItemByQuery(item: ArchiveItem, rawQuery: string): boolean {
   const q = rawQuery.trim().toLowerCase();
   if (!q) return true;
+
+  const matchedBranch = OPTICAL_BRANCHES.find(
+    (b) =>
+      b.label.toLowerCase().includes(q) ||
+      b.labelKo.toLowerCase().includes(q) ||
+      b.slug.includes(q)
+  );
+  if (matchedBranch && matchesBranch(item, matchedBranch.slug)) {
+    return true;
+  }
 
   const matchedTech = VISUAL_TECHNIQUES.find(
     (t) =>
@@ -462,29 +669,32 @@ export interface BreakdownShowcaseCard {
 
 export const BREAKDOWN_SHOWCASE_CARDS: BreakdownShowcaseCard[] = [
   {
-    id: "bd-neon-street",
-    eyebrow: "BREAKING DOWN",
-    headline: "TOKYO TO NEW YORK — TRACKING NIGHT",
-    subtitleKo: "도쿄·서울·홍콩·파리·뉴욕 트램과 야간 네온이 만드는 1점 투시 주행 시퀀스 해부",
-    techniqueSlug: "tracking-shot",
+    id: "bd-dolly-street",
+    eyebrow: "OPTICAL BREAKDOWN · CAMERA MOVEMENT",
+    headline: "TOKYO TO NEW YORK — DOLLY & TRACKING",
+    subtitleKo:
+      "도쿄·서울·홍콩·파리·뉴욕 트램과 야간 네온이 만드는 1점 투시 주행 카메라워크 시퀀스 해부",
+    techniqueSlug: "dolly-tracking",
     ctaLabel: "EXPLORE SEQUENCE",
     fallbackItemId: "KF-224",
   },
   {
     id: "bd-golden-tvcf",
-    eyebrow: "BREAKING DOWN",
-    headline: "GOLDEN AGE 3-SECOND COMMERCIAL HOOK",
-    subtitleKo: "1950–80년대 테크니컬러 TVCF가 첫 3초 만에 시선을 점유하는 프레이밍과 매치 컷",
-    techniqueSlug: "commercial-hook",
+    eyebrow: "OPTICAL BREAKDOWN · EDITING & CF HOOK",
+    headline: "GOLDEN AGE PRODUCT HERO & 3S HOOK",
+    subtitleKo:
+      "1950–80년대 테크니컬러 TVCF가 첫 3초 만에 시선을 점유하는 프레이밍과 프로덕트 히어로 샷",
+    techniqueSlug: "product-hero-shot",
     ctaLabel: "EXPLORE SEQUENCE",
     fallbackItemId: "KF-031",
   },
   {
-    id: "bd-vhs-phantom",
-    eyebrow: "BREAKING DOWN",
-    headline: "ANALOG VHS & FORGOTTEN SIGNAL",
-    subtitleKo: "브라운관 주사선·심야 캠코더·초기 3D 신호가 만들어내는 초현실 아카이브 텍스처",
-    techniqueSlug: "vhs-analog",
+    id: "bd-neon-tungsten",
+    eyebrow: "OPTICAL BREAKDOWN · LIGHTING & COLOR",
+    headline: "KODAK 500T NEON & TUNGSTEN NOIR",
+    subtitleKo:
+      "심야 네온 사인·텅스텐 가로등·아날로그 색수차가 빚어내는 고밀도 시네마 조명 팔레트",
+    techniqueSlug: "neon-tungsten",
     ctaLabel: "EXPLORE SEQUENCE",
     fallbackItemId: "KF-607",
   },

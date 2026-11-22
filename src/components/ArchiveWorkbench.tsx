@@ -15,6 +15,7 @@ import {
   filterAndSortArchive,
   getVisibleArchiveSlice,
   parseBoardIds,
+  resolveItemCategory,
   resolveItemCountry,
   rotateArchiveWithSeed,
   serializeBoardIds,
@@ -32,12 +33,19 @@ import {
 } from "@/lib/vault";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import {
+  OPTICAL_BRANCHES,
   VISUAL_TECHNIQUES,
+  getBranchBySlug,
+  getSiblingTechniques,
   getTechniqueBySlug,
+  getTechniquesByBranch,
+  matchesBranch,
   matchesTechnique,
   searchItemByQuery,
+  type OpticalBranchSlug,
 } from "@/lib/visual-techniques";
 import { EyecandyHeader } from "@/components/EyecandyHeader";
+import { HeroSearchBar, type WallSortMode } from "@/components/HeroSearchBar";
 import {
   SidebarExplorer,
   type SidebarFilterSelection,
@@ -55,30 +63,19 @@ interface ArchiveWorkbenchProps {
   initialSeed?: number;
 }
 
-type EyecandySortMode = "shuffle" | "popular" | "recent" | "title";
-type EyecandyViewMode = "home" | "sidebar" | "technique";
+type WorkbenchViewMode = "home" | "sidebar" | "technique";
 
-const TYPED_HINTS = [
-  'Search "Neon Noir"',
-  'Search "Symmetry"',
-  'Search "Tracking Shot"',
-  'Search "도쿄 야경"',
-  'Search "Retro TVCF"',
-  'Search "VHS Analog"',
-  'Search "Animation Cell"',
-  'Search "35mm Grain"',
-];
-
+// 4:5 portrait items render in normalized 4:3 frames on the grid for even column balance
 const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
-  "4:5": 1.25,
+  "4:5": 0.75,
   "4:3": 0.75,
   "3:2": 0.667,
   "16:9": 0.5625,
   "2.39:1": 0.418,
 };
 
-// Eyecandy exact responsive columns: >=992px -> 5 cols, 768~991px -> 3 cols, <768px -> 2 cols
-function getEyecandyColumnCount(width: number): number {
+// Responsive 5 / 3 / 2 column counts
+function getResponsiveColumnCount(width: number): number {
   if (width >= 992) return 5;
   if (width >= 768) return 3;
   return 2;
@@ -125,17 +122,18 @@ export function ArchiveWorkbench({
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [pastHero, setPastHero] = useState<boolean>(false);
 
-  // 4 Eyecandy view modes
-  const [viewMode, setViewMode] = useState<EyecandyViewMode>("home");
-  const [activeTechniqueSlug, setActiveTechniqueSlug] = useState<string | null>(null);
-  const [sortMode, setSortMode] = useState<EyecandySortMode>("shuffle");
+  // View modes & Optical Taxonomy Tree selection
+  const [viewMode, setViewMode] = useState<WorkbenchViewMode>("home");
+  const [activeBranchSlug, setActiveBranchSlug] =
+    useState<OpticalBranchSlug | null>(null);
+  const [activeTechniqueSlug, setActiveTechniqueSlug] = useState<string | null>(
+    null
+  );
+  const [sortMode, setSortMode] = useState<WallSortMode>("shuffle");
   const [rawSearch, setRawSearch] = useState<string>("");
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
-  const [searchFocused, setSearchFocused] = useState<boolean>(false);
-  const [typedHint, setTypedHint] = useState<string>(TYPED_HINTS[0]);
-  const [sidebarSelection, setSidebarSelection] = useState<SidebarFilterSelection>(
-    EMPTY_SIDEBAR_SELECTION
-  );
+  const [sidebarSelection, setSidebarSelection] =
+    useState<SidebarFilterSelection>(EMPTY_SIDEBAR_SELECTION);
 
   // Conduit & dead-tile eviction states
   const [savedConduitItems, setSavedConduitItems] = useState<ArchiveItem[]>([]);
@@ -211,13 +209,19 @@ export function ArchiveWorkbench({
   // Responsive 5 / 3 / 2 column sync on mount and resize
   useEffect(() => {
     const syncLayout = () => {
-      const nextCols = getEyecandyColumnCount(window.innerWidth);
+      const nextCols = getResponsiveColumnCount(window.innerWidth);
       setColumnCount((prev) => (prev === nextCols ? prev : nextCols));
     };
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 20);
-      setPastHero(y > 320);
+      setScrolled((prev) => {
+        const next = y > 20;
+        return prev === next ? prev : next;
+      });
+      setPastHero((prev) => {
+        const next = y > 320;
+        return prev === next ? prev : next;
+      });
     };
     syncLayout();
     onScroll();
@@ -236,42 +240,6 @@ export function ArchiveWorkbench({
     }, 220);
     return () => window.clearTimeout(t);
   }, [rawSearch]);
-
-  // Typed.js-style auto-typing hint animation in home search bar when unfocused & empty
-  useEffect(() => {
-    if (searchFocused || rawSearch.length > 0 || viewMode !== "home") return;
-    let phraseIdx = 0;
-    let charIdx = 0;
-    let deleting = false;
-    let timerId = 0;
-
-    const tick = () => {
-      const target = TYPED_HINTS[phraseIdx];
-      if (!deleting) {
-        charIdx += 1;
-        setTypedHint(target.slice(0, charIdx));
-        if (charIdx >= target.length) {
-          deleting = true;
-          timerId = window.setTimeout(tick, 1500);
-          return;
-        }
-        timerId = window.setTimeout(tick, 55);
-      } else {
-        charIdx -= 1;
-        setTypedHint(target.slice(0, charIdx));
-        if (charIdx <= 0) {
-          deleting = false;
-          phraseIdx = (phraseIdx + 1) % TYPED_HINTS.length;
-          timerId = window.setTimeout(tick, 320);
-          return;
-        }
-        timerId = window.setTimeout(tick, 30);
-      }
-    };
-
-    timerId = window.setTimeout(tick, 800);
-    return () => window.clearTimeout(timerId);
-  }, [searchFocused, rawSearch, viewMode]);
 
   const validIdSetRef = useRef<Set<string>>(validIdSet);
   validIdSetRef.current = validIdSet;
@@ -365,6 +333,11 @@ export function ArchiveWorkbench({
     window.history.replaceState(null, "", nextUrl);
   }, [boardIds]);
 
+  // Memoized card callbacks so React.memo(SlideMountCard) never re-renders unnecessarily
+  const handleOpenDetail = useCallback((target: ArchiveItem) => {
+    setSelectedItemId(target.id);
+  }, []);
+
   const handleEvictItem = useCallback((itemId: string) => {
     setEvictedIds((prev) => {
       if (prev.has(itemId)) return prev;
@@ -374,7 +347,7 @@ export function ArchiveWorkbench({
     });
   }, []);
 
-  // Deterministic SSR-matched initial seed ordering (only re-runs when sortMode or shuffleSeed changes)
+  // Deterministic SSR-matched initial seed ordering (color CLASSIC_FILM & TVCF prioritized at top)
   const orderedSeedItems = useMemo(() => {
     const cleanSeed = items.filter((i) => !evictedIds.has(i.id));
     if (sortMode === "recent") {
@@ -384,7 +357,9 @@ export function ArchiveWorkbench({
       });
     }
     if (sortMode === "title") {
-      return [...cleanSeed].sort((a, b) => a.titleKo.localeCompare(b.titleKo, "ko"));
+      return [...cleanSeed].sort((a, b) =>
+        a.titleKo.localeCompare(b.titleKo, "ko")
+      );
     }
     if (sortMode === "popular") {
       return filterAndSortArchive(cleanSeed, {
@@ -399,7 +374,7 @@ export function ArchiveWorkbench({
     return rotateArchiveWithSeed(base, shuffleSeed);
   }, [items, evictedIds, sortMode, shuffleSeed]);
 
-  // Strictly Append-Only combined pool + view/search/technique/sidebar filtering
+  // Strictly Append-Only combined pool + view/branch/technique/sidebar/search filtering
   const displayedPool = useMemo(() => {
     const baseList: ArchiveItem[] = [];
     const seenIds = new Set<string>();
@@ -422,6 +397,10 @@ export function ArchiveWorkbench({
     return baseList.filter((item) => {
       if (boardOnly && !boardIds.includes(item.id)) return false;
 
+      if (viewMode === "home" && activeBranchSlug) {
+        if (!matchesBranch(item, activeBranchSlug)) return false;
+      }
+
       if (viewMode === "technique" && activeTechniqueSlug) {
         if (!matchesTechnique(item, activeTechniqueSlug)) return false;
       }
@@ -429,15 +408,21 @@ export function ArchiveWorkbench({
       if (viewMode === "sidebar") {
         if (
           sidebarSelection.techniques.length > 0 &&
-          !sidebarSelection.techniques.some((slug) => matchesTechnique(item, slug))
+          !sidebarSelection.techniques.some((slug) =>
+            matchesTechnique(item, slug)
+          )
         ) {
           return false;
         }
         if (sidebarSelection.formats.length > 0) {
+          const cat = resolveItemCategory(item);
           const isMotion = item.mediaSource === "archive_mp4";
-          const ok = sidebarSelection.formats.some((fmt) =>
-            fmt === "MOTION" ? isMotion : !isMotion
-          );
+          const ok = sidebarSelection.formats.some((fmt) => {
+            if (fmt === "CLASSIC_FILM") return cat === "CLASSIC_FILM";
+            if (fmt === "TVCF") return cat === "TVCF";
+            if (fmt === "MOTION") return isMotion;
+            return !isMotion;
+          });
           if (!ok) return false;
         }
         if (
@@ -454,7 +439,10 @@ export function ArchiveWorkbench({
         }
       }
 
-      if (debouncedQuery.length > 0 && !searchItemByQuery(item, debouncedQuery)) {
+      if (
+        debouncedQuery.length > 0 &&
+        !searchItemByQuery(item, debouncedQuery)
+      ) {
         return false;
       }
 
@@ -468,6 +456,7 @@ export function ArchiveWorkbench({
     boardOnly,
     boardIds,
     viewMode,
+    activeBranchSlug,
     activeTechniqueSlug,
     sidebarSelection,
     debouncedQuery,
@@ -531,7 +520,8 @@ export function ArchiveWorkbench({
       const incoming = Array.isArray(data.items)
         ? data.items.filter(
             (entry) =>
-              entry.mediaSource === "archive_mp4" && Boolean(entry.previewVideoUrl)
+              entry.mediaSource === "archive_mp4" &&
+              Boolean(entry.previewVideoUrl)
           )
         : [];
 
@@ -628,10 +618,25 @@ export function ArchiveWorkbench({
   const activeTechnique = activeTechniqueSlug
     ? getTechniqueBySlug(activeTechniqueSlug) ?? null
     : null;
+  const activeTechniqueBranch = activeTechnique
+    ? getBranchBySlug(activeTechnique.branchSlug) ?? null
+    : null;
+  const siblingTechniques = activeTechnique
+    ? getSiblingTechniques(activeTechnique.slug)
+    : [];
+
+  const heroTechniques = useMemo(
+    () =>
+      activeBranchSlug
+        ? getTechniquesByBranch(activeBranchSlug)
+        : VISUAL_TECHNIQUES,
+    [activeBranchSlug]
+  );
 
   // Navigation handlers
   const handleGoHome = useCallback(() => {
     setViewMode("home");
+    setActiveBranchSlug(null);
     setActiveTechniqueSlug(null);
     setBoardOnly(false);
     setRawSearch("");
@@ -641,6 +646,14 @@ export function ArchiveWorkbench({
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  }, []);
+
+  const handleSelectBranch = useCallback((branchSlug: OpticalBranchSlug | null) => {
+    setViewMode("home");
+    setActiveTechniqueSlug(null);
+    setActiveBranchSlug(branchSlug);
+    setBoardOnly(false);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
   }, []);
 
   const handleSelectTechnique = useCallback((slug: string) => {
@@ -680,6 +693,24 @@ export function ArchiveWorkbench({
     setSortMode("shuffle");
     setShuffleSeed((prev) => prev + Math.floor(Math.random() * 997) + 37);
     setVisibleCount(INITIAL_VISIBLE_COUNT);
+  }, []);
+
+  const handleHeroSearchClear = useCallback(() => {
+    setRawSearch("");
+    setDebouncedQuery("");
+  }, []);
+
+  const handleHeroSearchSubmit = useCallback(() => {
+    if (rawSearch.trim()) {
+      setViewMode("sidebar");
+    }
+  }, [rawSearch]);
+
+  const handleSortModeChange = useCallback((next: WallSortMode) => {
+    setSortMode(next);
+    if (next === "shuffle") {
+      setShuffleSeed((prev) => prev + Math.floor(Math.random() * 997) + 23);
+    }
   }, []);
 
   const performToggleBoard = useCallback(
@@ -850,7 +881,9 @@ export function ArchiveWorkbench({
         const parsed = parseImportedVaultJson(reader.result, validIdSet);
         if (!parsed) return;
         setVault(parsed.vault);
-        setBoardIds((prev) => Array.from(new Set([...prev, ...parsed.boardIds])));
+        setBoardIds((prev) =>
+          Array.from(new Set([...prev, ...parsed.boardIds]))
+        );
       };
       reader.readAsText(file);
     },
@@ -891,7 +924,7 @@ export function ArchiveWorkbench({
     <>
       {displayedPool.length > 0 ? (
         <>
-          {/* Exact Eyecandy 5 / 3 / 2 Column Masonry: horizontal 7px, vertical 5px (mobile 2px) */}
+          {/* Locked 5 / 3 / 2 Column Masonry: horizontal 7px, vertical 5px (mobile 2px) */}
           <section
             aria-label="큐레이션 무빙 아카이브 월"
             className="grid grid-cols-2 items-start gap-x-[7px] md:grid-cols-3 lg:grid-cols-5"
@@ -905,12 +938,7 @@ export function ArchiveWorkbench({
                   <SlideMountCard
                     key={item.id}
                     item={item}
-                    isInBoard={boardIds.includes(item.id)}
-                    isInCompare={compareIds.includes(item.id)}
-                    compareFull={compareIds.length >= 2}
-                    onOpenDetail={(target) => setSelectedItemId(target.id)}
-                    onToggleBoard={handleToggleBoard}
-                    onToggleCompare={handleToggleCompare}
+                    onOpenDetail={handleOpenDetail}
                     onEvictItem={handleEvictItem}
                   />
                 ))}
@@ -927,9 +955,9 @@ export function ArchiveWorkbench({
                 <div
                   role="status"
                   aria-live="polite"
-                  className="inline-flex h-9 items-center gap-2 rounded-[2rem] border border-[#fc087d]/50 bg-black px-5 font-mono text-[12px] tracking-wider text-[#d0d0d0]"
+                  className="inline-flex h-9 items-center gap-2 rounded-[2rem] border border-[#F3A833]/50 bg-[#111318] px-5 font-mono text-[12px] tracking-wider text-[#C8C4BC]"
                 >
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#fc087d]" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#F3A833]" />
                   <span>STREAMING ARCHIVE CONDUIT</span>
                 </div>
               ) : (
@@ -944,7 +972,7 @@ export function ArchiveWorkbench({
                       void fetchNextConduitPage();
                     }
                   }}
-                  className="inline-flex items-center justify-center rounded-[2rem] border border-[#fc087d] bg-black px-9 py-2 text-[0.9rem] font-medium uppercase tracking-wider text-white transition-colors duration-200 hover:bg-[#fc087d] hover:text-black"
+                  className="inline-flex items-center justify-center rounded-[2rem] border border-[#F3A833] bg-black px-9 py-2 text-[0.9rem] font-semibold uppercase tracking-wider text-[#FAF7F0] transition-colors duration-200 hover:bg-[#F3A833] hover:text-black"
                 >
                   Load more
                 </button>
@@ -953,17 +981,17 @@ export function ArchiveWorkbench({
           )}
         </>
       ) : (
-        <section className="flex flex-col items-center justify-center rounded-[16px] border border-white/15 bg-black px-6 py-24 text-center">
-          <h2 className="text-[1.4rem] font-semibold text-white">
+        <section className="flex flex-col items-center justify-center rounded-[16px] border border-white/15 bg-[#111318] px-6 py-24 text-center">
+          <h2 className="text-[1.4rem] font-semibold text-[#FAF7F0]">
             일치하는 무빙 클립이 없습니다
           </h2>
-          <p className="mt-2 text-[0.95rem] text-[#9b9b9b]">
+          <p className="mt-2 text-[0.95rem] text-[#7E7B74]">
             검색어를 바꾸거나 전체 아카이브 월로 돌아가세요.
           </p>
           <button
             type="button"
             onClick={handleGoHome}
-            className="mt-6 rounded-[2rem] bg-[#fc087d] px-7 py-2 text-[0.9rem] font-semibold uppercase text-black transition-opacity hover:opacity-90"
+            className="mt-6 rounded-[2rem] bg-[#F3A833] px-7 py-2 text-[0.9rem] font-semibold uppercase text-black transition-colors hover:bg-[#FFBE55]"
           >
             Reset to All Clips
           </button>
@@ -973,19 +1001,13 @@ export function ArchiveWorkbench({
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
+    <div className="flex min-h-screen flex-col bg-black text-[#FAF7F0]">
       <EyecandyHeader
         scrolled={scrolled}
         showCenterSearch={showHeaderCenterSearch}
         searchQuery={rawSearch}
-        onSearchChange={(val) => {
-          setRawSearch(val);
-        }}
-        onSearchSubmit={() => {
-          if (rawSearch.trim()) {
-            setViewMode("sidebar");
-          }
-        }}
+        onSearchChange={setRawSearch}
+        onSearchSubmit={handleHeroSearchSubmit}
         viewMode={viewMode}
         activeTechniqueSlug={activeTechniqueSlug}
         session={session}
@@ -994,6 +1016,7 @@ export function ArchiveWorkbench({
         onGoHome={handleGoHome}
         onToggleSidebar={handleToggleSidebar}
         onSelectTechnique={handleSelectTechnique}
+        onSelectBranch={handleSelectBranch}
         onGoBreakdowns={handleGoBreakdowns}
         onShuffleWall={handleShuffleWall}
         onOpenBoard={() => setBoardOpen(true)}
@@ -1004,9 +1027,9 @@ export function ArchiveWorkbench({
       <main className="w-full flex-1 pt-16">
         {/* Shared ?board= Restoration Banner (Accessible to Both Guests & Signed-In Users) */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mx-4 mb-4 mt-2 flex flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#fc087d]/50 bg-[#fc087d]/10 px-5 py-2.5 text-[0.9rem] lg:mx-8">
-            <div className="flex items-center gap-2 text-white">
-              <BoardBookmarkIcon className="h-4 w-4 text-[#fc087d]" filled />
+          <div className="mx-4 mb-4 mt-2 flex flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#F3A833]/50 bg-[#F3A833]/10 px-5 py-2.5 text-[0.9rem] lg:mx-8">
+            <div className="flex items-center gap-2 text-[#FAF7F0]">
+              <BoardBookmarkIcon className="h-4 w-4 text-[#F3A833]" filled />
               <span>
                 공유 보드 링크에서 <strong>{initialBoardIds.length}개</strong>의
                 아카이브가 열렸습니다.
@@ -1016,14 +1039,14 @@ export function ArchiveWorkbench({
               <button
                 type="button"
                 onClick={() => setBoardOnly((prev) => !prev)}
-                className="rounded-[2rem] border border-[#fc087d] bg-black px-3.5 py-1 text-[0.8rem] font-semibold text-[#fc087d]"
+                className="rounded-[2rem] border border-[#F3A833] bg-black px-3.5 py-1 text-[0.8rem] font-semibold text-[#F3A833] hover:bg-[#F3A833]/15"
               >
                 {boardOnly ? "전체 보기" : "공유 컷만 보기"}
               </button>
               <button
                 type="button"
                 onClick={() => setBoardOpen(true)}
-                className="rounded-[2rem] bg-[#fc087d] px-3.5 py-1 text-[0.8rem] font-bold text-black"
+                className="rounded-[2rem] bg-[#F3A833] px-3.5 py-1 text-[0.8rem] font-bold text-black hover:bg-[#FFBE55]"
               >
                 보드 열기
               </button>
@@ -1031,7 +1054,7 @@ export function ArchiveWorkbench({
                 type="button"
                 onClick={() => setSharedBannerDismissed(true)}
                 aria-label="알림 닫기"
-                className="p-1 text-[#d0d0d0] hover:text-white"
+                className="p-1 text-[#C8C4BC] hover:text-[#FAF7F0]"
               >
                 <CloseIcon className="h-4 w-4" />
               </button>
@@ -1039,29 +1062,71 @@ export function ArchiveWorkbench({
           </div>
         )}
 
-        {/* VIEW 1: HOME HERO (Centered 56px Wordmark + 28 Technique Tag Cloud + Search & Pink Sort Capsule) */}
+        {/* VIEW 1: HOME HERO (Kodak 500T Wordmark + 5 Optical Branches + 25 Technique Cloud + Isolated HeroSearchBar) */}
         {viewMode === "home" && (
           <>
             <section
-              aria-label="시네마 기법 탐색 허브"
+              aria-label="광학 기법 트리 탐색 허브"
               className="flex flex-col items-center px-4 pb-8 pt-6 sm:pt-8"
             >
               <button
                 type="button"
                 onClick={handleGoHome}
-                className="mb-4 text-[2.4rem] font-semibold leading-none tracking-[-0.02em] text-[#fc087d] sm:text-[3.5rem]"
+                className="mb-4 text-[2.4rem] font-semibold leading-none tracking-[-0.02em] text-[#F3A833] transition-colors hover:text-[#FFBE55] sm:text-[3.4rem]"
               >
                 KINOFRAME
               </button>
 
-              {/* 28 Visual Technique Tag Cloud (60% / max-w 75rem centered flex-wrap) */}
-              <ul className="mx-auto flex w-[94%] max-w-[75rem] flex-wrap justify-center lg:w-[60%]">
-                {VISUAL_TECHNIQUES.map((tech) => (
-                  <li key={tech.slug} className="mx-[0.3rem] mb-[0.3rem]">
+              {/* 5 Optical Branch Capsule Tabs */}
+              <div
+                role="tablist"
+                aria-label="5대 광학 대분류 트리"
+                className="mx-auto mb-4 flex w-[94%] max-w-[75rem] flex-wrap items-center justify-center gap-2"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeBranchSlug === null}
+                  onClick={() => handleSelectBranch(null)}
+                  className={`rounded-[2rem] border px-3.5 py-1 text-[0.78rem] font-semibold uppercase tracking-wide transition-colors ${
+                    activeBranchSlug === null
+                      ? "border-[#F3A833] bg-[#F3A833] text-black"
+                      : "border-white/15 bg-[#111318] text-[#C8C4BC] hover:border-[#F3A833]/70 hover:text-[#FAF7F0]"
+                  }`}
+                >
+                  All Branches
+                </button>
+                {OPTICAL_BRANCHES.map((branch) => {
+                  const active = activeBranchSlug === branch.slug;
+                  return (
+                    <button
+                      key={branch.slug}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() =>
+                        handleSelectBranch(active ? null : branch.slug)
+                      }
+                      className={`rounded-[2rem] border px-3.5 py-1 text-[0.78rem] font-semibold uppercase tracking-wide transition-colors ${
+                        active
+                          ? "border-[#F3A833] bg-[#F3A833] text-black"
+                          : "border-white/15 bg-[#111318] text-[#C8C4BC] hover:border-[#F3A833]/70 hover:text-[#FAF7F0]"
+                      }`}
+                    >
+                      {branch.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 25 Optical Technique Tag Cloud (Center-Expanding #F3A833 Underline) */}
+              <ul className="mx-auto flex w-[94%] max-w-[75rem] flex-wrap justify-center lg:w-[68%]">
+                {heroTechniques.map((tech) => (
+                  <li key={tech.slug} className="mx-[0.42rem] mb-[0.35rem]">
                     <button
                       type="button"
                       onClick={() => handleSelectTechnique(tech.slug)}
-                      className="eyecandy-tag-link"
+                      className="kf-technique-link"
                     >
                       {tech.label}
                     </button>
@@ -1069,98 +1134,21 @@ export function ArchiveWorkbench({
                 ))}
               </ul>
 
-              {/* Search Bar (1px #fc087d pill) + Solid #fc087d Sort Capsule */}
-              <div className="mx-auto mt-4 flex w-[94%] max-w-[75rem] flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-0 lg:w-[60%]">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (rawSearch.trim()) setViewMode("sidebar");
-                  }}
-                  className="relative flex-1"
-                >
-                  <button
-                    type="submit"
-                    aria-label="검색"
-                    className="absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-[#fc047c]"
-                  >
-                    <svg viewBox="0 0 30 30" className="h-[19px] w-[19px]" fill="currentColor">
-                      <path d="M 13 3 C 7.489 3 3 7.489 3 13 C 3 18.511 7.489 23 13 23 C 15.397 23 17.597 22.149 19.322 20.736 L 25.293 26.707 A 1 1 0 1 0 26.707 25.293 L 20.736 19.322 C 22.149 17.597 23 15.397 23 13 C 23 7.489 18.511 3 13 3 z M 13 5 C 17.43 5 21 8.57 21 13 C 21 17.43 17.43 21 13 21 C 8.57 21 5 17.43 5 13 C 5 8.57 8.57 5 13 5 z" />
-                    </svg>
-                  </button>
-
-                  {!searchFocused && rawSearch.length === 0 && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 truncate text-[0.95rem] text-white/40"
-                    >
-                      {typedHint}
-                      <span className="ml-0.5 inline-block h-3.5 w-[1px] animate-pulse bg-[#fc087d] align-middle" />
-                    </span>
-                  )}
-
-                  <input
-                    type="text"
-                    value={rawSearch}
-                    onFocus={() => setSearchFocused(true)}
-                    onBlur={() => setSearchFocused(false)}
-                    onChange={(e) => setRawSearch(e.target.value)}
-                    aria-label="비주얼 아카이브 검색"
-                    placeholder={searchFocused ? "기법, 도시, 연도, 한글·영문 검색..." : ""}
-                    className="w-full rounded-[2rem] border border-[#fc087d] bg-transparent py-[0.45rem] pl-10 pr-8 text-[0.95rem] text-white placeholder:text-[#747474] focus:bg-black focus:outline-none"
-                  />
-
-                  {rawSearch && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRawSearch("");
-                        setDebouncedQuery("");
-                      }}
-                      aria-label="검색어 지우기"
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9b9b9b] hover:text-white"
-                    >
-                      <CloseIcon className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </form>
-
-                {/* Right Solid #fc087d Sort Capsule */}
-                <div className="relative sm:ml-4 sm:min-w-[165px]">
-                  <select
-                    aria-label="정렬 방식 선택"
-                    value={sortMode}
-                    onChange={(e) => {
-                      const next = e.target.value as EyecandySortMode;
-                      setSortMode(next);
-                      if (next === "shuffle") {
-                        setShuffleSeed(
-                          (prev) => prev + Math.floor(Math.random() * 997) + 23
-                        );
-                      }
-                    }}
-                    className="w-full appearance-none rounded-[2rem] border border-[#fc087d] bg-[#fc087d] py-[0.5rem] pl-4 pr-9 text-[0.92rem] font-semibold text-black focus:outline-none"
-                  >
-                    <option value="shuffle">Shuffle</option>
-                    <option value="popular">Most popular</option>
-                    <option value="recent">Recently added</option>
-                    <option value="title">Title</option>
-                  </select>
-                  <svg
-                    viewBox="0 0 12 8"
-                    aria-hidden="true"
-                    className="pointer-events-none absolute right-3.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-black"
-                    fill="currentColor"
-                  >
-                    <path d="M1.4 0L6 4.6 10.6 0 12 1.4 6 7.4 0 1.4z" />
-                  </svg>
-                </div>
-              </div>
+              {/* Isolated Leaf Component: Auto-typing animation never re-renders ArchiveWorkbench or Grid */}
+              <HeroSearchBar
+                value={rawSearch}
+                onChange={setRawSearch}
+                onClear={handleHeroSearchClear}
+                onSubmit={handleHeroSearchSubmit}
+                sortMode={sortMode}
+                onSortChange={handleSortModeChange}
+              />
             </section>
 
-            {/* Home 5-Column Moving Wall (px-4 lg:px-[2rem]) */}
+            {/* Home 5-Column Moving Wall */}
             <div className="w-full px-4 lg:px-8">{renderMasonryGrid()}</div>
 
-            {/* VIEW 4: BREAKING DOWN Stacked Full-Bleed Showcase */}
+            {/* BREAKING DOWN Stacked Full-Bleed Showcase */}
             <BreakdownShowcase
               items={allCatalogItems}
               onExploreTechnique={handleSelectTechnique}
@@ -1168,7 +1156,7 @@ export function ArchiveWorkbench({
           </>
         )}
 
-        {/* VIEW 2: LEFT ACCORDION SIDEBAR EXPLORER (.sec-search) */}
+        {/* VIEW 2: LEFT ACCORDION OPTICAL TREE SIDEBAR EXPLORER */}
         {viewMode === "sidebar" && (
           <div className="flex w-full flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:px-6">
             <SidebarExplorer
@@ -1190,7 +1178,7 @@ export function ArchiveWorkbench({
             <div className="min-w-0 flex-1">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[0.85rem] text-[#d0d0d0]">
+                  <span className="text-[0.85rem] text-[#C8C4BC]">
                     {displayedPool.length} clips
                   </span>
                   {sidebarSelection.techniques.map((slug) => {
@@ -1203,13 +1191,15 @@ export function ArchiveWorkbench({
                         onClick={() =>
                           setSidebarSelection((prev) => ({
                             ...prev,
-                            techniques: prev.techniques.filter((s) => s !== slug),
+                            techniques: prev.techniques.filter(
+                              (s) => s !== slug
+                            ),
                           }))
                         }
-                        className="inline-flex items-center gap-1.5 rounded-[1rem] border border-[#fc087d] px-2.5 py-0.5 text-[0.8rem] text-white"
+                        className="inline-flex items-center gap-1.5 rounded-[1rem] border border-[#F3A833] bg-[#111318] px-2.5 py-0.5 text-[0.8rem] text-[#FAF7F0]"
                       >
                         <span>{tech.label}</span>
-                        <span className="text-[#fc087d]">×</span>
+                        <span className="text-[#F3A833]">×</span>
                       </button>
                     );
                   })}
@@ -1219,8 +1209,10 @@ export function ArchiveWorkbench({
                   <select
                     aria-label="결과 정렬"
                     value={sortMode}
-                    onChange={(e) => setSortMode(e.target.value as EyecandySortMode)}
-                    className="appearance-none rounded-[1rem] border border-[#fc087d] bg-black py-1 pl-3 pr-7 text-[0.85rem] text-white focus:outline-none"
+                    onChange={(e) =>
+                      handleSortModeChange(e.target.value as WallSortMode)
+                    }
+                    className="appearance-none rounded-[1rem] border border-[#F3A833] bg-[#111318] py-1 pl-3 pr-7 text-[0.85rem] text-[#FAF7F0] focus:outline-none"
                   >
                     <option value="shuffle">Shuffle</option>
                     <option value="popular">Most popular</option>
@@ -1230,7 +1222,7 @@ export function ArchiveWorkbench({
                   <svg
                     viewBox="0 0 12 8"
                     aria-hidden="true"
-                    className="pointer-events-none absolute right-2.5 top-1/2 h-2 w-2 -translate-y-1/2 text-white"
+                    className="pointer-events-none absolute right-2.5 top-1/2 h-2 w-2 -translate-y-1/2 text-[#F3A833]"
                     fill="currentColor"
                   >
                     <path d="M1.4 0L6 4.6 10.6 0 12 1.4 6 7.4 0 1.4z" />
@@ -1243,30 +1235,72 @@ export function ArchiveWorkbench({
           </div>
         )}
 
-        {/* VIEW 3: TECHNIQUE DETAIL VIEW (Echo print 96px H1 Style) */}
+        {/* VIEW 3: TECHNIQUE DETAIL VIEW (Branch Breadcrumb + Motion Blur H1 + Sibling Tree Switcher) */}
         {viewMode === "technique" && activeTechnique && (
           <div className="w-full">
             <section className="px-4 pb-6 pt-6 lg:px-8">
-              <button
-                type="button"
-                onClick={handleGoHome}
-                className="mb-3 inline-flex items-center gap-1.5 text-[0.9rem] font-medium text-[#fc087d] hover:underline"
-              >
-                <span>← All techniques</span>
-              </button>
+              <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.85rem] font-medium uppercase tracking-wider">
+                <button
+                  type="button"
+                  onClick={handleGoHome}
+                  className="text-[#C8C4BC] transition-colors hover:text-[#F3A833]"
+                >
+                  ← All Techniques
+                </button>
+                {activeTechniqueBranch && (
+                  <>
+                    <span className="text-[#7E7B74]">/</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectBranch(activeTechniqueBranch.slug)
+                      }
+                      className="text-[#F3A833] transition-colors hover:text-[#FFBE55] hover:underline"
+                    >
+                      {activeTechniqueBranch.label} /
+                    </button>
+                  </>
+                )}
+              </div>
 
-              <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white pb-3">
-                <h1 className="text-[clamp(2.4rem,6vw,6rem)] font-normal leading-[1.15] tracking-[-0.02em] text-white">
+              <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/25 pb-3">
+                <h1 className="text-[clamp(2.4rem,6vw,5.5rem)] font-normal leading-[1.12] tracking-[-0.02em] text-[#FAF7F0]">
                   {activeTechnique.label}
                 </h1>
-                <span className="pb-2 font-mono text-[0.9rem] text-[#d0d0d0]">
+                <span className="pb-2 font-mono text-[0.9rem] text-[#C8C4BC]">
                   {activeTechnique.labelKo} · {displayedPool.length} clips
                 </span>
               </div>
 
-              <p className="mt-4 max-w-2xl text-[1rem] leading-[1.45] text-[#d0d0d0]">
+              <p className="mt-4 max-w-3xl text-[1rem] leading-[1.55] text-[#C8C4BC]">
                 {activeTechnique.descriptionKo}
               </p>
+
+              {/* Same-Branch Sibling Technique Quick-Switch Tree Chips */}
+              {siblingTechniques.length > 0 && (
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                  <span className="mr-1 font-mono text-[11px] uppercase tracking-wider text-[#7E7B74]">
+                    {activeTechniqueBranch?.labelKo}:
+                  </span>
+                  {siblingTechniques.map((sib) => {
+                    const isCurrent = sib.slug === activeTechnique.slug;
+                    return (
+                      <button
+                        key={`sib-${sib.slug}`}
+                        type="button"
+                        onClick={() => handleSelectTechnique(sib.slug)}
+                        className={`rounded-[2rem] border px-3.5 py-1 text-[0.8rem] font-medium transition-colors ${
+                          isCurrent
+                            ? "border-[#F3A833] bg-[#F3A833] font-semibold text-black"
+                            : "border-white/15 bg-[#111318] text-[#FAF7F0] hover:border-[#F3A833] hover:text-[#F3A833]"
+                        }`}
+                      >
+                        {sib.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </section>
 
             <div className="w-full px-2 lg:px-4">{renderMasonryGrid()}</div>
@@ -1276,20 +1310,22 @@ export function ArchiveWorkbench({
 
       {/* Minimal Pure-Black Footer */}
       <footer className="border-t border-white/10 bg-black py-5">
-        <div className="mx-auto flex w-full flex-col items-start justify-between gap-2 px-6 font-mono text-[12px] text-[#9b9b9b] sm:flex-row sm:items-center lg:px-8">
-          <span className="text-[#fc087d]">KINOFRAME · VISUAL TECHNIQUE ARCHIVE</span>
+        <div className="mx-auto flex w-full flex-col items-start justify-between gap-2 px-6 font-mono text-[12px] text-[#7E7B74] sm:flex-row sm:items-center lg:px-8">
+          <span className="text-[#F3A833]">
+            KINOFRAME · 2.39:1 OPTICAL CINEMA ARCHIVE
+          </span>
           <span>Internet Archive · Wikimedia Commons · NASA Images</span>
         </div>
       </footer>
 
       {/* Floating Bottom Compare Dock */}
       {compareIds.length > 0 && !compareOpen && (
-        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-[2rem] border border-[#fc087d] bg-black/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
-          <div className="flex items-center gap-2 text-[14px] text-white">
-            <CompareIcon className="h-4 w-4 text-[#fc087d]" />
+        <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-[2rem] border border-[#F3A833] bg-[#111318]/95 px-5 py-2.5 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-2 text-[14px] text-[#FAF7F0]">
+            <CompareIcon className="h-4 w-4 text-[#F3A833]" />
             <span>
               비교 선택{" "}
-              <strong className="font-mono text-[#fc087d]">
+              <strong className="font-mono text-[#F3A833]">
                 {compareIds.join(" × ")}
               </strong>
             </span>
@@ -1297,7 +1333,7 @@ export function ArchiveWorkbench({
           <button
             type="button"
             onClick={() => setCompareOpen(true)}
-            className="rounded-[2rem] bg-[#fc087d] px-4 py-1 text-[13px] font-bold text-black hover:opacity-90"
+            className="rounded-[2rem] bg-[#F3A833] px-4 py-1 text-[13px] font-bold text-black transition-colors hover:bg-[#FFBE55]"
           >
             좌우 비교 열기
           </button>
@@ -1305,14 +1341,14 @@ export function ArchiveWorkbench({
             type="button"
             onClick={() => setCompareIds([])}
             aria-label="비교 슬롯 비우기"
-            className="text-[#d0d0d0] hover:text-white"
+            className="text-[#C8C4BC] hover:text-[#FAF7F0]"
           >
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Eyecandy .grid-popup Lightbox */}
+      {/* Dark-Glass 64vh Theater Lightbox */}
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
@@ -1350,7 +1386,7 @@ export function ArchiveWorkbench({
               }
             }
           }}
-          onSelectItem={(target) => setSelectedItemId(target.id)}
+          onSelectItem={handleOpenDetail}
           onSelectTechnique={handleSelectTechnique}
           onToggleBoard={handleToggleBoard}
           onToggleCompare={handleToggleCompare}
@@ -1380,7 +1416,7 @@ export function ArchiveWorkbench({
           onRemoveItem={(id) => performToggleBoard(id)}
           onClearBoard={handleClearBoard}
           onToggleBoardOnly={() => setBoardOnly((prev) => !prev)}
-          onOpenDetail={(target) => setSelectedItemId(target.id)}
+          onOpenDetail={handleOpenDetail}
           onCreateFolder={handleCreateFolder}
           onRenameFolder={handleRenameFolder}
           onDeleteFolder={handleDeleteFolder}

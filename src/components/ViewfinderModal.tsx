@@ -15,7 +15,7 @@ import {
   copyPngBlobToClipboard,
   downloadBlobAsPng,
 } from "@/lib/frame-capture";
-import { getTechniquesForItem } from "@/lib/visual-techniques";
+import { getBranchBySlug, getTechniquesForItem } from "@/lib/visual-techniques";
 import { computeHighlightWindow } from "@/components/SlideMountCard";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 
@@ -191,7 +191,9 @@ export function ViewfinderModal({
     setBoardPickerOpen(false);
   };
 
-  const handleModalVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+  const handleModalVideoMetadata = (
+    e: React.SyntheticEvent<HTMLVideoElement>
+  ) => {
     if (initialJumpedRef.current) return;
     initialJumpedRef.current = true;
     const video = e.currentTarget;
@@ -211,20 +213,26 @@ export function ViewfinderModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/[0.92] backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label={`${item.titleKo} 상세 뷰`}
       onClick={onClose}
     >
-      {/* Top-Right Eyecandy Close X (#fc087d) */}
+      {/* Top-Right Close X (Kodak 500T Amber) */}
       <button
         type="button"
         onClick={onClose}
         aria-label="닫기"
-        className="fixed right-4 top-4 z-[110] inline-flex h-9 w-9 items-center justify-center rounded-full text-[#fc087d] transition-opacity hover:opacity-80"
+        className="fixed right-4 top-4 z-[110] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#111318]/90 text-[#F3A833] transition-colors hover:border-[#F3A833] hover:text-[#FFBE55]"
       >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2">
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+        >
           <path strokeLinecap="round" d="M5 5l14 14M19 5L5 19" />
         </svg>
       </button>
@@ -238,7 +246,7 @@ export function ViewfinderModal({
             onPrev();
           }}
           aria-label="이전 클립"
-          className="fixed left-3 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-white/85 transition-colors hover:text-[#fc087d] sm:left-5"
+          className="fixed left-2.5 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#111318]/80 text-[#FAF7F0]/85 transition-colors hover:border-[#F3A833] hover:text-[#F3A833] sm:left-4"
         >
           <svg viewBox="0 0 12 20" className="h-5 w-3.5" fill="currentColor">
             <polygon points="10.8 1.5 9.3 0 0 9.6 9.3 19.2 10.8 17.7 3 9.6 10.8 1.5" />
@@ -254,7 +262,7 @@ export function ViewfinderModal({
             onNext();
           }}
           aria-label="다음 클립"
-          className="fixed right-3 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-white/85 transition-colors hover:text-[#fc087d] sm:right-5"
+          className="fixed right-2.5 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#111318]/80 text-[#FAF7F0]/85 transition-colors hover:border-[#F3A833] hover:text-[#F3A833] sm:right-4"
         >
           <svg viewBox="0 0 12 20" className="h-5 w-3.5" fill="currentColor">
             <polygon points="1.2 17.7 2.7 19.2 12 9.6 2.7 0 1.2 1.5 9 9.6 1.2 17.7" />
@@ -262,18 +270,19 @@ export function ViewfinderModal({
         </button>
       )}
 
-      {/* Centered Single-Column Vertical Scroll Lightbox (.grid-popup-inner) */}
+      {/* Centered Scrollable Viewport Wrapper */}
       <div
-        className="relative z-[105] max-h-screen w-full overflow-y-auto px-4 py-12 sm:px-10 lg:px-16"
+        className="relative z-[105] max-h-screen w-full overflow-y-auto px-3 py-8 sm:px-8 sm:py-10"
         onClick={onClose}
       >
+        {/* Dark-Glass Theater Container (#111318 clearly separated from #000 backdrop) */}
         <div
-          className="mx-auto w-full max-w-[1080px]"
+          className="mx-auto w-[min(94vw,1120px)] rounded-[20px] bg-[#111318] p-5 shadow-[0_32px_100px_rgba(0,0,0,0.92)] ring-1 ring-white/[0.12] sm:p-7"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* TOP: Natural-Aspect Media Stage + Right Floating Circular Action Bar */}
-          <div className="relative flex flex-col items-center justify-center">
-            <div className="relative flex w-full items-center justify-center rounded-[24px] bg-black">
+          {/* TOP: 64vh Theater Media Stage + Right Circular Action Bar */}
+          <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center">
+            <div className="relative flex w-full min-w-0 flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-[#060709] ring-1 ring-white/[0.07]">
               {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
                 <video
                   key={item.id}
@@ -287,46 +296,66 @@ export function ViewfinderModal({
                   loop
                   playsInline
                   onLoadedMetadata={handleModalVideoMetadata}
-                  onTimeUpdate={(e) => setCurrentTimeSec(e.currentTarget.currentTime)}
-                  onSeeked={(e) => setCurrentTimeSec(e.currentTarget.currentTime)}
-                  className="h-auto max-h-[min(560px,62vh)] w-auto max-w-full rounded-[24px] bg-black object-contain"
+                  onTimeUpdate={(e) =>
+                    setCurrentTimeSec(e.currentTarget.currentTime)
+                  }
+                  onSeeked={(e) =>
+                    setCurrentTimeSec(e.currentTarget.currentTime)
+                  }
+                  className="h-[min(64vh,600px)] w-full object-contain"
                 />
               ) : (
                 <img
                   key={item.id}
                   src={item.thumbnailUrl}
                   alt={item.titleKo}
-                  className="h-auto max-h-[min(560px,62vh)] w-auto max-w-full rounded-[24px] bg-black object-contain"
+                  className="h-auto max-h-[min(64vh,600px)] w-auto max-w-full object-contain"
                 />
               )}
             </div>
 
-            {/* Right Floating Circular Action Bar (.action-wrap) */}
-            <div className="mt-3 flex items-center justify-end gap-2.5 self-end lg:absolute lg:-right-14 lg:top-1/2 lg:mt-0 lg:-translate-y-1/2 lg:flex-col lg:self-auto">
-              {/* 1. Solid #fc087d Circle Save to Board */}
+            {/* Right (Mobile Bottom) Kodak 500T Amber Circular Action Bar */}
+            <div className="flex shrink-0 items-center justify-end gap-2.5 lg:flex-col lg:justify-center">
+              {/* 1. Solid #F3A833 Circle Save to Board */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={handleSaveBoardClick}
                   title={isInBoard ? "내 보드 관리" : "내 보드에 저장"}
                   aria-label={isInBoard ? "내 보드 관리" : "내 보드에 저장"}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#fc087d] bg-[#fc087d] text-black transition-opacity hover:opacity-90"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#F3A833] bg-[#F3A833] text-black transition-colors hover:border-[#FFBE55] hover:bg-[#FFBE55]"
                 >
                   {isInBoard ? (
-                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5l3.5 3.5 7.5-8" />
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.5 10.5l3.5 3.5 7.5-8"
+                      />
                     </svg>
                   ) : (
-                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                    >
                       <path strokeLinecap="round" d="M10 4v12M4 10h12" />
                     </svg>
                   )}
                 </button>
 
-                {/* Eyecandy .board-listing Popover */}
+                {/* Board Picker Popover */}
                 {isAuthenticated && boardPickerOpen && (
-                  <div className="absolute bottom-11 right-0 z-30 w-60 rounded-[18px] border border-[#fc087d] bg-black/95 p-3.5 shadow-2xl lg:bottom-auto lg:right-12 lg:top-0">
-                    <div className="mb-2 flex items-center justify-between text-[13px] font-semibold text-white">
+                  <div className="absolute bottom-12 right-0 z-30 w-60 rounded-[16px] border border-[#F3A833]/80 bg-[#111318] p-3.5 shadow-2xl lg:bottom-auto lg:right-12 lg:top-0">
+                    <div className="mb-2 flex items-center justify-between text-[13px] font-semibold text-[#FAF7F0]">
                       <span>보드 선택</span>
                       {isInBoard && (
                         <button
@@ -336,7 +365,7 @@ export function ViewfinderModal({
                             setBoardPickerOpen(false);
                             flashToast("보드에서 제거됨");
                           }}
-                          className="text-[12px] text-[#fc087d] hover:underline"
+                          className="text-[12px] text-[#F3A833] hover:text-[#FFBE55] hover:underline"
                         >
                           저장 해제
                         </button>
@@ -344,19 +373,20 @@ export function ViewfinderModal({
                     </div>
                     <ul className="max-h-44 overflow-y-auto">
                       {folders.map((folder) => {
-                        const active = isInBoard && selectedFolderId === folder.id;
+                        const active =
+                          isInBoard && selectedFolderId === folder.id;
                         return (
                           <li
                             key={folder.id}
-                            className="border-b border-white/20 py-1.5 last:border-b-0"
+                            className="border-b border-white/15 py-1.5 last:border-b-0"
                           >
                             <button
                               type="button"
                               onClick={() => handlePickFolder(folder.id)}
-                              className="flex w-full items-center justify-between text-left text-[13px] text-white transition-colors hover:text-[#fc087d]"
+                              className="flex w-full items-center justify-between text-left text-[13px] text-[#FAF7F0] transition-colors hover:text-[#F3A833]"
                             >
                               <span className="truncate">{folder.name}</span>
-                              <span className="ml-2 font-mono text-[12px] text-[#fc087d]">
+                              <span className="ml-2 font-mono text-[12px] text-[#F3A833]">
                                 {active ? "SAVED" : "+"}
                               </span>
                             </button>
@@ -368,52 +398,76 @@ export function ViewfinderModal({
                 )}
               </div>
 
-              {/* 2. 1-Click Copy Frame (#fc087d outline circle) */}
+              {/* 2. 1-Click Copy Frame */}
               <button
                 type="button"
                 onClick={handleCopyFrameImage}
                 disabled={busyAction !== null}
                 title="현재 프레임 클립보드 복사"
                 aria-label="현재 프레임 클립보드 복사"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#fc087d] bg-black/80 text-[#fc087d] transition-colors hover:bg-[#fc087d] hover:text-black disabled:opacity-40"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] bg-[#060709] text-[#F3A833] transition-colors hover:bg-[#F3A833] hover:text-black disabled:opacity-40"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <rect x="9" y="9" width="11" height="11" rx="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
               </button>
 
-              {/* 3. Raw PNG Download (#fc087d outline circle) */}
+              {/* 3. Raw PNG Download */}
               <button
                 type="button"
                 onClick={handleDownloadRawPng}
                 disabled={busyAction !== null}
                 title="원본 PNG 다운로드"
                 aria-label="원본 PNG 다운로드"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#fc087d] bg-black/80 text-[#fc087d] transition-colors hover:bg-[#fc087d] hover:text-black disabled:opacity-40"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] bg-[#060709] text-[#F3A833] transition-colors hover:bg-[#F3A833] hover:text-black disabled:opacity-40"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" />
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"
+                  />
                 </svg>
               </button>
 
-              {/* 4. Add/Remove Side-by-Side Compare (#fc087d outline circle) */}
+              {/* 4. Add/Remove Side-by-Side Compare */}
               <button
                 type="button"
                 onClick={() => {
                   onToggleCompare(item.id);
-                  flashToast(isInCompare ? "비교 슬롯 해제됨" : "좌우 비교에 담김");
+                  flashToast(
+                    isInCompare ? "비교 슬롯 해제됨" : "좌우 비교에 담김"
+                  );
                 }}
                 disabled={!isInCompare && compareFull}
                 title={isInCompare ? "비교 슬롯 해제" : "좌우 비교에 담기"}
                 aria-label={isInCompare ? "비교 슬롯 해제" : "좌우 비교에 담기"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#fc087d] transition-colors disabled:opacity-35 ${
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] transition-colors disabled:opacity-35 ${
                   isInCompare
-                    ? "bg-[#fc087d] text-black"
-                    : "bg-black/80 text-[#fc087d] hover:bg-[#fc087d] hover:text-black"
+                    ? "bg-[#F3A833] text-black"
+                    : "bg-[#060709] text-[#F3A833] hover:bg-[#F3A833] hover:text-black"
                 }`}
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <rect x="3" y="4" width="7" height="16" rx="1.5" />
                   <rect x="14" y="4" width="7" height="16" rx="1.5" />
                 </svg>
@@ -425,98 +479,92 @@ export function ViewfinderModal({
           {toastMsg && (
             <div
               role="status"
-              className="mt-3 rounded-full border border-[#fc087d]/60 bg-[#fc087d]/15 px-4 py-1.5 text-center text-[13px] font-medium text-white"
+              className="mt-3.5 rounded-full border border-[#F3A833]/60 bg-[#F3A833]/15 px-4 py-1.5 text-center text-[13px] font-medium text-[#FAF7F0]"
             >
               {toastMsg}
             </div>
           )}
 
-          {/* BOTTOM: Eyecandy Metadata Block (.bottom) */}
-          <div className="mt-5 px-1 sm:px-3">
+          {/* BOTTOM: Cinema Metadata & Optical Taxonomy Tree Capsules */}
+          <div className="mt-5 border-t border-white/[0.08] pt-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h1 className="text-[1.4rem] font-semibold leading-[1.3] text-[#fc087d] sm:text-[1.8rem] sm:leading-[2.2rem]">
+              <h1 className="text-[1.35rem] font-semibold leading-[1.3] text-[#FAF7F0] sm:text-[1.75rem] sm:leading-[2.15rem]">
                 {item.titleKo}{" "}
-                <span className="font-normal text-white/80">({item.year})</span>
+                <span className="font-mono font-medium text-[#F3A833]">
+                  ({item.year})
+                </span>
               </h1>
               {item.mediaSource === "archive_mp4" && (
-                <span className="font-mono text-[13px] text-[#d0d0d0]">
-                  {formatPreciseTimestamp(currentTimeSec)} / {formatDuration(item.durationSec)}
+                <span className="font-mono text-[13px] text-[#C8C4BC]">
+                  {formatPreciseTimestamp(currentTimeSec)} /{" "}
+                  {formatDuration(item.durationSec)}
                 </span>
               )}
             </div>
 
-            <p className="mt-2 max-w-3xl text-[0.95rem] leading-[1.45] text-white/90">
+            <p className="mt-2 max-w-3xl text-[0.94rem] leading-[1.5] text-[#C8C4BC]">
               {item.originalTitle} — {item.breakdown.framing}
             </p>
 
-            {/* Structured #fc087d Clickable Credits (.listing-w) */}
-            <ul className="mt-4 space-y-1.5 text-[0.9rem] text-white">
+            {/* Structured Credits */}
+            <ul className="mt-4 grid gap-y-1.5 text-[0.88rem] text-[#FAF7F0] sm:grid-cols-2 sm:gap-x-6">
               <li>
-                <span className="text-[#d0d0d0]">Technique — </span>
-                {techniques.map((tech, idx) => (
-                  <React.Fragment key={tech.slug}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onSelectTechnique?.(tech.slug);
-                        onClose();
-                      }}
-                      className="text-[#fc087d] hover:underline"
-                    >
-                      {tech.label}
-                    </button>
-                    {idx < techniques.length - 1 && (
-                      <span className="text-[#9b9b9b]">, </span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </li>
-              <li>
-                <span className="text-[#d0d0d0]">Format — </span>
-                <span className="text-white">
-                  {categoryLabel} · {item.mediaSource === "archive_mp4" ? "Direct Loop Video" : "Archival Still"}
+                <span className="text-[#7E7B74]">Format — </span>
+                <span>
+                  {categoryLabel} ·{" "}
+                  {item.mediaSource === "archive_mp4"
+                    ? "Direct Loop Video"
+                    : "Archival Still"}
                 </span>
               </li>
               <li>
-                <span className="text-[#d0d0d0]">Decade / Region — </span>
-                <span className="text-white">
-                  {item.era} · {countryLabel} · {item.brandOrSource}
+                <span className="text-[#7E7B74]">Decade / Region — </span>
+                <span>
+                  {item.era} · {countryLabel}
                 </span>
               </li>
               <li>
-                <span className="text-[#d0d0d0]">Aspect — </span>
-                <span className="font-mono text-white">
+                <span className="text-[#7E7B74]">Aspect / Runtime — </span>
+                <span className="font-mono">
                   {item.aspectRatio} · {formatDuration(item.durationSec)}
                 </span>
               </li>
               <li>
-                <span className="text-[#d0d0d0]">Original Source — </span>
+                <span className="text-[#7E7B74]">Original Source — </span>
                 <a
                   href={item.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#fc087d] hover:underline"
+                  className="text-[#F3A833] hover:text-[#FFBE55] hover:underline"
                 >
                   Open Source Archive ↗
                 </a>
               </li>
             </ul>
 
-            {/* Bottom Uppercase #fc087d Capsule Technique Tags (.tag-w) */}
+            {/* Bottom Optical Technique Tree Capsules (Click -> Navigate to Technique Tree View) */}
             <div className="mt-5 flex flex-wrap gap-2">
-              {techniques.map((tech) => (
-                <button
-                  key={`pill-${tech.slug}`}
-                  type="button"
-                  onClick={() => {
-                    onSelectTechnique?.(tech.slug);
-                    onClose();
-                  }}
-                  className="inline-flex items-center justify-center rounded-[2rem] border border-[#fc087d] bg-[#fc087d] px-3 py-1.5 text-[0.8rem] font-medium uppercase leading-none text-white transition-opacity duration-200 hover:opacity-90"
-                >
-                  {tech.label}
-                </button>
-              ))}
+              {techniques.map((tech) => {
+                const branch = getBranchBySlug(tech.branchSlug);
+                return (
+                  <button
+                    key={`pill-${tech.slug}`}
+                    type="button"
+                    onClick={() => {
+                      onSelectTechnique?.(tech.slug);
+                      onClose();
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-[2rem] border border-[#F3A833] bg-[#F3A833] px-3.5 py-1.5 text-[0.78rem] font-semibold uppercase leading-none text-black transition-colors duration-200 hover:border-[#FFBE55] hover:bg-[#FFBE55]"
+                  >
+                    {branch && (
+                      <span className="text-[0.68rem] font-medium opacity-70">
+                        {branch.label} /
+                      </span>
+                    )}
+                    <span>{tech.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

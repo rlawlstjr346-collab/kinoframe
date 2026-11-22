@@ -299,6 +299,12 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
   const eastAsiaBonus = EAST_ASIA_COUNTRIES.has(country) ? 1.5 : 0;
   const globalStreetBonus = cat === "STREET_ERA" && (country === "EU" || country === "GLOBAL") ? 1.8 : 0;
   const categoryBonus = ELITE_BOOST_CATS.has(cat) ? 4.2 : 2.0;
+  const colorCinemaTvcfPriority =
+    (cat === "CLASSIC_FILM" || cat === "TVCF") &&
+    chroma.isChromatic &&
+    item.mediaSource === "archive_mp4"
+      ? 14.0
+      : 0;
   const manualPriority = item.priorityBoost ?? 0;
 
   const motionBonus =
@@ -314,7 +320,15 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
       ? 3.2
       : 1.0;
 
-  return chromaScore + eastAsiaBonus + globalStreetBonus + categoryBonus + motionBonus + manualPriority;
+  return (
+    chromaScore +
+    eastAsiaBonus +
+    globalStreetBonus +
+    categoryBonus +
+    colorCinemaTvcfPriority +
+    motionBonus +
+    manualPriority
+  );
 }
 
 const RHYTHM_CATEGORY_CYCLE: ArchiveCategory[] = [
@@ -549,9 +563,17 @@ export function rotateArchiveWithSeed(
   for (const item of items) {
     const r = hashSeedString(item.id, normalizedSeed);
     const chroma = analyzePaletteChroma(item.palette);
+    const cat = resolveItemCategory(item);
     const country = resolveItemCountry(item);
+    const colorCinemaTvcfLift =
+      (cat === "CLASSIC_FILM" || cat === "TVCF") &&
+      chroma.isChromatic &&
+      item.mediaSource === "archive_mp4"
+        ? 22
+        : 0;
     const baseLift =
       (chroma.isChromatic ? 18 : 2) +
+      colorCinemaTvcfLift +
       (EAST_ASIA_COUNTRIES.has(country) ? 1.0 : 0) +
       (item.mediaSource === "archive_mp4" ? 6 : 0) +
       (item.priorityBoost ?? 0);

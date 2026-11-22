@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
 import { getAspectRatioClass } from "@/lib/taxonomy";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
@@ -10,14 +10,23 @@ export interface HighlightWindow {
   endSec: number | null;
 }
 
-export function computeHighlightWindow(durationSec: number | null): HighlightWindow {
-  if (!durationSec || !Number.isFinite(durationSec) || durationSec < 12) {
+export function computeHighlightWindow(
+  durationSec: number | null
+): HighlightWindow {
+  if (!durationSec || !Number.isFinite(durationSec) || durationSec <= 4) {
     return { startSec: 0, endSec: null };
   }
-  if (durationSec >= 60) {
+  if (durationSec >= 600) {
+    const startSec = Math.min(240, Math.floor(durationSec * 0.18));
     return {
-      startSec: 24,
-      endSec: Math.min(durationSec - 1, 36),
+      startSec,
+      endSec: Math.min(durationSec - 1, startSec + 12),
+    };
+  }
+  if (durationSec >= 80) {
+    return {
+      startSec: 32,
+      endSec: Math.min(durationSec - 1, 43),
     };
   }
   if (durationSec >= 25) {
@@ -27,9 +36,18 @@ export function computeHighlightWindow(durationSec: number | null): HighlightWin
     };
   }
   return {
-    startSec: 2.5,
-    endSec: Math.min(durationSec - 0.5, 10.5),
+    startSec: Math.min(2.5, Number((durationSec * 0.2).toFixed(1))),
+    endSec: Math.min(durationSec - 0.5, 10),
   };
+}
+
+export function getHighlightWindow(
+  itemOrDuration: Pick<ArchiveItem, "durationSec"> | number | null
+): HighlightWindow {
+  if (typeof itemOrDuration === "number" || itemOrDuration === null) {
+    return computeHighlightWindow(itemOrDuration);
+  }
+  return computeHighlightWindow(itemOrDuration.durationSec);
 }
 
 interface SlideMountCardProps {
@@ -45,7 +63,7 @@ interface SlideMountCardProps {
 
 const STALL_EVICT_TIMEOUT_MS = 6500;
 
-export function SlideMountCard({
+export const SlideMountCard = React.memo(function SlideMountCard({
   item,
   onOpenDetail,
   onEvictItem,
@@ -54,7 +72,9 @@ export function SlideMountCard({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const evictedRef = useRef<boolean>(false);
   const initialSeekDoneRef = useRef<boolean>(false);
-  const windowRef = useRef<HighlightWindow>(computeHighlightWindow(item.durationSec));
+  const windowRef = useRef<HighlightWindow>(
+    computeHighlightWindow(item.durationSec)
+  );
 
   const [isNearViewport, setIsNearViewport] = useState(false);
   const [inView, setInView] = useState(false);
@@ -62,22 +82,23 @@ export function SlideMountCard({
   const [videoReady, setVideoReady] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const highlightWindow = useMemo(
-    () => computeHighlightWindow(item.durationSec),
-    [item.durationSec]
-  );
-  windowRef.current = highlightWindow;
+  // Recompute highlight window ONLY when item identity changes (never overwrite on re-render)
+  useEffect(() => {
+    windowRef.current = computeHighlightWindow(item.durationSec);
+    initialSeekDoneRef.current = false;
+    evictedRef.current = false;
+  }, [item.id, item.durationSec]);
 
   const isAutoLoopVideo =
     item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
 
-  const triggerEvict = () => {
+  const triggerEvict = useCallback(() => {
     if (evictedRef.current) return;
     evictedRef.current = true;
     onEvictItem?.(item.id);
-  };
+  }, [item.id, onEvictItem]);
 
-  // Offscreen memory reclamation: mount <video> only within 360px of viewport
+  // Offscreen hardware decoder & socket reclamation: mount <video> only within 160px of viewport
   useEffect(() => {
     if (!isAutoLoopVideo) {
       setIsNearViewport(false);
@@ -99,7 +120,7 @@ export function SlideMountCard({
       },
       {
         threshold: 0,
-        rootMargin: "360px 0px",
+        rootMargin: "160px 0px",
       }
     );
 
@@ -107,7 +128,7 @@ export function SlideMountCard({
     return () => proximityObserver.disconnect();
   }, [isAutoLoopVideo]);
 
-  // Global concurrent playback slot scheduler (desktop 18 / mobile 6 + hysteresis + modal suspension)
+  // Global concurrent playback slot scheduler (desktop 8 / mobile 4 + hysteresis + modal suspension)
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
@@ -150,7 +171,25 @@ export function SlideMountCard({
     };
   }, [isAutoLoopVideo, item.id]);
 
-  const shouldPlayVideo = isAutoLoopVideo && isNearViewport && inView && slotAllowed;
+  // Explicit hardware decoder flush when <video> unmounts or leaves proximity
+  useEffect(() => {
+    if (!isNearViewport) return;
+    return () => {
+      const video = videoRef.current;
+      if (video) {
+        try {
+          video.pause();
+          video.removeAttribute("src");
+          video.load();
+        } catch {
+          // ignore cleanup restrictions
+        }
+      }
+    };
+  }, [isNearViewport]);
+
+  const shouldPlayVideo =
+    isAutoLoopVideo && isNearViewport && inView && slotAllowed;
 
   useEffect(() => {
     if (!isAutoLoopVideo) return;
@@ -176,14 +215,14 @@ export function SlideMountCard({
       }
     }, STALL_EVICT_TIMEOUT_MS);
     return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPlayVideo, videoReady, onEvictItem, item.id]);
+  }, [shouldPlayVideo, videoReady, onEvictItem, triggerEvict]);
 
   const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
-    const realDur = Number.isFinite(video.duration) && video.duration > 0
-      ? video.duration
-      : item.durationSec;
+    const realDur =
+      Number.isFinite(video.duration) && video.duration > 0
+        ? video.duration
+        : item.durationSec;
     const win = computeHighlightWindow(realDur);
     windowRef.current = win;
 
@@ -215,6 +254,12 @@ export function SlideMountCard({
     }
   };
 
+  // Normalize excessive portrait 4:5 tiles to crisp 4:3 frames on the 5-column wall
+  const gridAspectClass =
+    item.aspectRatio === "4:5"
+      ? "aspect-[4/3]"
+      : getAspectRatioClass(item.aspectRatio);
+
   return (
     <article
       ref={cardRef}
@@ -238,9 +283,9 @@ export function SlideMountCard({
           globalVideoScheduler.update(item.id, { hovered: false });
         }
       }}
-      className="relative w-full cursor-pointer overflow-hidden rounded-[16px] bg-[#080808]"
+      className="relative w-full cursor-pointer overflow-hidden rounded-[16px] bg-[#0B0C0F] ring-1 ring-white/[0.08]"
     >
-      {/* Pure Eyecandy Zero-Chrome Tile: zero hover text, zero badges, zero borders */}
+      {/* Zero-Chrome Tile: crisp full-bleed 16px radius frame with subtle darkroom edge */}
       <div
         role="button"
         tabIndex={0}
@@ -253,9 +298,7 @@ export function SlideMountCard({
         }}
         title={item.titleKo}
         aria-label={`${item.titleKo} 상세 보기`}
-        className={`relative w-full overflow-hidden rounded-[16px] bg-[#080808] ${getAspectRatioClass(
-          item.aspectRatio
-        )}`}
+        className={`relative w-full overflow-hidden rounded-[16px] bg-[#0B0C0F] ${gridAspectClass}`}
       >
         <img
           src={item.thumbnailUrl}
@@ -306,4 +349,4 @@ export function SlideMountCard({
       </div>
     </article>
   );
-}
+});

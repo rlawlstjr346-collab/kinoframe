@@ -24,10 +24,14 @@ import { VideoPlaybackScheduler } from "@/lib/video-scheduler";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import {
   BREAKDOWN_SHOWCASE_CARDS,
+  OPTICAL_BRANCHES,
   VISUAL_TECHNIQUES,
+  getSiblingTechniques,
+  getTechniquesByBranch,
   matchesTechnique,
   searchItemByQuery,
 } from "@/lib/visual-techniques";
+import { computeHighlightWindow, getHighlightWindow } from "@/components/SlideMountCard";
 import {
   BLOCKED_CONTENT_REGEX,
   ConduitCircuitBreaker,
@@ -53,6 +57,14 @@ const FORBIDDEN_PHRASES = [
   "coming soon",
   "샘플 데이터",
   "샘플 데이터 모드",
+];
+
+const FORBIDDEN_EYECANDY_TOKENS = [
+  "#fc087d",
+  "#fc047c",
+  "#fbea85",
+  "#53c0f9",
+  "#391d1f",
 ];
 
 const ALL_V6_CATEGORIES: ArchiveCategory[] = [
@@ -91,7 +103,20 @@ function isOptimizedDirectStream(url: string): boolean {
   );
 }
 
-describe("KINOFRAME V7.0 Eyecandy Replica, 28 Techniques, Zero-Dead Stream & Conduit Contract", () => {
+function collectSourceFiles(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...collectSourceFiles(full));
+    } else if (/\.(ts|tsx|css|mjs|js)$/.test(entry.name)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Kodak 500T Amber & Preservation Contract", () => {
   it("verifies zero legacy one-off curate-v* scripts remain in scripts/", () => {
     const scriptsDir = path.resolve(process.cwd(), "scripts");
     const files = fs.readdirSync(scriptsDir);
@@ -99,6 +124,145 @@ describe("KINOFRAME V7.0 Eyecandy Replica, 28 Techniques, Zero-Dead Stream & Con
     expect(legacyCrawlers).toEqual([]);
     expect(files).toContain("verify-links.mjs");
     expect(files).toContain("auto-discover-archive.mjs");
+  });
+
+  it("verifies ZERO Eyecandy legacy colors (#fc087d, #fc047c, #fbea85, #53c0f9, #391d1f) or forbidden placeholder strings remain in src/", () => {
+    const srcFiles = collectSourceFiles(path.resolve(process.cwd(), "src"));
+    expect(srcFiles.length).toBeGreaterThan(10);
+
+    for (const filePath of srcFiles) {
+      const content = fs.readFileSync(filePath, "utf-8");
+      const lower = content.toLowerCase();
+
+      for (const hex of FORBIDDEN_EYECANDY_TOKENS) {
+        expect(
+          lower.includes(hex),
+          `Forbidden Eyecandy token ${hex} found in ${filePath}`
+        ).toBe(false);
+      }
+
+      for (const phrase of FORBIDDEN_PHRASES) {
+        expect(
+          content.includes(phrase),
+          `Forbidden phrase "${phrase}" found in ${filePath}`
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("maps all 5 Optical Branches × 5 Techniques (25 total) with ZERO empty tags and supports Korean/English search", () => {
+    expect(OPTICAL_BRANCHES).toHaveLength(5);
+    expect(VISUAL_TECHNIQUES).toHaveLength(25);
+    expect(BREAKDOWN_SHOWCASE_CARDS).toHaveLength(3);
+
+    for (const branch of OPTICAL_BRANCHES) {
+      const branchTechs = getTechniquesByBranch(branch.slug);
+      expect(
+        branchTechs,
+        `Branch ${branch.label} must contain exactly 5 optical techniques`
+      ).toHaveLength(5);
+    }
+
+    for (const tech of VISUAL_TECHNIQUES) {
+      const matched = ITEMS.filter((item) => matchesTechnique(item, tech.slug));
+      expect(
+        matched.length,
+        `Optical technique ${tech.label} (${tech.slug}) must not be empty`
+      ).toBeGreaterThanOrEqual(6);
+
+      const siblings = getSiblingTechniques(tech.slug);
+      expect(siblings).toHaveLength(5);
+    }
+
+    // Breakdown cards reference valid 25-tree slugs
+    const slugSet = new Set(VISUAL_TECHNIQUES.map((t) => t.slug));
+    for (const card of BREAKDOWN_SHOWCASE_CARDS) {
+      expect(slugSet.has(card.techniqueSlug)).toBe(true);
+    }
+
+    // Korean & English search support across branches and techniques
+    expect(ITEMS.filter((i) => searchItemByQuery(i, "도쿄")).length).toBeGreaterThan(0);
+    expect(ITEMS.filter((i) => searchItemByQuery(i, "Motion Blur")).length).toBeGreaterThan(0);
+    expect(ITEMS.filter((i) => searchItemByQuery(i, "Chiaroscuro Noir")).length).toBeGreaterThan(0);
+    expect(ITEMS.filter((i) => searchItemByQuery(i, "대칭")).length).toBeGreaterThan(0);
+  });
+
+  it("skips long-feature opening credits (>=600s -> startSec >= 108s) and cleanly computes all highlight window brackets", () => {
+    const feature600 = computeHighlightWindow(600);
+    expect(feature600.startSec).toBe(108);
+    expect(feature600.startSec).toBeGreaterThanOrEqual(108);
+    expect(feature600.endSec).toBe(120);
+
+    const featureLong = getHighlightWindow({ durationSec: 4980 });
+    expect(featureLong.startSec).toBe(240);
+    expect(featureLong.startSec).toBeGreaterThanOrEqual(108);
+    expect(featureLong.endSec).toBe(252);
+
+    const medium = computeHighlightWindow(120);
+    expect(medium.startSec).toBe(32);
+    expect(medium.endSec).toBe(43);
+
+    const spot = computeHighlightWindow(45);
+    expect(spot.startSec).toBe(7);
+    expect(spot.endSec).toBe(17);
+
+    const shortClip = computeHighlightWindow(18);
+    expect(shortClip.startSec).toBe(2.5);
+    expect(shortClip.endSec).toBe(10);
+  });
+
+  it("enforces VideoPlaybackScheduler desktop 8 / mobile 4 cap, hysteresis retention, and modal setSuspended(true/false)", () => {
+    const defaultScheduler = new VideoPlaybackScheduler();
+    expect(defaultScheduler.getMaxConcurrentSlots()).toBe(8);
+
+    const scheduler = new VideoPlaybackScheduler(8);
+    const states = new Map<string, boolean>();
+
+    for (let i = 1; i <= 12; i += 1) {
+      const id = `KF-${String(i).padStart(3, "0")}`;
+      scheduler.register({
+        id,
+        ratio: 0.7,
+        centerDistance: i * 40,
+        hovered: false,
+        onSlotChange: (allowed) => states.set(id, allowed),
+      });
+    }
+
+    expect(scheduler.getActiveIds()).toHaveLength(8);
+    expect(states.get("KF-001")).toBe(true);
+    expect(states.get("KF-008")).toBe(true);
+    expect(states.get("KF-009")).toBe(false);
+
+    // Hysteresis retains active KF-008 against minor shift on KF-009
+    scheduler.update("KF-009", { ratio: 0.72, centerDistance: 250 });
+    expect(states.get("KF-008")).toBe(true);
+    expect(states.get("KF-009")).toBe(false);
+
+    // Modal opens -> suspend pauses all 8 background grid tiles immediately
+    scheduler.setSuspended(true);
+    expect(scheduler.isSuspended()).toBe(true);
+    expect(scheduler.getActiveIds()).toHaveLength(0);
+    expect(states.get("KF-001")).toBe(false);
+
+    // Modal closes -> resume restores 8 active slots immediately
+    scheduler.setSuspended(false);
+    expect(scheduler.isSuspended()).toBe(false);
+    expect(scheduler.getActiveIds()).toHaveLength(8);
+    expect(states.get("KF-001")).toBe(true);
+
+    // Mobile cap = 4
+    const mobileScheduler = new VideoPlaybackScheduler(4);
+    for (let i = 1; i <= 8; i += 1) {
+      mobileScheduler.register({
+        id: `M-${i}`,
+        ratio: 0.8,
+        centerDistance: i * 20,
+        hovered: false,
+        onSlotChange: () => {},
+      });
+    }
+    expect(mobileScheduler.getActiveIds()).toHaveLength(4);
   });
 
   it("ensures 100% optimized fast video URLs, zero bracket title artifacts, >= 88% archive_mp4 wall, and purged low-taste IDs", () => {
@@ -116,7 +280,6 @@ describe("KINOFRAME V7.0 Eyecandy Replica, 28 Techniques, Zero-Dead Stream & Con
       expect(canonicalSet.has(canon)).toBe(false);
       canonicalSet.add(canon);
 
-      // Zero English bracket artifacts like [Amateur film: ...]
       expect(item.titleKo).not.toContain("[");
       expect(item.originalTitle).not.toContain("[");
 
@@ -143,24 +306,6 @@ describe("KINOFRAME V7.0 Eyecandy Replica, 28 Techniques, Zero-Dead Stream & Con
     expect(ARCHIVE_CATEGORIES).toHaveLength(9);
     expect(MEDIA_MODES).toHaveLength(3);
     expect(COUNTRIES.some((c) => c.value === "GLOBAL")).toBe(true);
-  });
-
-  it("maps all 28 Eyecandy visual technique tags with ZERO empty tags and supports Korean/English search", () => {
-    expect(VISUAL_TECHNIQUES).toHaveLength(28);
-    expect(BREAKDOWN_SHOWCASE_CARDS).toHaveLength(3);
-
-    for (const tech of VISUAL_TECHNIQUES) {
-      const matched = ITEMS.filter((item) => matchesTechnique(item, tech.slug));
-      expect(
-        matched.length,
-        `Technique ${tech.label} (${tech.slug}) must not be empty`
-      ).toBeGreaterThanOrEqual(6);
-    }
-
-    // Korean & English search support
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "도쿄")).length).toBeGreaterThan(0);
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "Neon Noir")).length).toBeGreaterThan(0);
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "대칭")).length).toBeGreaterThan(0);
   });
 
   it("deduplicates identical IA/Wikimedia media via getCanonicalMediaKey across ID & URL variants", () => {
@@ -238,56 +383,6 @@ describe("KINOFRAME V7.0 Eyecandy Replica, 28 Techniques, Zero-Dead Stream & Con
         rotated.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
       ).toBeGreaterThanOrEqual(42);
     }
-  });
-
-  it("enforces VideoPlaybackScheduler cap (18/6), hysteresis retention, hover promotion, and modal setSuspended(true/false)", () => {
-    const scheduler = new VideoPlaybackScheduler(18);
-    const states = new Map<string, boolean>();
-
-    for (let i = 1; i <= 22; i += 1) {
-      const id = `KF-${String(i).padStart(3, "0")}`;
-      scheduler.register({
-        id,
-        ratio: 0.7,
-        centerDistance: i * 35,
-        hovered: false,
-        onSlotChange: (allowed) => states.set(id, allowed),
-      });
-    }
-
-    expect(scheduler.getActiveIds()).toHaveLength(18);
-    expect(states.get("KF-001")).toBe(true);
-    expect(states.get("KF-018")).toBe(true);
-
-    // Hysteresis retains active KF-018 against small shift on KF-019
-    scheduler.update("KF-019", { ratio: 0.72, centerDistance: 500 });
-    expect(states.get("KF-018")).toBe(true);
-    expect(states.get("KF-019")).toBe(false);
-
-    // Modal opens -> suspend pauses all 18 background grid tiles immediately
-    scheduler.setSuspended(true);
-    expect(scheduler.isSuspended()).toBe(true);
-    expect(scheduler.getActiveIds()).toHaveLength(0);
-    expect(states.get("KF-001")).toBe(false);
-
-    // Modal closes -> resume restores active slots immediately
-    scheduler.setSuspended(false);
-    expect(scheduler.isSuspended()).toBe(false);
-    expect(scheduler.getActiveIds()).toHaveLength(18);
-    expect(states.get("KF-001")).toBe(true);
-
-    // Mobile cap = 6
-    const mobileScheduler = new VideoPlaybackScheduler(6);
-    for (let i = 1; i <= 10; i += 1) {
-      mobileScheduler.register({
-        id: `M-${i}`,
-        ratio: 0.8,
-        centerDistance: i * 20,
-        hovered: false,
-        onSlotChange: () => {},
-      });
-    }
-    expect(mobileScheduler.getActiveIds()).toHaveLength(6);
   });
 
   it("validates video-only conduit, canonical deduplication, hardware/afips/stamp blocking, and 429 circuit breaker", () => {

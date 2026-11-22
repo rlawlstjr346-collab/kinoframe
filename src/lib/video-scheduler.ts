@@ -44,9 +44,9 @@ export class VideoPlaybackScheduler {
       return Math.max(1, this.maxSlotsOverride);
     }
     if (typeof window !== "undefined" && window.innerWidth < 768) {
-      return 6;
+      return 4;
     }
-    return 18;
+    return 8;
   }
 
   register(entry: VideoSlotRegistration): void {
