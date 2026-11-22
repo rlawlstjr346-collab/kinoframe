@@ -546,55 +546,203 @@ function hashSeedString(input: string, seed: number): number {
   return ((h ^ (h >>> 16)) >>> 0) / 0xffffffff;
 }
 
+export interface PrimaryColorHsl {
+  h: number;
+  s: number;
+  l: number;
+}
+
+export function hexToHsl(hex: string): PrimaryColorHsl {
+  const clean = hex.replace("#", "");
+  const r = (Number.parseInt(clean.slice(0, 2), 16) || 0) / 255;
+  const g = (Number.parseInt(clean.slice(2, 4), 16) || 0) / 255;
+  const b = (Number.parseInt(clean.slice(4, 6), 16) || 0) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+
+  if (d === 0) {
+    return { h: 0, s: 0, l };
+  }
+
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r) {
+    h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+  } else if (max === g) {
+    h = ((b - r) / d + 2) * 60;
+  } else {
+    h = ((r - g) / d + 4) * 60;
+  }
+  return { h: (h + 360) % 360, s, l };
+}
+
+export function computePrimaryColorHsl(
+  palette: readonly string[]
+): PrimaryColorHsl {
+  if (!palette || palette.length === 0) {
+    return { h: 35, s: 0.4, l: 0.45 };
+  }
+  // Palette[0] is the extracted hero chromatic swatch from real frame pixels;
+  // fall back to most expressive chromatic swatch if palette[0] is near-neutral.
+  const first = hexToHsl(palette[0]);
+  if (first.s >= 0.16 && first.l >= 0.12 && first.l <= 0.88) {
+    return first;
+  }
+  let best = first;
+  let bestScore = -1;
+  for (const hex of palette) {
+    const hsl = hexToHsl(hex);
+    const score = hsl.s * (1 - Math.abs(hsl.l - 0.5) * 1.4);
+    if (score > bestScore) {
+      bestScore = score;
+      best = hsl;
+    }
+  }
+  return best;
+}
+
+const TEN_SLOT_FILM_TVCF_PATTERN: ReadonlyArray<"CLASSIC_FILM" | "TVCF"> = [
+  "CLASSIC_FILM",
+  "CLASSIC_FILM",
+  "TVCF",
+  "CLASSIC_FILM",
+  "TVCF",
+  "CLASSIC_FILM",
+  "CLASSIC_FILM",
+  "TVCF",
+  "CLASSIC_FILM",
+  "TVCF",
+];
+
 /**
- * Deterministic seeded smart rotation guaranteeing 75% auto-looping video
- * density on the first screen while preserving chromatic richness, global
- * continental diversity, and 7-category interleaving across every visit.
+ * Color-Flow + Golden 6:4 Cinema/TVCF Sequencer:
+ * - Rotates starting hue angle (0..360°) deterministically by seed
+ * - Flows smoothly across neighboring HSL hue buckets (Amber -> Crimson -> Magenta -> Blue/Cyan -> Emerald)
+ *   and within each 24° bucket glides by lightness/saturation
+ * - Guarantees 6 CLASSIC_FILM (60%) : 4 TVCF (40%) inside every 10-slot window
+ */
+export function sortColorFlowBalanced(
+  items: ArchiveItem[],
+  seed = 0
+): ArchiveItem[] {
+  if (items.length <= 2) return [...items];
+
+  const normalizedSeed = Math.abs(Math.floor(seed));
+  const startHue = (normalizedSeed * 47) % 360;
+
+  interface FlowEntry {
+    item: ArchiveItem;
+    relHue: number;
+    bucket: number;
+    toneKey: number;
+    category: ArchiveCategory;
+  }
+
+  const toFlowEntry = (item: ArchiveItem): FlowEntry => {
+    const hsl = computePrimaryColorHsl(item.palette);
+    const relHue = (hsl.h - startHue + 360) % 360;
+    const bucket = Math.floor(relHue / 24); // 15 harmonious 24-degree buckets
+    const toneKey = hsl.l * 0.65 + hsl.s * 0.35;
+    return {
+      item,
+      relHue,
+      bucket,
+      toneKey,
+      category: resolveItemCategory(item),
+    };
+  };
+
+  const compareFlow = (a: FlowEntry, b: FlowEntry): number => {
+    if (a.bucket !== b.bucket) return a.bucket - b.bucket;
+    // Alternate light->dark on even buckets and dark->light on odd buckets for seamless wave continuity
+    const dir = a.bucket % 2 === 0 ? 1 : -1;
+    const toneDiff = (a.toneKey - b.toneKey) * dir;
+    if (Math.abs(toneDiff) > 0.0005) return toneDiff;
+    if (Math.abs(a.relHue - b.relHue) > 0.05) return a.relHue - b.relHue;
+    return a.item.id.localeCompare(b.item.id);
+  };
+
+  const filmPool: FlowEntry[] = [];
+  const tvcfPool: FlowEntry[] = [];
+  const otherPool: FlowEntry[] = [];
+
+  for (const item of items) {
+    const entry = toFlowEntry(item);
+    if (entry.category === "CLASSIC_FILM") {
+      filmPool.push(entry);
+    } else if (entry.category === "TVCF") {
+      tvcfPool.push(entry);
+    } else {
+      otherPool.push(entry);
+    }
+  }
+
+  filmPool.sort(compareFlow);
+  tvcfPool.sort(compareFlow);
+  otherPool.sort(compareFlow);
+
+  // If pure or mixed Cinema+TVCF pool, interleave along shared Color-Flow angle with 6:4 golden rhythm
+  if (filmPool.length > 0 && tvcfPool.length > 0 && otherPool.length === 0) {
+    const total = filmPool.length + tvcfPool.length;
+    const out: ArchiveItem[] = [];
+
+    const popClosestHue = (pool: FlowEntry[], targetHue: number): FlowEntry => {
+      // Search window of first 14 entries along monotonic pool to pick tightest hue neighbor
+      const limit = Math.min(pool.length, 14);
+      let bestIdx = 0;
+      let bestDist = Number.POSITIVE_INFINITY;
+      for (let i = 0; i < limit; i += 1) {
+        const diff = Math.abs(pool[i].relHue - targetHue);
+        const circ = Math.min(diff, 360 - diff);
+        const penalty = circ + i * 1.2;
+        if (penalty < bestDist) {
+          bestDist = penalty;
+          bestIdx = i;
+        }
+      }
+      const [picked] = pool.splice(bestIdx, 1);
+      return picked;
+    };
+
+    for (let pos = 0; pos < total; pos += 1) {
+      const targetHue = (pos / Math.max(1, total)) * 360;
+      const desired = TEN_SLOT_FILM_TVCF_PATTERN[pos % 10];
+      if (desired === "CLASSIC_FILM") {
+        const chosen =
+          filmPool.length > 0
+            ? popClosestHue(filmPool, targetHue)
+            : popClosestHue(tvcfPool, targetHue);
+        out.push(chosen.item);
+      } else {
+        const chosen =
+          tvcfPool.length > 0
+            ? popClosestHue(tvcfPool, targetHue)
+            : popClosestHue(filmPool, targetHue);
+        out.push(chosen.item);
+      }
+    }
+    return out;
+  }
+
+  // Fallback for single-category or filtered pools: pure Color-Flow sort
+  const combined = [...filmPool, ...tvcfPool, ...otherPool].sort(compareFlow);
+  return combined.map((e) => e.item);
+}
+
+/**
+ * Deterministic seeded Color-Flow rotation:
+ * Rotates starting hue angle smoothly by seed while preserving 6:4 Cinema/TVCF rhythm
+ * in every 10-slot window and 100% color harmony across neighboring tiles.
  */
 export function rotateArchiveWithSeed(
   items: ArchiveItem[],
   seed: number
 ): ArchiveItem[] {
   if (items.length <= 2) return [...items];
-
-  const normalizedSeed = Math.abs(Math.floor(seed)) || 1;
-  const jitterMap = new Map<string, number>();
-
-  for (const item of items) {
-    const r = hashSeedString(item.id, normalizedSeed);
-    const chroma = analyzePaletteChroma(item.palette);
-    const cat = resolveItemCategory(item);
-    const country = resolveItemCountry(item);
-    const colorCinemaTvcfLift =
-      (cat === "CLASSIC_FILM" || cat === "TVCF") &&
-      chroma.isChromatic &&
-      item.mediaSource === "archive_mp4"
-        ? 22
-        : 0;
-    const baseLift =
-      (chroma.isChromatic ? 18 : 2) +
-      colorCinemaTvcfLift +
-      (EAST_ASIA_COUNTRIES.has(country) ? 1.0 : 0) +
-      (item.mediaSource === "archive_mp4" ? 6 : 0) +
-      (item.priorityBoost ?? 0);
-    const score = baseLift + r * 26 + chroma.avgSaturation * 4;
-    jitterMap.set(item.id, score);
-  }
-
-  const preSorted = [...items].sort((a, b) => {
-    const diff = (jitterMap.get(b.id) ?? 0) - (jitterMap.get(a.id) ?? 0);
-    if (Math.abs(diff) > 0.0001) return diff;
-    return a.id.localeCompare(b.id);
-  });
-
-  const cycleOffset = normalizedSeed % RHYTHM_CATEGORY_CYCLE.length;
-  const allMotionOnly = items.every((i) => i.mediaSource !== "still_image");
-  return interleaveMotionFirst(
-    preSorted,
-    (item) => jitterMap.get(item.id) ?? 0,
-    cycleOffset,
-    allMotionOnly
-  );
+  return sortColorFlowBalanced(items, seed);
 }
 
 export function findRelatedArchiveItems(
@@ -732,7 +880,11 @@ export function filterAndSortArchive(
     }
   });
 
-  if (state.sort === "curation_density" || state.sort === "smart_mix") {
+  if (state.sort === "smart_mix") {
+    return sortColorFlowBalanced(sorted, 0);
+  }
+
+  if (state.sort === "curation_density") {
     return interleaveMotionFirst(
       sorted,
       computeCurationDensityScore,

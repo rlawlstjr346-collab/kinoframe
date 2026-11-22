@@ -60,6 +60,7 @@ const BLOCKED_JUNK_PATTERNS = [
   /\b(afips|federation|symposium|seminar|lecture|talk|interview|unboxing|review)\b/i,
   /\b(nintendo|famicom|game.?boy|atari|sega|playstation|xbox|console|flip.?phone|cell.?phone|smartphone|nokia|motorola|hardware|motherboard|calculator|typewriter)\b/i,
   /\b(stamp|postage|matchbox|brochure|flyer|pamphlet|manual|catalog|manuscript|book.?page|textbook|dictionary|patent|diagram|chart|slide.?deck)\b/i,
+  /\b(black\s*(?:&|and)\s*white|b\s*&\s*w|monochrome|newsreel|universal_newsreel|march\s+of\s+time|tfa[-_]|tcr|timecode|silent|cartoon|popeye|fleischer|amateur|home\s*movie|lucky\s*strike|camcorder|walking\s+tour|driving\s+tour|streetcar|tram)\b/i,
 ];
 
 export function normalizeAssetStem(raw) {
@@ -340,40 +341,44 @@ function parseDurationSec(rawLength) {
   return 60;
 }
 
+function pickBestIaMidThumb(files, durationSec) {
+  if (!Array.isArray(files)) return null;
+  const thumbs = [];
+  for (const f of files) {
+    const name = String(f?.name || "");
+    if (!name.includes(".thumbs/")) continue;
+    const m = name.match(/_(\d{5,6})\.jpg$/i);
+    if (!m) continue;
+    thumbs.push({ name, sec: Number.parseInt(m[1], 10) });
+  }
+  if (thumbs.length < 3) return null;
+  thumbs.sort((a, b) => a.sec - b.sec);
+  const minSec = Math.max(Math.floor(durationSec * 0.35), durationSec >= 300 ? 45 : 10);
+  const maxSec = Math.max(minSec + 5, Math.floor(durationSec * 0.7));
+  const mid = thumbs.filter((t) => t.sec >= minSec && t.sec <= maxSec);
+  const chosen =
+    mid.length > 0
+      ? mid[Math.floor(mid.length / 2)]
+      : thumbs[Math.floor(thumbs.length * 0.5)];
+  return chosen;
+}
+
 /**
- * Priority 1: Discover motion-first auto-loop MP4 archives from Internet Archive
+ * Priority 1: Discover 1964+ Color Cinema (60%) & Vintage Color TVCF (40%) MP4 archives with mid-film .thumbs/
  */
 async function discoverInternetArchiveMotionCandidates(existingUrls, existingStems, cache) {
   const queries = [
     {
       mediaType: "NEWS",
-      category: "STREET_ERA",
+      category: "CLASSIC_FILM",
       country: "US",
-      q: 'collection:prelinger AND mediatype:movies AND (street OR "cable car" OR "New York" OR "San Francisco") AND format:"512Kb MPEG4"',
+      q: '(collection:feature_films OR collection:sci_fi_horror OR collection:film_chest) AND mediatype:movies AND year:[1965 TO 2006] AND format:"512Kb MPEG4" AND -("black and white" OR silent OR newsreel OR cartoon OR trailer)',
     },
     {
       mediaType: "TVCF",
       category: "TVCF",
       country: "US",
-      q: 'collection:prelinger AND mediatype:movies AND (commercial OR Chevrolet OR Kodak OR Ford) AND format:"512Kb MPEG4"',
-    },
-    {
-      mediaType: "NEWS",
-      category: "CLASSIC_FILM",
-      country: "US",
-      q: 'collection:movie_trailers AND mediatype:movies AND format:"MPEG4"',
-    },
-    {
-      mediaType: "NEWS",
-      category: "WEB_PHANTOM",
-      country: "US",
-      q: '(collection:vhsvault OR collection:ephemeralfilms) AND mediatype:movies AND format:"512Kb MPEG4"',
-    },
-    {
-      mediaType: "NEWS",
-      category: "ANIME_COMIC",
-      country: "US",
-      q: 'collection:classic_cartoons AND mediatype:movies AND format:"512Kb MPEG4"',
+      q: '(collection:classic_tv_commercials OR collection:commercials OR collection:prelinger) AND mediatype:movies AND (commercial OR advertisement OR spot) AND year:[1964 TO 2006] AND format:"512Kb MPEG4" AND -("black and white" OR newsreel OR "lucky strike" OR cartoon)',
     },
   ];
 
@@ -382,7 +387,7 @@ async function discoverInternetArchiveMotionCandidates(existingUrls, existingSte
   for (const spec of queries) {
     const searchUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(
       spec.q
-    )}&fl[]=identifier&fl[]=title&fl[]=year&rows=6&page=1&output=json`;
+    )}&fl[]=identifier&fl[]=title&fl[]=year&rows=8&page=1&output=json`;
     const res = await politeFetch(searchUrl, { method: "GET" }, cache);
     if (!res || res.skippedByBreaker || res.status !== 200) continue;
 
@@ -393,9 +398,8 @@ async function discoverInternetArchiveMotionCandidates(existingUrls, existingSte
       const id = doc.identifier;
       if (!id || isBlockedJunkText(id) || isBlockedJunkText(doc.title)) continue;
       const sourceUrl = `https://archive.org/details/${encodeURIComponent(id)}`;
-      const thumbUrl = `https://archive.org/services/img/${encodeURIComponent(id)}`;
       const stem = normalizeAssetStem(id);
-      if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl) || existingStems.has(stem)) {
+      if (existingUrls.has(sourceUrl) || existingStems.has(stem)) {
         continue;
       }
 
@@ -408,17 +412,23 @@ async function discoverInternetArchiveMotionCandidates(existingUrls, existingSte
       const meta = await metaRes.json();
       if (meta?.metadata?.["access-restricted-item"] === "true") continue;
 
+      const year =
+        Number.parseInt(String(doc.year || meta?.metadata?.year || "0").slice(0, 4), 10) || 0;
+      if (year < 1964 || year > 2008) continue;
+
       const mp4 = pickBestIaMp4(meta?.files);
       if (!mp4) continue;
+      const durationSec = parseDurationSec(mp4.length);
+      const midThumb = pickBestIaMidThumb(meta?.files, durationSec);
+      if (!midThumb) continue;
 
+      const thumbUrl = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(
+        midThumb.name
+      ).replace(/%2F/g, "/")}`;
       const videoUrl = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(
         mp4.name
       ).replace(/%2F/g, "/")}`;
-      if (existingUrls.has(videoUrl)) continue;
-
-      const year =
-        Number.parseInt(String(doc.year || meta?.metadata?.year || "1960").slice(0, 4), 10) ||
-        1960;
+      if (existingUrls.has(videoUrl) || existingUrls.has(thumbUrl)) continue;
 
       existingStems.add(stem);
       candidates.push({
@@ -427,10 +437,11 @@ async function discoverInternetArchiveMotionCandidates(existingUrls, existingSte
         country: spec.country,
         mediaSource: "archive_mp4",
         originalTitle: String(doc.title || id).trim(),
-        brandOrSource: "Internet Archive / Public Domain Moving Images",
-        year: Math.max(1900, Math.min(2025, year)),
+        brandOrSource: "Internet Archive / Color Cinema & TVCF",
+        year,
         aspectRatio: "4:3",
-        durationSec: parseDurationSec(mp4.length),
+        durationSec,
+        startSec: midThumb.sec,
         thumbnailUrl: thumbUrl,
         previewVideoUrl: videoUrl,
         youtubeId: null,
@@ -444,106 +455,10 @@ async function discoverInternetArchiveMotionCandidates(existingUrls, existingSte
 }
 
 /**
- * Priority 2: Discover Wikimedia Commons street/city WebM/MP4 motion & curated posters
+ * Priority 2: Disabled non-cinema street discovery (locked to Color CLASSIC_FILM + TVCF)
  */
-async function discoverWikimediaCandidates(existingUrls, existingStems, cache) {
-  const queries = [
-    {
-      mediaType: "PHOTO",
-      category: "STREET_ERA",
-      country: "JP",
-      videoOnly: true,
-      q: "filetype:video Tokyo street",
-    },
-    {
-      mediaType: "PHOTO",
-      category: "STREET_ERA",
-      country: "EU",
-      videoOnly: true,
-      q: "filetype:video Paris tram street",
-    },
-  ];
-
-  const candidates = [];
-
-  for (const { mediaType, category, country, videoOnly, q } of queries) {
-    const apiUrl = videoOnly
-      ? `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
-          q
-        )}&gsrlimit=12&prop=videoinfo&viprop=url|size|mime|derivatives&viurlwidth=960&format=json`
-      : `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
-          q
-        )}&gsrlimit=6&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=960&format=json`;
-    const res = await politeFetch(apiUrl, { method: "GET" }, cache);
-    if (!res || res.skippedByBreaker || res.status !== 200) continue;
-
-    const data = await res.json();
-    for (const page of Object.values(data.query?.pages || {})) {
-      const info = videoOnly ? page.videoinfo?.[0] : page.imageinfo?.[0];
-      if (!info) continue;
-
-      const titleClean = page.title.replace(/^File:/i, "").replace(/\.[a-z0-9]+$/i, "");
-      if (isBlockedJunkText(page.title) || isBlockedJunkText(info.url)) continue;
-
-      const stem = normalizeAssetStem(page.title);
-      if (!stem || existingStems.has(stem)) continue;
-
-      const sourceUrl = info.descriptionurl;
-      if (videoOnly) {
-        const webmDeriv = (info.derivatives || []).find(
-          (d) => typeof d?.src === "string" && /\.webm(\?.*)?$/i.test(d.src) && d.src.startsWith("https://upload.wikimedia.org/")
-        );
-        const videoUrl =
-          webmDeriv?.src ||
-          (typeof info.url === "string" && /\.(webm|mp4)(\?.*)?$/i.test(info.url) ? info.url : null);
-        if (!videoUrl || !info.thumburl || (info.width || 0) < 420) continue;
-        const thumbUrl = info.thumburl.split("?utm_source=")[0];
-        if (existingUrls.has(sourceUrl) || existingUrls.has(videoUrl)) continue;
-        existingStems.add(stem);
-        candidates.push({
-          mediaType,
-          category,
-          country,
-          mediaSource: "archive_mp4",
-          originalTitle: titleClean,
-          brandOrSource: "Wikimedia Commons / Open Street Film",
-          year: 1995,
-          aspectRatio: mapAspectRatio(info.width || 1280, info.height || 720),
-          durationSec: Math.max(8, Math.round(info.duration || 30)),
-          thumbnailUrl: thumbUrl,
-          previewVideoUrl: videoUrl,
-          youtubeId: null,
-          sourceUrl,
-          licenseNote: "CC / Public Domain (Wikimedia Commons)",
-        });
-      } else {
-        if (!info.mime?.startsWith("image/")) continue;
-        if (info.mime === "image/tiff" || info.mime === "image/svg+xml") continue;
-        if ((info.width || 0) < 600 || (info.height || 0) < 600) continue;
-        const rawThumb = info.thumburl || info.url;
-        const thumbUrl = rawThumb.split("?utm_source=")[0];
-        if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl)) continue;
-        existingStems.add(stem);
-        candidates.push({
-          mediaType,
-          category,
-          country,
-          mediaSource: "still_image",
-          originalTitle: titleClean,
-          brandOrSource: "Wikimedia Commons / Public Domain",
-          year: 1958,
-          aspectRatio: mapAspectRatio(info.width, info.height),
-          durationSec: null,
-          thumbnailUrl: thumbUrl,
-          previewVideoUrl: null,
-          youtubeId: null,
-          sourceUrl,
-          licenseNote: "Public Domain (Wikimedia Commons)",
-        });
-      }
-    }
-  }
-  return candidates;
+async function discoverWikimediaCandidates() {
+  return [];
 }
 
 async function verifyCandidateUrls(cand, cache) {
@@ -603,6 +518,7 @@ function buildArchiveItem(idNum, cand, tCache) {
     country: cand.country || "US",
     aspectRatio: cand.aspectRatio,
     durationSec: cand.durationSec,
+    startSec: cand.startSec,
     mediaSource: cand.mediaSource,
     thumbnailUrl: cand.thumbnailUrl,
     previewVideoUrl: cand.previewVideoUrl,

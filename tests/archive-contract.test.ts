@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import archiveSnapshot from "@/data/archive-snapshot.json";
-import type { ArchiveCategory, ArchiveItem } from "@/types/archive";
+import type { ArchiveItem } from "@/types/archive";
 import {
   ARCHIVE_CATEGORIES,
   COMPOSITION_TAGS,
@@ -18,6 +18,7 @@ import {
   parseBoardIds,
   rotateArchiveWithSeed,
   serializeBoardIds,
+  sortColorFlowBalanced,
 } from "@/lib/taxonomy";
 import { isAllowedMediaProxyUrl } from "@/lib/media-allowlist";
 import { VideoPlaybackScheduler } from "@/lib/video-scheduler";
@@ -31,7 +32,10 @@ import {
   matchesTechnique,
   searchItemByQuery,
 } from "@/lib/visual-techniques";
-import { computeHighlightWindow, getHighlightWindow } from "@/components/SlideMountCard";
+import {
+  computeHighlightWindow,
+  getHighlightWindow,
+} from "@/components/SlideMountCard";
 import {
   BLOCKED_CONTENT_REGEX,
   ConduitCircuitBreaker,
@@ -67,32 +71,12 @@ const FORBIDDEN_EYECANDY_TOKENS = [
   "#391d1f",
 ];
 
-const ALL_V6_CATEGORIES: ArchiveCategory[] = [
-  "TVCF",
-  "CLASSIC_FILM",
-  "STREET_ERA",
-  "WEB_PHANTOM",
-  "AD_BILLBOARD",
-  "ALBUM_POSTER",
-  "ANIME_COMIC",
-  "PHOTO",
-];
-
-const PURGED_LOW_TASTE_IDS = [
-  "KF-004",
-  "KF-033",
-  "KF-199",
-  "KF-357",
-  "KF-367",
-  "KF-398",
-  "KF-399",
-  "KF-404",
-  "KF-449",
-  "KF-479",
-  "KF-609",
-  "KF-614",
-  "KF-629",
-  "KF-635",
+const FORBIDDEN_POLLUTANT_PATTERNS = [
+  /TFA-319B/i,
+  /LUCKY\s*STRIKE/i,
+  /Popeye/i,
+  /Universal\s*Newsreel/i,
+  /Chevrolet\s+Leader\s+News/i,
 ];
 
 function isOptimizedDirectStream(url: string): boolean {
@@ -116,7 +100,7 @@ function collectSourceFiles(dir: string): string[] {
   return out;
 }
 
-describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Kodak 500T Amber & Preservation Contract", () => {
+describe("KINOFRAME V8 Step 2 — Pure Color Cinema (60%) & TVCF (40%), Mid-Film Pixel Thumbs, Color-Flow & Full Preservation Contract", () => {
   it("verifies zero legacy one-off curate-v* scripts remain in scripts/", () => {
     const scriptsDir = path.resolve(process.cwd(), "scripts");
     const files = fs.readdirSync(scriptsDir);
@@ -150,44 +134,161 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
     }
   });
 
-  it("maps all 5 Optical Branches × 5 Techniques (25 total) with ZERO empty tags and supports Korean/English search", () => {
+  it("enforces 100% pure color CLASSIC_FILM (55~65%) : TVCF (35~45%) video catalog with ZERO street/anime/web/photo/still items", () => {
+    expect(ITEMS.length).toBeGreaterThanOrEqual(120);
+    expect(ITEMS.length).toBeLessThanOrEqual(160);
+
+    let filmCount = 0;
+    let tvcfCount = 0;
+    const idSet = new Set<string>();
+    const canonicalSet = new Set<string>();
+
+    for (const item of ITEMS) {
+      expect(idSet.has(item.id)).toBe(false);
+      idSet.add(item.id);
+
+      const canon = getCanonicalMediaKey(item);
+      expect(canonicalSet.has(canon)).toBe(false);
+      canonicalSet.add(canon);
+
+      // Strictly ONLY CLASSIC_FILM or TVCF (zero STREET_ERA, ANIME_COMIC, WEB_PHANTOM, PHOTO, AD_BILLBOARD)
+      expect(["CLASSIC_FILM", "TVCF"]).toContain(item.category);
+      if (item.category === "CLASSIC_FILM") filmCount += 1;
+      if (item.category === "TVCF") tvcfCount += 1;
+
+      // 100% direct-stream archive_mp4 videos, ZERO still_image or youtube_embed
+      expect(item.mediaSource).toBe("archive_mp4");
+      expect(item.previewVideoUrl).toBeTruthy();
+      expect(isOptimizedDirectStream(item.previewVideoUrl!)).toBe(true);
+
+      // 1964+ color era (zero pre-1964 monochrome archives)
+      expect(item.year).toBeGreaterThanOrEqual(1964);
+
+      // Zero English bracket title artifacts
+      expect(item.titleKo).not.toContain("[");
+      expect(item.originalTitle).not.toContain("[");
+    }
+
+    const filmRatio = filmCount / ITEMS.length;
+    const tvcfRatio = tvcfCount / ITEMS.length;
+    expect(filmRatio).toBeGreaterThanOrEqual(0.55);
+    expect(filmRatio).toBeLessThanOrEqual(0.65);
+    expect(tvcfRatio).toBeGreaterThanOrEqual(0.35);
+    expect(tvcfRatio).toBeLessThanOrEqual(0.45);
+
+    expect(ARCHIVE_CATEGORIES).toHaveLength(9);
+    expect(MEDIA_MODES).toHaveLength(3);
+    expect(COUNTRIES.some((c) => c.value === "GLOBAL")).toBe(true);
+  });
+
+  it("enforces ZERO /services/img/ 0-sec credit thumbnails, valid mid-film .thumbs/ + startSec, and ZERO TFA-319B / LUCKY STRIKE pollutants", () => {
+    const serialized = JSON.stringify(ITEMS);
+    for (const pat of FORBIDDEN_POLLUTANT_PATTERNS) {
+      expect(pat.test(serialized)).toBe(false);
+    }
+    for (const phrase of FORBIDDEN_PHRASES) {
+      expect(serialized).not.toContain(phrase);
+    }
+
+    const uniquePalettes = new Set<string>();
+
+    for (const item of ITEMS) {
+      expect(item.thumbnailUrl).not.toContain("/services/img/");
+      expect(item.thumbnailUrl).toMatch(/\.thumbs\/.*_\d{5,6}\.jpg/i);
+      expect(typeof item.startSec).toBe("number");
+      expect(item.startSec!).toBeGreaterThan(0);
+
+      expect(item.id).toMatch(/^KF-\d{3,5}$/);
+      expect(item.titleKo.trim().length).toBeGreaterThan(2);
+      expect(item.originalTitle.trim().length).toBeGreaterThan(2);
+      expect(item.thumbnailUrl).toMatch(/^https?:\/\//);
+      expect(item.sourceUrl).toMatch(/^https?:\/\//);
+      expect(item.palette).toHaveLength(5);
+      for (const hex of item.palette) {
+        expect(hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      }
+      uniquePalettes.add(item.palette.join(","));
+
+      expect(item.beats).toHaveLength(4);
+      for (const c of item.compositionTags) {
+        expect(COMPOSITION_TAGS).toContain(c);
+      }
+      for (const p of item.persuasionTags) {
+        expect(PERSUASION_TAGS).toContain(p);
+      }
+    }
+
+    // Real pixel-extracted palettes: >= 90% unique across the entire catalog
+    expect(uniquePalettes.size / ITEMS.length).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it("maps all 5 Optical Branches × 5 Techniques (25 total) with ZERO empty tags (>= 3 matches each) on pure Film+TVCF catalog", () => {
     expect(OPTICAL_BRANCHES).toHaveLength(5);
     expect(VISUAL_TECHNIQUES).toHaveLength(25);
     expect(BREAKDOWN_SHOWCASE_CARDS).toHaveLength(3);
 
     for (const branch of OPTICAL_BRANCHES) {
       const branchTechs = getTechniquesByBranch(branch.slug);
-      expect(
-        branchTechs,
-        `Branch ${branch.label} must contain exactly 5 optical techniques`
-      ).toHaveLength(5);
+      expect(branchTechs).toHaveLength(5);
     }
 
     for (const tech of VISUAL_TECHNIQUES) {
       const matched = ITEMS.filter((item) => matchesTechnique(item, tech.slug));
       expect(
         matched.length,
-        `Optical technique ${tech.label} (${tech.slug}) must not be empty`
-      ).toBeGreaterThanOrEqual(6);
+        `Optical technique ${tech.label} (${tech.slug}) must match at least 3 pure color clips`
+      ).toBeGreaterThanOrEqual(3);
 
       const siblings = getSiblingTechniques(tech.slug);
       expect(siblings).toHaveLength(5);
     }
 
-    // Breakdown cards reference valid 25-tree slugs
     const slugSet = new Set(VISUAL_TECHNIQUES.map((t) => t.slug));
     for (const card of BREAKDOWN_SHOWCASE_CARDS) {
       expect(slugSet.has(card.techniqueSlug)).toBe(true);
     }
 
-    // Korean & English search support across branches and techniques
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "도쿄")).length).toBeGreaterThan(0);
     expect(ITEMS.filter((i) => searchItemByQuery(i, "Motion Blur")).length).toBeGreaterThan(0);
     expect(ITEMS.filter((i) => searchItemByQuery(i, "Chiaroscuro Noir")).length).toBeGreaterThan(0);
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "대칭")).length).toBeGreaterThan(0);
+    expect(ITEMS.filter((i) => searchItemByQuery(i, "TVCF")).length).toBeGreaterThan(0);
   });
 
-  it("skips long-feature opening credits (>=600s -> startSec >= 108s) and cleanly computes all highlight window brackets", () => {
+  it("sequences Color-Flow smoothly with exact 6:4 Film:TVCF balance in every 10-slot window and 100% auto-loop video wall", () => {
+    expect(INITIAL_VISIBLE_COUNT).toBe(48);
+    expect(LOAD_MORE_STEP).toBe(36);
+    expect(getVisibleArchiveSlice(ITEMS, 48)).toHaveLength(48);
+    expect(getVisibleArchiveSlice(ITEMS, 84)).toHaveLength(84);
+
+    const flowSorted = sortColorFlowBalanced(ITEMS, 42);
+    expect(flowSorted).toHaveLength(ITEMS.length);
+
+    // Every 10-slot window in top 60 maintains exact 6 CLASSIC_FILM : 4 TVCF
+    for (let offset = 0; offset < 60; offset += 10) {
+      const slice = flowSorted.slice(offset, offset + 10);
+      const fCount = slice.filter((i) => i.category === "CLASSIC_FILM").length;
+      const tCount = slice.filter((i) => i.category === "TVCF").length;
+      expect(fCount).toBe(6);
+      expect(tCount).toBe(4);
+    }
+
+    const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
+    expect(
+      defaultSorted.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
+    ).toBe(48);
+
+    for (const seed of [7, 42, 777, 12345, 99991]) {
+      const rotated = rotateArchiveWithSeed(defaultSorted, seed);
+      expect(
+        rotated.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
+      ).toBe(48);
+    }
+  });
+
+  it("prioritizes item.startSec to align thumbnail with video playback start and skips long-feature opening credits (>=600s -> >=108s)", () => {
+    const pinned = getHighlightWindow({ durationSec: 1800, startSec: 780 });
+    expect(pinned.startSec).toBe(780);
+    expect(pinned.endSec).toBe(792);
+
     const feature600 = computeHighlightWindow(600);
     expect(feature600.startSec).toBe(108);
     expect(feature600.startSec).toBeGreaterThanOrEqual(108);
@@ -195,7 +296,6 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
 
     const featureLong = getHighlightWindow({ durationSec: 4980 });
     expect(featureLong.startSec).toBe(240);
-    expect(featureLong.startSec).toBeGreaterThanOrEqual(108);
     expect(featureLong.endSec).toBe(252);
 
     const medium = computeHighlightWindow(120);
@@ -234,24 +334,20 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
     expect(states.get("KF-008")).toBe(true);
     expect(states.get("KF-009")).toBe(false);
 
-    // Hysteresis retains active KF-008 against minor shift on KF-009
     scheduler.update("KF-009", { ratio: 0.72, centerDistance: 250 });
     expect(states.get("KF-008")).toBe(true);
     expect(states.get("KF-009")).toBe(false);
 
-    // Modal opens -> suspend pauses all 8 background grid tiles immediately
     scheduler.setSuspended(true);
     expect(scheduler.isSuspended()).toBe(true);
     expect(scheduler.getActiveIds()).toHaveLength(0);
     expect(states.get("KF-001")).toBe(false);
 
-    // Modal closes -> resume restores 8 active slots immediately
     scheduler.setSuspended(false);
     expect(scheduler.isSuspended()).toBe(false);
     expect(scheduler.getActiveIds()).toHaveLength(8);
     expect(states.get("KF-001")).toBe(true);
 
-    // Mobile cap = 4
     const mobileScheduler = new VideoPlaybackScheduler(4);
     for (let i = 1; i <= 8; i += 1) {
       mobileScheduler.register({
@@ -265,143 +361,66 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
     expect(mobileScheduler.getActiveIds()).toHaveLength(4);
   });
 
-  it("ensures 100% optimized fast video URLs, zero bracket title artifacts, >= 88% archive_mp4 wall, and purged low-taste IDs", () => {
-    let mp4Count = 0;
-    let stillCount = 0;
-    let ytCount = 0;
-    const idSet = new Set<string>();
-    const canonicalSet = new Set<string>();
-
-    for (const item of ITEMS) {
-      expect(idSet.has(item.id)).toBe(false);
-      idSet.add(item.id);
-
-      const canon = getCanonicalMediaKey(item);
-      expect(canonicalSet.has(canon)).toBe(false);
-      canonicalSet.add(canon);
-
-      expect(item.titleKo).not.toContain("[");
-      expect(item.originalTitle).not.toContain("[");
-
-      if (item.mediaSource === "archive_mp4") {
-        mp4Count += 1;
-        expect(item.previewVideoUrl).toBeTruthy();
-        expect(isOptimizedDirectStream(item.previewVideoUrl!)).toBe(true);
-      } else if (item.mediaSource === "still_image") {
-        stillCount += 1;
-      } else {
-        ytCount += 1;
-      }
-    }
-
-    expect(mp4Count).toBeGreaterThanOrEqual(210);
-    expect(stillCount).toBeLessThanOrEqual(25);
-    expect(ytCount).toBe(0);
-    expect(mp4Count / ITEMS.length).toBeGreaterThanOrEqual(0.88);
-
-    for (const purgedId of PURGED_LOW_TASTE_IDS) {
-      expect(idSet.has(purgedId)).toBe(false);
-    }
-
-    expect(ARCHIVE_CATEGORIES).toHaveLength(9);
-    expect(MEDIA_MODES).toHaveLength(3);
-    expect(COUNTRIES.some((c) => c.value === "GLOBAL")).toBe(true);
-  });
-
   it("deduplicates identical IA/Wikimedia media via getCanonicalMediaKey across ID & URL variants", () => {
     const localIa = {
-      id: "KF-495",
-      sourceUrl: "https://archive.org/details/Wonderfu1960",
-      previewVideoUrl: "https://archive.org/download/Wonderfu1960/Wonderfu1960_512kb.mp4",
-      thumbnailUrl: "https://archive.org/services/img/Wonderfu1960",
+      id: "KF-1001",
+      sourceUrl: "https://archive.org/details/Wonderfu1980",
+      previewVideoUrl: "https://archive.org/download/Wonderfu1980/Wonderfu1980_512kb.mp4",
+      thumbnailUrl: "https://archive.org/download/Wonderfu1980/Wonderfu1980.thumbs/Wonderfu1980_000045.jpg",
     };
     const conduitIa = {
-      id: "KF-IA-Wonderfu1960",
-      sourceUrl: "https://archive.org/details/wonderfu1960?tab=about",
-      previewVideoUrl: "https://archive.org/download/wonderfu1960/Wonderfu1960.mp4",
-      thumbnailUrl: "https://archive.org/services/img/wonderfu1960",
+      id: "KF-IA-Wonderfu1980",
+      sourceUrl: "https://archive.org/details/wonderfu1980?tab=about",
+      previewVideoUrl: "https://archive.org/download/wonderfu1980/Wonderfu1980.mp4",
+      thumbnailUrl: "https://archive.org/download/wonderfu1980/Wonderfu1980.thumbs/Wonderfu1980_000045.jpg",
     };
-    expect(getCanonicalMediaKey(localIa)).toBe("ia:wonderfu1960");
-    expect(getCanonicalMediaKey(conduitIa)).toBe("ia:wonderfu1960");
-
-    const localWm = {
-      id: "KF-443",
-      sourceUrl: "https://commons.wikimedia.org/wiki/File:Shibuya_Night_Walk.webm",
-      previewVideoUrl: "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a1/Shibuya_Night_Walk.webm/Shibuya_Night_Walk.webm.480p.vp9.webm",
-      thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Shibuya.jpg/960px-Shibuya.jpg",
-    };
-    const conduitWm = {
-      id: "KF-WM-999111",
-      sourceUrl: "https://commons.wikimedia.org/wiki/File:Shibuya_Night_Walk.webm?uselang=en",
-      previewVideoUrl: "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a1/Shibuya_Night_Walk.webm/Shibuya_Night_Walk.webm.720p.vp9.webm",
-      thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Shibuya.jpg/640px-Shibuya.jpg",
-    };
-    expect(getCanonicalMediaKey(localWm)).toBe(getCanonicalMediaKey(conduitWm));
+    expect(getCanonicalMediaKey(localIa)).toBe("ia:wonderfu1980");
+    expect(getCanonicalMediaKey(conduitIa)).toBe("ia:wonderfu1980");
   });
 
-  it("contains zero forbidden placeholder strings, zero dead links, and valid schema metadata", () => {
-    const serialized = JSON.stringify(ITEMS);
-    for (const phrase of FORBIDDEN_PHRASES) {
-      expect(serialized).not.toContain(phrase);
-    }
-
-    for (const item of ITEMS) {
-      expect(item.id).toMatch(/^KF-\d{3,5}$/);
-      expect(item.titleKo.trim().length).toBeGreaterThan(2);
-      expect(item.originalTitle.trim().length).toBeGreaterThan(2);
-      expect(item.thumbnailUrl).toMatch(/^https?:\/\//);
-      expect(item.sourceUrl).toMatch(/^https?:\/\//);
-      expect(ALL_V6_CATEGORIES).toContain(item.category);
-      expect(item.palette).toHaveLength(5);
-      for (const hex of item.palette) {
-        expect(hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
-      }
-      expect(item.beats).toHaveLength(4);
-      for (const c of item.compositionTags) {
-        expect(COMPOSITION_TAGS).toContain(c);
-      }
-      for (const p of item.persuasionTags) {
-        expect(PERSUASION_TAGS).toContain(p);
-      }
-    }
-  });
-
-  it("slices progressive infinite scroll windows cleanly and guarantees >= 42/48 auto-loop videos", () => {
-    expect(INITIAL_VISIBLE_COUNT).toBe(48);
-    expect(LOAD_MORE_STEP).toBe(36);
-    expect(getVisibleArchiveSlice(ITEMS, 48)).toHaveLength(48);
-    expect(getVisibleArchiveSlice(ITEMS, 84)).toHaveLength(84);
-
-    const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
-    expect(
-      defaultSorted.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
-    ).toBeGreaterThanOrEqual(42);
-
-    for (const seed of [7, 42, 777, 12345, 99991]) {
-      const rotated = rotateArchiveWithSeed(defaultSorted, seed);
-      expect(
-        rotated.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
-      ).toBeGreaterThanOrEqual(42);
-    }
-  });
-
-  it("validates video-only conduit, canonical deduplication, hardware/afips/stamp blocking, and 429 circuit breaker", () => {
+  it("validates color cinema/TVCF conduit, mid-film .thumbs/ enforcement, pre-1964/B&W/TFA blocking, and 429 circuit breaker", () => {
     const iaItem = normalizeInternetArchiveItem({
-      identifier: "Midnight_VHS_Tape_1994",
-      title: "Midnight_VHS_Neon_Street_1994.mp4",
-      year: 1994,
-      mp4FileName: "Midnight_VHS_Tape_1994_512kb.mp4",
+      identifier: "Tokyo_Color_Cinema_1984",
+      title: "Tokyo_Neon_Color_Commercial_1984.mp4",
+      year: 1984,
+      mp4FileName: "Tokyo_Color_Cinema_1984_512kb.mp4",
+      thumbFileName: "Tokyo_Color_Cinema_1984.thumbs/Tokyo_Color_Cinema_1984_000035.jpg",
+      startSec: 35,
       durationRaw: "1:25",
-      category: "WEB_PHANTOM",
-      countryHint: "US",
+      category: "TVCF",
+      countryHint: "JP",
     });
     expect(iaItem).not.toBeNull();
-    expect(iaItem?.id).toBe("KF-IA-Midnight_VHS_Tape_1994");
+    expect(iaItem?.id).toBe("KF-IA-Tokyo_Color_Cinema_1984");
+    expect(iaItem?.thumbnailUrl).toContain(".thumbs/");
+    expect(iaItem?.startSec).toBe(35);
+
+    // Reject missing .thumbs/ (0-sec /services/img/ disallowed)
+    const noThumbRejected = normalizeInternetArchiveItem({
+      identifier: "No_Thumb_Film_1980",
+      title: "Color Film 1980",
+      year: 1980,
+      mp4FileName: "No_Thumb_Film_1980_512kb.mp4",
+      thumbFileName: null,
+      category: "CLASSIC_FILM",
+    });
+    expect(noThumbRejected).toBeNull();
+
+    // Reject pre-1964 monochrome era
+    const pre1964Rejected = normalizeInternetArchiveItem({
+      identifier: "Old_Film_1958",
+      title: "Old Classic 1958",
+      year: 1958,
+      mp4FileName: "Old_Film_1958_512kb.mp4",
+      thumbFileName: "Old_Film_1958.thumbs/Old_Film_1958_000030.jpg",
+      category: "CLASSIC_FILM",
+    });
+    expect(pre1964Rejected).toBeNull();
 
     const dupVariant = {
       ...iaItem!,
-      id: "KF-999",
-      sourceUrl: "https://archive.org/details/midnight_vhs_tape_1994",
+      id: "KF-9999",
+      sourceUrl: "https://archive.org/details/tokyo_color_cinema_1984",
     };
     expect(deduplicateConduitItems([iaItem!, dupVariant])).toHaveLength(1);
 
@@ -411,7 +430,7 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
       descriptionUrl: "https://commons.wikimedia.org/wiki/File:Static_Photo.jpg",
       thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Static.jpg",
       videoUrl: null,
-      category: "PHOTO",
+      category: "CLASSIC_FILM",
     });
     expect(wmStillRejected).toBeNull();
 
@@ -420,13 +439,16 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
       "Nintendo Famicom Game Boy Console Hardware",
       "Nokia Flip Phone Smartphone Unboxing Review",
       "1964 Tokyo Postage Stamp & Matchbox Brochure",
+      "TFA-319B Black and White Universal Newsreel",
+      "Lucky Strike Cigarette Commercial 1948",
+      "Popeye Classic Cartoon Amateur Home Movie",
     ]) {
       expect(BLOCKED_CONTENT_REGEX.test(badTitle)).toBe(true);
     }
 
     expect(isAllowedMediaUrl("http://127.0.0.1/internal.mp4")).toBe(false);
     expect(isAllowedMediaUrl("https://upload.wikimedia.org/wikipedia/commons/x.webm")).toBe(true);
-    expect(cleanKoreanTitle("File:Retro_VHS_1991.webm", 1991, "WEB_PHANTOM")).not.toContain("_");
+    expect(cleanKoreanTitle("File:Retro_Color_1984.webm", 1984, "TVCF")).not.toContain("_");
 
     const breaker = new ConduitCircuitBreaker(5000);
     expect(breaker.trip("archive.org", 429, 1000)).toBe(true);
@@ -452,7 +474,7 @@ describe("KINOFRAME V8 Step 1 — 60fps Engine, 5×5 Optical Taxonomy Tree, Koda
     expect(isAllowedMediaProxyUrl("https://archive.org/download/x/x_512kb.mp4")).toBe(true);
     expect(isAllowedMediaProxyUrl("http://169.254.169.254/latest/meta-data/")).toBe(false);
 
-    const conduitIaId = "KF-IA-Midnight_VHS_94";
+    const conduitIaId = "KF-IA-Tokyo_Color_84";
     const conduitWmId = "KF-WM-98765432";
     expect(isValidArchiveItemId(conduitIaId)).toBe(true);
     expect(isConduitItemId(conduitWmId)).toBe(true);

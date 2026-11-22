@@ -16,7 +16,7 @@ import {
   downloadBlobAsPng,
 } from "@/lib/frame-capture";
 import { getBranchBySlug, getTechniquesForItem } from "@/lib/visual-techniques";
-import { computeHighlightWindow } from "@/components/SlideMountCard";
+import { getHighlightWindow } from "@/components/SlideMountCard";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 
 interface ViewfinderModalProps {
@@ -201,7 +201,10 @@ export function ViewfinderModal({
       Number.isFinite(video.duration) && video.duration > 0
         ? video.duration
         : item.durationSec;
-    const win = computeHighlightWindow(realDur);
+    const win = getHighlightWindow({
+      durationSec: realDur,
+      startSec: item.startSec,
+    });
     if (win.startSec > 0 && realDur && realDur > win.startSec + 2) {
       try {
         video.currentTime = win.startSec;

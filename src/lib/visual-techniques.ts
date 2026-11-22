@@ -1,8 +1,8 @@
 import type { ArchiveItem } from "@/types/archive";
 import {
   analyzePaletteChroma,
+  computePrimaryColorHsl,
   resolveItemCategory,
-  resolveItemCountry,
 } from "@/lib/taxonomy";
 
 export type OpticalBranchSlug =
@@ -390,90 +390,97 @@ export function getSiblingTechniques(techniqueSlug: string): VisualTechnique[] {
 
 export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
   const cat = resolveItemCategory(item);
-  const country = resolveItemCountry(item);
   const chroma = analyzePaletteChroma(item.palette);
+  const hero = computePrimaryColorHsl(item.palette);
   const text = `${item.titleKo} ${item.originalTitle} ${item.brandOrSource}`.toLowerCase();
   const warmth = getWarmthScore(item.palette);
   const coolness = getCoolScore(item.palette);
   const avgLum = getAvgBrightness(item.palette);
+  const dur = item.durationSec ?? 60;
 
   switch (slug) {
     // 1. Optics & Lens
     case "motion-blur":
       return (
-        /speed|motion|night|drive|tram|train|streetcar|race|chase|flight|주행|트램|야경|속도/i.test(
+        /speed|motion|night|drive|race|chase|flight|action|car|auto|road|주행|속도|야경/i.test(
           text
         ) ||
-        cat === "STREET_ERA" ||
-        (cat === "WEB_PHANTOM" && item.mediaSource === "archive_mp4")
+        item.compositionTags.includes("매치 컷") ||
+        (cat === "TVCF" && dur <= 45)
       );
     case "shallow-focus":
       return (
         item.compositionTags.includes("초근접 클로즈업") ||
-        /portrait|face|woman|man|coffee|kitchen|fashion|model|인물|클로즈업|패션/i.test(
+        /portrait|face|woman|man|coffee|kitchen|fashion|model|love|drama|beauty|perfume|인물|클로즈업|패션/i.test(
           text
         ) ||
-        (cat === "TVCF" && chroma.isChromatic)
+        (hero.l >= 0.42 && hero.l <= 0.68 && chroma.avgSaturation >= 0.34)
       );
     case "deep-focus":
       return (
         item.compositionTags.includes("1점 투시") ||
         item.viewfinder.primaryGrid === "perspective" ||
-        /avenue|street|corridor|railway|bridge|city|거리|투시/i.test(text)
+        /avenue|street|corridor|city|world|house|hall|투시|거리/i.test(text)
       );
     case "anamorphic-flare":
       return (
-        /neon|night|light|glow|space|launch|sunset|highway|showroom|네온|야경|빛|발사/i.test(
+        /neon|night|light|glow|space|sunset|highway|showroom|star|sci-fi|future|laser|네온|야경|빛/i.test(
           text
         ) ||
         item.aspectRatio === "16:9" ||
-        item.aspectRatio === "2.39:1"
+        item.aspectRatio === "2.39:1" ||
+        (chroma.luminanceSpread >= 0.52 && chroma.maxSaturation >= 0.58)
       );
     case "wide-fisheye":
       return (
         item.aspectRatio === "16:9" ||
         item.aspectRatio === "2.39:1" ||
         item.aspectRatio === "3:2" ||
-        /wide|panorama|skyline|highway|fair|world|와이드|파노라마|광각/i.test(text)
+        /wide|panorama|skyline|highway|fair|world|desert|ocean|mountain|와이드|광각/i.test(
+          text
+        ) ||
+        (cat === "CLASSIC_FILM" && dur >= 3600)
       );
 
     // 2. Camera Movement
     case "dolly-tracking":
       return (
-        cat === "STREET_ERA" ||
-        /tram|streetcar|cable car|train|subway|metro|street|bus|drive|walk|트램|거리|주행|열차/i.test(
+        /drive|car|train|road|journey|walk|chase|street|city|escape|auto|ford|honda|toyota|chevrolet|bmw|porsche|주행|트래킹|자동차/i.test(
           text
-        )
+        ) ||
+        (cat === "CLASSIC_FILM" && item.viewfinder.primaryGrid === "perspective")
       );
     case "crash-zoom":
       return (
-        /trailer|zoom|horror|thriller|action|monster|alien|예고편|호러|스릴러/i.test(
+        /horror|thriller|action|monster|alien|blood|terror|killer|kung|fu|fight|crime|호러|스릴러|액션/i.test(
           text
         ) ||
-        (cat === "CLASSIC_FILM" &&
-          item.durationSec !== null &&
-          item.durationSec <= 240)
+        (cat === "CLASSIC_FILM" && dur <= 3000) ||
+        item.persuasionTags.includes("초반 3초 시선 강탈")
       );
     case "whip-pan":
       return (
         item.compositionTags.includes("매치 컷") ||
-        /chase|race|sport|dance|cartoon|spot|commercial|패스트|스팟/i.test(text) ||
-        (cat === "TVCF" && item.durationSec !== null && item.durationSec <= 75)
+        /chase|race|sport|dance|spot|commercial|action|music|party|패스트|스팟/i.test(
+          text
+        ) ||
+        (cat === "TVCF" && dur <= 70)
       );
     case "orbit-360":
       return (
-        /showroom|car|chevrolet|ford|motor|dance|stage|earth|orbit|apollo|쇼룸|자동차|회전|지구/i.test(
+        /showroom|car|chevrolet|ford|honda|toyota|motor|dance|stage|fashion|watch|perfume|bottle|쇼룸|자동차|회전/i.test(
           text
         ) ||
-        (cat === "TVCF" && item.compositionTags.includes("기하학 조형"))
+        (cat === "TVCF" && item.compositionTags.includes("기하학 조형")) ||
+        item.viewfinder.primaryGrid === "golden"
       );
     case "crane-aerial":
       return (
-        /apollo|nasa|space|earth|shuttle|flight|sky|aerial|bridge|cable|city|우주|지구|항공|비행/i.test(
+        /sky|flight|air|mountain|sea|ocean|island|city|war|epic|battle|space|planet|항공|우주|전경/i.test(
           text
         ) ||
-        (cat === "STREET_ERA" &&
-          (country === "US" || country === "EU" || country === "GLOBAL"))
+        item.persuasionTags.includes("스케일 반전") ||
+        (cat === "CLASSIC_FILM" && dur >= 4500)
       );
 
     // 3. Framing & Angles
@@ -486,7 +493,7 @@ export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
     case "extreme-close-up":
       return (
         item.compositionTags.includes("초근접 클로즈업") ||
-        /eye|face|hand|coffee|drink|food|watch|detail|인물|클로즈업|근접/i.test(
+        /eye|face|hand|coffee|drink|food|watch|camera|kodak|polaroid|detail|인물|클로즈업|근접/i.test(
           text
         ) ||
         cat === "TVCF"
@@ -494,69 +501,68 @@ export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
     case "low-angle":
       return (
         item.persuasionTags.includes("스케일 반전") ||
-        /launch|rocket|apollo|shuttle|tower|skyline|bridge|godzilla|monster|발사|우주|타워|빌딩/i.test(
+        /giant|monster|hero|tower|building|king|god|power|truck|car|rocket|스케일|히어로/i.test(
           text
         ) ||
-        cat === "STREET_ERA"
+        (cat === "CLASSIC_FILM" && chroma.luminanceSpread >= 0.48)
       );
     case "dutch-angle":
       return (
-        cat === "CLASSIC_FILM" ||
-        cat === "WEB_PHANTOM" ||
-        /horror|noir|thriller|suspense|night|glitch|호러|누아르|심야/i.test(text)
+        /horror|noir|thriller|suspense|night|dead|blood|evil|ghost|vampire|zombie|murder|psycho|호러|누아르|스릴러/i.test(
+          text
+        ) ||
+        (cat === "CLASSIC_FILM" && avgLum <= 0.38)
       );
     case "frame-within-frame":
       return (
         item.compositionTags.includes("프레임 속 프레임") ||
         item.compositionTags.includes("기하학 조형") ||
-        /window|door|mirror|arch|screen|tv|crt|창|거울|프레임/i.test(text)
+        /window|door|mirror|arch|screen|tv|house|room|창|거울|프레임/i.test(text)
       );
 
     // 4. Lighting & Color
     case "chiaroscuro-noir":
       return (
         item.compositionTags.includes("역광 실루엣") ||
-        cat === "CLASSIC_FILM" ||
-        !chroma.isChromatic ||
-        chroma.luminanceSpread >= 0.7
+        avgLum <= 0.36 ||
+        chroma.luminanceSpread >= 0.56
       );
     case "neon-tungsten":
       return (
-        /neon|night|noir|kabukicho|shibuya|dotonbori|nathan|ximending|euljiro|tokyo|hong kong|네온|야경|심야|누아르/i.test(
+        /neon|night|tokyo|japan|hong kong|club|disco|city|80s|90s|sony|seiko|네온|텅스텐|야경/i.test(
           text
         ) ||
-        cat === "WEB_PHANTOM" ||
-        cat === "AD_BILLBOARD"
+        (item.year >= 1978 &&
+          ((hero.h >= 270 && hero.h <= 345) || (hero.h >= 20 && hero.h <= 55)) &&
+          hero.s >= 0.38)
       );
     case "technicolor-warm":
       return (
         warmth >= 2 ||
-        /technicolor|kodachrome|color|warm|gold|sunset|테크니컬러|코다크롬/i.test(
-          text
-        )
+        (hero.h >= 0 && hero.h <= 62 && hero.s >= 0.3) ||
+        (hero.h >= 330 && hero.s >= 0.3)
       );
     case "cyan-cold-grade":
       return (
         coolness >= 2 ||
-        /space|earth|ocean|blue|crt|cyber|oscilloscope|winter|우주|지구|바다|브라운관/i.test(
-          text
-        )
+        (hero.h >= 165 && hero.h <= 255 && hero.s >= 0.22) ||
+        /space|ocean|blue|winter|ice|water|sea|우주|바다|블루/i.test(text)
       );
     case "high-key-studio":
       return (
-        avgLum >= 0.44 ||
-        /studio|kitchen|fashion|showroom|soap|cereal|soda|home|주방|쇼룸|패션/i.test(
+        avgLum >= 0.48 ||
+        /studio|kitchen|fashion|showroom|soap|cereal|soda|cola|pepsi|home|family|주방|쇼룸|패션/i.test(
           text
         ) ||
-        (cat === "TVCF" && item.year >= 1955)
+        (cat === "TVCF" && hero.l >= 0.46)
       );
 
     // 5. Editing & CF Hook
     case "fast-cut-montage":
       return (
         item.persuasionTags.includes("초반 3초 시선 강탈") ||
-        /trailer|montage|spot|news|reel|예고편|몽타주|스팟/i.test(text) ||
-        (item.durationSec !== null && item.durationSec <= 90)
+        dur <= 90 ||
+        cat === "TVCF"
       );
     case "match-cut":
       return (
@@ -566,25 +572,24 @@ export function matchesTechnique(item: ArchiveItem, slug: string): boolean {
       );
     case "slow-motion":
       return (
-        (item.durationSec !== null && item.durationSec >= 120) ||
-        /nasa|apollo|space|ocean|water|dance|launch|우주|발사/i.test(text) ||
-        cat === "CLASSIC_FILM"
+        dur >= 2400 ||
+        /dance|water|ocean|dream|love|music|ballet|flight|슬로우|무용|바다/i.test(
+          text
+        ) ||
+        (cat === "CLASSIC_FILM" && item.year >= 1970 && item.year <= 1995)
       );
     case "product-hero-shot":
       return (
         cat === "TVCF" ||
-        /chevrolet|ford|pepsi|coca|coffee|kodak|motor|showroom|commercial|자동차|쇼룸|광고/i.test(
+        /chevrolet|ford|pepsi|coca|coffee|kodak|sony|honda|toyota|polaroid|commercial|자동차|쇼룸|광고/i.test(
           text
         )
       );
     case "split-screen-title":
       return (
         item.persuasionTags.includes("카피×구도 일체형") ||
-        /title|trailer|leader|graphic|sign|neon|billboard|타이틀|예고편|간판|카피/i.test(
-          text
-        ) ||
-        cat === "AD_BILLBOARD" ||
-        cat === "TVCF"
+        item.compositionTags.includes("기하학 조형") ||
+        (cat === "TVCF" && item.year >= 1975)
       );
     default:
       return true;

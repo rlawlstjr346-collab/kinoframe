@@ -13011,5 +13011,2826 @@
     "contentType": "video/mp4",
     "lastCheckedAt": "2026-11-22T03:10:24.919Z",
     "status": 200
+  },
+  "https://archive.org/download/Hypnophrenia/Hypnophrenia.thumbs/Hypnophrenia_000660.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Hypnophrenia/Hypnophrenia_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Hypnophrenia": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Vandhaal_Wonders_of_the_Deep_02/The_Vandhaal_Wonders_of_the_Deep_02.thumbs/wotd01_000330.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Vandhaal_Wonders_of_the_Deep_02/wotd02_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Vandhaal_Wonders_of_the_Deep_02": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/HorrorExpresswithSpanishSubtitles/HorrorExpresswithSpanishSubtitles.thumbs/horror_express_subs_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/HorrorExpresswithSpanishSubtitles/horror_express_subs_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/HorrorExpresswithSpanishSubtitles": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Virus_Fukkatsu_no_hi/Virus_Fukkatsu_no_hi.thumbs/virus-3of7_000840.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Virus_Fukkatsu_no_hi/virus-7of7_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Virus_Fukkatsu_no_hi": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Atom/The_Atom.thumbs/Atom_Closer_Look_000134.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Atom/Atom_Closer_Look_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Atom": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheGuyFromHarlem/TheGuyFromHarlem.thumbs/TheGuyFromHarlem_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheGuyFromHarlem/TheGuyFromHarlem_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TheGuyFromHarlem": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Dominique_638/Dominique_638.thumbs/DominiqueIsDead1978_003360.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Dominique_638/DominiqueIsDead1978_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Dominique_638": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Reign_of_the_Fallen/Reign_of_the_Fallen.thumbs/Reign_of_the_Fallen_sor3_001740.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Reign_of_the_Fallen/Reign_of_the_Fallen_sor3_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Reign_of_the_Fallen": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Honey-final/Honey-final.thumbs/Honey-final-180k_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Honey-final/Honey-final-180k_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Honey-final": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/T.n.t.Jackson/T.n.t.Jackson.thumbs/MoviePowderPresentsTntJackson_001980.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/T.n.t.Jackson/MoviePowderPresentsTntJackson_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/T.n.t.Jackson": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/embryo_RockHudson/embryo_RockHudson.thumbs/EMBRYO_003660.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/embryo_RockHudson/EMBRYO_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/embryo_RockHudson": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/EndoftheWorld/EndoftheWorld.thumbs/EndoftheWorld_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/EndoftheWorld/EndoftheWorld_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/EndoftheWorld": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BlackCobra/BlackCobra.thumbs/BlackCobra_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BlackCobra/BlackCobra_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BlackCobra": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SnakePeople/SnakePeople.thumbs/SnakePeoplePresentedByMoviePowder_003180.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SnakePeople/SnakePeoplePresentedByMoviePowder_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SnakePeople": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Devils_Feast/The_Devils_Feast.thumbs/the_devils_feast_002940.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Devils_Feast/the_devils_feast_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Devils_Feast": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheLazarusSyndrome/TheLazarusSyndrome.thumbs/TheLazarusSyndrome_002280.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheLazarusSyndrome/TheLazarusSyndrome_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TheLazarusSyndrome": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DeathRage/DeathRage.thumbs/DeathRage_002400.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DeathRage/DeathRage_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/DeathRage": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/solu/solu.thumbs/solu_small_000330.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/solu/solu_small_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/solu": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BorntoWin/BorntoWin.thumbs/BorntoWin_002640.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BorntoWin/BorntoWin_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BorntoWin": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/JakeHughesAnachronoxTheMovie/JakeHughesAnachronoxTheMovie.thumbs/JakeHughesAnachronoxTheMovie_004320.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/JakeHughesAnachronoxTheMovie/JakeHughesAnachronoxTheMovie_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/JakeHughesAnachronoxTheMovie": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DieSisterDie/DieSisterDie.thumbs/DieSisterDie_002700.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DieSisterDie/DieSisterDie_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/DieSisterDie": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ClaCinOnl_Joshua/ClaCinOnl_Joshua.thumbs/Joshua_002580.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ClaCinOnl_Joshua/Joshua_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ClaCinOnl_Joshua": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ToKnowAJedi-Movie/ToKnowAJedi-Movie.thumbs/ToKnowAJedi-DivX-Full-FreeToCopyAndGiveAway-IllegalToSell_002940.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ToKnowAJedi-Movie/ToKnowAJedi-DivX-Full-FreeToCopyAndGiveAway-IllegalToSell_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ToKnowAJedi-Movie": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Hollywood_Man/Hollywood_Man.thumbs/Hollywood_Man_002400.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Hollywood_Man/Hollywood_Man_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Hollywood_Man": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Star_Wreck_In_the_Pirkinning_VOScastellano/Star_Wreck_In_the_Pirkinning_VOScastellano.thumbs/Star_Wreck_In_the_Pirkinning_VOScastellano_003288.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Star_Wreck_In_the_Pirkinning_VOScastellano/Star_Wreck_In_the_Pirkinning_VOScastellano_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Star_Wreck_In_the_Pirkinning_VOScastellano": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/HighRisk/HighRisk.thumbs/High_Risk_002880.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/HighRisk/High_Risk_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/HighRisk": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/rawk/rawk.thumbs/rawk_web_000120.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/rawk/rawk_web_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/rawk": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Cafune/Cafune.thumbs/cafune-001_002934.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Cafune/cafune-001_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Cafune": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DeepRed1975/DeepRed1975.thumbs/DeepRed_003180.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DeepRed1975/DeepRed_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/DeepRed1975": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WholesaleSoulsInc/WholesaleSoulsInc.thumbs/wholesale-souls-inc_002400.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WholesaleSoulsInc/wholesale-souls-inc_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/WholesaleSoulsInc": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/goodbyeamerica2006/goodbyeamerica2006.thumbs/67_goodbyeam00233rica._documental_..._290f3ORIG_002274.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/goodbyeamerica2006/67_goodbyeam00233rica._documental_..._290f3ORIG_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/goodbyeamerica2006": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Grave_of_the_Vampire_movie/Grave_of_the_Vampire_movie.thumbs/Grave-of-the-Vampire_002862.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Grave_of_the_Vampire_movie/Grave-of-the-Vampire_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Grave_of_the_Vampire_movie": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Red_Detachment_of_Women/The_Red_Detachment_of_Women.thumbs/rdow.part1_001500.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Red_Detachment_of_Women/rdow.part2_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Red_Detachment_of_Women": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Breaking_With_Old_Ideas/Breaking_With_Old_Ideas.thumbs/Breaking_With_Old_Ideas_004500.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Breaking_With_Old_Ideas/Breaking_With_Old_Ideas_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Breaking_With_Old_Ideas": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/theillusionofdespair/theillusionofdespair.thumbs/theillusionofdespair_000780.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/theillusionofdespair/theillusionofdespair_lg_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/theillusionofdespair": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheFatSpy/TheFatSpy.thumbs/TheFatSpy_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheFatSpy/TheFatSpy_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TheFatSpy": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/NinjaDeathTrilogy/NinjaDeathTrilogy.thumbs/Ninja_Death_II_002739.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/NinjaDeathTrilogy/Ninja_Death_I-xvid_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/NinjaDeathTrilogy": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Jag_Ar_Gnorka/Jag_Ar_Gnorka.thumbs/Jag_Ar_Gnorka_web_000210.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Jag_Ar_Gnorka/Jag_Ar_Gnorka_web_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Jag_Ar_Gnorka": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KaravanSmertitheCaravanOfDeath/KaravanSmertitheCaravanOfDeath.thumbs/Karavan_smerti_002640.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KaravanSmertitheCaravanOfDeath/Karavan_smerti_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/KaravanSmertitheCaravanOfDeath": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BlackFist/BlackFist.thumbs/Black_Fist_002940.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BlackFist/Black_Fist_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BlackFist": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VoyagetothePlanetofPrehistoricWomen/VoyagetothePlanetofPrehistoricWomen.thumbs/VoyagetothePlanetofPrehistoricWomen_002220.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VoyagetothePlanetofPrehistoricWomen/VoyagetothePlanetofPrehistoricWomen_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/VoyagetothePlanetofPrehistoricWomen": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KungFuPirate/KungFuPirate.thumbs/KungFuPirate_000300.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KungFuPirate/KungFuPirate_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/KungFuPirate": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/southerntragedy/southerntragedy.thumbs/southerntragedy_000150.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/southerntragedy/southerntragedy_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/southerntragedy": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Hommage1/Hommage1.thumbs/Hommage1_web_000180.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Hommage1/Hommage1_web_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Hommage1": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/RandallPullenTheDaysofLimbo/RandallPullenTheDaysofLimbo.thumbs/The_Days_Of_LimboDIVX_003120.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/RandallPullenTheDaysofLimbo/The_Days_Of_LimboDIVX_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/RandallPullenTheDaysofLimbo": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/GetChristieLove/GetChristieLove.thumbs/GetChristieLove_002040.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/GetChristieLove/GetChristieLove_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/GetChristieLove": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/the_paperlad/the_paperlad.thumbs/the_paperlad_000660.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/the_paperlad/the_paperlad_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/the_paperlad": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Jeder_Mensch_Nachtrag/Jeder_Mensch_Nachtrag.thumbs/1983_Jeder_M_Nachtrag_LAN_003026.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Jeder_Mensch_Nachtrag/1983_Jeder_M_Nachtrag_300kbs_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Jeder_Mensch_Nachtrag": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Algeria_d/Algeria_d.thumbs/Ennemi_Intime1-2_003240.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Algeria_d/Ennemi_Intime3_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Algeria_d": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VoodooMission/VoodooMission.thumbs/VoodooMission_000297.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VoodooMission/VoodooMission_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/VoodooMission": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/classiccinemaonline_ThisManCantDie/classiccinemaonline_ThisManCantDie.thumbs/This_Man_Cant_Die_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/classiccinemaonline_ThisManCantDie/This_Man_Cant_Die_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/classiccinemaonline_ThisManCantDie": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SavageWeekend/SavageWeekend.thumbs/SavageWeekend_002580.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SavageWeekend/SavageWeekend_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SavageWeekend": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/CurseOfBigfoot/CurseOfBigfoot.thumbs/CurseOfBigfoot_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/CurseOfBigfoot/CurseOfBigfoot_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/CurseOfBigfoot": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SlashedDreams_658/SlashedDreams_658.thumbs/SlashedDreamsPresentedByMoviePowder_002520.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SlashedDreams_658/SlashedDreamsPresentedByMoviePowder_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SlashedDreams_658": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ChildrenoftheNight/ChildrenoftheNight.thumbs/ChildrenoftheNight_002640.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ChildrenoftheNight/ChildrenoftheNight_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ChildrenoftheNight": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Lesnouveaudieux/Lesnouveaudieux.thumbs/Lesnouveaudieux_full_000060.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Lesnouveaudieux/Lesnouveaudieux_512k_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Lesnouveaudieux": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Soudci/Soudci.thumbs/Soudci.2005.DVDRipXviD_000480.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Soudci/Soudci.2005.DVDRipXviD_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Soudci": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Art_of_Sitting/The_Art_of_Sitting.thumbs/The_Art_of_Sitting_000030.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Art_of_Sitting/The_Art_of_Sitting_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Art_of_Sitting": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Zontar_Thing_From_Venus/Zontar_Thing_From_Venus.thumbs/Zontar_the_Thing_From_Venus_002280.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Zontar_Thing_From_Venus/Zontar_the_Thing_From_Venus_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Zontar_Thing_From_Venus": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Chimera/Chimera.thumbs/Chimera_720x480_000720.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Chimera/Chimera_720x480_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Chimera": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MurderOnFlight502/MurderOnFlight502.thumbs/MurderOnFlight502_002700.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MurderOnFlight502/MurderOnFlight502_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/MurderOnFlight502": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FamilyEnforcer/FamilyEnforcer.thumbs/FamilyEnforcer_002520.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FamilyEnforcer/FamilyEnforcer_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/FamilyEnforcer": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KarateKidsUSA/KarateKidsUSA.thumbs/Karate_Kids_USA_003111.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/KarateKidsUSA/Karate_Kids_USA_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/KarateKidsUSA": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Destroy_All_Planets/Destroy_All_Planets.thumbs/Destroy_All_Planets_002520.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Destroy_All_Planets/Destroy_All_Planets_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Destroy_All_Planets": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/EternalEvil/EternalEvil.thumbs/EternalEvil_002400.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/EternalEvil/EternalEvil_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/EternalEvil": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Route_66_-_an_American_badDream/Route_66_-_an_American_badDream.thumbs/Route_66_-_an_American_badDream_003300.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Route_66_-_an_American_badDream/Route_66_-_an_American_badDream_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Route_66_-_an_American_badDream": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ProjectKill/ProjectKill.thumbs/Project_Kill_003300.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ProjectKill/Project_Kill_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ProjectKill": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BodyOfThePrey1966/BodyOfThePrey1966.thumbs/BodyOfThePrey_002940.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BodyOfThePrey1966/BodyOfThePrey_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BodyOfThePrey1966": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SistersofDeath/SistersofDeath.thumbs/SistersofDeath_002760.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SistersofDeath/SistersofDeath_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SistersofDeath": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheGreatBrain/TheGreatBrain.thumbs/The_Great_Brain_1978_003354.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TheGreatBrain/The_Great_Brain_1978_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TheGreatBrain": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ItCanBeDoneAmigo/ItCanBeDoneAmigo.thumbs/MoviePowderPresentsItCanBeDoneAmigo_003120.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ItCanBeDoneAmigo/MoviePowderPresentsItCanBeDoneAmigo_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ItCanBeDoneAmigo": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/AmidtheDead/AmidtheDead.thumbs/AmidtheDead_000960.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/AmidtheDead/AmidtheDead_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/AmidtheDead": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ItsAlive/ItsAlive.thumbs/ItsAlive_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ItsAlive/ItsAlive_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ItsAlive": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/filmcollectief-00-171/filmcollectief-00-171.thumbs/filmcollectief-00-171_002040.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/filmcollectief-00-171/filmcollectief-00-171_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/filmcollectief-00-171": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/La_Kete/La_Kete.thumbs/La_Kete_web_000090.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/La_Kete/La_Kete_web_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/La_Kete": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WhiteSunOfTheDesert/WhiteSunOfTheDesert.thumbs/WhiteSunOfTheDesert_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WhiteSunOfTheDesert/WhiteSunOfTheDesert_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/WhiteSunOfTheDesert": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TrackoftheMoonBeast/TrackoftheMoonBeast.thumbs/Track_of_the_Moon_Beast_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TrackoftheMoonBeast/Track_of_the_Moon_Beast_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TrackoftheMoonBeast": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FreedomSquad/FreedomSquad.thumbs/FreedomSquad_000300.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FreedomSquad/FreedomSquad_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/FreedomSquad": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ImageofBruceLee/ImageofBruceLee.thumbs/ClaCinOnl_ImageofBruceLee_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ImageofBruceLee/ClaCinOnl_ImageofBruceLee_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ImageofBruceLee": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Arribada/Arribada.thumbs/Arribada_001080.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Arribada/Arribada_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Arribada": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SamsSong/SamsSong.thumbs/SamsSong_002820.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SamsSong/SamsSong_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SamsSong": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VisualTvCommercialSpookShowEp7/VisualTvCommercialSpookShowEp7.thumbs/CommercialSpookShowEp7_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/VisualTvCommercialSpookShowEp7/CommercialSpookShowEp7_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/VisualTvCommercialSpookShowEp7": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FredrikStaiAjourneyinthreeacts/FredrikStaiAjourneyinthreeacts.thumbs/Act_3__v1.6_000120.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/FredrikStaiAjourneyinthreeacts/Act_3__v1.6_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/FredrikStaiAjourneyinthreeacts": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WakeUpSheeple/WakeUpSheeple.thumbs/TrutubeCommercial-WakeUpSheeple_000003.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/WakeUpSheeple/TrutubeCommercial-WakeUpSheeple_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/WakeUpSheeple": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/PontiacGto1966CarCommercialTvAd/PontiacGto1966CarCommercialTvAd.thumbs/GTOad_000030.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/PontiacGto1966CarCommercialTvAd/GTOad_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/PontiacGto1966CarCommercialTvAd": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TvCommercialadvertisement/TvCommercialadvertisement.thumbs/10thInternationalRadioFestival_000025.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TvCommercialadvertisement/10thInternationalRadioFestival_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TvCommercialadvertisement": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/change_plans/change_plans.thumbs/change_plans_en_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/change_plans/change_plans_fr_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/change_plans": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/AnchorGreatEscape/AnchorGreatEscape.thumbs/anchor_escape_1080_002_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/AnchorGreatEscape/anchor_escape_1080_002_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/AnchorGreatEscape": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DjuiceFriends-JustInCase/DjuiceFriends-JustInCase.thumbs/DjuiceFriends-Fx_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DjuiceFriends-JustInCase/DjuiceFriends-Fx_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/DjuiceFriends-JustInCase": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/hellmans_mayonnaise_commercial/hellmans_mayonnaise_commercial.thumbs/hellmans_mayonnaise_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/hellmans_mayonnaise_commercial/hellmans_mayonnaise_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/hellmans_mayonnaise_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DigibarnXeroxMonksTvCommercial1977/DigibarnXeroxMonksTvCommercial1977.thumbs/XEROXMonks_KoreyKay_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/DigibarnXeroxMonksTvCommercial1977/XEROXMonks_KoreyKay_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/DigibarnXeroxMonksTvCommercial1977": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/flashbackfever_commercial/flashbackfever_commercial.thumbs/flashbackfever_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/flashbackfever_commercial/flashbackfever_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/flashbackfever_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SomeShow-FigNewtonCommercialSOMESHOWSKIT332-2/SomeShow-FigNewtonCommercialSOMESHOWSKIT332-2.thumbs/SomeShow-FigNewtonCommercialSOMESHOWSKIT332_000050.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SomeShow-FigNewtonCommercialSOMESHOWSKIT332-2/SomeShow-FigNewtonCommercialSOMESHOWSKIT332_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SomeShow-FigNewtonCommercialSOMESHOWSKIT332-2": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/paologuglielmonilunapark/paologuglielmonilunapark.thumbs/05luna_park_30sec_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/paologuglielmonilunapark/05luna_park_30sec_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/paologuglielmonilunapark": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratzbabyz_commercial/bratzbabyz_commercial.thumbs/bratzbabyz_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratzbabyz_commercial/bratzbabyz_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/bratzbabyz_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/get_certs_get_closer_commercial/get_certs_get_closer_commercial.thumbs/get_certs_get_closer_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/get_certs_get_closer_commercial/get_certs_get_closer_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/get_certs_get_closer_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Universal_Digital_Remote/The_Universal_Digital_Remote.thumbs/digitrem_000030.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/The_Universal_Digital_Remote/digitrem_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/The_Universal_Digital_Remote": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/crazy_tv_commercial/crazy_tv_commercial.thumbs/crazy_000050.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/crazy_tv_commercial/crazy_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/crazy_tv_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Betty_Butterfield_BYU_TV/Betty_Butterfield_BYU_TV.thumbs/Betty_Butterfield_BYU_TV_000040.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/Betty_Butterfield_BYU_TV/Betty_Butterfield_BYU_TV_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/Betty_Butterfield_BYU_TV": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/halls_vapor_action_commercial/halls_vapor_action_commercial.thumbs/halls_vapor_action_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/halls_vapor_action_commercial/halls_vapor_action_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/halls_vapor_action_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MrProducerGuy-ZenOfThinNationalTVCommercial289/MrProducerGuy-ZenOfThinNationalTVCommercial289.thumbs/MrProducerGuy-ZenOfThinNationalTVCommercial289_000030.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MrProducerGuy-ZenOfThinNationalTVCommercial289/MrProducerGuy-ZenOfThinNationalTVCommercial289_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/MrProducerGuy-ZenOfThinNationalTVCommercial289": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/usatreasurez_commercial/usatreasurez_commercial.thumbs/usatreasurez_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/usatreasurez_commercial/usatreasurez_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/usatreasurez_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/go_by_bike/go_by_bike.thumbs/go_by_bike_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/go_by_bike/go_by_bike_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/go_by_bike": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/sinutab_commercial/sinutab_commercial.thumbs/sinutab_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/sinutab_commercial/sinutab_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/sinutab_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/dmbb09420/dmbb09420.thumbs/dmbb09420_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/dmbb09420/dmbb09420_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/dmbb09420": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/us_steel/us_steel.thumbs/us_steel_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/us_steel/us_steel_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/us_steel": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratzbabyplaysetz_commercial/bratzbabyplaysetz_commercial.thumbs/bratzbabyplaysetz_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratzbabyplaysetz_commercial/bratzbabyplaysetz_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/bratzbabyplaysetz_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/secretdate_commercial/secretdate_commercial.thumbs/secretdate_commercial_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/secretdate_commercial/secretdate_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/secretdate_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/prettynpunk_commercial/prettynpunk_commercial.thumbs/prettynpunk_commercial_000005.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/prettynpunk_commercial/prettynpunk_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/prettynpunk_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratztwiins_commercial/bratztwiins_commercial.thumbs/bratztwiins_commercial_000005.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/bratztwiins_commercial/bratztwiins_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/bratztwiins_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/wintertme_wonderland_commercial/wintertme_wonderland_commercial.thumbs/wintertme_wonderland_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/wintertme_wonderland_commercial/wintertme_wonderland_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/wintertme_wonderland_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MattHutchinsonHersheysMini-Cookies/MattHutchinsonHersheysMini-Cookies.thumbs/FINALHersheys_000005.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MattHutchinsonHersheysMini-Cookies/FINALHersheys_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/MattHutchinsonHersheysMini-Cookies": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MarioAjeroAccordPianoTVSpot/MarioAjeroAccordPianoTVSpot.thumbs/AccordTVCommercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/MarioAjeroAccordPianoTVSpot/AccordTVCommercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/MarioAjeroAccordPianoTVSpot": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SonyBraviaSonyBraviaTVcommercial/SonyBraviaSonyBraviaTVcommercial.thumbs/bravia_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SonyBraviaSonyBraviaTVcommercial/bravia_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SonyBraviaSonyBraviaTVcommercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/match_your_mood/match_your_mood.thumbs/match_your_mood_000210.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/match_your_mood/match_your_mood_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/match_your_mood": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ivory_soap/ivory_soap.thumbs/ivory_soap_000030.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/ivory_soap/ivory_soap_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/ivory_soap": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/fm_cruiser_commercial/fm_cruiser_commercial.thumbs/fm_cruiser_commercial_000010.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/fm_cruiser_commercial/fm_cruiser_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/fm_cruiser_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/uniteuf-athletes/uniteuf-athletes.thumbs/athlete_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/uniteuf-athletes/athlete_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/uniteuf-athletes": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/uniteuf-gowin/uniteuf-gowin.thumbs/gowin_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/uniteuf-gowin/gowin_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/uniteuf-gowin": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BishopSteel-Channel62TvShow1989/BishopSteel-Channel62TvShow1989.thumbs/citytvfinvideo_000180.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BishopSteel-Channel62TvShow1989/citytvfinvideo_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BishopSteel-Channel62TvShow1989": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/newbratztreasurez_commercial/newbratztreasurez_commercial.thumbs/newbratztreasurez_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/newbratztreasurez_commercial/newbratztreasurez_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/newbratztreasurez_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/cu_kerry/cu_kerry.thumbs/cu_kerry_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/cu_kerry/cu_kerry_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/cu_kerry": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/girlsniteout_commercial_1/girlsniteout_commercial_1.thumbs/girlsniteout_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/girlsniteout_commercial_1/girlsniteout_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/girlsniteout_commercial_1": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/GapcomRaoulBovaraoulwmv/GapcomRaoulBovaraoulwmv.thumbs/raoul_000020.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/GapcomRaoulBovaraoulwmv/raoul_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/GapcomRaoulBovaraoulwmv": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/rca_victor/rca_victor.thumbs/rca_victor_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/CocoPopsCupboardFlv/CocoPopsCupboardFlv.thumbs/Cocopops_final_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/CocoPopsCupboardFlv/Cocopops_final_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/CocoPopsCupboardFlv": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/crunch_and_munch_commercial/crunch_and_munch_commercial.thumbs/crunch_and_munch_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/crunch_and_munch_commercial/crunch_and_munch_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/crunch_and_munch_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/lilbratzpartypoolextened_commercial/lilbratzpartypoolextened_commercial.thumbs/lilbratzpartypoolextened_commercial_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/lilbratzpartypoolextened_commercial/lilbratzpartypoolextened_commercial_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/lilbratzpartypoolextened_commercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/1967DogdeDartTvCommercialPamAustinClips/1967DogdeDartTvCommercialPamAustinClips.thumbs/Dodgedart_000180.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/1967DogdeDartTvCommercialPamAustinClips/Dodgedart_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/1967DogdeDartTvCommercialPamAustinClips": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SilverTipGrillTVSpot/SilverTipGrillTVSpot.thumbs/Chapter__SilverTip_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/SilverTipGrillTVSpot/Chapter__SilverTip_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/SilverTipGrillTVSpot": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TVcommercial_0/TVcommercial_0.thumbs/TV_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/TVcommercial_0/TV_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/TVcommercial_0": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BUICK_RED_TAG_EVENT/BUICK_RED_TAG_EVENT.thumbs/ETIQUETABUICK_000010.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/BUICK_RED_TAG_EVENT/ETIQUETABUICK_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/BUICK_RED_TAG_EVENT": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/1969HeadAndShouldersShampooCommercial/1969HeadAndShouldersShampooCommercial.thumbs/HeadandShoulders1969_000035.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/1969HeadAndShouldersShampooCommercial/HeadandShoulders1969_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/1969HeadAndShouldersShampooCommercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/2spot4.tvCommercial/2spot4.tvCommercial.thumbs/2spot4highcom_000015.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/2spot4.tvCommercial/2spot4highcom_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/2spot4.tvCommercial": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/kodak_instamatic_512kb/kodak_instamatic_512kb.thumbs/kodak_instamatic_000034.jpg": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "image/jpeg",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/download/kodak_instamatic_512kb/kodak_instamatic_512kb.mp4": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "video/mp4",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
+  },
+  "https://archive.org/details/kodak_instamatic_512kb": {
+    "etag": null,
+    "lastModified": null,
+    "contentType": "text/html",
+    "lastCheckedAt": "2026-11-22T08:23:46.296073Z",
+    "status": 200
   }
 }

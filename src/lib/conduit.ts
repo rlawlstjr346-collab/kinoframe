@@ -429,13 +429,15 @@ function parseDurationSec(raw: unknown): number {
 }
 
 export const BLOCKED_CONTENT_REGEX =
-  /\b(porn|xxx|nsfw|nude|hentai|selfie|group[_ -]?photo|merchandise|t-?shirt|storefront|afips|federation|conference|symposium|seminar|lecture|talk|interview|unboxing|review|nintendo|famicom|game.?boy|atari|sega|playstation|xbox|console|flip.?phone|cell.?phone|smartphone|nokia|motorola|hardware|motherboard|calculator|typewriter|stamp|postage|matchbox|brochure|flyer|pamphlet|manual|catalog|manuscript|book.?page|textbook|dictionary|patent|diagram|chart|slide.?deck)\b/i;
+  /\b(porn|xxx|nsfw|nude|hentai|selfie|group[_ -]?photo|merchandise|t-?shirt|storefront|afips|federation|conference|symposium|seminar|lecture|talk|interview|unboxing|review|nintendo|famicom|game.?boy|atari|sega|playstation|xbox|console|flip.?phone|cell.?phone|smartphone|nokia|motorola|hardware|motherboard|calculator|typewriter|stamp|postage|matchbox|brochure|flyer|pamphlet|manual|catalog|manuscript|book.?page|textbook|dictionary|patent|diagram|chart|slide.?deck|black\s*(?:&|and)\s*white|b\s*&\s*w|monochrome|newsreel|universal_newsreel|march\s+of\s+time|tfa[-_]|tcr|timecode|silent|cartoon|popeye|fleischer|amateur|home\s*movie|lucky\s*strike|camcorder|walking\s+tour|driving\s+tour|streetcar|tram)\b/i;
 
 export interface RawInternetArchiveInput {
   identifier: string;
   title: string;
   year?: number | string | null;
   mp4FileName: string;
+  thumbFileName?: string | null;
+  startSec?: number | null;
   durationRaw?: unknown;
   category: ArchiveCategory;
   countryHint?: CountryCode;
@@ -449,7 +451,20 @@ export function normalizeInternetArchiveItem(
   if (!idClean || !mp4Clean || !/\.mp4$/i.test(mp4Clean)) return null;
   if (BLOCKED_CONTENT_REGEX.test(`${idClean} ${input.title}`)) return null;
 
-  const thumbnailUrl = `https://archive.org/services/img/${encodeURIComponent(idClean)}`;
+  // Enforce 1964+ color era (block pre-1964 monochrome archival footage)
+  const rawYearMatch = String(input.year ?? "").match(/(19\d{2}|20\d{2})/);
+  const parsedYear = rawYearMatch ? Number.parseInt(rawYearMatch[1], 10) : 1978;
+  if (parsedYear < 1964 || parsedYear > 2009) return null;
+
+  // Strictly prefer verified mid-film .thumbs/*_0000XX.jpg over 0-sec /services/img/ credit slide
+  const thumbClean = String(input.thumbFileName || "").trim();
+  if (!thumbClean || !/\.thumbs\/.*\.jpg$/i.test(thumbClean)) {
+    return null;
+  }
+
+  const thumbnailUrl = `https://archive.org/download/${encodeURIComponent(
+    idClean
+  )}/${encodeURIComponent(thumbClean).replace(/%2F/g, "/")}`;
   const previewVideoUrl = `https://archive.org/download/${encodeURIComponent(
     idClean
   )}/${encodeURIComponent(mp4Clean).replace(/%2F/g, "/")}`;
@@ -463,35 +478,42 @@ export function normalizeInternetArchiveItem(
     return null;
   }
 
-  const parsedYear = Number.parseInt(String(input.year ?? "1986").slice(0, 4), 10);
-  const year = Math.max(1950, Math.min(2009, Number.isNaN(parsedYear) ? 1986 : parsedYear));
+  const year = parsedYear;
+  const resolvedCategory: ArchiveCategory =
+    input.category === "TVCF" ? "TVCF" : "CLASSIC_FILM";
   const originalTitle = String(input.title || idClean).trim().slice(0, 140);
   const country = inferCountryFromText(
     `${originalTitle} ${idClean}`,
     input.countryHint ?? "US"
   );
-  const palette = CATEGORY_PALETTES[input.category];
+  const palette = CATEGORY_PALETTES[resolvedCategory];
+  const durationSec = parseDurationSec(input.durationRaw);
+  const startSec =
+    typeof input.startSec === "number" && Number.isFinite(input.startSec) && input.startSec > 0
+      ? Math.round(input.startSec)
+      : Math.max(12, Math.floor(durationSec * 0.42));
 
   return {
     id: buildInternetArchivePointerId(idClean),
-    titleKo: cleanKoreanTitle(originalTitle, year, input.category),
+    titleKo: cleanKoreanTitle(originalTitle, year, resolvedCategory),
     originalTitle,
-    brandOrSource: "Internet Archive / Live Conduit Stream",
+    brandOrSource: "Internet Archive / Color Cinema Conduit",
     year,
     era: mapEra(year),
-    mediaType: mapCategoryToMediaType(input.category, true),
-    category: input.category,
+    mediaType: mapCategoryToMediaType(resolvedCategory, true),
+    category: resolvedCategory,
     country,
     aspectRatio: "4:3",
-    durationSec: parseDurationSec(input.durationRaw),
+    durationSec,
+    startSec,
     mediaSource: "archive_mp4",
     thumbnailUrl,
     previewVideoUrl,
     youtubeId: null,
     sourceUrl,
-    licenseNote: "Public Domain / Internet Archive (Live Conduit)",
+    licenseNote: "Public Domain / Internet Archive (Color Conduit)",
     compositionTags: ["프레임 속 프레임", "기하학 조형"],
-    persuasionTags: ["초반 3초 시선 강탈", "다큐 리얼리즘"],
+    persuasionTags: ["초반 3초 시선 강탈", "시각적 은유"],
     palette,
     viewfinder: {
       vanishingPoint: [50, 48],
@@ -506,32 +528,32 @@ export function normalizeInternetArchiveItem(
       {
         label: "초반 훅 프레임",
         timeOrZone: "0:02",
-        noteKo: "실시간 외부 수맥에서 스트리밍된 원판 영상의 즉각적인 시각 임팩트",
+        noteKo: "실시간 외부 수맥에서 스트리밍된 컬러 원판 영상의 즉각적인 시각 임팩트",
         focusCrop: "50% 48%",
       },
       {
         label: "구도 리딩라인",
         timeOrZone: "0:10",
-        noteKo: "아날로그 필름·테이프 원판의 공간 깊이와 피사체 배치",
+        noteKo: "35mm/16mm 컬러 필름 원판의 공간 깊이와 피사체 배치",
         focusCrop: "35% 54%",
       },
       {
         label: "색채 톤 대비",
         timeOrZone: "0:20",
-        noteKo: "시대적 색수차와 명도 대비가 형성하는 시각적 무드",
+        noteKo: "시대적 색보정과 조명 대비가 형성하는 시각적 무드",
         focusCrop: "65% 42%",
       },
       {
         label: "루프 아카이브",
         timeOrZone: "0:32",
-        noteKo: "무음 자동 루프 월에서 반복 리듬을 형성하는 클로징 구간",
+        noteKo: "무음 자동 루프 월에서 반복 리듬을 형성하는 본편 하이라이트 구간",
         focusCrop: "50% 50%",
       },
     ],
     breakdown: {
-      hook3s: "원판 아카이브 필름 특유의 텍스처와 움직임이 첫 1초 만에 시선을 고정한다.",
-      framing: "현장 기록 중심의 비정형 프레이밍이 현대 광고·영상에 신선한 시각 레퍼런스를 제공한다.",
-      marketingApply: "실시간 발굴된 퍼블릭 도메인 무빙 소스로 캠페인 무드보드 및 티저 시안에 활용한다.",
+      hook3s: "원판 컬러 시네마·TVCF 필름 특유의 색감과 움직임이 첫 1초 만에 시선을 고정한다.",
+      framing: "본편 중반부 미장센 프레이밍이 현대 광고·영상에 즉각적인 시각 레퍼런스를 제공한다.",
+      marketingApply: "실시간 발굴된 퍼블릭 도메인 컬러 무빙 소스로 캠페인 무드보드 및 디렉터 시안에 활용한다.",
     },
   };
 }
@@ -572,21 +594,21 @@ export function normalizeWikimediaItem(
 
   const isVideo = Boolean(cleanVideo && /\.(webm|mp4)(\?.*)?$/i.test(cleanVideo));
   if (!isVideo) return null;
-  const year = Math.max(1950, Math.min(2009, input.year ?? (isVideo ? 1996 : 1968)));
+  const year = Math.max(1964, Math.min(2009, input.year ?? 1986));
+  const resolvedCategory: ArchiveCategory =
+    input.category === "TVCF" ? "TVCF" : "CLASSIC_FILM";
   const country = inferCountryFromText(titleClean, input.countryHint ?? "GLOBAL");
-  const palette = CATEGORY_PALETTES[input.category];
+  const palette = CATEGORY_PALETTES[resolvedCategory];
 
   return {
     id: buildWikimediaPointerId(input.pageId),
-    titleKo: cleanKoreanTitle(titleClean, year, input.category),
+    titleKo: cleanKoreanTitle(titleClean, year, resolvedCategory),
     originalTitle: titleClean.slice(0, 140),
-    brandOrSource: isVideo
-      ? "Wikimedia Commons / Open Motion Conduit"
-      : "Wikimedia Commons / Archival Still Conduit",
+    brandOrSource: "Wikimedia Commons / Color Cinema Conduit",
     year,
     era: mapEra(year),
-    mediaType: mapCategoryToMediaType(input.category, isVideo),
-    category: input.category,
+    mediaType: mapCategoryToMediaType(resolvedCategory, isVideo),
+    category: resolvedCategory,
     country,
     aspectRatio: mapAspectRatio(input.width ?? 1280, input.height ?? 720),
     durationSec: isVideo ? parseDurationSec(input.durationSec ?? 24) : null,
@@ -713,97 +735,88 @@ function getCategorySourceSpecs(
   const extraSearch = [userQ, countryToken].filter(Boolean).join(" ").trim();
   const iaExtra = extraSearch ? ` AND (${extraSearch})` : "";
 
+  // Locked 60% CLASSIC_FILM : 40% TVCF pure color video rotation (zero street/cartoon/home/photo leakage)
   const allRotation: ArchiveCategory[] = [
-    "STREET_ERA",
+    "CLASSIC_FILM",
+    "CLASSIC_FILM",
     "TVCF",
     "CLASSIC_FILM",
-    "WEB_PHANTOM",
-    "ANIME_COMIC",
-    "AD_BILLBOARD",
-    "ALBUM_POSTER",
-    "PHOTO",
+    "TVCF",
+    "CLASSIC_FILM",
+    "CLASSIC_FILM",
+    "TVCF",
+    "CLASSIC_FILM",
+    "TVCF",
   ];
   const resolvedCategory: ArchiveCategory =
-    category === "ALL"
-      ? allRotation[(Math.abs(seed) + Math.max(0, cursor - 1)) % allRotation.length]
-      : category;
+    category === "TVCF"
+      ? "TVCF"
+      : category === "CLASSIC_FILM"
+      ? "CLASSIC_FILM"
+      : allRotation[
+          (Math.abs(seed) + Math.max(0, cursor - 1)) % allRotation.length
+        ];
 
-  const countryHint: CountryCode = country === "ALL" ? "GLOBAL" : country;
+  const countryHint: CountryCode = country === "ALL" ? "US" : country;
 
-  switch (resolvedCategory) {
-    case "WEB_PHANTOM":
-      return {
-        targetCategory: "WEB_PHANTOM",
-        countryHint,
-        iaQuery: `(collection:vhsvault OR collection:home_movies OR collection:ephemeralfilms OR collection:television) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "CRT analog oscilloscope neon visual glitch"}`,
-      };
-    case "TVCF":
-      return {
-        targetCategory: "TVCF",
-        countryHint: country === "ALL" ? "US" : country,
-        iaQuery: `(collection:prelinger OR collection:classic_tv_commercials) AND mediatype:movies AND (commercial OR advertisement OR television) AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "vintage commercial television film"}`,
-      };
-    case "CLASSIC_FILM":
-      return {
-        targetCategory: "CLASSIC_FILM",
-        countryHint: country === "ALL" ? "US" : country,
-        iaQuery: `(collection:movie_trailers OR collection:feature_films OR collection:film_noir OR collection:sci_fi_horror) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "classic cinema film trailer silent movie"}`,
-      };
-    case "STREET_ERA":
-      return {
-        targetCategory: "STREET_ERA",
-        countryHint,
-        iaQuery: `(collection:prelinger OR collection:travelogues) AND mediatype:movies AND (street OR tram OR city OR harbor OR downtown) AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "city street tram night driving walking"}`,
-      };
-    case "ANIME_COMIC":
-      return {
-        targetCategory: "ANIME_COMIC",
-        countryHint: country === "ALL" ? "US" : country,
-        iaQuery: `(collection:classic_cartoons OR collection:animationandcartoons) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "classic cartoon animation cel"}`,
-      };
-    case "AD_BILLBOARD":
-      return {
-        targetCategory: "AD_BILLBOARD",
-        countryHint,
-        iaQuery: `collection:prelinger AND mediatype:movies AND (neon OR billboard OR sign OR times square) AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "neon sign billboard night street"}`,
-      };
-    case "ALBUM_POSTER":
-      return {
-        targetCategory: "ALBUM_POSTER",
-        countryHint,
-        iaQuery: `(collection:prelinger OR collection:musicvideo) AND mediatype:movies AND (concert OR jazz OR music OR festival) AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "vintage jazz concert music performance"}`,
-      };
-    case "PHOTO":
-    default:
-      return {
-        targetCategory: "PHOTO",
-        countryHint,
-        iaQuery: `(collection:prelinger OR collection:newsandpublicaffairs) AND mediatype:movies AND (city OR aerial OR train OR night) AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "historical newsreel documentary street cinema"}`,
-      };
+  if (resolvedCategory === "TVCF") {
+    return {
+      targetCategory: "TVCF",
+      countryHint,
+      iaQuery: `(collection:classic_tv_commercials OR collection:commercials OR collection:prelinger) AND mediatype:movies AND (commercial OR advertisement OR spot) AND year:[1964 TO 2006] AND format:"512Kb MPEG4" AND -("black and white" OR newsreel OR "lucky strike" OR cartoon)${iaExtra}`,
+      wmVideoQuery: `filetype:video ${extraSearch || "vintage color television commercial film"}`,
+    };
   }
+
+  return {
+    targetCategory: "CLASSIC_FILM",
+    countryHint,
+    iaQuery: `(collection:feature_films OR collection:sci_fi_horror OR collection:short_films OR collection:film_chest) AND mediatype:movies AND year:[1965 TO 2006] AND format:"512Kb MPEG4" AND -("black and white" OR silent OR newsreel OR cartoon OR trailer)${iaExtra}`,
+    wmVideoQuery: `filetype:video ${extraSearch || "vintage color cinema feature film"}`,
+  };
 }
 
 function buildDecadeFilter(decade: Era | "ALL"): string {
   switch (decade) {
     case "1950-60s":
-      return " AND year:[1950 TO 1969]";
+      return " AND year:[1964 TO 1969]";
     case "1970s":
       return " AND year:[1970 TO 1979]";
     case "1980s":
       return " AND year:[1980 TO 1989]";
     case "1990-00s":
-      return " AND year:[1990 TO 2009]";
+      return " AND year:[1990 TO 2006]";
     default:
       return "";
   }
+}
+
+function pickBestIaMidThumbFile(
+  files: unknown,
+  durationSec: number
+): { name: string; startSec: number } | null {
+  if (!Array.isArray(files)) return null;
+  const thumbs: Array<{ name: string; sec: number }> = [];
+  for (const entry of files) {
+    if (!entry || typeof entry !== "object") continue;
+    const name = (entry as { name?: unknown }).name;
+    if (typeof name !== "string") continue;
+    if (!name.includes(".thumbs/")) continue;
+    const m = name.match(/_(\d{5,6})\.jpg$/i);
+    if (!m) continue;
+    thumbs.push({ name, sec: Number.parseInt(m[1], 10) });
+  }
+  if (thumbs.length < 3) return null;
+  thumbs.sort((a, b) => a.sec - b.sec);
+
+  const minSec = Math.max(Math.floor(durationSec * 0.35), durationSec >= 300 ? 45 : 10);
+  const maxSec = Math.max(minSec + 5, Math.floor(durationSec * 0.7));
+  const mid = thumbs.filter((t) => t.sec >= minSec && t.sec <= maxSec);
+  const chosen =
+    mid.length > 0
+      ? mid[Math.floor(mid.length / 2)]
+      : thumbs[Math.floor(thumbs.length * 0.5)];
+  return { name: chosen.name, startSec: chosen.sec };
 }
 
 function pickBestIaMp4File(files: unknown): { name: string; length?: unknown } | null {
@@ -876,12 +889,17 @@ async function fetchInternetArchiveConduit(
     const files = (metaRes.data as { result?: unknown[] })?.result;
     const best = pickBestIaMp4File(files);
     if (!best) continue;
+    const parsedDur = parseDurationSec(best.length);
+    const midThumb = pickBestIaMidThumbFile(files, parsedDur);
+    if (!midThumb) continue;
 
     const normalized = normalizeInternetArchiveItem({
       identifier: id,
       title: String(doc.title || id),
       year: doc.year,
       mp4FileName: best.name,
+      thumbFileName: midThumb.name,
+      startSec: midThumb.startSec,
       durationRaw: best.length,
       category: spec.targetCategory,
       countryHint: spec.countryHint,

@@ -42,12 +42,32 @@ export function computeHighlightWindow(
 }
 
 export function getHighlightWindow(
-  itemOrDuration: Pick<ArchiveItem, "durationSec"> | number | null
+  itemOrDuration: Pick<ArchiveItem, "durationSec" | "startSec"> | number | null
 ): HighlightWindow {
   if (typeof itemOrDuration === "number" || itemOrDuration === null) {
     return computeHighlightWindow(itemOrDuration);
   }
-  return computeHighlightWindow(itemOrDuration.durationSec);
+  const dur = itemOrDuration.durationSec;
+  const pinnedStart = itemOrDuration.startSec;
+  if (
+    typeof pinnedStart === "number" &&
+    Number.isFinite(pinnedStart) &&
+    pinnedStart > 0
+  ) {
+    const safeStart =
+      dur && Number.isFinite(dur) && dur > 6
+        ? Math.min(pinnedStart, Math.max(1, dur - 4))
+        : pinnedStart;
+    const endSec =
+      dur && Number.isFinite(dur) && dur > safeStart + 2
+        ? Math.min(dur - 1, safeStart + 12)
+        : safeStart + 12;
+    return {
+      startSec: safeStart,
+      endSec,
+    };
+  }
+  return computeHighlightWindow(dur);
 }
 
 interface SlideMountCardProps {
@@ -72,9 +92,7 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const evictedRef = useRef<boolean>(false);
   const initialSeekDoneRef = useRef<boolean>(false);
-  const windowRef = useRef<HighlightWindow>(
-    computeHighlightWindow(item.durationSec)
-  );
+  const windowRef = useRef<HighlightWindow>(getHighlightWindow(item));
 
   const [isNearViewport, setIsNearViewport] = useState(false);
   const [inView, setInView] = useState(false);
@@ -84,10 +102,10 @@ export const SlideMountCard = React.memo(function SlideMountCard({
 
   // Recompute highlight window ONLY when item identity changes (never overwrite on re-render)
   useEffect(() => {
-    windowRef.current = computeHighlightWindow(item.durationSec);
+    windowRef.current = getHighlightWindow(item);
     initialSeekDoneRef.current = false;
     evictedRef.current = false;
-  }, [item.id, item.durationSec]);
+  }, [item.id, item.durationSec, item.startSec]);
 
   const isAutoLoopVideo =
     item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
@@ -223,7 +241,10 @@ export const SlideMountCard = React.memo(function SlideMountCard({
       Number.isFinite(video.duration) && video.duration > 0
         ? video.duration
         : item.durationSec;
-    const win = computeHighlightWindow(realDur);
+    const win = getHighlightWindow({
+      durationSec: realDur,
+      startSec: item.startSec,
+    });
     windowRef.current = win;
 
     if (win.startSec > 0 && realDur && realDur > win.startSec + 2) {

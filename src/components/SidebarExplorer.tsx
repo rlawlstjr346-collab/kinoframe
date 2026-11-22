@@ -38,8 +38,6 @@ type MetaAccordionKey = "format" | "decade" | "region";
 const FORMAT_OPTIONS: Array<{ value: SidebarFormatFilter; label: string }> = [
   { value: "CLASSIC_FILM", label: "Vintage Cinema" },
   { value: "TVCF", label: "Vintage TVCF" },
-  { value: "MOTION", label: "All Moving Video" },
-  { value: "STILL", label: "Archival Still" },
 ];
 
 export function SidebarExplorer({

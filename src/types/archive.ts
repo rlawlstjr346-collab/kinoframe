@@ -72,6 +72,7 @@ export interface ArchiveItem {
   priorityBoost?: number;
   aspectRatio: AspectRatio;
   durationSec: number | null;
+  startSec?: number;
   mediaSource: MediaSource;
   thumbnailUrl: string;
   previewVideoUrl: string | null;
