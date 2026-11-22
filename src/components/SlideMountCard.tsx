@@ -14,6 +14,7 @@ import {
   copyPngBlobToClipboard,
   downloadBlobAsPng,
 } from "@/lib/frame-capture";
+import { globalVideoScheduler } from "@/lib/video-scheduler";
 
 interface SlideMountCardProps {
   item: ArchiveItem;
@@ -35,49 +36,101 @@ export function SlideMountCard({
   const cardRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  const [isNearViewport, setIsNearViewport] = useState(false);
   const [inView, setInView] = useState(false);
-  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const [slotAllowed, setSlotAllowed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "copied">(
     "idle"
   );
 
   const isAutoLoopVideo =
-    item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
+    item.mediaSource === "archive_mp4" &&
+    Boolean(item.previewVideoUrl) &&
+    !videoError;
 
-  // Viewport-aware muted auto-loop via IntersectionObserver
+  // Offscreen memory reclamation: mount <video> only within 360px of viewport, unmount when scrolled away
+  useEffect(() => {
+    if (!isAutoLoopVideo) {
+      setIsNearViewport(false);
+      return;
+    }
+    const node = cardRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const proximityObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        const near = entry.isIntersecting;
+        setIsNearViewport(near);
+        if (!near) {
+          setVideoReady(false);
+        }
+      },
+      {
+        threshold: 0,
+        rootMargin: "360px 0px",
+      }
+    );
+
+    proximityObserver.observe(node);
+    return () => proximityObserver.disconnect();
+  }, [isAutoLoopVideo]);
+
+  // Global concurrent playback slot scheduler (max 8 desktop / 4 mobile, hover priority)
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
     if (!node || typeof IntersectionObserver === "undefined") return;
 
-    const observer = new IntersectionObserver(
+    globalVideoScheduler.register({
+      id: item.id,
+      ratio: 0,
+      centerDistance: Number.POSITIVE_INFINITY,
+      hovered: false,
+      onSlotChange: (allowed) => setSlotAllowed(allowed),
+    });
+
+    const visibilityObserver = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (!entry) return;
-        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
         setInView(visible);
-        if (visible) {
-          setHasEnteredViewport(true);
-        }
+        const viewportCenter =
+          typeof window !== "undefined" ? window.innerHeight / 2 : 540;
+        const rectCenter =
+          entry.boundingClientRect.top + entry.boundingClientRect.height / 2;
+        globalVideoScheduler.update(item.id, {
+          ratio: entry.isIntersecting ? entry.intersectionRatio : 0,
+          centerDistance: Math.abs(rectCenter - viewportCenter),
+        });
       },
       {
-        threshold: [0, 0.25, 0.5],
-        rootMargin: "100px",
+        threshold: [0, 0.2, 0.5, 0.75],
+        rootMargin: "0px",
       }
     );
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [isAutoLoopVideo]);
+    visibilityObserver.observe(node);
+    return () => {
+      visibilityObserver.disconnect();
+      globalVideoScheduler.unregister(item.id);
+      setSlotAllowed(false);
+    };
+  }, [isAutoLoopVideo, item.id]);
+
+  const shouldPlayVideo = isAutoLoopVideo && isNearViewport && inView && slotAllowed;
 
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const video = videoRef.current;
     if (!video) return;
 
-    if (inView) {
+    if (shouldPlayVideo) {
       const playPromise = video.play();
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => {});
@@ -85,7 +138,7 @@ export function SlideMountCard({
     } else {
       video.pause();
     }
-  }, [inView, isAutoLoopVideo, videoReady]);
+  }, [shouldPlayVideo, isAutoLoopVideo, videoReady]);
 
   const handleQuickCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -106,12 +159,31 @@ export function SlideMountCard({
 
   const categoryLabel = getCategoryLabel(resolveItemCategory(item));
   const countryLabel = getCountryLabel(resolveItemCountry(item));
-  const hasSavedState = isInBoard || isInCompare;
 
   return (
     <article
       ref={cardRef}
-      className="group relative mb-3 break-inside-avoid overflow-hidden rounded-[4px] bg-[#111216] ring-1 ring-[#F4F1EA]/[0.08] transition-all duration-200 hover:ring-[#F4F1EA]/40"
+      onMouseEnter={() => {
+        if (isAutoLoopVideo) {
+          globalVideoScheduler.update(item.id, { hovered: true });
+        }
+      }}
+      onMouseLeave={() => {
+        if (isAutoLoopVideo) {
+          globalVideoScheduler.update(item.id, { hovered: false });
+        }
+      }}
+      onFocus={() => {
+        if (isAutoLoopVideo) {
+          globalVideoScheduler.update(item.id, { hovered: true });
+        }
+      }}
+      onBlur={() => {
+        if (isAutoLoopVideo) {
+          globalVideoScheduler.update(item.id, { hovered: false });
+        }
+      }}
+      className="group relative mb-1.5 break-inside-avoid overflow-hidden rounded-[2px] bg-[#111216] ring-0 transition-all duration-200 hover:ring-1 hover:ring-[#FAF8F5]/45"
     >
       {/* Pure Zero-Chrome Visual Frame Window */}
       <div
@@ -137,7 +209,7 @@ export function SlideMountCard({
             decoding="async"
             onError={() => setImgError(true)}
             className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025] ${
-              videoReady && inView ? "opacity-0" : "opacity-100"
+              videoReady && !videoError && shouldPlayVideo ? "opacity-0" : "opacity-100"
             }`}
           />
         ) : (
@@ -146,42 +218,35 @@ export function SlideMountCard({
           </div>
         )}
 
-        {/* Viewport Auto-Play Muted Loop for archive_mp4 */}
-        {isAutoLoopVideo && hasEnteredViewport && item.previewVideoUrl && (
+        {/* Viewport Proximity Auto-Play Muted Loop with Offscreen Reclamation */}
+        {isAutoLoopVideo && isNearViewport && item.previewVideoUrl && (
           <video
             ref={videoRef}
             src={item.previewVideoUrl}
             poster={item.thumbnailUrl}
-            preload="metadata"
+            preload={slotAllowed ? "metadata" : "none"}
             muted
             loop
             playsInline
             onCanPlay={() => setVideoReady(true)}
+            onError={() => {
+              setVideoError(true);
+              setVideoReady(false);
+            }}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-              videoReady && inView ? "opacity-100" : "opacity-0"
+              videoReady && !videoError && shouldPlayVideo ? "opacity-100" : "opacity-0"
             }`}
           />
         )}
 
-        {/* Subtle Persistent Saved Indicator (Visible Before Hover) */}
-        {hasSavedState && (
-          <div
-            className="pointer-events-none absolute right-2.5 top-2.5 z-10 flex items-center gap-1 transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0"
-            aria-hidden="true"
-          >
-            {isInCompare && (
-              <span className="h-2.5 w-2.5 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80" />
-            )}
-            {isInBoard && (
-              <span className="inline-flex h-5 items-center rounded-full bg-[#D99B26] px-2 text-[11px] font-bold leading-none text-[#09090B] shadow-md">
-                저장됨
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Pinterest-Style Top-Right High-Visibility Action Buttons on Hover */}
-        <div className="absolute right-2.5 top-2.5 z-20 flex items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+        {/* Hover/Focus-Only Action HUD (100% Zero-Chrome Resting Wall) */}
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+          {isInCompare && (
+            <span
+              className="h-2.5 w-2.5 rounded-full bg-[#D99B26] ring-2 ring-[#09090B]/80"
+              aria-hidden="true"
+            />
+          )}
           <button
             type="button"
             onClick={handleQuickCopy}

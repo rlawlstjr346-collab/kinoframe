@@ -12,6 +12,18 @@ const USER_AGENT =
 const JITTER_MIN_MS = 1500;
 const JITTER_MAX_MS = 2500;
 const REQUEST_TIMEOUT_MS = 15000;
+const FRESH_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const FORCE_RECHECK = process.argv.includes("--force");
+
+function isFreshCacheEntry(entry) {
+  if (FORCE_RECHECK || !entry || !entry.lastCheckedAt) return false;
+  if (entry.status !== 200 && entry.status !== 206 && entry.status !== 304) {
+    return false;
+  }
+  const checkedMs = Date.parse(entry.lastCheckedAt);
+  if (Number.isNaN(checkedMs)) return false;
+  return Date.now() - checkedMs < FRESH_CACHE_TTL_MS;
+}
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -163,8 +175,14 @@ async function main() {
   const domainCooldowns = new Set();
 
   const runDomainWorker = async (host, queue) => {
+    let sentOnHost = 0;
     for (let i = 0; i < queue.length; i += 1) {
       const check = queue[i];
+
+      if (isFreshCacheEntry(cache[check.url])) {
+        stats.cached304 += 1;
+        continue;
+      }
 
       if (domainCooldowns.has(host)) {
         stats.circuitBroken += 1;
@@ -174,10 +192,11 @@ async function main() {
         continue;
       }
 
-      if (i > 0) {
+      if (sentOnHost > 0) {
         const waitMs = randomJitterMs();
         await sleep(waitMs);
       }
+      sentOnHost += 1;
 
       try {
         const res = await checkSingleUrl(check, cache);

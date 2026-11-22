@@ -9,6 +9,7 @@ import type {
   CountryCode,
   Era,
   FilterState,
+  MediaMode,
   SortOption,
   VaultState,
 } from "@/types/archive";
@@ -19,20 +20,23 @@ import {
   ERAS,
   INITIAL_VISIBLE_COUNT,
   LOAD_MORE_STEP,
-  computeCurationDensityScore,
+  MEDIA_MODES,
   filterAndSortArchive,
   getVisibleArchiveSlice,
   parseBoardIds,
-  resolveItemCategory,
   rotateArchiveWithSeed,
   serializeBoardIds,
 } from "@/lib/taxonomy";
 import {
   DEFAULT_VAULT_STATE,
   exportVaultToFile,
+  isConduitItemId,
   loadAccountVault,
+  loadConduitSavedItems,
   parseImportedVaultJson,
+  removeConduitSavedItem,
   saveAccountVault,
+  saveConduitSavedItem,
 } from "@/lib/vault";
 import {
   BoardBookmarkIcon,
@@ -59,11 +63,38 @@ const HEADER_SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
 ];
 
 const COUNTRY_TABS: Array<{ value: CountryCode | "ALL"; label: string }> =
-  COUNTRIES.filter((c) => c.value !== "GLOBAL");
+  COUNTRIES;
 
 export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
-  const validIdSet = useMemo(() => new Set(items.map((i) => i.id)), [items]);
+  const [savedConduitItems, setSavedConduitItems] = useState<ArchiveItem[]>([]);
+  const [conduitItems, setConduitItems] = useState<ArchiveItem[]>([]);
+  const [conduitCursor, setConduitCursor] = useState<number>(1);
+  const [conduitLoading, setConduitLoading] = useState<boolean>(false);
+  const [conduitHasMore, setConduitHasMore] = useState<boolean>(true);
+  const conduitInFlightRef = useRef<boolean>(false);
+
+  const allCatalogItems = useMemo(() => {
+    const map = new Map<string, ArchiveItem>();
+    const seenSources = new Set<string>();
+    const seenVideos = new Set<string>();
+    const appendUnique = (entry: ArchiveItem) => {
+      if (map.has(entry.id) || seenSources.has(entry.sourceUrl)) return;
+      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) return;
+      map.set(entry.id, entry);
+      seenSources.add(entry.sourceUrl);
+      if (entry.previewVideoUrl) seenVideos.add(entry.previewVideoUrl);
+    };
+    for (const entry of items) appendUnique(entry);
+    for (const entry of savedConduitItems) appendUnique(entry);
+    for (const entry of conduitItems) appendUnique(entry);
+    return Array.from(map.values());
+  }, [items, savedConduitItems, conduitItems]);
+
+  const validIdSet = useMemo(
+    () => new Set(allCatalogItems.map((i) => i.id)),
+    [allCatalogItems]
+  );
 
   const initialBoardIds = useMemo(
     () => parseBoardIds(searchParams.get("board"), validIdSet),
@@ -78,7 +109,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
   const [shuffleSeed, setShuffleSeed] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
-  const [genreMenuOpen, setGenreMenuOpen] = useState<boolean>(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
@@ -91,8 +121,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
 
-  const catNavRef = useRef<HTMLElement | null>(null);
-  const genreMenuRef = useRef<HTMLDivElement | null>(null);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Account-isolated vault & session states
@@ -127,7 +155,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
       const accountBoardIds = resolved.bookmarks
         .map((b) => b.itemId)
-        .filter((id) => validIdSet.has(id));
+        .filter((id) => validIdSet.has(id) || isConduitItemId(id));
 
       setFilterState((prev) => ({
         ...prev,
@@ -140,8 +168,13 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [initialBoardIds, validIdSet]
   );
 
-  // Visit seed & initial session hydration
+  // Visit seed, saved conduit items hydration & initial session hydration
   useEffect(() => {
+    const persistedConduit = loadConduitSavedItems();
+    if (persistedConduit.length > 0) {
+      setSavedConduitItems(persistedConduit);
+    }
+
     const visitSeed =
       Math.floor(Date.now() % 1_000_000) + Math.floor(Math.random() * 9973) + 1;
     setShuffleSeed(visitSeed);
@@ -190,7 +223,30 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     window.history.replaceState(null, "", nextUrl);
   }, [filterState.boardIds]);
 
-  const filteredItems = useMemo(() => {
+  const activeConduitFilterKey = useMemo(
+    () =>
+      [
+        filterState.category ?? "ALL",
+        filterState.country ?? "ALL",
+        filterState.era,
+        filterState.mediaMode ?? "ALL",
+        filterState.query.trim().toLowerCase(),
+        shuffleSeed ?? 1,
+      ].join("|"),
+    [
+      filterState.category,
+      filterState.country,
+      filterState.era,
+      filterState.mediaMode,
+      filterState.query,
+      shuffleSeed,
+    ]
+  );
+
+  const activeConduitKeyRef = useRef<string>(activeConduitFilterKey);
+  activeConduitKeyRef.current = activeConduitFilterKey;
+
+  const filteredLocalItems = useMemo(() => {
     const base = filterAndSortArchive(items, filterState);
     if (filterState.sort === "smart_mix" && shuffleSeed !== null) {
       return rotateArchiveWithSeed(base, shuffleSeed);
@@ -198,17 +254,187 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return base;
   }, [items, filterState, shuffleSeed]);
 
+  const filteredItems = useMemo(() => {
+    const seenIds = new Set(filteredLocalItems.map((i) => i.id));
+    const seenSources = new Set(filteredLocalItems.map((i) => i.sourceUrl));
+    const seenVideos = new Set(
+      filteredLocalItems
+        .map((i) => i.previewVideoUrl)
+        .filter((u): u is string => Boolean(u))
+    );
+
+    const extraCandidates: ArchiveItem[] = [];
+    const appendCandidate = (entry: ArchiveItem) => {
+      if (seenIds.has(entry.id) || seenSources.has(entry.sourceUrl)) return;
+      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) return;
+      seenIds.add(entry.id);
+      seenSources.add(entry.sourceUrl);
+      if (entry.previewVideoUrl) seenVideos.add(entry.previewVideoUrl);
+      extraCandidates.push(entry);
+    };
+
+    if (filterState.boardOnly) {
+      for (const entry of savedConduitItems) appendCandidate(entry);
+      const filteredSaved = filterAndSortArchive(extraCandidates, filterState);
+      return [...filteredLocalItems, ...filteredSaved];
+    }
+
+    for (const entry of conduitItems) appendCandidate(entry);
+    if (extraCandidates.length === 0) return filteredLocalItems;
+
+    // Respect active mediaMode & category on streamed conduit items while keeping broad search results fluid
+    const activeMode = filterState.mediaMode ?? "ALL";
+    const activeCat = filterState.category ?? "ALL";
+    const refinedExtra = extraCandidates.filter((entry) => {
+      if (
+        activeMode === "MOTION" &&
+        entry.mediaSource !== "archive_mp4" &&
+        entry.mediaSource !== "youtube_embed"
+      ) {
+        return false;
+      }
+      if (activeMode === "STILL" && entry.mediaSource !== "still_image") {
+        return false;
+      }
+      if (activeCat !== "ALL" && entry.category !== activeCat) {
+        return false;
+      }
+      return true;
+    });
+
+    return [...filteredLocalItems, ...refinedExtra];
+  }, [filteredLocalItems, conduitItems, savedConduitItems, filterState]);
+
   const visibleItems = useMemo(
     () => getVisibleArchiveSlice(filteredItems, visibleCount),
     [filteredItems, visibleCount]
   );
 
   const hasMoreItems = visibleItems.length < filteredItems.length;
+  const canLoadConduit = !filterState.boardOnly && conduitHasMore;
 
-  // Reset progressive render window whenever active filters or shuffle seed change
+  const fetchNextConduitPage = useCallback(async () => {
+    if (
+      conduitInFlightRef.current ||
+      !conduitHasMore ||
+      filterState.boardOnly ||
+      shuffleSeed === null
+    ) {
+      return;
+    }
+
+    const requestKey = activeConduitKeyRef.current;
+    conduitInFlightRef.current = true;
+    setConduitLoading(true);
+
+    try {
+      const qs = new URLSearchParams({
+        category: filterState.category ?? "ALL",
+        country: filterState.country ?? "ALL",
+        decade: filterState.era,
+        mediaMode: filterState.mediaMode ?? "ALL",
+        cursor: String(conduitCursor),
+        seed: String(shuffleSeed),
+      });
+      if (filterState.query.trim()) {
+        qs.set("q", filterState.query.trim());
+      }
+
+      const res = await fetch(`/api/archive/conduit?${qs.toString()}`, {
+        cache: "default",
+      });
+      if (!res.ok) {
+        setConduitHasMore(false);
+        return;
+      }
+
+      const data = (await res.json()) as {
+        items?: ArchiveItem[];
+        nextCursor?: number | null;
+        hasMore?: boolean;
+      };
+
+      // Discard stale responses if user changed filters mid-flight
+      if (activeConduitKeyRef.current !== requestKey) return;
+
+      const incoming = Array.isArray(data.items) ? data.items : [];
+      if (incoming.length > 0) {
+        setConduitItems((prev) => {
+          const existingIds = new Set<string>([
+            ...items.map((i) => i.id),
+            ...prev.map((i) => i.id),
+          ]);
+          const existingSources = new Set<string>([
+            ...items.map((i) => i.sourceUrl),
+            ...prev.map((i) => i.sourceUrl),
+          ]);
+          const existingVideos = new Set<string>([
+            ...items
+              .map((i) => i.previewVideoUrl)
+              .filter((u): u is string => Boolean(u)),
+            ...prev
+              .map((i) => i.previewVideoUrl)
+              .filter((u): u is string => Boolean(u)),
+          ]);
+
+          const fresh: ArchiveItem[] = [];
+          for (const entry of incoming) {
+            if (
+              existingIds.has(entry.id) ||
+              existingSources.has(entry.sourceUrl)
+            ) {
+              continue;
+            }
+            if (
+              entry.previewVideoUrl &&
+              existingVideos.has(entry.previewVideoUrl)
+            ) {
+              continue;
+            }
+            existingIds.add(entry.id);
+            existingSources.add(entry.sourceUrl);
+            if (entry.previewVideoUrl) existingVideos.add(entry.previewVideoUrl);
+            fresh.push(entry);
+          }
+          return fresh.length > 0 ? [...prev, ...fresh] : prev;
+        });
+      }
+
+      if (data.hasMore && typeof data.nextCursor === "number") {
+        setConduitCursor(data.nextCursor);
+        setConduitHasMore(true);
+      } else {
+        setConduitHasMore(false);
+      }
+    } catch {
+      // Quietly degrade to local seed without exposing errors
+      setConduitHasMore(false);
+    } finally {
+      conduitInFlightRef.current = false;
+      setConduitLoading(false);
+    }
+  }, [
+    conduitCursor,
+    conduitHasMore,
+    filterState.boardOnly,
+    filterState.category,
+    filterState.country,
+    filterState.era,
+    filterState.mediaMode,
+    filterState.query,
+    items,
+    shuffleSeed,
+  ]);
+
+  // Reset progressive render window & conduit cursor whenever active filters or shuffle seed change
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_COUNT);
+    setConduitItems([]);
+    setConduitCursor(1);
+    setConduitHasMore(true);
+    conduitInFlightRef.current = false;
   }, [
+    filterState.mediaMode,
     filterState.category,
     filterState.country,
     filterState.era,
@@ -218,18 +444,50 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     shuffleSeed,
   ]);
 
+  const hasActiveFilters =
+    (filterState.mediaMode ?? "ALL") !== "ALL" ||
+    (filterState.category ?? "ALL") !== "ALL" ||
+    (filterState.country ?? "ALL") !== "ALL" ||
+    filterState.era !== "ALL" ||
+    filterState.query.trim().length > 0 ||
+    filterState.boardOnly;
+
+  // Auto-tap live external conduit when nearing end of local pool or sparse filter/search results
+  useEffect(() => {
+    if (!canLoadConduit || conduitLoading || shuffleSeed === null) return;
+    const nearLocalEnd = visibleCount >= filteredItems.length - 18;
+    const sparseFilterResults =
+      hasActiveFilters && filteredItems.length < 18 && conduitCursor === 1;
+    if (nearLocalEnd || sparseFilterResults) {
+      fetchNextConduitPage();
+    }
+  }, [
+    canLoadConduit,
+    conduitLoading,
+    conduitCursor,
+    filteredItems.length,
+    visibleCount,
+    hasActiveFilters,
+    shuffleSeed,
+    fetchNextConduitPage,
+  ]);
+
   // Pinterest-style infinite scroll sentinel (640px ahead of viewport bottom)
   useEffect(() => {
-    if (!hasMoreItems) return;
+    if (!hasMoreItems && !canLoadConduit) return;
     const node = loadMoreSentinelRef.current;
     if (!node || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setVisibleCount((prev) =>
-            Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
-          );
+          setVisibleCount((prev) => {
+            const next = Math.min(filteredItems.length, prev + LOAD_MORE_STEP);
+            if (next >= filteredItems.length - 18) {
+              fetchNextConduitPage();
+            }
+            return next;
+          });
         }
       },
       { rootMargin: "640px 0px" }
@@ -237,76 +495,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMoreItems, filteredItems.length]);
-
-  // Close [전체 장르 12] popover on outside click or Escape
-  useEffect(() => {
-    if (!genreMenuOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setGenreMenuOpen(false);
-    };
-    const onMouseDown = (e: MouseEvent) => {
-      if (
-        genreMenuRef.current &&
-        !genreMenuRef.current.contains(e.target as Node)
-      ) {
-        setGenreMenuOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("mousedown", onMouseDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("mousedown", onMouseDown);
-    };
-  }, [genreMenuOpen]);
-
-  // Precompute 12-genre counts + highest-density representative thumbnail
-  const genreMatrix = useMemo(() => {
-    const grouped = new Map<ArchiveCategory, ArchiveItem[]>();
-    for (const item of items) {
-      const cat = resolveItemCategory(item);
-      const list = grouped.get(cat);
-      if (list) list.push(item);
-      else grouped.set(cat, [item]);
-    }
-    return ARCHIVE_CATEGORIES.filter(
-      (c): c is { value: ArchiveCategory; label: string; desc?: string } =>
-        c.value !== "ALL"
-    ).map((cat) => {
-      const list = grouped.get(cat.value) ?? [];
-      let cover = list[0];
-      let bestScore = Number.NEGATIVE_INFINITY;
-      for (const candidate of list) {
-        const s = computeCurationDensityScore(candidate);
-        if (s > bestScore) {
-          bestScore = s;
-          cover = candidate;
-        }
-      }
-      return {
-        value: cat.value,
-        label: cat.label,
-        desc: cat.desc ?? "",
-        count: list.length,
-        coverUrl: cover?.thumbnailUrl ?? "",
-      };
-    });
-  }, [items]);
-
-  const handleScrollCategories = useCallback((direction: -1 | 1) => {
-    catNavRef.current?.scrollBy({
-      left: direction * 340,
-      behavior: "smooth",
-    });
-  }, []);
+  }, [hasMoreItems, canLoadConduit, filteredItems.length, fetchNextConduitPage]);
 
   const boardItems = useMemo(() => {
-    const map = new Map(items.map((i) => [i.id, i]));
+    const map = new Map(allCatalogItems.map((i) => [i.id, i]));
     return filterState.boardIds
       .map((id) => map.get(id))
       .filter((x): x is ArchiveItem => Boolean(x));
-  }, [items, filterState.boardIds]);
+  }, [allCatalogItems, filterState.boardIds]);
 
   const selectedIndex = useMemo(
     () =>
@@ -318,20 +514,13 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
   const selectedItem = useMemo(() => {
     if (!selectedItemId) return null;
-    return items.find((i) => i.id === selectedItemId) ?? null;
-  }, [items, selectedItemId]);
+    return allCatalogItems.find((i) => i.id === selectedItemId) ?? null;
+  }, [allCatalogItems, selectedItemId]);
 
   const selectedBookmark = useMemo(() => {
     if (!selectedItemId) return undefined;
     return vault.bookmarks.find((b) => b.itemId === selectedItemId);
   }, [vault.bookmarks, selectedItemId]);
-
-  const hasActiveFilters =
-    (filterState.category ?? "ALL") !== "ALL" ||
-    (filterState.country ?? "ALL") !== "ALL" ||
-    filterState.era !== "ALL" ||
-    filterState.query.trim().length > 0 ||
-    filterState.boardOnly;
 
   const handleShuffleWall = useCallback(() => {
     setFilterState((prev) => ({ ...prev, sort: "smart_mix" }));
@@ -340,11 +529,20 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
   const performToggleBoard = useCallback(
     (id: string, folderId?: string) => {
+      const targetItem = allCatalogItems.find((entry) => entry.id === id);
+
       setFilterState((prev) => {
         const exists = prev.boardIds.includes(id);
         const nextBoardIds = exists
           ? prev.boardIds.filter((b) => b !== id)
           : [...prev.boardIds, id];
+        if (isConduitItemId(id)) {
+          if (exists) {
+            setSavedConduitItems(removeConduitSavedItem(id));
+          } else if (targetItem) {
+            setSavedConduitItems(saveConduitSavedItem(targetItem));
+          }
+        }
         return {
           ...prev,
           boardIds: nextBoardIds,
@@ -375,7 +573,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         };
       });
     },
-    []
+    [allCatalogItems]
   );
 
   // Pinterest gate: guests clicking [저장] open login modal; logged-in users save immediately
@@ -403,6 +601,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         setAuthOpen(true);
         return;
       }
+      if (isConduitItemId(payload.itemId)) {
+        const targetItem = allCatalogItems.find(
+          (entry) => entry.id === payload.itemId
+        );
+        if (targetItem) {
+          setSavedConduitItems(saveConduitSavedItem(targetItem));
+        }
+      }
       setVault((prev) => {
         const filtered = prev.bookmarks.filter(
           (b) => b.itemId !== payload.itemId
@@ -421,7 +627,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           : { ...prev, boardIds: [...prev.boardIds, payload.itemId] }
       );
     },
-    [session.authenticated]
+    [session.authenticated, allCatalogItems]
   );
 
   const handleCreateFolder = useCallback((name: string): string => {
@@ -548,9 +754,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     <div className="flex min-h-screen flex-col bg-[#09090B]">
       {/* QHD / 4K Large-Scale 2-Row Sticky Archive Header */}
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090B]/92 backdrop-blur-md">
-        {/* Row 1: Main Bar (Logo + 7 Categories + Large Search + My Boards + Account) */}
+        {/* Row 1: Main Bar (Logo + 8 Categories + Large Search + My Boards + Account) */}
         <div className="mx-auto flex min-h-[68px] w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-4 py-3 sm:px-6 2xl:min-h-[76px] 2xl:px-10">
-          {/* Left: Logo + 12 Category Tabs with Scroll Arrows & Visual Genre Matrix */}
+          {/* Left: Logo + Elite 9 Category Tabs (ALL + 8 Categories) */}
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
@@ -564,168 +770,36 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               </span>
             </button>
 
-            <div className="flex min-w-0 flex-1 items-center gap-1">
-              <button
-                type="button"
-                onClick={() => handleScrollCategories(-1)}
-                aria-label="이전 카테고리 보기"
-                className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-[#141519] text-[15px] font-semibold text-[#E5E0D5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
-              >
-                ‹
-              </button>
-
-              <nav
-                ref={catNavRef}
-                className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                role="tablist"
-                aria-label="비주얼 카테고리"
-              >
-                {ARCHIVE_CATEGORIES.map((cat) => {
-                  const active = (filterState.category ?? "ALL") === cat.value;
-                  return (
-                    <button
-                      key={cat.value}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() =>
-                        setFilterState((prev) => ({
-                          ...prev,
-                          category: cat.value as ArchiveCategory | "ALL",
-                        }))
-                      }
-                      className={`inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-5 2xl:text-[17px] ${
-                        active
-                          ? "bg-[#FAF8F5] text-[#09090B]"
-                          : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  );
-                })}
-              </nav>
-
-              <button
-                type="button"
-                onClick={() => handleScrollCategories(1)}
-                aria-label="다음 카테고리 보기"
-                className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-[#141519] text-[15px] font-semibold text-[#E5E0D5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
-              >
-                ›
-              </button>
-            </div>
-
-            {/* Visual 12-Genre Matrix Popover Trigger */}
-            <div ref={genreMenuRef} className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setGenreMenuOpen((prev) => !prev)}
-                aria-expanded={genreMenuOpen}
-                aria-haspopup="dialog"
-                className={`inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-[14px] font-semibold transition-colors 2xl:h-11 2xl:text-[16px] ${
-                  genreMenuOpen
-                    ? "border-[#E5A93B] bg-[#E5A93B] text-[#09090B]"
-                    : "border-white/[0.16] bg-[#141519] text-[#FAF8F5] hover:border-[#E5A93B] hover:text-[#E5A93B]"
-                }`}
-              >
-                <span>전체 장르</span>
-                <span className="font-mono text-[13px] opacity-85">12</span>
-              </button>
-
-              {genreMenuOpen && (
-                <div
-                  role="dialog"
-                  aria-label="12대 비주얼 장르 매트릭스"
-                  className="fixed left-4 right-4 top-[78px] z-50 mx-auto max-w-[1160px] rounded-2xl border border-white/[0.14] bg-[#0D0E12]/98 p-5 shadow-2xl backdrop-blur-xl sm:left-6 sm:right-6"
-                >
-                  <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-                    <div>
-                      <h2 className="text-[17px] font-bold text-[#FAF8F5]">
-                        12대 비주얼 아카이브 장르
-                      </h2>
-                      <p className="text-[13px] text-[#C8C3B8]">
-                        총 {items.length}컷 · 원하는 장르를 선택해 즉시 필터링하세요
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFilterState((prev) => ({
-                            ...prev,
-                            category: "ALL",
-                          }));
-                          setGenreMenuOpen(false);
-                        }}
-                        className={`rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
-                          (filterState.category ?? "ALL") === "ALL"
-                            ? "bg-[#FAF8F5] text-[#09090B]"
-                            : "border border-white/[0.16] text-[#FAF8F5] hover:border-[#E5A93B]"
-                        }`}
-                      >
-                        전체 보기 ({items.length}컷)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setGenreMenuOpen(false)}
-                        aria-label="장르 매트릭스 닫기"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] text-[#D0CBC0] hover:text-white"
-                      >
-                        <CloseIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid max-h-[68vh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-4">
-                    {genreMatrix.map((g) => {
-                      const active = filterState.category === g.value;
-                      return (
-                        <button
-                          key={g.value}
-                          type="button"
-                          onClick={() => {
-                            setFilterState((prev) => ({
-                              ...prev,
-                              category: g.value,
-                            }));
-                            setGenreMenuOpen(false);
-                          }}
-                          className={`group relative overflow-hidden rounded-xl border text-left transition-all ${
-                            active
-                              ? "border-[#E5A93B] ring-1 ring-[#E5A93B]"
-                              : "border-white/[0.1] hover:border-white/35"
-                          }`}
-                        >
-                          <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#14151A]">
-                            {g.coverUrl && (
-                              <img
-                                src={g.coverUrl}
-                                alt={g.label}
-                                loading="lazy"
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-[#09090B]/45 to-transparent" />
-                            <span className="absolute right-2.5 top-2.5 rounded-full bg-[#09090B]/80 px-2.5 py-0.5 font-mono text-[12px] font-semibold text-[#FAF8F5]">
-                              {g.count}컷
-                            </span>
-                            <div className="absolute bottom-2.5 left-3 right-3">
-                              <div className="text-[15px] font-bold text-[#FAF8F5]">
-                                {g.label}
-                              </div>
-                              <div className="truncate text-[12px] text-[#D8D3C8]">
-                                {g.desc}
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+            <nav
+              className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="tablist"
+              aria-label="비주얼 카테고리"
+            >
+              {ARCHIVE_CATEGORIES.map((cat) => {
+                const active = (filterState.category ?? "ALL") === cat.value;
+                return (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() =>
+                      setFilterState((prev) => ({
+                        ...prev,
+                        category: cat.value as ArchiveCategory | "ALL",
+                      }))
+                    }
+                    className={`inline-flex h-10 shrink-0 items-center rounded-full px-3.5 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-4 2xl:text-[16px] ${
+                      active
+                        ? "bg-[#FAF8F5] text-[#09090B]"
+                        : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
           {/* Right: Large Capsule Search + My Boards + Account */}
@@ -806,8 +880,40 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         {/* Row 2: Slim Sub-Filter Bar (Countries + Era + Shuffle + Sort) */}
         <div className="border-t border-white/[0.06] bg-[#09090B]/95">
           <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-6 2xl:px-10">
-            {/* Left: Country Pills + Era */}
+            {/* Left: Media Mode Switch + Country Pills + Era */}
             <div className="flex flex-wrap items-center gap-1.5">
+              <div
+                role="group"
+                aria-label="미디어 유형 필터"
+                className="inline-flex h-9 items-center rounded-full border border-white/[0.12] bg-[#141519] p-0.5 2xl:h-10"
+              >
+                {MEDIA_MODES.map((mode) => {
+                  const active = (filterState.mediaMode ?? "ALL") === mode.value;
+                  return (
+                    <button
+                      key={mode.value}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() =>
+                        setFilterState((prev) => ({
+                          ...prev,
+                          mediaMode: mode.value as MediaMode,
+                        }))
+                      }
+                      className={`inline-flex h-8 items-center rounded-full px-3.5 text-[14px] font-medium transition-colors 2xl:h-9 2xl:px-4 2xl:text-[15px] ${
+                        active
+                          ? "bg-[#FAF8F5] font-semibold text-[#09090B]"
+                          : "text-[#DFDAD0] hover:text-white"
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <span className="mx-1 h-4 w-px bg-white/15" aria-hidden="true" />
+
               {COUNTRY_TABS.map((c) => {
                 const active = (filterState.country ?? "ALL") === c.value;
                 return (
@@ -865,10 +971,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
             {/* Right: Shuffle + Sort */}
             <div className="flex items-center gap-2">
-              <span className="hidden font-mono text-[13px] text-[#C8C3B8] sm:inline 2xl:text-[14px]">
-                {filteredItems.length}컷
-              </span>
-
               <button
                 type="button"
                 onClick={handleShuffleWall}
@@ -899,8 +1001,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         </div>
       </header>
 
-      {/* Full-Bleed Visual Masonry Wall (LOCKED UNCHANGED) */}
-      <main className="mx-auto w-full max-w-[2560px] flex-1 px-3 py-3 sm:px-5 lg:px-7">
+      {/* Full-Bleed Visual Masonry Wall (Eyecandy Ultra-Tight Contact Sheet) */}
+      <main className="mx-auto w-full max-w-[2560px] flex-1 px-2 py-2 sm:px-3 lg:px-4">
         {/* Shared ?board= Restoration Banner */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5A93B]/45 bg-[#E5A93B]/12 px-5 py-3 text-[15px]">
@@ -943,12 +1045,12 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           </div>
         )}
 
-        {/* True Multi-Column Full-Bleed Masonry Wall (LOCKED UNCHANGED) */}
+        {/* True Multi-Column Full-Bleed Masonry Wall */}
         {filteredItems.length > 0 ? (
           <>
             <section
               aria-label="큐레이션 아카이브 그리드"
-              className="columns-1 gap-3 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
+              className="columns-1 gap-1.5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
             >
               {visibleItems.map((item) => (
                 <SlideMountCard
@@ -964,26 +1066,38 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               ))}
             </section>
 
-            {/* Infinite Scroll Sentinel & Accessible Load-More Fallback */}
-            {hasMoreItems && (
+            {/* Infinite Scroll Sentinel, Live Conduit Status & Accessible Load-More Fallback */}
+            {(hasMoreItems || canLoadConduit) && (
               <div
                 ref={loadMoreSentinelRef}
-                className="mt-6 flex flex-col items-center justify-center gap-2 py-4"
+                className="mt-4 flex flex-col items-center justify-center gap-2 py-3"
               >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setVisibleCount((prev) =>
-                      Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
-                    )
-                  }
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-white/[0.16] bg-[#141519] px-7 text-[15px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
-                >
-                  <span>더 보기</span>
-                  <span className="font-mono text-[13px] text-[#C8C3B8]">
-                    ({visibleItems.length} / {filteredItems.length}컷)
-                  </span>
-                </button>
+                {conduitLoading ? (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-white/[0.1] bg-[#141519]/90 px-4 font-mono text-[12px] tracking-wide text-[#D0CBC0]"
+                  >
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#E5A93B]" />
+                    <span>외부 아카이브 수맥 연결 중</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasMoreItems) {
+                        setVisibleCount((prev) =>
+                          Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
+                        );
+                      } else {
+                        fetchNextConduitPage();
+                      }
+                    }}
+                    className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.16] bg-[#141519] px-6 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
+                  >
+                    <span>더 보기</span>
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -1010,7 +1124,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       {/* Minimal Darkroom Footer */}
       <footer className="mt-8 border-t border-white/[0.07] bg-[#09090B] py-4">
         <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-4 font-mono text-[13px] text-[#B8B3A8] sm:flex-row sm:items-center sm:px-6 2xl:px-10">
-          <span>KINOFRAME · VISUAL ARCHIVE · {items.length} VERIFIED ITEMS</span>
+          <span>KINOFRAME · VISUAL ARCHIVE</span>
           <span>
             Internet Archive · Wikimedia Commons · NASA Images · YouTube Official Embed
           </span>
@@ -1051,7 +1165,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
-          allItems={items}
+          allItems={allCatalogItems}
           hasPrev={selectedIndex > 0}
           hasNext={
             selectedIndex >= 0 && selectedIndex < filteredItems.length - 1
@@ -1092,7 +1206,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       {/* Side-by-Side Visual Compare Modal */}
       {compareOpen && (
         <CompareDrawer
-          allItems={items}
+          allItems={allCatalogItems}
           compareIds={compareIds}
           onClose={() => setCompareOpen(false)}
           onReplaceSlot={handleReplaceCompareSlot}

@@ -6,6 +6,7 @@ import type {
   CountryCode,
   Era,
   FilterState,
+  MediaMode,
   MediaType,
   PersuasionTag,
   SortOption,
@@ -19,6 +20,12 @@ export function getVisibleArchiveSlice<T>(items: readonly T[], visibleCount: num
   return items.slice(0, safeCount);
 }
 
+export const MEDIA_MODES: Array<{ value: MediaMode; label: string }> = [
+  { value: "ALL", label: "전체" },
+  { value: "MOTION", label: "영상만" },
+  { value: "STILL", label: "이미지만" },
+];
+
 export const ARCHIVE_CATEGORIES: Array<{
   value: ArchiveCategory | "ALL";
   label: string;
@@ -26,17 +33,13 @@ export const ARCHIVE_CATEGORIES: Array<{
 }> = [
   { value: "ALL", label: "전체", desc: "전 장르 큐레이션" },
   { value: "TVCF", label: "TV광고", desc: "빈티지·동아시아·글로벌 TVCF" },
-  { value: "CLASSIC_FILM", label: "고전영화", desc: "고전 시네마·포스터·예고편" },
-  { value: "ROCK_POSTER", label: "락·음악·바이닐", desc: "락 포스터·플라이어·LP 재킷" },
-  { value: "AD_POSTER", label: "광고·매거진 지면", desc: "상업 포스터·매거진 커버·화보" },
-  { value: "PROPAGANDA", label: "정치 선전물", desc: "구성주의·냉전기·전시 포스터" },
-  { value: "TSHIRT_GRAPHIC", label: "티셔츠·서브컬처", desc: "밴드 티·스트리트·인디 진" },
-  { value: "BILLBOARD_SIGN", label: "네온·옥외간판", desc: "서울·도쿄·타이베이·홍콩 네온" },
-  { value: "ANIME_COMIC", label: "고전 애니·만화", desc: "셀 애니·골든에이지 코믹·만화" },
-  { value: "PACKAGING_EPHEMERA", label: "패키지·성냥갑·지류", desc: "쇼와 성냥갑·라벨·옛 티켓·우표" },
-  { value: "INDUSTRIAL_DESIGN", label: "하드웨어·제품조형", desc: "브라운·필름카메라·음향·머신" },
-  { value: "EXHIBITION_SPORTS", label: "올림픽·전시 그래픽", desc: "올림픽·바우하우스·미술전·SF" },
-  { value: "PHOTO", label: "다큐·스트리트 사진", desc: "보도사진·도시 스냅·뉴스릴" },
+  { value: "CLASSIC_FILM", label: "영화", desc: "고전 시네마·예고편·명장면 클립" },
+  { value: "STREET_ERA", label: "시대·거리", desc: "도쿄·서울·뉴욕·파리 걷기·트램·야경 기록" },
+  { value: "WEB_PHANTOM", label: "인터넷 망령", desc: "심야 VHS·잊힌 캠코더·초기 3D·디지털 유물" },
+  { value: "AD_BILLBOARD", label: "광고·빌보드", desc: "네온 옥외간판·지면광고·패키지 에페메라" },
+  { value: "ALBUM_POSTER", label: "앨범·포스터", desc: "공연·선전·바우하우스·전시 그래픽 포스터" },
+  { value: "ANIME_COMIC", label: "만화·애니", desc: "고전 셀 애니·골든에이지 코믹·극화 판화" },
+  { value: "PHOTO", label: "사진", desc: "보도·코다크롬·우주·산업조형 아카이브 사진" },
 ];
 
 export const COUNTRIES: Array<{ value: CountryCode | "ALL"; label: string }> = [
@@ -44,9 +47,9 @@ export const COUNTRIES: Array<{ value: CountryCode | "ALL"; label: string }> = [
   { value: "KR", label: "한국" },
   { value: "JP", label: "일본" },
   { value: "TW", label: "대만" },
-  { value: "US", label: "미국" },
+  { value: "US", label: "북미" },
   { value: "EU", label: "유럽" },
-  { value: "GLOBAL", label: "글로벌" },
+  { value: "GLOBAL", label: "글로벌 대도시" },
 ];
 
 export const MEDIA_TYPES: Array<{
@@ -100,6 +103,7 @@ export const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
 
 export const DEFAULT_FILTER_STATE: FilterState = {
   mediaType: "ALL",
+  mediaMode: "ALL",
   category: "ALL",
   country: "ALL",
   era: "ALL",
@@ -111,10 +115,40 @@ export const DEFAULT_FILTER_STATE: FilterState = {
   boardIds: [],
 };
 
+const VALID_V6_CATEGORIES = new Set<string>([
+  "TVCF",
+  "CLASSIC_FILM",
+  "STREET_ERA",
+  "WEB_PHANTOM",
+  "AD_BILLBOARD",
+  "ALBUM_POSTER",
+  "ANIME_COMIC",
+  "PHOTO",
+]);
+
+const LEGACY_CATEGORY_FALLBACK: Record<string, ArchiveCategory> = {
+  ROCK_POSTER: "ALBUM_POSTER",
+  PROPAGANDA: "ALBUM_POSTER",
+  EXHIBITION_SPORTS: "ALBUM_POSTER",
+  TSHIRT_GRAPHIC: "ALBUM_POSTER",
+  AD_POSTER: "AD_BILLBOARD",
+  BILLBOARD_SIGN: "AD_BILLBOARD",
+  PACKAGING_EPHEMERA: "AD_BILLBOARD",
+  INDUSTRIAL_DESIGN: "PHOTO",
+};
+
 export function resolveItemCategory(item: ArchiveItem): ArchiveCategory {
-  if (item.category) return item.category;
+  const raw = item.category as string | undefined;
+  if (raw) {
+    if (VALID_V6_CATEGORIES.has(raw)) {
+      return raw as ArchiveCategory;
+    }
+    if (raw in LEGACY_CATEGORY_FALLBACK) {
+      return LEGACY_CATEGORY_FALLBACK[raw];
+    }
+  }
   if (item.mediaType === "TVCF") return "TVCF";
-  if (item.mediaType === "PRINT") return "AD_POSTER";
+  if (item.mediaType === "PRINT") return "AD_BILLBOARD";
   if (item.mediaType === "PHOTO") return "PHOTO";
   return "CLASSIC_FILM";
 }
@@ -239,18 +273,14 @@ export function isChromaticItem(item: ArchiveItem): boolean {
   return analyzePaletteChroma(item.palette).isChromatic;
 }
 
-const SUBCULTURE_BOOST_CATS = new Set<ArchiveCategory>([
-  "ROCK_POSTER",
-  "PROPAGANDA",
-  "TSHIRT_GRAPHIC",
-  "CLASSIC_FILM",
-  "AD_POSTER",
+const ELITE_BOOST_CATS = new Set<ArchiveCategory>([
+  "STREET_ERA",
   "TVCF",
-  "BILLBOARD_SIGN",
+  "CLASSIC_FILM",
+  "WEB_PHANTOM",
   "ANIME_COMIC",
-  "PACKAGING_EPHEMERA",
-  "INDUSTRIAL_DESIGN",
-  "EXHIBITION_SPORTS",
+  "AD_BILLBOARD",
+  "ALBUM_POSTER",
 ]);
 
 const EAST_ASIA_COUNTRIES = new Set<CountryCode>(["KR", "JP", "TW"]);
@@ -266,119 +296,200 @@ export function computeCurationDensityScore(item: ArchiveItem): number {
     chroma.vividCount * 1.4 +
     chroma.luminanceSpread * 3.2;
 
-  const eastAsiaBonus = EAST_ASIA_COUNTRIES.has(country) ? 6.5 : 0;
-  const subcultureBonus = SUBCULTURE_BOOST_CATS.has(cat) ? 4.0 : 1.5;
+  const eastAsiaBonus = EAST_ASIA_COUNTRIES.has(country) ? 1.5 : 0;
+  const globalStreetBonus = cat === "STREET_ERA" && (country === "EU" || country === "GLOBAL") ? 1.8 : 0;
+  const categoryBonus = ELITE_BOOST_CATS.has(cat) ? 4.2 : 2.0;
   const manualPriority = item.priorityBoost ?? 0;
 
   const motionBonus =
     item.mediaSource === "archive_mp4"
       ? chroma.isChromatic
-        ? 3.8
-        : 1.0
+        ? 12.0
+        : 7.0
       : item.mediaSource === "youtube_embed"
       ? chroma.isChromatic
-        ? 4.2
-        : 2.0
+        ? 5.0
+        : 2.5
       : chroma.isChromatic
       ? 3.2
       : 1.0;
 
-  return chromaScore + eastAsiaBonus + subcultureBonus + motionBonus + manualPriority;
+  return chromaScore + eastAsiaBonus + globalStreetBonus + categoryBonus + motionBonus + manualPriority;
 }
 
 const RHYTHM_CATEGORY_CYCLE: ArchiveCategory[] = [
-  "ROCK_POSTER",
+  "STREET_ERA",
   "TVCF",
-  "BILLBOARD_SIGN",
+  "WEB_PHANTOM",
+  "AD_BILLBOARD",
   "CLASSIC_FILM",
   "ANIME_COMIC",
-  "PROPAGANDA",
-  "PACKAGING_EPHEMERA",
-  "TSHIRT_GRAPHIC",
-  "INDUSTRIAL_DESIGN",
-  "EXHIBITION_SPORTS",
-  "AD_POSTER",
+  "STREET_ERA",
+  "ALBUM_POSTER",
+  "TVCF",
+  "WEB_PHANTOM",
+  "CLASSIC_FILM",
   "PHOTO",
 ];
 
-function interleaveBySubcultureAndColor(
-  scoredDesc: ArchiveItem[],
-  scoreFn: (item: ArchiveItem) => number = computeCurationDensityScore,
-  cycleOffset = 0
-): ArchiveItem[] {
-  if (scoredDesc.length <= 2) return scoredDesc;
+interface ScoredCandidate {
+  item: ArchiveItem;
+  score: number;
+  chromatic: boolean;
+  category: ArchiveCategory;
+  country: CountryCode;
+}
 
-  const pool = scoredDesc.map((item) => ({
-    item,
-    score: scoreFn(item),
-    chromatic: isChromaticItem(item),
-    category: resolveItemCategory(item),
-    country: resolveItemCountry(item),
-  }));
+function pickBestFromPool(
+  pool: ScoredCandidate[],
+  pos: number,
+  preferredCategory: ArchiveCategory,
+  lastMedia: MediaType | null,
+  sameMediaRun: number,
+  lastCategory: ArchiveCategory | null,
+  lastCountry: CountryCode | null,
+  sameCountryRun: number,
+  monoRun: number,
+  monoCountInTop16: number,
+  seenMediaTop16: Set<MediaType>,
+  seenCategoriesTop16: Set<ArchiveCategory>
+): ScoredCandidate {
+  const inTop16 = pos < 16;
+  let bestIdx = 0;
+  let bestUtility = Number.NEGATIVE_INFINITY;
 
-  const result: ArchiveItem[] = [];
-  const remaining = [...pool];
+  const searchLimit = Math.min(pool.length, 48);
+  for (let i = 0; i < searchLimit; i += 1) {
+    const cand = pool[i];
+    let utility = cand.score - i * 0.2;
 
-  let lastMedia: MediaType | null = null;
-  let sameMediaRun = 0;
-  let lastCategory: ArchiveCategory | null = null;
-  let monoRun = 0;
-  let monoCountInTop16 = 0;
-  const seenMediaTop16 = new Set<MediaType>();
+    if (cand.item.mediaType === lastMedia) {
+      utility -= sameMediaRun >= 2 ? 95 : 8;
+    }
 
-  while (remaining.length > 0) {
-    const pos = result.length;
-    const preferredCategory =
-      RHYTHM_CATEGORY_CYCLE[(pos + cycleOffset) % RHYTHM_CATEGORY_CYCLE.length];
-    const inTop16 = pos < 16;
+    if (cand.category === lastCategory) {
+      utility -= 11;
+    }
 
-    let bestIdx = 0;
-    let bestUtility = Number.NEGATIVE_INFINITY;
+    if (cand.country === lastCountry) {
+      utility -= sameCountryRun >= 2 ? 55 : 6;
+    }
 
-    const searchLimit = Math.min(remaining.length, 48);
-    for (let i = 0; i < searchLimit; i += 1) {
-      const cand = remaining[i];
-      let utility = cand.score - i * 0.2;
+    if (cand.category === preferredCategory) {
+      utility += 8.5;
+    }
 
-      if (cand.item.mediaType === lastMedia) {
-        utility -= sameMediaRun >= 2 ? 50 : 6;
+    if (inTop16 && !seenCategoriesTop16.has(cand.category)) {
+      utility += 7.5;
+    }
+
+    // Guarantee all 4 legacy mediaTypes appear in top 16 when present
+    if (inTop16 && pos >= 5 && !seenMediaTop16.has(cand.item.mediaType)) {
+      utility += 28;
+    }
+
+    if (!cand.chromatic) {
+      if (monoRun >= 2) {
+        utility -= 90;
+      } else if (monoRun >= 1) {
+        utility -= 18;
       }
-
-      if (cand.category === lastCategory) {
-        utility -= 9;
-      }
-
-      if (cand.category === preferredCategory) {
-        utility += 7.5;
-      }
-
-      // Guarantee all 4 legacy mediaTypes appear in top 16 for backward contract
-      if (inTop16 && pos >= 8 && !seenMediaTop16.has(cand.item.mediaType)) {
-        utility += 18;
-      }
-
-      if (!cand.chromatic) {
-        if (monoRun >= 2) {
-          utility -= 65;
-        } else if (monoRun >= 1) {
-          utility -= 15;
+      if (inTop16) {
+        if (monoCountInTop16 >= 3) {
+          utility -= 60;
+        } else if (pos < 4) {
+          utility -= 24;
         }
-        if (inTop16) {
-          if (monoCountInTop16 >= 3) {
-            utility -= 40;
-          } else if (pos < 4) {
-            utility -= 22;
-          }
-        }
-      }
-
-      if (utility > bestUtility) {
-        bestUtility = utility;
-        bestIdx = i;
       }
     }
 
-    const [picked] = remaining.splice(bestIdx, 1);
+    if (utility > bestUtility) {
+      bestUtility = utility;
+      bestIdx = i;
+    }
+  }
+
+  const [picked] = pool.splice(bestIdx, 1);
+  return picked;
+}
+
+/**
+ * Motion-First 3:1 Interleaver (75% Auto-Loop Moving Wall):
+ * Places 3 auto-looping `archive_mp4` tiles per 4-tile cycle (`pos % 4 !== 3`)
+ * so top 24 ALWAYS contains >= 18 (75%) and top 48 ALWAYS contains >= 36 (75%)
+ * auto-looping videos across default sorting and every seeded smart_mix rotation.
+ */
+function interleaveMotionFirst(
+  scoredDesc: ArchiveItem[],
+  scoreFn: (item: ArchiveItem) => number = computeCurationDensityScore,
+  cycleOffset = 0,
+  preferMotionHeavy = false
+): ArchiveItem[] {
+  if (scoredDesc.length <= 2) return scoredDesc;
+
+  const motionPool: ScoredCandidate[] = [];
+  const otherPool: ScoredCandidate[] = [];
+
+  for (const item of scoredDesc) {
+    const entry: ScoredCandidate = {
+      item,
+      score: scoreFn(item),
+      chromatic: isChromaticItem(item),
+      category: resolveItemCategory(item),
+      country: resolveItemCountry(item),
+    };
+    if (item.mediaSource === "archive_mp4") {
+      motionPool.push(entry);
+    } else {
+      otherPool.push(entry);
+    }
+  }
+
+  const result: ArchiveItem[] = [];
+  let lastMedia: MediaType | null = null;
+  let sameMediaRun = 0;
+  let lastCategory: ArchiveCategory | null = null;
+  let lastCountry: CountryCode | null = null;
+  let sameCountryRun = 0;
+  let monoRun = 0;
+  let monoCountInTop16 = 0;
+  const seenMediaTop16 = new Set<MediaType>();
+  const seenCategoriesTop16 = new Set<ArchiveCategory>();
+
+  while (motionPool.length > 0 || otherPool.length > 0) {
+    const pos = result.length;
+    const preferredCategory =
+      RHYTHM_CATEGORY_CYCLE[(pos + cycleOffset) % RHYTHM_CATEGORY_CYCLE.length];
+
+    let useMotion = false;
+    if (motionPool.length === 0) {
+      useMotion = false;
+    } else if (otherPool.length === 0) {
+      useMotion = true;
+    } else if (preferMotionHeavy) {
+      // In MOTION filter mode, heavily prioritize direct-link archive_mp4 (5:1 over youtube_embed)
+      useMotion = pos % 6 !== 5;
+    } else {
+      // Strict 3:1 rhythm (75% moving wall): slots 0,1,2 -> archive_mp4; slot 3 -> still/embed
+      useMotion = pos % 4 !== 3;
+    }
+
+    const activePool = useMotion ? motionPool : otherPool;
+    const picked = pickBestFromPool(
+      activePool,
+      pos,
+      preferredCategory,
+      lastMedia,
+      sameMediaRun,
+      lastCategory,
+      lastCountry,
+      sameCountryRun,
+      monoRun,
+      monoCountInTop16,
+      seenMediaTop16,
+      seenCategoriesTop16
+    );
+
     result.push(picked.item);
 
     if (picked.item.mediaType === lastMedia) {
@@ -389,15 +500,23 @@ function interleaveBySubcultureAndColor(
     }
     lastCategory = picked.category;
 
-    if (inTop16) {
+    if (picked.country === lastCountry) {
+      sameCountryRun += 1;
+    } else {
+      lastCountry = picked.country;
+      sameCountryRun = 1;
+    }
+
+    if (pos < 16) {
       seenMediaTop16.add(picked.item.mediaType);
+      seenCategoriesTop16.add(picked.category);
     }
 
     if (picked.chromatic) {
       monoRun = 0;
     } else {
       monoRun += 1;
-      if (inTop16) monoCountInTop16 += 1;
+      if (pos < 16) monoCountInTop16 += 1;
     }
   }
 
@@ -415,8 +534,9 @@ function hashSeedString(input: string, seed: number): number {
 }
 
 /**
- * Deterministic seeded smart rotation preserving chromatic richness & 7-category
- * subculture / East Asia interleaving across visits and shuffle clicks.
+ * Deterministic seeded smart rotation guaranteeing 75% auto-looping video
+ * density on the first screen while preserving chromatic richness, global
+ * continental diversity, and 7-category interleaving across every visit.
  */
 export function rotateArchiveWithSeed(
   items: ArchiveItem[],
@@ -433,7 +553,8 @@ export function rotateArchiveWithSeed(
     const country = resolveItemCountry(item);
     const baseLift =
       (chroma.isChromatic ? 18 : 2) +
-      (EAST_ASIA_COUNTRIES.has(country) ? 5 : 0) +
+      (EAST_ASIA_COUNTRIES.has(country) ? 1.0 : 0) +
+      (item.mediaSource === "archive_mp4" ? 6 : 0) +
       (item.priorityBoost ?? 0);
     const score = baseLift + r * 26 + chroma.avgSaturation * 4;
     jitterMap.set(item.id, score);
@@ -446,10 +567,12 @@ export function rotateArchiveWithSeed(
   });
 
   const cycleOffset = normalizedSeed % RHYTHM_CATEGORY_CYCLE.length;
-  return interleaveBySubcultureAndColor(
+  const allMotionOnly = items.every((i) => i.mediaSource !== "still_image");
+  return interleaveMotionFirst(
     preSorted,
     (item) => jitterMap.get(item.id) ?? 0,
-    cycleOffset
+    cycleOffset,
+    allMotionOnly
   );
 }
 
@@ -496,12 +619,23 @@ export function filterAndSortArchive(
   const boardSet = new Set(state.boardIds);
   const activeCategory = state.category ?? "ALL";
   const activeCountry = state.country ?? "ALL";
+  const activeMediaMode = state.mediaMode ?? "ALL";
 
   const filtered = items.filter((item) => {
     if (state.boardOnly && !boardSet.has(item.id)) {
       return false;
     }
     if (state.mediaType !== "ALL" && item.mediaType !== state.mediaType) {
+      return false;
+    }
+    if (
+      activeMediaMode === "MOTION" &&
+      item.mediaSource !== "archive_mp4" &&
+      item.mediaSource !== "youtube_embed"
+    ) {
+      return false;
+    }
+    if (activeMediaMode === "STILL" && item.mediaSource !== "still_image") {
       return false;
     }
     if (activeCategory !== "ALL" && resolveItemCategory(item) !== activeCategory) {
@@ -578,20 +712,43 @@ export function filterAndSortArchive(
   });
 
   if (state.sort === "curation_density" || state.sort === "smart_mix") {
-    return interleaveBySubcultureAndColor(sorted);
+    return interleaveMotionFirst(
+      sorted,
+      computeCurationDensityScore,
+      0,
+      activeMediaMode === "MOTION"
+    );
   }
 
   return sorted;
 }
 
+const BOARD_ID_PATTERN = /^KF-(?:\d{3,5}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
+
+function normalizeBoardId(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const staticMatch = trimmed.match(/^kf-(\d{3,5})$/i);
+  if (staticMatch) {
+    return `KF-${staticMatch[1]}`;
+  }
+  const conduitMatch = trimmed.match(/^kf-(ia|wm)-([A-Za-z0-9_-]{2,48})$/i);
+  if (conduitMatch) {
+    return `KF-${conduitMatch[1].toUpperCase()}-${conduitMatch[2]}`;
+  }
+  return BOARD_ID_PATTERN.test(trimmed) ? trimmed : null;
+}
+
 export function serializeBoardIds(ids: string[]): string {
-  const unique = Array.from(
-    new Set(
-      ids
-        .map((id) => id.trim().toUpperCase())
-        .filter((id) => /^KF-\d{3}$/.test(id))
-    )
-  );
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const raw of ids) {
+    const normalized = normalizeBoardId(raw);
+    if (normalized && !seen.has(normalized)) {
+      seen.add(normalized);
+      unique.push(normalized);
+    }
+  }
   return unique.join(",");
 }
 
@@ -602,14 +759,21 @@ export function parseBoardIds(
   if (!param) return [];
   const raw = param
     .split(",")
-    .map((part) => part.trim().toUpperCase())
+    .map((part) => part.trim())
     .filter(Boolean);
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const id of raw) {
-    if (validIds.has(id) && !seen.has(id)) {
-      seen.add(id);
-      out.push(id);
+  for (const part of raw) {
+    const normalized = normalizeBoardId(part);
+    if (!normalized) continue;
+    const resolved = validIds.has(normalized)
+      ? normalized
+      : validIds.has(normalized.toUpperCase())
+      ? normalized.toUpperCase()
+      : null;
+    if (resolved && !seen.has(resolved)) {
+      seen.add(resolved);
+      out.push(resolved);
     }
   }
   return out;

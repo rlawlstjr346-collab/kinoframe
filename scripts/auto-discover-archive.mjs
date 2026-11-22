@@ -14,7 +14,8 @@ const TRANSLATION_CACHE_PATH = path.join(
 );
 
 const USER_AGENT =
-  "KinoframeArchiveCurator/1.0 (+https://github.com/rlawlstjr346-collab/kinoframe; respectful-weekly-curator)";
+  "KinoframeArchiveCurator/6.0 (+https://github.com/rlawlstjr346-collab/kinoframe; respectful-v6-seed-manager)";
+const MAX_SEED_SNAPSHOT_SIZE = 480;
 const JITTER_MIN_MS = 1500;
 const JITTER_MAX_MS = 2500;
 const REQUEST_TIMEOUT_MS = 15000;
@@ -30,6 +31,60 @@ const randomJitterMs = () =>
 
 const lastHostRequestAt = new Map();
 const cooledDownHosts = new Set();
+
+const BLOCKED_JUNK_PATTERNS = [
+  /\bimg[_-]?\d+/i,
+  /\bdsc[_-]?\d+/i,
+  /\bpxl[_-]?\d+/i,
+  /\bmvi[_-]?\d+/i,
+  /\bt-?shirt/i,
+  /\bmerch(andise)?\b/i,
+  /\bshop(_front)?\b/i,
+  /\bstorefront\b/i,
+  /\bbooth\b/i,
+  /\bceremony\b/i,
+  /\bconference\b/i,
+  /\btrophy\b/i,
+  /\bvolunteer\b/i,
+  /\bfashion[_ -]?kode\b/i,
+  /\bstreet[_ -]?snap\b/i,
+  /\bbookstore\b/i,
+  /\bskateshop\b/i,
+  /\brecord[_ -]?shop\b/i,
+  /\bno[_ -]?smoking\b/i,
+  /\bphotographer[_ -]?brief\b/i,
+  /\bselfie\b/i,
+  /\bgroup[_ -]?photo\b/i,
+  /\bpreservewildlife/i,
+  /\brns[_ -]?yellowstone/i,
+];
+
+export function normalizeAssetStem(raw) {
+  if (!raw || typeof raw !== "string") return "";
+  let base = raw;
+  try {
+    if (/^https?:\/\//i.test(raw)) {
+      const u = new URL(raw);
+      base = decodeURIComponent(u.pathname.split("/").pop() || "");
+    }
+  } catch {
+    base = raw;
+  }
+  return base
+    .replace(/^File:/i, "")
+    .replace(/^\d+px-/i, "")
+    .replace(/\.[a-z0-9]{2,5}$/i, "")
+    .replace(/(_512kb|~thumb|~mobile|\.ia)$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣]+/g, "")
+    .replace(/[a-z]$/i, (m, offset, full) => (full.length >= 12 ? "" : m))
+    .replace(/\d+$/g, "");
+}
+
+function isBlockedJunkText(text) {
+  const target = String(text || "");
+  return BLOCKED_JUNK_PATTERNS.some((re) => re.test(target));
+}
 
 function loadJsonFile(filePath, fallback) {
   try {
@@ -114,28 +169,40 @@ async function politeFetch(url, options = {}, cache = {}) {
 }
 
 const ZERO_COST_GLOSSARY = [
+  [/San Francisco/gi, "샌프란시스코"],
+  [/New York/gi, "뉴욕"],
+  [/Tokyo/gi, "도쿄"],
+  [/Shibuya/gi, "시부야"],
+  [/Shinjuku/gi, "신주쿠"],
+  [/Harajuku/gi, "하라주쿠"],
+  [/Ginza/gi, "긴자"],
+  [/Seoul/gi, "서울"],
+  [/Hong Kong/gi, "홍콩"],
+  [/Taipei/gi, "타이베이"],
+  [/Paris/gi, "파리"],
+  [/London/gi, "런던"],
+  [/Berlin/gi, "베를린"],
+  [/Street/gi, "거리"],
+  [/Tram|Cable Car|Streetcar/gi, "트램"],
+  [/Trailer/gi, "예고편"],
+  [/Commercial/gi, "TVCF"],
+  [/Cartoon/gi, "셀 애니"],
   [/National Park/gi, "국립공원"],
   [/Poster/gi, "포스터"],
   [/Advertisement|Advert/gi, "지면 광고"],
-  [/Locomotive|Railroad|Railway/gi, "철도"],
-  [/Apollo/gi, "아폴로"],
-  [/Space Shuttle/gi, "우주왕복선"],
-  [/Launch/gi, "발사"],
-  [/Aircraft|Airplane/gi, "항공기"],
   [/Kodachrome/gi, "코다크롬"],
   [/Vintage/gi, "빈티지"],
   [/Color/gi, "컬러"],
-  [/Travel/gi, "트래블"],
-  [/Commercial/gi, "TVCF"],
 ];
 
-function translateTitleToKoreanZeroCost(englishTitle, year, mediaType, tCache) {
-  const key = englishTitle.trim();
+function translateTitleToKoreanZeroCost(englishTitle, year, category, tCache) {
+  const key = `${category}:${englishTitle.trim()}`;
   if (tCache[key]) return tCache[key];
 
-  let cleaned = key
+  let cleaned = englishTitle
+    .trim()
     .replace(/^File:/i, "")
-    .replace(/\.(jpg|jpeg|png|webp)$/i, "")
+    .replace(/\.(jpg|jpeg|png|webp|mp4|webm|ogv)$/i, "")
     .replace(/_/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -144,14 +211,17 @@ function translateTitleToKoreanZeroCost(englishTitle, year, mediaType, tCache) {
     cleaned = cleaned.replace(pattern, ko);
   }
 
-  const suffix =
-    mediaType === "PRINT"
-      ? "아카이브 포스터"
-      : mediaType === "PHOTO"
-      ? "컬러 보도사진"
-      : mediaType === "NEWS"
-      ? "기록 필름"
-      : "빈티지 TVCF";
+  const suffixMap = {
+    TVCF: "빈티지 TVCF",
+    CLASSIC_FILM: "고전 영화 클립",
+    STREET_ERA: "시대 거리 아카이브",
+    WEB_PHANTOM: "인터넷 망령 아카이브",
+    AD_BILLBOARD: "빈티지 광고 아카이브",
+    ALBUM_POSTER: "그래픽 포스터",
+    ANIME_COMIC: "고전 애니·코믹",
+    PHOTO: "아카이브 보도사진",
+  };
+  const suffix = suffixMap[category] || "비주얼 아카이브";
 
   const trimmedCore = cleaned.length > 42 ? `${cleaned.slice(0, 42)}…` : cleaned;
   const translated = `${year} ${trimmedCore} ${suffix}`.replace(/\s+/g, " ").trim();
@@ -178,100 +248,311 @@ function mapAspectRatio(w, h) {
 function nextKfId(existingItems) {
   let maxNum = 0;
   for (const item of existingItems) {
-    const m = String(item.id).match(/^KF-(\d{3})$/);
+    const m = String(item.id).match(/^KF-(\d{3,5})$/);
     if (m) maxNum = Math.max(maxNum, Number(m[1]));
   }
   return maxNum + 1;
 }
 
-async function discoverWikimediaCandidates(existingUrls, cache) {
+export function enforceSeedSnapshotCap(items, maxSize = MAX_SEED_SNAPSHOT_SIZE) {
+  if (items.length <= maxSize) return items;
+  const excess = items.length - maxSize;
+  const categoryCounts = new Map();
+  for (const item of items) {
+    const cat = item.category || "PHOTO";
+    categoryCounts.set(cat, (categoryCounts.get(cat) || 0) + 1);
+  }
+
+  // Score eviction candidates: prefer evicting oldest, lowest-priority, non-video items while keeping each category >= 28
+  const rankedForEviction = items
+    .map((item, index) => ({
+      item,
+      index,
+      priority: Number(item.priorityBoost || 0),
+      isVideo: item.mediaSource === "archive_mp4" ? 1 : 0,
+      addedMs: item.addedAt ? Date.parse(item.addedAt) || 0 : 0,
+    }))
+    .sort((a, b) => {
+      if (a.isVideo !== b.isVideo) return a.isVideo - b.isVideo;
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      if (a.addedMs !== b.addedMs) return a.addedMs - b.addedMs;
+      return a.index - b.index;
+    });
+
+  const evictedIds = new Set();
+  for (const entry of rankedForEviction) {
+    if (evictedIds.size >= excess) break;
+    const cat = entry.item.category || "PHOTO";
+    const remainingInCat = categoryCounts.get(cat) || 0;
+    if (remainingInCat <= 28) continue;
+    evictedIds.add(entry.item.id);
+    categoryCounts.set(cat, remainingInCat - 1);
+  }
+
+  // Fallback if all categories are near floor
+  if (evictedIds.size < excess) {
+    for (const entry of rankedForEviction) {
+      if (evictedIds.size >= excess) break;
+      if (!evictedIds.has(entry.item.id)) {
+        evictedIds.add(entry.item.id);
+      }
+    }
+  }
+
+  return items.filter((item) => !evictedIds.has(item.id));
+}
+
+function pickBestIaMp4(files) {
+  if (!Array.isArray(files)) return null;
+  const mp4s = files.filter((f) => {
+    const name = String(f.name || "");
+    if (!/\.mp4$/i.test(name)) return false;
+    if (/\.ia\.mp4$/i.test(name) && files.some((x) => /_512kb\.mp4$/i.test(x.name || ""))) {
+      return false;
+    }
+    const size = Number(f.size || 0);
+    return size > 200_000 && size < 120_000_000;
+  });
+  if (mp4s.length === 0) return null;
+  mp4s.sort((a, b) => {
+    const a512 = /_512kb\.mp4$/i.test(a.name) ? 0 : 1;
+    const b512 = /_512kb\.mp4$/i.test(b.name) ? 0 : 1;
+    if (a512 !== b512) return a512 - b512;
+    return Number(a.size || 0) - Number(b.size || 0);
+  });
+  return mp4s[0];
+}
+
+function parseDurationSec(rawLength) {
+  if (!rawLength) return 60;
+  const str = String(rawLength).trim();
+  if (/^\d+(\.\d+)?$/.test(str)) {
+    return Math.max(5, Math.min(3600, Math.round(Number(str))));
+  }
+  const parts = str.split(":").map((n) => Number(n));
+  if (parts.every((n) => !Number.isNaN(n))) {
+    if (parts.length === 2) return Math.max(5, Math.round(parts[0] * 60 + parts[1]));
+    if (parts.length === 3) return Math.max(5, Math.round(parts[0] * 3600 + parts[1] * 60 + parts[2]));
+  }
+  return 60;
+}
+
+/**
+ * Priority 1: Discover motion-first auto-loop MP4 archives from Internet Archive
+ */
+async function discoverInternetArchiveMotionCandidates(existingUrls, existingStems, cache) {
   const queries = [
-    { mediaType: "PRINT", category: "EXHIBITION_SPORTS", country: "US", q: '"National Park" poster WPA color' },
-    { mediaType: "PRINT", category: "PACKAGING_EPHEMERA", country: "JP", q: '"Matchbox label" Japan vintage' },
-    { mediaType: "PRINT", category: "ANIME_COMIC", country: "US", q: '"Planet Comics" OR "Weird Science" cover' },
-    { mediaType: "PHOTO", category: "BILLBOARD_SIGN", country: "JP", q: 'Tokyo Shinjuku neon signs night' },
-    { mediaType: "PHOTO", category: "INDUSTRIAL_DESIGN", country: "EU", q: '"Braun" OR "Leica" vintage design' },
-    { mediaType: "PHOTO", category: "PHOTO", country: "US", q: 'Jack Delano OR Alfred T. Palmer Kodachrome color 1942' },
+    {
+      mediaType: "NEWS",
+      category: "STREET_ERA",
+      country: "US",
+      q: 'collection:prelinger AND mediatype:movies AND (street OR "cable car" OR "New York" OR "San Francisco") AND format:"512Kb MPEG4"',
+    },
+    {
+      mediaType: "TVCF",
+      category: "TVCF",
+      country: "US",
+      q: 'collection:prelinger AND mediatype:movies AND (commercial OR Chevrolet OR Kodak OR Ford) AND format:"512Kb MPEG4"',
+    },
+    {
+      mediaType: "NEWS",
+      category: "CLASSIC_FILM",
+      country: "US",
+      q: 'collection:movie_trailers AND mediatype:movies AND format:"MPEG4"',
+    },
+    {
+      mediaType: "NEWS",
+      category: "WEB_PHANTOM",
+      country: "US",
+      q: '(collection:vhsvault OR collection:ephemeralfilms) AND mediatype:movies AND format:"512Kb MPEG4"',
+    },
+    {
+      mediaType: "NEWS",
+      category: "ANIME_COMIC",
+      country: "US",
+      q: 'collection:classic_cartoons AND mediatype:movies AND format:"512Kb MPEG4"',
+    },
   ];
+
   const candidates = [];
 
-  for (const { mediaType, category, country, q } of queries) {
-    const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
-      q
-    )}&gsrlimit=6&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=960&format=json`;
+  for (const spec of queries) {
+    const searchUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(
+      spec.q
+    )}&fl[]=identifier&fl[]=title&fl[]=year&rows=6&page=1&output=json`;
+    const res = await politeFetch(searchUrl, { method: "GET" }, cache);
+    if (!res || res.skippedByBreaker || res.status !== 200) continue;
+
+    const data = await res.json();
+    const docs = data?.response?.docs || [];
+
+    for (const doc of docs) {
+      const id = doc.identifier;
+      if (!id || isBlockedJunkText(id) || isBlockedJunkText(doc.title)) continue;
+      const sourceUrl = `https://archive.org/details/${encodeURIComponent(id)}`;
+      const thumbUrl = `https://archive.org/services/img/${encodeURIComponent(id)}`;
+      const stem = normalizeAssetStem(id);
+      if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl) || existingStems.has(stem)) {
+        continue;
+      }
+
+      const metaRes = await politeFetch(
+        `https://archive.org/metadata/${encodeURIComponent(id)}`,
+        { method: "GET" },
+        cache
+      );
+      if (!metaRes || metaRes.skippedByBreaker || metaRes.status !== 200) continue;
+      const meta = await metaRes.json();
+      if (meta?.metadata?.["access-restricted-item"] === "true") continue;
+
+      const mp4 = pickBestIaMp4(meta?.files);
+      if (!mp4) continue;
+
+      const videoUrl = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(
+        mp4.name
+      ).replace(/%2F/g, "/")}`;
+      if (existingUrls.has(videoUrl)) continue;
+
+      const year =
+        Number.parseInt(String(doc.year || meta?.metadata?.year || "1960").slice(0, 4), 10) ||
+        1960;
+
+      existingStems.add(stem);
+      candidates.push({
+        mediaType: spec.mediaType,
+        category: spec.category,
+        country: spec.country,
+        mediaSource: "archive_mp4",
+        originalTitle: String(doc.title || id).trim(),
+        brandOrSource: "Internet Archive / Public Domain Moving Images",
+        year: Math.max(1900, Math.min(2025, year)),
+        aspectRatio: "4:3",
+        durationSec: parseDurationSec(mp4.length),
+        thumbnailUrl: thumbUrl,
+        previewVideoUrl: videoUrl,
+        youtubeId: null,
+        sourceUrl,
+        licenseNote: "Public Domain / Internet Archive",
+      });
+    }
+  }
+
+  return candidates;
+}
+
+/**
+ * Priority 2: Discover Wikimedia Commons street/city WebM/MP4 motion & curated posters
+ */
+async function discoverWikimediaCandidates(existingUrls, existingStems, cache) {
+  const queries = [
+    {
+      mediaType: "PHOTO",
+      category: "STREET_ERA",
+      country: "JP",
+      videoOnly: true,
+      q: "filetype:video Tokyo street",
+    },
+    {
+      mediaType: "PHOTO",
+      category: "STREET_ERA",
+      country: "EU",
+      videoOnly: true,
+      q: "filetype:video Paris tram street",
+    },
+    {
+      mediaType: "PRINT",
+      category: "AD_BILLBOARD",
+      country: "JP",
+      videoOnly: false,
+      q: '"Japan Travel Poster" OR "Toshiba" vintage lithograph poster',
+    },
+    {
+      mediaType: "PRINT",
+      category: "ALBUM_POSTER",
+      country: "US",
+      videoOnly: false,
+      q: '"Jazz Festival" OR "WPA Federal Art Project" lithograph poster',
+    },
+  ];
+
+  const candidates = [];
+
+  for (const { mediaType, category, country, videoOnly, q } of queries) {
+    const apiUrl = videoOnly
+      ? `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
+          q
+        )}&gsrlimit=12&prop=videoinfo&viprop=url|size|mime|derivatives&viurlwidth=960&format=json`
+      : `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
+          q
+        )}&gsrlimit=6&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=960&format=json`;
     const res = await politeFetch(apiUrl, { method: "GET" }, cache);
     if (!res || res.skippedByBreaker || res.status !== 200) continue;
 
     const data = await res.json();
     for (const page of Object.values(data.query?.pages || {})) {
-      const info = page.imageinfo?.[0];
-      if (!info || !info.mime?.startsWith("image/")) continue;
-      if (info.mime === "image/tiff" || info.mime === "image/svg+xml") continue;
-      if (info.width < 600 || info.height < 600) continue;
+      const info = videoOnly ? page.videoinfo?.[0] : page.imageinfo?.[0];
+      if (!info) continue;
 
-      const rawThumb = info.thumburl || info.url;
-      const thumbUrl = rawThumb.includes("?utm_source=")
-        ? rawThumb.split("?utm_source=")[0]
-        : rawThumb;
+      const titleClean = page.title.replace(/^File:/i, "").replace(/\.[a-z0-9]+$/i, "");
+      if (isBlockedJunkText(page.title) || isBlockedJunkText(info.url)) continue;
+
+      const stem = normalizeAssetStem(page.title);
+      if (!stem || existingStems.has(stem)) continue;
+
       const sourceUrl = info.descriptionurl;
-
-      if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl)) continue;
-      candidates.push({
-        mediaType,
-        category,
-        country,
-        mediaSource: "still_image",
-        originalTitle: page.title.replace(/^File:/i, "").replace(/\.[a-z0-9]+$/i, ""),
-        brandOrSource: "Wikimedia Commons / Public Domain",
-        year: mediaType === "PRINT" ? 1958 : 1972,
-        aspectRatio: mapAspectRatio(info.width, info.height),
-        durationSec: null,
-        thumbnailUrl: thumbUrl,
-        previewVideoUrl: null,
-        youtubeId: null,
-        sourceUrl,
-        licenseNote: "Public Domain (Wikimedia Commons)",
-      });
+      if (videoOnly) {
+        const webmDeriv = (info.derivatives || []).find(
+          (d) => typeof d?.src === "string" && /\.webm(\?.*)?$/i.test(d.src) && d.src.startsWith("https://upload.wikimedia.org/")
+        );
+        const videoUrl =
+          webmDeriv?.src ||
+          (typeof info.url === "string" && /\.(webm|mp4)(\?.*)?$/i.test(info.url) ? info.url : null);
+        if (!videoUrl || !info.thumburl || (info.width || 0) < 420) continue;
+        const thumbUrl = info.thumburl.split("?utm_source=")[0];
+        if (existingUrls.has(sourceUrl) || existingUrls.has(videoUrl)) continue;
+        existingStems.add(stem);
+        candidates.push({
+          mediaType,
+          category,
+          country,
+          mediaSource: "archive_mp4",
+          originalTitle: titleClean,
+          brandOrSource: "Wikimedia Commons / Open Street Film",
+          year: 1995,
+          aspectRatio: mapAspectRatio(info.width || 1280, info.height || 720),
+          durationSec: Math.max(8, Math.round(info.duration || 30)),
+          thumbnailUrl: thumbUrl,
+          previewVideoUrl: videoUrl,
+          youtubeId: null,
+          sourceUrl,
+          licenseNote: "CC / Public Domain (Wikimedia Commons)",
+        });
+      } else {
+        if (!info.mime?.startsWith("image/")) continue;
+        if (info.mime === "image/tiff" || info.mime === "image/svg+xml") continue;
+        if ((info.width || 0) < 600 || (info.height || 0) < 600) continue;
+        const rawThumb = info.thumburl || info.url;
+        const thumbUrl = rawThumb.split("?utm_source=")[0];
+        if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl)) continue;
+        existingStems.add(stem);
+        candidates.push({
+          mediaType,
+          category,
+          country,
+          mediaSource: "still_image",
+          originalTitle: titleClean,
+          brandOrSource: "Wikimedia Commons / Public Domain",
+          year: 1958,
+          aspectRatio: mapAspectRatio(info.width, info.height),
+          durationSec: null,
+          thumbnailUrl: thumbUrl,
+          previewVideoUrl: null,
+          youtubeId: null,
+          sourceUrl,
+          licenseNote: "Public Domain (Wikimedia Commons)",
+        });
+      }
     }
-  }
-  return candidates;
-}
-
-async function discoverNasaCandidates(existingUrls, cache) {
-  const apiUrl = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
-    "Apollo Saturn launch color"
-  )}&media_type=image&page_size=8`;
-  const res = await politeFetch(apiUrl, { method: "GET" }, cache);
-  if (!res || res.skippedByBreaker || res.status !== 200) return [];
-
-  const data = await res.json();
-  const candidates = [];
-  for (const item of data.collection?.items || []) {
-    const d = item.data?.[0];
-    if (!d || !d.nasa_id || d.nasa_id.includes(" ")) continue;
-    const thumb = item.links?.find((l) => l.rel === "preview")?.href;
-    if (!thumb) continue;
-    const thumbUrl = thumb.replace(/^http:\/\//, "https://");
-    const sourceUrl = `https://images.nasa.gov/details/${encodeURIComponent(d.nasa_id)}`;
-    if (existingUrls.has(sourceUrl) || existingUrls.has(thumbUrl)) continue;
-
-    const year = Number(String(d.date_created || "1969").slice(0, 4)) || 1969;
-    candidates.push({
-      mediaType: "NEWS",
-      category: "EXHIBITION_SPORTS",
-      country: "US",
-      mediaSource: "still_image",
-      originalTitle: d.title || d.nasa_id,
-      brandOrSource: "NASA Image Archive",
-      year,
-      aspectRatio: "4:3",
-      durationSec: null,
-      thumbnailUrl: thumbUrl,
-      previewVideoUrl: null,
-      youtubeId: null,
-      sourceUrl,
-      licenseNote: "Public Domain (NASA Media Usage Guidelines)",
-    });
   }
   return candidates;
 }
@@ -306,15 +587,20 @@ function buildArchiveItem(idNum, cand, tCache) {
   const titleKo = translateTitleToKoreanZeroCost(
     cand.originalTitle,
     cand.year,
-    cand.mediaType,
+    cand.category,
     tCache
   );
-  const palette =
-    cand.mediaType === "PRINT"
-      ? ["#162238", "#D94B38", "#E6B43C", "#3A7D8C", "#F4EFE2"]
-      : cand.mediaType === "NEWS"
-      ? ["#0E1B2E", "#2C5E9E", "#D96B27", "#E8B949", "#F2EFE8"]
-      : ["#1A2B3C", "#C84B31", "#4A7C8C", "#D9A441", "#EFE8DA"];
+  const paletteByCategory = {
+    STREET_ERA: ["#101824", "#D97724", "#356B8C", "#E5B94C", "#ECE6D8"],
+    TVCF: ["#141E30", "#D94B38", "#E6B43C", "#2C7A8C", "#F4EFE2"],
+    CLASSIC_FILM: ["#12141C", "#A83B2D", "#C89B45", "#3A546B", "#EAE3D2"],
+    WEB_PHANTOM: ["#0E1525", "#27D3C3", "#E5533D", "#E8B931", "#ECE7DC"],
+    ANIME_COMIC: ["#161C34", "#E24A33", "#F0B429", "#2E7DB2", "#F5F0E1"],
+    AD_BILLBOARD: ["#162238", "#D94B38", "#E6B43C", "#3A7D8C", "#F4EFE2"],
+    ALBUM_POSTER: ["#1A1822", "#C93B2B", "#E0A834", "#3B6E8C", "#F0EAE0"],
+    PHOTO: ["#1A2B3C", "#C84B31", "#4A7C8C", "#D9A441", "#EFE8DA"],
+  };
+  const palette = paletteByCategory[cand.category] || paletteByCategory.PHOTO;
 
   return {
     id,
@@ -324,15 +610,7 @@ function buildArchiveItem(idNum, cand, tCache) {
     year: cand.year,
     era: mapEra(cand.year),
     mediaType: cand.mediaType,
-    category:
-      cand.category ||
-      (cand.mediaType === "PRINT"
-        ? "AD_POSTER"
-        : cand.mediaType === "TVCF"
-        ? "TVCF"
-        : cand.mediaType === "NEWS"
-        ? "EXHIBITION_SPORTS"
-        : "PHOTO"),
+    category: cand.category,
     country: cand.country || "US",
     aspectRatio: cand.aspectRatio,
     durationSec: cand.durationSec,
@@ -352,30 +630,30 @@ function buildArchiveItem(idNum, cand, tCache) {
         [50, 48],
         [74, 38],
       ],
-      primaryGrid: cand.mediaType === "PRINT" ? "symmetry" : "thirds",
+      primaryGrid: cand.mediaType === "PRINT" ? "symmetry" : "perspective",
     },
     beats: [
       {
         label: "핵심 시선 앵커",
-        timeOrZone: "중앙 포커스",
+        timeOrZone: cand.mediaSource === "archive_mp4" ? "0:02" : "중앙 포커스",
         noteKo: "강렬한 명도 대비와 색채 포인트로 1초 내 시선 고정",
         focusCrop: "50% 48%",
       },
       {
         label: "구도 리딩라인",
-        timeOrZone: "좌→우 축",
+        timeOrZone: cand.mediaSource === "archive_mp4" ? "0:10" : "좌→우 축",
         noteKo: "기하학 선분과 소실점이 화면 깊이와 몰입을 강화",
         focusCrop: "35% 55%",
       },
       {
         label: "색채 보색 대비",
-        timeOrZone: "배경×전경",
+        timeOrZone: cand.mediaSource === "archive_mp4" ? "0:22" : "배경×전경",
         noteKo: "한색 배경과 난색 포인트의 균형으로 주목도 극대화",
         focusCrop: "65% 42%",
       },
       {
         label: "아카이브 마감",
-        timeOrZone: "전체 프레임",
+        timeOrZone: cand.mediaSource === "archive_mp4" ? "0:35" : "전체 프레임",
         noteKo: "퍼블릭 도메인 원판의 아날로그 질감과 비례미 보존",
         focusCrop: "50% 50%",
       },
@@ -398,23 +676,42 @@ async function main() {
   const tCache = loadJsonFile(TRANSLATION_CACHE_PATH, {});
 
   const existingUrls = new Set();
+  const existingStems = new Set();
   for (const item of existing) {
     existingUrls.add(item.sourceUrl);
     existingUrls.add(item.thumbnailUrl);
     if (item.previewVideoUrl) existingUrls.add(item.previewVideoUrl);
+    const s1 = normalizeAssetStem(item.thumbnailUrl);
+    const s2 = normalizeAssetStem(item.sourceUrl);
+    const s3 = normalizeAssetStem(item.originalTitle);
+    if (s1) existingStems.add(s1);
+    if (s2) existingStems.add(s2);
+    if (s3) existingStems.add(s3);
   }
 
   console.log(
-    `[KINOFRAME AUTO-CURATOR] Mode: ${DRY_RUN ? "DRY-RUN" : "WRITE"} | Limit: ${LIMIT} | Existing: ${existing.length}`
+    `[KINOFRAME V5 AUTO-CURATOR] Mode: ${DRY_RUN ? "DRY-RUN" : "WRITE"} | Limit: ${LIMIT} | Existing: ${existing.length}`
   );
   console.log(`[USER-AGENT] ${USER_AGENT}`);
 
-  const pool = [
-    ...(await discoverWikimediaCandidates(existingUrls, cache)),
-    ...(await discoverNasaCandidates(existingUrls, cache)),
-  ];
+  // Strictly video-first discovery to preserve archive_mp4 > still_image ratio
+  const [iaMotion, wmAll] = await Promise.all([
+    discoverInternetArchiveMotionCandidates(existingUrls, existingStems, cache),
+    discoverWikimediaCandidates(existingUrls, existingStems, cache),
+  ]);
 
-  console.log(`[CANDIDATES] Discovered ${pool.length} non-duplicate public domain items.`);
+  const wmVideos = wmAll.filter((c) => c.mediaSource === "archive_mp4");
+  const wmStills = wmAll.filter((c) => c.mediaSource === "still_image");
+
+  // Use video candidates exclusively whenever available; only append stills if zero videos discovered
+  const videoPool = [...iaMotion, ...wmVideos];
+  const pool = videoPool.length >= LIMIT ? videoPool : [...videoPool, ...wmStills];
+
+  console.log(
+    `[CANDIDATES] Discovered ${pool.length} clean non-duplicate candidates (${
+      pool.filter((c) => c.mediaSource === "archive_mp4").length
+    } auto-loop videos).`
+  );
 
   const accepted = [];
   let nextNum = nextKfId(existing);
@@ -428,7 +725,7 @@ async function main() {
     nextNum += 1;
     accepted.push(item);
     console.log(
-      `[VERIFIED 200] ${item.id} (${item.mediaType}) -> ${item.titleKo}`
+      `[VERIFIED 200] ${item.id} (${item.category}/${item.mediaSource}) -> ${item.titleKo}`
     );
   }
 
@@ -440,19 +737,24 @@ async function main() {
   }
 
   if (accepted.length > 0) {
-    const merged = [...existing, ...accepted];
+    const merged = enforceSeedSnapshotCap(
+      [...existing, ...accepted],
+      MAX_SEED_SNAPSHOT_SIZE
+    );
     saveJsonFile(SNAPSHOT_PATH, merged);
     saveJsonFile(CACHE_PATH, cache);
     saveJsonFile(TRANSLATION_CACHE_PATH, tCache);
     console.log(
-      `[CURATION COMPLETE] Added ${accepted.length} items -> total ${merged.length}`
+      `[CURATION COMPLETE] Added ${accepted.length} items -> total ${merged.length} (cap ${MAX_SEED_SNAPSHOT_SIZE})`
     );
   } else {
     console.log("[CURATION COMPLETE] No new items added.");
   }
 }
 
-main().catch((err) => {
-  console.error("[FATAL]", err);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error("[FATAL]", err);
+    process.exit(1);
+  });
+}

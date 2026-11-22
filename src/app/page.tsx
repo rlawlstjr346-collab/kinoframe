@@ -18,12 +18,12 @@ function WorkbenchFallback() {
           </span>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-[2560px] px-3 py-3 sm:px-5 lg:px-7">
-        <div className="columns-1 gap-3 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6">
+      <div className="mx-auto w-full max-w-[2560px] px-2 py-2 sm:px-3 lg:px-4">
+        <div className="columns-1 gap-1.5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6">
           {ARCHIVE_ITEMS.slice(0, 12).map((item) => (
             <div
               key={item.id}
-              className={`mb-3 break-inside-avoid overflow-hidden rounded-[4px] bg-[#111216] ring-1 ring-[#F4F1EA]/[0.08] ${getAspectRatioClass(
+              className={`mb-1.5 break-inside-avoid overflow-hidden rounded-[2px] bg-[#111216] ring-0 ${getAspectRatioClass(
                 item.aspectRatio
               )}`}
             />

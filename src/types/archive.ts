@@ -5,16 +5,14 @@ export type MediaType = "TVCF" | "NEWS" | "PRINT" | "PHOTO";
 export type ArchiveCategory =
   | "TVCF"
   | "CLASSIC_FILM"
-  | "ROCK_POSTER"
-  | "AD_POSTER"
-  | "PROPAGANDA"
-  | "TSHIRT_GRAPHIC"
-  | "BILLBOARD_SIGN"
+  | "STREET_ERA"
+  | "WEB_PHANTOM"
+  | "AD_BILLBOARD"
+  | "ALBUM_POSTER"
   | "ANIME_COMIC"
-  | "PACKAGING_EPHEMERA"
-  | "INDUSTRIAL_DESIGN"
-  | "EXHIBITION_SPORTS"
   | "PHOTO";
+
+export type MediaMode = "ALL" | "MOTION" | "STILL";
 
 export type CountryCode = "KR" | "JP" | "TW" | "US" | "EU" | "GLOBAL";
 
@@ -99,6 +97,7 @@ export type SortOption =
 
 export interface FilterState {
   mediaType: MediaType | "ALL";
+  mediaMode?: MediaMode;
   category?: ArchiveCategory | "ALL";
   country?: CountryCode | "ALL";
   era: Era | "ALL";

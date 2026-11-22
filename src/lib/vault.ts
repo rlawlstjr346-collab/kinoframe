@@ -1,4 +1,82 @@
-import type { VaultBookmark, VaultFolder, VaultState } from "@/types/archive";
+import type {
+  ArchiveItem,
+  VaultBookmark,
+  VaultFolder,
+  VaultState,
+} from "@/types/archive";
+
+export const VALID_ARCHIVE_ITEM_ID_REGEX =
+  /^KF-(?:\d{3,5}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
+
+export const CONDUIT_ITEM_ID_REGEX =
+  /^KF-(?:IA|WM)-[A-Za-z0-9_-]{2,48}$/;
+
+export const CONDUIT_SAVED_ITEMS_STORAGE_KEY =
+  "kinoframe.conduit-saved-items.v1";
+
+export function isValidArchiveItemId(id: string): boolean {
+  return VALID_ARCHIVE_ITEM_ID_REGEX.test(id.trim());
+}
+
+export function isConduitItemId(id: string): boolean {
+  return CONDUIT_ITEM_ID_REGEX.test(id.trim());
+}
+
+export function loadConduitSavedItems(): ArchiveItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(CONDUIT_SAVED_ITEMS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is ArchiveItem =>
+        Boolean(
+          item &&
+            typeof item === "object" &&
+            typeof (item as ArchiveItem).id === "string" &&
+            isConduitItemId((item as ArchiveItem).id) &&
+            typeof (item as ArchiveItem).thumbnailUrl === "string" &&
+            typeof (item as ArchiveItem).sourceUrl === "string"
+        )
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function persistConduitSavedItems(items: ArchiveItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    const dedup = new Map<string, ArchiveItem>();
+    for (const item of items) {
+      if (isConduitItemId(item.id)) {
+        dedup.set(item.id, item);
+      }
+    }
+    window.localStorage.setItem(
+      CONDUIT_SAVED_ITEMS_STORAGE_KEY,
+      JSON.stringify(Array.from(dedup.values()).slice(-240))
+    );
+  } catch {
+    // ignore storage quota errors
+  }
+}
+
+export function saveConduitSavedItem(item: ArchiveItem): ArchiveItem[] {
+  const existing = loadConduitSavedItems();
+  if (!isConduitItemId(item.id)) return existing;
+  const next = [...existing.filter((x) => x.id !== item.id), item];
+  persistConduitSavedItems(next);
+  return next;
+}
+
+export function removeConduitSavedItem(itemId: string): ArchiveItem[] {
+  const existing = loadConduitSavedItems();
+  const next = existing.filter((x) => x.id !== itemId);
+  persistConduitSavedItems(next);
+  return next;
+}
 
 export const DEFAULT_VAULT_FOLDERS: VaultFolder[] = [
   { id: "jp-vintage-cf", name: "일본 빈티지 CF" },
@@ -101,7 +179,8 @@ export function parseImportedVaultJson(
               Boolean(
                 b &&
                   typeof b.itemId === "string" &&
-                  validItemIds.has(b.itemId)
+                  isValidArchiveItemId(b.itemId) &&
+                  (validItemIds.has(b.itemId) || isConduitItemId(b.itemId))
               )
           )
           .map((b) => ({
@@ -120,7 +199,11 @@ export function parseImportedVaultJson(
       : [];
 
     const importedBoardIds = Array.isArray(parsed.boardIds)
-      ? parsed.boardIds.filter((id) => validItemIds.has(id))
+      ? parsed.boardIds.filter(
+          (id) =>
+            isValidArchiveItemId(id) &&
+            (validItemIds.has(id) || isConduitItemId(id))
+        )
       : Array.from(new Set(bookmarks.map((b) => b.itemId)));
 
     return {
