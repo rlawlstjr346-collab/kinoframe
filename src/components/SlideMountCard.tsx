@@ -80,7 +80,7 @@ export function SlideMountCard({
     return () => proximityObserver.disconnect();
   }, [isAutoLoopVideo]);
 
-  // Global concurrent playback slot scheduler (max 8 desktop / 4 mobile, hover priority)
+  // Global concurrent playback slot scheduler (max 18 desktop / 6 mobile, hysteresis + hover priority)
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
@@ -98,7 +98,7 @@ export function SlideMountCard({
       (entries) => {
         const entry = entries[0];
         if (!entry) return;
-        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.15;
         setInView(visible);
         const viewportCenter =
           typeof window !== "undefined" ? window.innerHeight / 2 : 540;
@@ -110,7 +110,7 @@ export function SlideMountCard({
         });
       },
       {
-        threshold: [0, 0.2, 0.5, 0.75],
+        threshold: [0, 0.15, 0.4, 0.75],
         rootMargin: "0px",
       }
     );
@@ -183,7 +183,7 @@ export function SlideMountCard({
           globalVideoScheduler.update(item.id, { hovered: false });
         }
       }}
-      className="group relative mb-1.5 break-inside-avoid overflow-hidden rounded-[2px] bg-[#111216] ring-0 transition-all duration-200 hover:ring-1 hover:ring-[#FAF8F5]/45"
+      className="group relative w-full overflow-hidden rounded-[2px] bg-[#111216] ring-0 transition-all duration-200 hover:ring-1 hover:ring-[#FAF8F5]/45"
     >
       {/* Pure Zero-Chrome Visual Frame Window */}
       <div
@@ -209,7 +209,7 @@ export function SlideMountCard({
             decoding="async"
             onError={() => setImgError(true)}
             className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025] ${
-              videoReady && !videoError && shouldPlayVideo ? "opacity-0" : "opacity-100"
+              videoReady && !videoError && isNearViewport ? "opacity-0" : "opacity-100"
             }`}
           />
         ) : (
@@ -218,23 +218,24 @@ export function SlideMountCard({
           </div>
         )}
 
-        {/* Viewport Proximity Auto-Play Muted Loop with Offscreen Reclamation */}
+        {/* Viewport Proximity Auto-Play Muted Loop with Zero Poster-Flicker Retention */}
         {isAutoLoopVideo && isNearViewport && item.previewVideoUrl && (
           <video
             ref={videoRef}
             src={item.previewVideoUrl}
             poster={item.thumbnailUrl}
-            preload={slotAllowed ? "metadata" : "none"}
+            preload={slotAllowed || videoReady ? "metadata" : "none"}
             muted
             loop
             playsInline
+            onLoadedData={() => setVideoReady(true)}
             onCanPlay={() => setVideoReady(true)}
             onError={() => {
               setVideoError(true);
               setVideoReady(false);
             }}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-              videoReady && !videoError && shouldPlayVideo ? "opacity-100" : "opacity-0"
+              videoReady && !videoError ? "opacity-100" : "opacity-0"
             }`}
           />
         )}

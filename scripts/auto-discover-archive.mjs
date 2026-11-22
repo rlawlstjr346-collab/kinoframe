@@ -57,6 +57,9 @@ const BLOCKED_JUNK_PATTERNS = [
   /\bgroup[_ -]?photo\b/i,
   /\bpreservewildlife/i,
   /\brns[_ -]?yellowstone/i,
+  /\b(afips|federation|symposium|seminar|lecture|talk|interview|unboxing|review)\b/i,
+  /\b(nintendo|famicom|game.?boy|atari|sega|playstation|xbox|console|flip.?phone|cell.?phone|smartphone|nokia|motorola|hardware|motherboard|calculator|typewriter)\b/i,
+  /\b(stamp|postage|matchbox|brochure|flyer|pamphlet|manual|catalog|manuscript|book.?page|textbook|dictionary|patent|diagram|chart|slide.?deck)\b/i,
 ];
 
 export function normalizeAssetStem(raw) {
@@ -284,7 +287,7 @@ export function enforceSeedSnapshotCap(items, maxSize = MAX_SEED_SNAPSHOT_SIZE) 
     if (evictedIds.size >= excess) break;
     const cat = entry.item.category || "PHOTO";
     const remainingInCat = categoryCounts.get(cat) || 0;
-    if (remainingInCat <= 28) continue;
+    if (remainingInCat <= 12) continue;
     evictedIds.add(entry.item.id);
     categoryCounts.set(cat, remainingInCat - 1);
   }
@@ -458,20 +461,6 @@ async function discoverWikimediaCandidates(existingUrls, existingStems, cache) {
       country: "EU",
       videoOnly: true,
       q: "filetype:video Paris tram street",
-    },
-    {
-      mediaType: "PRINT",
-      category: "AD_BILLBOARD",
-      country: "JP",
-      videoOnly: false,
-      q: '"Japan Travel Poster" OR "Toshiba" vintage lithograph poster',
-    },
-    {
-      mediaType: "PRINT",
-      category: "ALBUM_POSTER",
-      country: "US",
-      videoOnly: false,
-      q: '"Jazz Festival" OR "WPA Federal Art Project" lithograph poster',
     },
   ];
 

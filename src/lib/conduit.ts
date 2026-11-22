@@ -427,8 +427,8 @@ function parseDurationSec(raw: unknown): number {
   return 45;
 }
 
-const BLOCKED_CONTENT_REGEX =
-  /\b(porn|xxx|nsfw|nude|hentai|selfie|group[_ -]?photo|merchandise|t-?shirt|storefront)\b/i;
+export const BLOCKED_CONTENT_REGEX =
+  /\b(porn|xxx|nsfw|nude|hentai|selfie|group[_ -]?photo|merchandise|t-?shirt|storefront|afips|federation|conference|symposium|seminar|lecture|talk|interview|unboxing|review|nintendo|famicom|game.?boy|atari|sega|playstation|xbox|console|flip.?phone|cell.?phone|smartphone|nokia|motorola|hardware|motherboard|calculator|typewriter|stamp|postage|matchbox|brochure|flyer|pamphlet|manual|catalog|manuscript|book.?page|textbook|dictionary|patent|diagram|chart|slide.?deck)\b/i;
 
 export interface RawInternetArchiveInput {
   identifier: string;
@@ -570,6 +570,7 @@ export function normalizeWikimediaItem(
   }
 
   const isVideo = Boolean(cleanVideo && /\.(webm|mp4)(\?.*)?$/i.test(cleanVideo));
+  if (!isVideo) return null;
   const year = Math.max(1950, Math.min(2009, input.year ?? (isVideo ? 1996 : 1968)));
   const country = inferCountryFromText(titleClean, input.countryHint ?? "GLOBAL");
   const palette = CATEGORY_PALETTES[input.category];
@@ -676,7 +677,6 @@ export function deduplicateConduitItems(
 interface ConduitSourceSpec {
   iaQuery: string;
   wmVideoQuery: string;
-  wmStillQuery: string;
   targetCategory: ArchiveCategory;
   countryHint: CountryCode;
 }
@@ -703,11 +703,14 @@ function getCategorySourceSpecs(
   const iaExtra = extraSearch ? ` AND (${extraSearch})` : "";
 
   const allRotation: ArchiveCategory[] = [
-    "WEB_PHANTOM",
     "STREET_ERA",
     "TVCF",
     "CLASSIC_FILM",
+    "WEB_PHANTOM",
     "ANIME_COMIC",
+    "AD_BILLBOARD",
+    "ALBUM_POSTER",
+    "PHOTO",
   ];
   const resolvedCategory: ArchiveCategory =
     category === "ALL"
@@ -721,9 +724,8 @@ function getCategorySourceSpecs(
       return {
         targetCategory: "WEB_PHANTOM",
         countryHint,
-        iaQuery: `(collection:vhsvault OR collection:home_movies OR collection:television OR collection:ephemeralfilms OR collection:computerchronicles) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "CRT analog computer graphics oscilloscope retro"}`,
-        wmStillQuery: `${extraSearch || "retro computer CRT monitor 1990s digital art"}`,
+        iaQuery: `(collection:vhsvault OR collection:home_movies OR collection:ephemeralfilms OR collection:television) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
+        wmVideoQuery: `filetype:video ${extraSearch || "CRT analog oscilloscope neon visual glitch"}`,
       };
     case "TVCF":
       return {
@@ -731,7 +733,6 @@ function getCategorySourceSpecs(
         countryHint: country === "ALL" ? "US" : country,
         iaQuery: `(collection:prelinger OR collection:classic_tv_commercials) AND mediatype:movies AND (commercial OR advertisement OR television) AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "vintage commercial television film"}`,
-        wmStillQuery: `${extraSearch || "vintage television commercial advertisement"}`,
       };
     case "CLASSIC_FILM":
       return {
@@ -739,7 +740,6 @@ function getCategorySourceSpecs(
         countryHint: country === "ALL" ? "US" : country,
         iaQuery: `(collection:movie_trailers OR collection:feature_films OR collection:film_noir OR collection:sci_fi_horror) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "classic cinema film trailer silent movie"}`,
-        wmStillQuery: `${extraSearch || "classic cinema film still monochrome"}`,
       };
     case "STREET_ERA":
       return {
@@ -747,7 +747,6 @@ function getCategorySourceSpecs(
         countryHint,
         iaQuery: `(collection:prelinger OR collection:travelogues) AND mediatype:movies AND (street OR tram OR city OR harbor OR downtown) AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "city street tram night driving walking"}`,
-        wmStillQuery: `${extraSearch || "vintage city street tram neon"}`,
       };
     case "ANIME_COMIC":
       return {
@@ -755,15 +754,13 @@ function getCategorySourceSpecs(
         countryHint: country === "ALL" ? "US" : country,
         iaQuery: `(collection:classic_cartoons OR collection:animationandcartoons) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "classic cartoon animation cel"}`,
-        wmStillQuery: `${extraSearch || "vintage comic book woodblock anime illustration"}`,
       };
     case "AD_BILLBOARD":
       return {
         targetCategory: "AD_BILLBOARD",
         countryHint,
-        iaQuery: `collection:prelinger AND mediatype:movies AND (neon OR billboard OR sign OR poster) AND format:"512Kb MPEG4"${iaExtra}`,
+        iaQuery: `collection:prelinger AND mediatype:movies AND (neon OR billboard OR sign OR times square) AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "neon sign billboard night street"}`,
-        wmStillQuery: `${extraSearch || "vintage travel poster neon billboard lithograph"}`,
       };
     case "ALBUM_POSTER":
       return {
@@ -771,16 +768,14 @@ function getCategorySourceSpecs(
         countryHint,
         iaQuery: `(collection:prelinger OR collection:musicvideo) AND mediatype:movies AND (concert OR jazz OR music OR festival) AND format:"512Kb MPEG4"${iaExtra}`,
         wmVideoQuery: `filetype:video ${extraSearch || "vintage jazz concert music performance"}`,
-        wmStillQuery: `${extraSearch || "vintage jazz exhibition bauhaus lithograph poster"}`,
       };
     case "PHOTO":
     default:
       return {
         targetCategory: "PHOTO",
         countryHint,
-        iaQuery: `(collection:prelinger OR collection:newsandpublicaffairs) AND mediatype:movies AND format:"512Kb MPEG4"${iaExtra}`,
-        wmVideoQuery: `filetype:video ${extraSearch || "historical newsreel documentary street"}`,
-        wmStillQuery: `${extraSearch || "Kodachrome archival documentary street photography"}`,
+        iaQuery: `(collection:prelinger OR collection:newsandpublicaffairs) AND mediatype:movies AND (city OR aerial OR train OR night) AND format:"512Kb MPEG4"${iaExtra}`,
+        wmVideoQuery: `filetype:video ${extraSearch || "historical newsreel documentary street cinema"}`,
       };
   }
 }
@@ -892,17 +887,15 @@ async function fetchWikimediaConduit(
   seed: number,
   mediaMode: MediaMode
 ): Promise<{ items: ArchiveItem[]; degraded: boolean }> {
-  const wantVideo = mediaMode !== "STILL";
-  const gsroffset = ((Math.max(0, cursor - 1) + (Math.abs(seed) % 14)) * 12) % 240;
+  // Strictly video-only conduit: never pull static documents, stamps, or hardware stills
+  if (mediaMode === "STILL") {
+    return { items: [], degraded: false };
+  }
 
-  const query = wantVideo ? spec.wmVideoQuery : spec.wmStillQuery;
-  const apiUrl = wantVideo
-    ? `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
-        query
-      )}&gsrlimit=14&gsroffset=${gsroffset}&prop=videoinfo&viprop=url|size|mime|derivatives&viurlwidth=960&format=json`
-    : `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
-        query
-      )}&gsrlimit=14&gsroffset=${gsroffset}&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=960&format=json`;
+  const gsroffset = ((Math.max(0, cursor - 1) + (Math.abs(seed) % 14)) * 12) % 240;
+  const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
+    spec.wmVideoQuery
+  )}&gsrlimit=14&gsroffset=${gsroffset}&prop=videoinfo&viprop=url|size|mime|derivatives&viurlwidth=960&format=json`;
 
   const res = await fetchJsonPolitely(apiUrl);
   if (!res.ok || !res.data) {
@@ -926,14 +919,6 @@ async function fetchWikimediaConduit(
               duration?: number;
               derivatives?: Array<{ src?: string }>;
             }>;
-            imageinfo?: Array<{
-              url?: string;
-              thumburl?: string;
-              descriptionurl?: string;
-              width?: number;
-              height?: number;
-              mime?: string;
-            }>;
           }
         >;
       };
@@ -947,78 +932,53 @@ async function fetchWikimediaConduit(
   const items: ArchiveItem[] = [];
   for (const page of Object.values(pages)) {
     if (!page?.pageid || !page.title) continue;
+    const info = page.videoinfo?.[0];
+    if (!info?.thumburl || !info.descriptionurl) continue;
+    if ((info.width ?? 0) < 320) continue;
 
-    if (wantVideo) {
-      const info = page.videoinfo?.[0];
-      if (!info?.thumburl || !info.descriptionurl) continue;
-      if ((info.width ?? 0) < 320) continue;
+    const derivs = Array.isArray(info.derivatives) ? info.derivatives : [];
+    const preferred =
+      derivs.find(
+        (d) =>
+          typeof d?.src === "string" &&
+          /480p.*\.webm(\?.*)?$/i.test(d.src) &&
+          isAllowedMediaUrl(d.src)
+      ) ||
+      derivs.find(
+        (d) =>
+          typeof d?.src === "string" &&
+          /720p.*\.webm(\?.*)?$/i.test(d.src) &&
+          isAllowedMediaUrl(d.src)
+      ) ||
+      derivs.find(
+        (d) =>
+          typeof d?.src === "string" &&
+          /\.webm(\?.*)?$/i.test(d.src) &&
+          isAllowedMediaUrl(d.src)
+      );
 
-      const derivs = Array.isArray(info.derivatives) ? info.derivatives : [];
-      const preferred =
-        derivs.find(
-          (d) =>
-            typeof d?.src === "string" &&
-            /480p.*\.webm(\?.*)?$/i.test(d.src) &&
-            isAllowedMediaUrl(d.src)
-        ) ||
-        derivs.find(
-          (d) =>
-            typeof d?.src === "string" &&
-            /720p.*\.webm(\?.*)?$/i.test(d.src) &&
-            isAllowedMediaUrl(d.src)
-        ) ||
-        derivs.find(
-          (d) =>
-            typeof d?.src === "string" &&
-            /\.webm(\?.*)?$/i.test(d.src) &&
-            isAllowedMediaUrl(d.src)
-        );
+    const videoUrl =
+      preferred?.src ||
+      (typeof info.url === "string" &&
+      /\.(webm|mp4)(\?.*)?$/i.test(info.url) &&
+      isAllowedMediaUrl(info.url)
+        ? info.url
+        : null);
+    if (!videoUrl) continue;
 
-      const videoUrl =
-        preferred?.src ||
-        (typeof info.url === "string" &&
-        /\.(webm|mp4)(\?.*)?$/i.test(info.url) &&
-        isAllowedMediaUrl(info.url)
-          ? info.url
-          : null);
-      if (!videoUrl) continue;
-
-      const item = normalizeWikimediaItem({
-        pageId: page.pageid,
-        title: page.title,
-        descriptionUrl: info.descriptionurl,
-        thumbnailUrl: info.thumburl,
-        videoUrl,
-        width: info.width,
-        height: info.height,
-        durationSec: info.duration,
-        category: spec.targetCategory,
-        countryHint: spec.countryHint,
-      });
-      if (item) items.push(item);
-    } else {
-      const info = page.imageinfo?.[0];
-      if (!info?.descriptionurl) continue;
-      if (!info.mime?.startsWith("image/")) continue;
-      if (info.mime === "image/tiff" || info.mime === "image/svg+xml") continue;
-      if ((info.width ?? 0) < 500 || (info.height ?? 0) < 400) continue;
-
-      const thumb = info.thumburl || info.url;
-      if (!thumb) continue;
-
-      const item = normalizeWikimediaItem({
-        pageId: page.pageid,
-        title: page.title,
-        descriptionUrl: info.descriptionurl,
-        thumbnailUrl: thumb,
-        videoUrl: null,
-        width: info.width,
-        height: info.height,
-        category: spec.targetCategory,
-        countryHint: spec.countryHint,
-      });
-      if (item) items.push(item);
-    }
+    const item = normalizeWikimediaItem({
+      pageId: page.pageid,
+      title: page.title,
+      descriptionUrl: info.descriptionurl,
+      thumbnailUrl: info.thumburl,
+      videoUrl,
+      width: info.width,
+      height: info.height,
+      durationSec: info.duration,
+      category: spec.targetCategory,
+      countryHint: spec.countryHint,
+    });
+    if (item) items.push(item);
   }
 
   return { items, degraded: res.degraded };
@@ -1067,12 +1027,10 @@ export async function queryConduitStream(
       ? wmSettled.value
       : { items: [], degraded: true };
 
-  // Motion-first interleave: video items first, then stills
-  const combined = [...iaResult.items, ...wmResult.items].sort((a, b) => {
-    const aVid = a.mediaSource === "archive_mp4" ? 0 : 1;
-    const bVid = b.mediaSource === "archive_mp4" ? 0 : 1;
-    return aVid - bVid;
-  });
+  // Strictly 100% direct-link video items only
+  const combined = [...iaResult.items, ...wmResult.items].filter(
+    (entry) => entry.mediaSource === "archive_mp4" && Boolean(entry.previewVideoUrl)
+  );
 
   const deduped = deduplicateConduitItems(combined);
   const degraded = iaResult.degraded || wmResult.degraded;

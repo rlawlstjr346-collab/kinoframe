@@ -6,6 +6,10 @@ export interface VideoSlotRegistration {
   onSlotChange: (allowed: boolean) => void;
 }
 
+const MIN_VISIBLE_RATIO = 0.15;
+const HYSTERESIS_DISTANCE_BONUS_PX = 320;
+const HYSTERESIS_RATIO_BONUS = 0.35;
+
 export class VideoPlaybackScheduler {
   private entries = new Map<string, VideoSlotRegistration>();
   private activeIds = new Set<string>();
@@ -20,9 +24,9 @@ export class VideoPlaybackScheduler {
       return Math.max(1, this.maxSlotsOverride);
     }
     if (typeof window !== "undefined" && window.innerWidth < 768) {
-      return 4;
+      return 6;
     }
-    return 8;
+    return 18;
   }
 
   register(entry: VideoSlotRegistration): void {
@@ -59,7 +63,7 @@ export class VideoPlaybackScheduler {
 
     const eligible: VideoSlotRegistration[] = [];
     for (const entry of this.entries.values()) {
-      if (entry.hovered || entry.ratio >= 0.2) {
+      if (entry.hovered || entry.ratio >= MIN_VISIBLE_RATIO) {
         eligible.push(entry);
       }
     }
@@ -67,13 +71,29 @@ export class VideoPlaybackScheduler {
     eligible.sort((a, b) => {
       // Priority 1: hovered / focused tile wins immediately
       if (a.hovered !== b.hovered) return a.hovered ? -1 : 1;
-      // Priority 2: significantly higher visibility ratio wins
-      const ratioDiff = b.ratio - a.ratio;
-      if (Math.abs(ratioDiff) > 0.15) return ratioDiff;
-      // Priority 3: closer to vertical center of viewport wins
-      if (Math.abs(a.centerDistance - b.centerDistance) > 24) {
-        return a.centerDistance - b.centerDistance;
+
+      // Priority 2: hysteresis retention for already-playing in-viewport tiles
+      const aActive = this.activeIds.has(a.id) && a.ratio >= MIN_VISIBLE_RATIO;
+      const bActive = this.activeIds.has(b.id) && b.ratio >= MIN_VISIBLE_RATIO;
+      const aEffRatio = a.ratio + (aActive ? HYSTERESIS_RATIO_BONUS : 0);
+      const bEffRatio = b.ratio + (bActive ? HYSTERESIS_RATIO_BONUS : 0);
+      const ratioDiff = bEffRatio - aEffRatio;
+      if (Math.abs(ratioDiff) > 0.2) return ratioDiff;
+
+      // Priority 3: closer to vertical center (with hysteresis bonus for active tiles)
+      const aEffDist = Math.max(
+        0,
+        a.centerDistance - (aActive ? HYSTERESIS_DISTANCE_BONUS_PX : 0)
+      );
+      const bEffDist = Math.max(
+        0,
+        b.centerDistance - (bActive ? HYSTERESIS_DISTANCE_BONUS_PX : 0)
+      );
+      if (Math.abs(aEffDist - bEffDist) > 36) {
+        return aEffDist - bEffDist;
       }
+
+      if (aActive !== bActive) return aActive ? -1 : 1;
       return a.id.localeCompare(b.id);
     });
 

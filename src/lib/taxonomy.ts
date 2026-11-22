@@ -414,9 +414,9 @@ function pickBestFromPool(
 }
 
 /**
- * Motion-First 3:1 Interleaver (75% Auto-Loop Moving Wall):
- * Places 3 auto-looping `archive_mp4` tiles per 4-tile cycle (`pos % 4 !== 3`)
- * so top 24 ALWAYS contains >= 18 (75%) and top 48 ALWAYS contains >= 36 (75%)
+ * Motion-First 7:1 Interleaver (87.5%+ Auto-Loop Moving Wall):
+ * Places 7 auto-looping `archive_mp4` tiles per 8-tile cycle (`pos % 8 !== 7`)
+ * so top 24 ALWAYS contains >= 21 and top 48 ALWAYS contains >= 42 (87.5%+)
  * auto-looping videos across default sorting and every seeded smart_mix rotation.
  */
 function interleaveMotionFirst(
@@ -467,11 +467,10 @@ function interleaveMotionFirst(
     } else if (otherPool.length === 0) {
       useMotion = true;
     } else if (preferMotionHeavy) {
-      // In MOTION filter mode, heavily prioritize direct-link archive_mp4 (5:1 over youtube_embed)
-      useMotion = pos % 6 !== 5;
+      useMotion = true;
     } else {
-      // Strict 3:1 rhythm (75% moving wall): slots 0,1,2 -> archive_mp4; slot 3 -> still/embed
-      useMotion = pos % 4 !== 3;
+      // Strict 7:1 rhythm (87.5%+ moving wall): 7 archive_mp4 tiles per 8 slots
+      useMotion = pos % 8 !== 7;
     }
 
     const activePool = useMotion ? motionPool : otherPool;

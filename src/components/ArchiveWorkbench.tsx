@@ -3,24 +3,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type {
-  ArchiveCategory,
   ArchiveItem,
+  AspectRatio,
   AuthSessionState,
-  CountryCode,
-  Era,
-  FilterState,
-  MediaMode,
-  SortOption,
   VaultState,
 } from "@/types/archive";
 import {
-  ARCHIVE_CATEGORIES,
-  COUNTRIES,
   DEFAULT_FILTER_STATE,
-  ERAS,
   INITIAL_VISIBLE_COUNT,
   LOAD_MORE_STEP,
-  MEDIA_MODES,
   filterAndSortArchive,
   getVisibleArchiveSlice,
   parseBoardIds,
@@ -43,8 +34,6 @@ import {
   CloseIcon,
   CompareIcon,
   KinoframeLogo,
-  ResetIcon,
-  SearchIcon,
 } from "@/components/Icons";
 import { SlideMountCard } from "@/components/SlideMountCard";
 import { ViewfinderModal } from "@/components/ViewfinderModal";
@@ -54,25 +43,68 @@ import { AuthModal } from "@/components/AuthModal";
 
 interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
+  initialSeed?: number;
 }
 
-const HEADER_SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
-  { value: "smart_mix", label: "스마트 믹스" },
-  { value: "year_asc", label: "연대 오래된순" },
-  { value: "year_desc", label: "연대 최신순" },
-];
+const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
+  "4:5": 1.25,
+  "4:3": 0.75,
+  "3:2": 0.667,
+  "16:9": 0.5625,
+  "2.39:1": 0.418,
+};
 
-const COUNTRY_TABS: Array<{ value: CountryCode | "ALL"; label: string }> =
-  COUNTRIES;
+function getColumnCountForWidth(width: number): number {
+  if (width >= 1536) return 6;
+  if (width >= 1280) return 5;
+  if (width >= 1024) return 4;
+  if (width >= 768) return 3;
+  if (width >= 640) return 2;
+  return 1;
+}
 
-export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
+function distributeToColumns(
+  list: ArchiveItem[],
+  columnCount: number
+): ArchiveItem[][] {
+  const safeCols = Math.max(1, columnCount);
+  const cols: ArchiveItem[][] = Array.from({ length: safeCols }, () => []);
+  const heights = new Array<number>(safeCols).fill(0);
+
+  for (const item of list) {
+    let minIdx = 0;
+    let minH = heights[0];
+    for (let c = 1; c < safeCols; c += 1) {
+      if (heights[c] < minH) {
+        minH = heights[c];
+        minIdx = c;
+      }
+    }
+    cols[minIdx].push(item);
+    heights[minIdx] += ASPECT_HEIGHT_WEIGHT[item.aspectRatio] ?? 0.75;
+  }
+
+  return cols;
+}
+
+export function ArchiveWorkbench({
+  items,
+  initialSeed = 424242,
+}: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
+  const [shuffleSeed] = useState<number>(initialSeed);
+  const [columnCount, setColumnCount] = useState<number>(6);
+
   const [savedConduitItems, setSavedConduitItems] = useState<ArchiveItem[]>([]);
   const [conduitItems, setConduitItems] = useState<ArchiveItem[]>([]);
-  const [conduitCursor, setConduitCursor] = useState<number>(1);
   const [conduitLoading, setConduitLoading] = useState<boolean>(false);
   const [conduitHasMore, setConduitHasMore] = useState<boolean>(true);
-  const conduitInFlightRef = useRef<boolean>(false);
+
+  const didInitRef = useRef<boolean>(false);
+  const inFlightCursorRef = useRef<number | null>(null);
+  const nextCursorRef = useRef<number>(1);
+  const exhaustedRef = useRef<boolean>(false);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   const allCatalogItems = useMemo(() => {
     const map = new Map<string, ArchiveItem>();
@@ -96,18 +128,19 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [allCatalogItems]
   );
 
+  const initialBoardParam = searchParams.get("board");
   const initialBoardIds = useMemo(
-    () => parseBoardIds(searchParams.get("board"), validIdSet),
-    [searchParams, validIdSet]
+    () => parseBoardIds(initialBoardParam, validIdSet),
+    [initialBoardParam, validIdSet]
   );
 
-  const [filterState, setFilterState] = useState<FilterState>(() => ({
-    ...DEFAULT_FILTER_STATE,
-    sort: "smart_mix",
-    boardIds: initialBoardIds,
-  }));
-
-  const [shuffleSeed, setShuffleSeed] = useState<number | null>(null);
+  const [boardIds, setBoardIds] = useState<string[]>(() =>
+    parseBoardIds(
+      searchParams.get("board"),
+      new Set(items.map((i) => i.id))
+    )
+  );
+  const [boardOnly, setBoardOnly] = useState<boolean>(false);
   const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -121,8 +154,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const [sharedBannerDismissed, setSharedBannerDismissed] =
     useState<boolean>(false);
 
-  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
-
   // Account-isolated vault & session states
   const [vault, setVault] = useState<VaultState>(DEFAULT_VAULT_STATE);
   const [loadedAccountSub, setLoadedAccountSub] = useState<string | null>(null);
@@ -132,52 +163,64 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     cloudSyncAvailable: false,
   });
 
-  const hydrateAccountVault = useCallback(
-    async (userSub: string) => {
-      const localAcc = loadAccountVault(userSub);
-      let resolved = localAcc;
-
-      try {
-        const res = await fetch("/api/vault", { cache: "no-store" });
-        if (res.ok) {
-          const data = (await res.json()) as { vault?: VaultState | null };
-          if (data.vault && Array.isArray(data.vault.folders)) {
-            resolved = data.vault;
-            saveAccountVault(userSub, resolved);
-          }
-        }
-      } catch {
-        // use account-scoped local storage
-      }
-
-      setVault(resolved);
-      setLoadedAccountSub(userSub);
-
-      const accountBoardIds = resolved.bookmarks
-        .map((b) => b.itemId)
-        .filter((id) => validIdSet.has(id) || isConduitItemId(id));
-
-      setFilterState((prev) => ({
-        ...prev,
-        boardIds:
-          initialBoardIds.length > 0
-            ? Array.from(new Set([...accountBoardIds, ...initialBoardIds]))
-            : accountBoardIds,
-      }));
-    },
-    [initialBoardIds, validIdSet]
-  );
-
-  // Visit seed, saved conduit items hydration & initial session hydration
+  // Sync responsive Masonry column count strictly on mount and resize
   useEffect(() => {
+    const syncColumns = () => {
+      const nextCols = getColumnCountForWidth(window.innerWidth);
+      setColumnCount((prev) => (prev === nextCols ? prev : nextCols));
+    };
+    syncColumns();
+    window.addEventListener("resize", syncColumns, { passive: true });
+    return () => window.removeEventListener("resize", syncColumns);
+  }, []);
+
+  const validIdSetRef = useRef<Set<string>>(validIdSet);
+  validIdSetRef.current = validIdSet;
+  const initialBoardIdsRef = useRef<string[]>(initialBoardIds);
+  initialBoardIdsRef.current = initialBoardIds;
+
+  const hydrateAccountVault = useCallback(async (userSub: string) => {
+    const localAcc = loadAccountVault(userSub);
+    let resolved = localAcc;
+
+    try {
+      const res = await fetch("/api/vault", { cache: "no-store" });
+      if (res.ok) {
+        const data = (await res.json()) as { vault?: VaultState | null };
+        if (data.vault && Array.isArray(data.vault.folders)) {
+          resolved = data.vault;
+          saveAccountVault(userSub, resolved);
+        }
+      }
+    } catch {
+      // use account-scoped local storage
+    }
+
+    setVault(resolved);
+    setLoadedAccountSub(userSub);
+
+    const activeValidIds = validIdSetRef.current;
+    const sharedIds = initialBoardIdsRef.current;
+    const accountBoardIds = resolved.bookmarks
+      .map((b) => b.itemId)
+      .filter((id) => activeValidIds.has(id) || isConduitItemId(id));
+
+    setBoardIds(
+      sharedIds.length > 0
+        ? Array.from(new Set([...accountBoardIds, ...sharedIds]))
+        : accountBoardIds
+    );
+  }, []);
+
+  // Strictly run ONCE on mount: hydrate persisted conduit saves & fetch /api/auth/session once
+  useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
     const persistedConduit = loadConduitSavedItems();
     if (persistedConduit.length > 0) {
       setSavedConduitItems(persistedConduit);
     }
-
-    const visitSeed =
-      Math.floor(Date.now() % 1_000_000) + Math.floor(Math.random() * 9973) + 1;
-    setShuffleSeed(visitSeed);
 
     let cancelled = false;
     fetch("/api/auth/session", { cache: "no-store" })
@@ -213,7 +256,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    const serialized = serializeBoardIds(filterState.boardIds);
+    const serialized = serializeBoardIds(boardIds);
     if (serialized) {
       url.searchParams.set("board", serialized);
     } else {
@@ -221,129 +264,90 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     }
     const nextUrl = `${url.pathname}${url.search}${url.hash}`;
     window.history.replaceState(null, "", nextUrl);
-  }, [filterState.boardIds]);
+  }, [boardIds]);
 
-  const activeConduitFilterKey = useMemo(
-    () =>
-      [
-        filterState.category ?? "ALL",
-        filterState.country ?? "ALL",
-        filterState.era,
-        filterState.mediaMode ?? "ALL",
-        filterState.query.trim().toLowerCase(),
-        shuffleSeed ?? 1,
-      ].join("|"),
-    [
-      filterState.category,
-      filterState.country,
-      filterState.era,
-      filterState.mediaMode,
-      filterState.query,
-      shuffleSeed,
-    ]
-  );
+  // Deterministic SSR-matched initial seed wall — computed ONCE per visit, never reshuffled on scroll
+  const orderedSeedItems = useMemo(() => {
+    const base = filterAndSortArchive(items, {
+      ...DEFAULT_FILTER_STATE,
+      sort: "smart_mix",
+    });
+    return rotateArchiveWithSeed(base, shuffleSeed);
+  }, [items, shuffleSeed]);
 
-  const activeConduitKeyRef = useRef<string>(activeConduitFilterKey);
-  activeConduitKeyRef.current = activeConduitFilterKey;
-
-  const filteredLocalItems = useMemo(() => {
-    const base = filterAndSortArchive(items, filterState);
-    if (filterState.sort === "smart_mix" && shuffleSeed !== null) {
-      return rotateArchiveWithSeed(base, shuffleSeed);
+  // Strictly Append-Only list: conduit items only append at the tail, never disturbing existing tiles
+  const displayedPool = useMemo(() => {
+    if (boardOnly) {
+      const boardSet = new Set(boardIds);
+      return allCatalogItems.filter((item) => boardSet.has(item.id));
     }
-    return base;
-  }, [items, filterState, shuffleSeed]);
 
-  const filteredItems = useMemo(() => {
-    const seenIds = new Set(filteredLocalItems.map((i) => i.id));
-    const seenSources = new Set(filteredLocalItems.map((i) => i.sourceUrl));
+    if (conduitItems.length === 0) {
+      return orderedSeedItems;
+    }
+
+    const seenIds = new Set(orderedSeedItems.map((i) => i.id));
+    const seenSources = new Set(orderedSeedItems.map((i) => i.sourceUrl));
     const seenVideos = new Set(
-      filteredLocalItems
+      orderedSeedItems
         .map((i) => i.previewVideoUrl)
         .filter((u): u is string => Boolean(u))
     );
 
-    const extraCandidates: ArchiveItem[] = [];
-    const appendCandidate = (entry: ArchiveItem) => {
-      if (seenIds.has(entry.id) || seenSources.has(entry.sourceUrl)) return;
-      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) return;
+    const appended: ArchiveItem[] = [];
+    for (const entry of conduitItems) {
+      if (seenIds.has(entry.id) || seenSources.has(entry.sourceUrl)) continue;
+      if (entry.previewVideoUrl && seenVideos.has(entry.previewVideoUrl)) {
+        continue;
+      }
       seenIds.add(entry.id);
       seenSources.add(entry.sourceUrl);
       if (entry.previewVideoUrl) seenVideos.add(entry.previewVideoUrl);
-      extraCandidates.push(entry);
-    };
-
-    if (filterState.boardOnly) {
-      for (const entry of savedConduitItems) appendCandidate(entry);
-      const filteredSaved = filterAndSortArchive(extraCandidates, filterState);
-      return [...filteredLocalItems, ...filteredSaved];
+      appended.push(entry);
     }
 
-    for (const entry of conduitItems) appendCandidate(entry);
-    if (extraCandidates.length === 0) return filteredLocalItems;
-
-    // Respect active mediaMode & category on streamed conduit items while keeping broad search results fluid
-    const activeMode = filterState.mediaMode ?? "ALL";
-    const activeCat = filterState.category ?? "ALL";
-    const refinedExtra = extraCandidates.filter((entry) => {
-      if (
-        activeMode === "MOTION" &&
-        entry.mediaSource !== "archive_mp4" &&
-        entry.mediaSource !== "youtube_embed"
-      ) {
-        return false;
-      }
-      if (activeMode === "STILL" && entry.mediaSource !== "still_image") {
-        return false;
-      }
-      if (activeCat !== "ALL" && entry.category !== activeCat) {
-        return false;
-      }
-      return true;
-    });
-
-    return [...filteredLocalItems, ...refinedExtra];
-  }, [filteredLocalItems, conduitItems, savedConduitItems, filterState]);
+    return appended.length > 0
+      ? [...orderedSeedItems, ...appended]
+      : orderedSeedItems;
+  }, [boardOnly, boardIds, allCatalogItems, orderedSeedItems, conduitItems]);
 
   const visibleItems = useMemo(
-    () => getVisibleArchiveSlice(filteredItems, visibleCount),
-    [filteredItems, visibleCount]
+    () => getVisibleArchiveSlice(displayedPool, visibleCount),
+    [displayedPool, visibleCount]
   );
 
-  const hasMoreItems = visibleItems.length < filteredItems.length;
-  const canLoadConduit = !filterState.boardOnly && conduitHasMore;
+  const masonryColumns = useMemo(
+    () => distributeToColumns(visibleItems, columnCount),
+    [visibleItems, columnCount]
+  );
+
+  const hasMoreItems = visibleItems.length < displayedPool.length;
+  const canLoadConduit = !boardOnly && conduitHasMore;
 
   const fetchNextConduitPage = useCallback(async () => {
-    if (
-      conduitInFlightRef.current ||
-      !conduitHasMore ||
-      filterState.boardOnly ||
-      shuffleSeed === null
-    ) {
+    if (boardOnly || exhaustedRef.current || inFlightCursorRef.current !== null) {
       return;
     }
 
-    const requestKey = activeConduitKeyRef.current;
-    conduitInFlightRef.current = true;
+    const targetCursor = nextCursorRef.current;
+    inFlightCursorRef.current = targetCursor;
     setConduitLoading(true);
 
     try {
       const qs = new URLSearchParams({
-        category: filterState.category ?? "ALL",
-        country: filterState.country ?? "ALL",
-        decade: filterState.era,
-        mediaMode: filterState.mediaMode ?? "ALL",
-        cursor: String(conduitCursor),
+        category: "ALL",
+        country: "ALL",
+        decade: "ALL",
+        mediaMode: "MOTION",
+        cursor: String(targetCursor),
         seed: String(shuffleSeed),
       });
-      if (filterState.query.trim()) {
-        qs.set("q", filterState.query.trim());
-      }
 
       const res = await fetch(`/api/archive/conduit?${qs.toString()}`, {
         cache: "default",
       });
       if (!res.ok) {
+        exhaustedRef.current = true;
         setConduitHasMore(false);
         return;
       }
@@ -354,10 +358,13 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         hasMore?: boolean;
       };
 
-      // Discard stale responses if user changed filters mid-flight
-      if (activeConduitKeyRef.current !== requestKey) return;
+      const incoming = Array.isArray(data.items)
+        ? data.items.filter(
+            (entry) =>
+              entry.mediaSource === "archive_mp4" && Boolean(entry.previewVideoUrl)
+          )
+        : [];
 
-      const incoming = Array.isArray(data.items) ? data.items : [];
       if (incoming.length > 0) {
         setConduitItems((prev) => {
           const existingIds = new Set<string>([
@@ -401,78 +408,22 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       }
 
       if (data.hasMore && typeof data.nextCursor === "number") {
-        setConduitCursor(data.nextCursor);
+        nextCursorRef.current = data.nextCursor;
         setConduitHasMore(true);
       } else {
+        exhaustedRef.current = true;
         setConduitHasMore(false);
       }
     } catch {
-      // Quietly degrade to local seed without exposing errors
+      exhaustedRef.current = true;
       setConduitHasMore(false);
     } finally {
-      conduitInFlightRef.current = false;
+      inFlightCursorRef.current = null;
       setConduitLoading(false);
     }
-  }, [
-    conduitCursor,
-    conduitHasMore,
-    filterState.boardOnly,
-    filterState.category,
-    filterState.country,
-    filterState.era,
-    filterState.mediaMode,
-    filterState.query,
-    items,
-    shuffleSeed,
-  ]);
+  }, [boardOnly, items, shuffleSeed]);
 
-  // Reset progressive render window & conduit cursor whenever active filters or shuffle seed change
-  useEffect(() => {
-    setVisibleCount(INITIAL_VISIBLE_COUNT);
-    setConduitItems([]);
-    setConduitCursor(1);
-    setConduitHasMore(true);
-    conduitInFlightRef.current = false;
-  }, [
-    filterState.mediaMode,
-    filterState.category,
-    filterState.country,
-    filterState.era,
-    filterState.query,
-    filterState.sort,
-    filterState.boardOnly,
-    shuffleSeed,
-  ]);
-
-  const hasActiveFilters =
-    (filterState.mediaMode ?? "ALL") !== "ALL" ||
-    (filterState.category ?? "ALL") !== "ALL" ||
-    (filterState.country ?? "ALL") !== "ALL" ||
-    filterState.era !== "ALL" ||
-    filterState.query.trim().length > 0 ||
-    filterState.boardOnly;
-
-  // Auto-tap live external conduit when nearing end of local pool or sparse filter/search results
-  useEffect(() => {
-    if (!canLoadConduit || conduitLoading || shuffleSeed === null) return;
-    const nearLocalEnd = visibleCount >= filteredItems.length - 18;
-    const sparseFilterResults =
-      hasActiveFilters && filteredItems.length < 18 && conduitCursor === 1;
-    if (nearLocalEnd || sparseFilterResults) {
-      fetchNextConduitPage();
-    }
-  }, [
-    canLoadConduit,
-    conduitLoading,
-    conduitCursor,
-    filteredItems.length,
-    visibleCount,
-    hasActiveFilters,
-    shuffleSeed,
-    fetchNextConduitPage,
-  ]);
-
-  // Pinterest-style infinite scroll sentinel (640px ahead of viewport bottom)
+  // Infinite scroll sentinel: strictly advances local window and taps conduit only when <= 18 items remain
   useEffect(() => {
     if (!hasMoreItems && !canLoadConduit) return;
     const node = loadMoreSentinelRef.current;
@@ -480,36 +431,36 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisibleCount((prev) => {
-            const next = Math.min(filteredItems.length, prev + LOAD_MORE_STEP);
-            if (next >= filteredItems.length - 18) {
-              fetchNextConduitPage();
-            }
-            return next;
-          });
-        }
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+
+        setVisibleCount((prev) => {
+          const next = Math.min(displayedPool.length, prev + LOAD_MORE_STEP);
+          if (next >= displayedPool.length - 18) {
+            void fetchNextConduitPage();
+          }
+          return next;
+        });
       },
       { rootMargin: "640px 0px" }
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMoreItems, canLoadConduit, filteredItems.length, fetchNextConduitPage]);
+  }, [hasMoreItems, canLoadConduit, displayedPool.length, fetchNextConduitPage]);
 
   const boardItems = useMemo(() => {
     const map = new Map(allCatalogItems.map((i) => [i.id, i]));
-    return filterState.boardIds
+    return boardIds
       .map((id) => map.get(id))
       .filter((x): x is ArchiveItem => Boolean(x));
-  }, [allCatalogItems, filterState.boardIds]);
+  }, [allCatalogItems, boardIds]);
 
   const selectedIndex = useMemo(
     () =>
       selectedItemId
-        ? filteredItems.findIndex((i) => i.id === selectedItemId)
+        ? displayedPool.findIndex((i) => i.id === selectedItemId)
         : -1,
-    [filteredItems, selectedItemId]
+    [displayedPool, selectedItemId]
   );
 
   const selectedItem = useMemo(() => {
@@ -522,20 +473,22 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return vault.bookmarks.find((b) => b.itemId === selectedItemId);
   }, [vault.bookmarks, selectedItemId]);
 
-  const handleShuffleWall = useCallback(() => {
-    setFilterState((prev) => ({ ...prev, sort: "smart_mix" }));
-    setShuffleSeed((prev) => (prev ?? 1) + Math.floor(Math.random() * 997) + 17);
+  const handleBrandClick = useCallback(() => {
+    setBoardOnly(false);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, []);
 
   const performToggleBoard = useCallback(
     (id: string, folderId?: string) => {
       const targetItem = allCatalogItems.find((entry) => entry.id === id);
 
-      setFilterState((prev) => {
-        const exists = prev.boardIds.includes(id);
+      setBoardIds((prev) => {
+        const exists = prev.includes(id);
         const nextBoardIds = exists
-          ? prev.boardIds.filter((b) => b !== id)
-          : [...prev.boardIds, id];
+          ? prev.filter((b) => b !== id)
+          : [...prev, id];
         if (isConduitItemId(id)) {
           if (exists) {
             setSavedConduitItems(removeConduitSavedItem(id));
@@ -543,11 +496,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             setSavedConduitItems(saveConduitSavedItem(targetItem));
           }
         }
-        return {
-          ...prev,
-          boardIds: nextBoardIds,
-          boardOnly: nextBoardIds.length === 0 ? false : prev.boardOnly,
-        };
+        if (nextBoardIds.length === 0) {
+          setBoardOnly(false);
+        }
+        return nextBoardIds;
       });
 
       setVault((prev) => {
@@ -576,7 +528,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [allCatalogItems]
   );
 
-  // Pinterest gate: guests clicking [저장] open login modal; logged-in users save immediately
+  // Guest clicking [저장] opens login modal; logged-in users save immediately
   const handleToggleBoard = useCallback(
     (id: string, folderId?: string) => {
       if (!session.authenticated) {
@@ -621,10 +573,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           ],
         };
       });
-      setFilterState((prev) =>
-        prev.boardIds.includes(payload.itemId)
-          ? prev
-          : { ...prev, boardIds: [...prev.boardIds, payload.itemId] }
+      setBoardIds((prev) =>
+        prev.includes(payload.itemId) ? prev : [...prev, payload.itemId]
       );
     },
     [session.authenticated, allCatalogItems]
@@ -663,11 +613,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   }, []);
 
   const handleClearBoard = useCallback(() => {
-    setFilterState((prev) => ({
-      ...prev,
-      boardIds: [],
-      boardOnly: false,
-    }));
+    setBoardIds([]);
+    setBoardOnly(false);
     setVault((prev) => ({ ...prev, bookmarks: [] }));
   }, []);
 
@@ -690,17 +637,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     []
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilterState((prev) => ({
-      ...DEFAULT_FILTER_STATE,
-      sort: "smart_mix",
-      boardIds: prev.boardIds,
-    }));
-  }, []);
-
   const handleExportBackup = useCallback(() => {
-    exportVaultToFile(vault, filterState.boardIds);
-  }, [vault, filterState.boardIds]);
+    exportVaultToFile(vault, boardIds);
+  }, [vault, boardIds]);
 
   const handleImportBackupFile = useCallback(
     (file: File) => {
@@ -710,10 +649,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         const parsed = parseImportedVaultJson(reader.result, validIdSet);
         if (!parsed) return;
         setVault(parsed.vault);
-        setFilterState((prev) => ({
-          ...prev,
-          boardIds: Array.from(new Set([...prev.boardIds, ...parsed.boardIds])),
-        }));
+        setBoardIds((prev) => Array.from(new Set([...prev, ...parsed.boardIds])));
       };
       reader.readAsText(file);
     },
@@ -743,269 +679,94 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     });
     setLoadedAccountSub(null);
     setVault(DEFAULT_VAULT_STATE);
-    setFilterState((prev) => ({
-      ...prev,
-      boardIds: [],
-      boardOnly: false,
-    }));
+    setBoardIds([]);
+    setBoardOnly(false);
   }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#09090B]">
-      {/* QHD / 4K Large-Scale 2-Row Sticky Archive Header */}
+      {/* Eyecandy Ultra-Minimal Single-Row Sticky Header */}
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090B]/92 backdrop-blur-md">
-        {/* Row 1: Main Bar (Logo + 8 Categories + Large Search + My Boards + Account) */}
-        <div className="mx-auto flex min-h-[68px] w-full max-w-[2560px] flex-wrap items-center justify-between gap-x-4 gap-y-2.5 px-4 py-3 sm:px-6 2xl:min-h-[76px] 2xl:px-10">
-          {/* Left: Logo + Elite 9 Category Tabs (ALL + 8 Categories) */}
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="flex shrink-0 items-center gap-2.5 text-left"
-              aria-label="KINOFRAME 홈 및 필터 초기화"
-            >
-              <KinoframeLogo className="h-8 w-8 shrink-0 2xl:h-9 2xl:w-9" />
-              <span className="font-mono text-[19px] font-bold tracking-[0.16em] text-[#FAF8F5] 2xl:text-[22px]">
-                KINOFRAME
-              </span>
-            </button>
+        <div className="mx-auto flex h-14 w-full max-w-[2560px] items-center justify-between px-4 sm:px-6 2xl:h-[60px] 2xl:px-8">
+          <button
+            type="button"
+            onClick={handleBrandClick}
+            className="flex shrink-0 items-center gap-2.5 text-left"
+            aria-label="KINOFRAME 최상단으로 이동"
+          >
+            <KinoframeLogo className="h-7 w-7 shrink-0 2xl:h-8 2xl:w-8" />
+            <span className="font-mono text-[18px] font-bold tracking-[0.16em] text-[#FAF8F5] 2xl:text-[20px]">
+              KINOFRAME
+            </span>
+          </button>
 
-            <nav
-              className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              role="tablist"
-              aria-label="비주얼 카테고리"
-            >
-              {ARCHIVE_CATEGORIES.map((cat) => {
-                const active = (filterState.category ?? "ALL") === cat.value;
-                return (
+          <div className="flex shrink-0 items-center gap-2">
+            {session.authenticated && session.user ? (
+              <>
+                {compareIds.length > 0 && (
                   <button
-                    key={cat.value}
                     type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() =>
-                      setFilterState((prev) => ({
-                        ...prev,
-                        category: cat.value as ArchiveCategory | "ALL",
-                      }))
-                    }
-                    className={`inline-flex h-10 shrink-0 items-center rounded-full px-3.5 text-[15px] font-semibold transition-colors 2xl:h-11 2xl:px-4 2xl:text-[16px] ${
-                      active
-                        ? "bg-[#FAF8F5] text-[#09090B]"
-                        : "text-[#E5E0D5] hover:bg-white/[0.08] hover:text-white"
-                    }`}
+                    onClick={() => setCompareOpen(true)}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#E5A93B]/50 bg-[#E5A93B]/15 px-3.5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:bg-[#E5A93B]/25"
                   >
-                    {cat.label}
+                    <CompareIcon className="h-3.5 w-3.5 text-[#E5A93B]" />
+                    <span>비교</span>
+                    <span className="font-mono text-[12px] font-bold text-[#E5A93B]">
+                      {compareIds.length}
+                    </span>
                   </button>
-                );
-              })}
-            </nav>
-          </div>
+                )}
 
-          {/* Right: Large Capsule Search + My Boards + Account */}
-          <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
-            <div className="relative w-56 xl:w-72 2xl:w-96">
-              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#B8B3A8]" />
-              <input
-                type="search"
-                value={filterState.query}
-                onChange={(e) =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    query: e.target.value,
-                  }))
-                }
-                placeholder="아카이브 검색..."
-                aria-label="아카이브 검색"
-                className="h-11 w-full rounded-full border border-white/[0.12] bg-[#141519] pl-11 pr-9 text-[15px] text-[#FAF8F5] placeholder:text-[#B8B3A8] focus:border-[#E5A93B] focus:outline-none 2xl:h-12 2xl:text-[17px]"
-              />
-              {filterState.query && (
                 <button
                   type="button"
-                  onClick={() =>
-                    setFilterState((prev) => ({ ...prev, query: "" }))
-                  }
-                  aria-label="검색어 지우기"
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#B8B3A8] hover:text-white"
+                  onClick={() => setBoardOpen(true)}
+                  className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[14px] font-semibold transition-colors 2xl:h-10 2xl:text-[15px] ${
+                    boardIds.length > 0
+                      ? "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
+                      : "border border-white/[0.14] bg-[#141519] text-[#FAF8F5] hover:border-white/35"
+                  }`}
                 >
-                  <CloseIcon className="h-4 w-4" />
+                  <BoardBookmarkIcon
+                    className="h-3.5 w-3.5"
+                    filled={boardIds.length > 0}
+                  />
+                  <span>내 보드</span>
+                  {boardIds.length > 0 && (
+                    <span className="font-mono text-[12px] font-bold">
+                      {boardIds.length}
+                    </span>
+                  )}
                 </button>
-              )}
-            </div>
 
-            <button
-              type="button"
-              onClick={() => setBoardOpen(true)}
-              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors 2xl:h-12 2xl:text-[17px] ${
-                filterState.boardIds.length > 0
-                  ? "bg-[#FAF8F5] text-[#09090B] hover:bg-white"
-                  : "border border-white/[0.14] bg-[#141519] text-[#FAF8F5] hover:border-white/35"
-              }`}
-            >
-              <BoardBookmarkIcon
-                className="h-4 w-4"
-                filled={filterState.boardIds.length > 0}
-              />
-              <span>내 보드</span>
-              {filterState.boardIds.length > 0 && (
-                <span className="font-mono text-[13px] font-bold">
-                  {filterState.boardIds.length}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
-              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors 2xl:h-12 2xl:text-[17px] ${
-                session.authenticated && session.user
-                  ? "border border-[#E5A93B]/50 bg-[#E5A93B]/15 text-[#FAF8F5] hover:bg-[#E5A93B]/25"
-                  : "text-[#FAF8F5] hover:bg-white/[0.08]"
-              }`}
-            >
-              {session.authenticated && session.user ? (
-                <>
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF8F5] text-[12px] font-bold text-[#09090B]">
+                <button
+                  type="button"
+                  onClick={() => setAuthOpen(true)}
+                  className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-[#E5A93B]/45 bg-[#E5A93B]/15 px-3.5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:bg-[#E5A93B]/25 2xl:h-10 2xl:text-[15px]"
+                >
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FAF8F5] text-[11px] font-bold text-[#09090B]">
                     {session.user.name.slice(0, 1).toUpperCase()}
                   </span>
                   <span>{session.user.name}</span>
-                </>
-              ) : (
-                <span>로그인</span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Slim Sub-Filter Bar (Countries + Era + Shuffle + Sort) */}
-        <div className="border-t border-white/[0.06] bg-[#09090B]/95">
-          <div className="mx-auto flex w-full max-w-[2560px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-6 2xl:px-10">
-            {/* Left: Media Mode Switch + Country Pills + Era */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <div
-                role="group"
-                aria-label="미디어 유형 필터"
-                className="inline-flex h-9 items-center rounded-full border border-white/[0.12] bg-[#141519] p-0.5 2xl:h-10"
-              >
-                {MEDIA_MODES.map((mode) => {
-                  const active = (filterState.mediaMode ?? "ALL") === mode.value;
-                  return (
-                    <button
-                      key={mode.value}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() =>
-                        setFilterState((prev) => ({
-                          ...prev,
-                          mediaMode: mode.value as MediaMode,
-                        }))
-                      }
-                      className={`inline-flex h-8 items-center rounded-full px-3.5 text-[14px] font-medium transition-colors 2xl:h-9 2xl:px-4 2xl:text-[15px] ${
-                        active
-                          ? "bg-[#FAF8F5] font-semibold text-[#09090B]"
-                          : "text-[#DFDAD0] hover:text-white"
-                      }`}
-                    >
-                      {mode.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <span className="mx-1 h-4 w-px bg-white/15" aria-hidden="true" />
-
-              {COUNTRY_TABS.map((c) => {
-                const active = (filterState.country ?? "ALL") === c.value;
-                return (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() =>
-                      setFilterState((prev) => ({
-                        ...prev,
-                        country: c.value as CountryCode | "ALL",
-                      }))
-                    }
-                    className={`inline-flex h-9 items-center rounded-full px-4 text-[14px] font-medium transition-colors 2xl:h-10 2xl:text-[16px] ${
-                      active
-                        ? "bg-[#E5A93B] font-semibold text-[#09090B]"
-                        : "text-[#DFDAD0] hover:bg-white/[0.08] hover:text-white"
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                );
-              })}
-
-              <span className="mx-1 h-4 w-px bg-white/15" aria-hidden="true" />
-
-              <select
-                aria-label="제작 연대 선택"
-                value={filterState.era}
-                onChange={(e) =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    era: e.target.value as Era | "ALL",
-                  }))
-                }
-                className="h-9 rounded-full border border-white/[0.12] bg-[#141519] px-3.5 text-[14px] font-medium text-[#FAF8F5] focus:border-[#E5A93B] focus:outline-none 2xl:h-10 2xl:text-[16px]"
-              >
-                {ERAS.map((era) => (
-                  <option key={era.value} value={era.value}>
-                    {era.label}
-                  </option>
-                ))}
-              </select>
-
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 text-[14px] font-medium text-[#FAF8F5] hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[15px]"
-                >
-                  <ResetIcon className="h-3.5 w-3.5" />
-                  <span>초기화</span>
                 </button>
-              )}
-            </div>
-
-            {/* Right: Shuffle + Sort */}
-            <div className="flex items-center gap-2">
+              </>
+            ) : (
               <button
                 type="button"
-                onClick={handleShuffleWall}
-                className="inline-flex h-9 items-center rounded-full border border-white/[0.14] bg-[#141519] px-4 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[16px]"
+                onClick={() => setAuthOpen(true)}
+                className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/[0.16] bg-[#141519] px-5 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B] 2xl:h-10 2xl:text-[15px]"
               >
-                셔플 ↻
+                로그인
               </button>
-
-              <select
-                aria-label="정렬 기준"
-                value={filterState.sort}
-                onChange={(e) =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    sort: e.target.value as SortOption,
-                  }))
-                }
-                className="h-9 rounded-full border border-white/[0.14] bg-[#141519] px-4 text-[14px] font-medium text-[#FAF8F5] focus:border-[#E5A93B] focus:outline-none 2xl:h-10 2xl:text-[16px]"
-              >
-                {HEADER_SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Full-Bleed Visual Masonry Wall (Eyecandy Ultra-Tight Contact Sheet) */}
+      {/* Full-Bleed Ultra-Tight Moving Wall */}
       <main className="mx-auto w-full max-w-[2560px] flex-1 px-2 py-2 sm:px-3 lg:px-4">
-        {/* Shared ?board= Restoration Banner */}
+        {/* Shared ?board= Restoration Banner (Accessible to Both Guests & Signed-In Users) */}
         {initialBoardIds.length > 0 && !sharedBannerDismissed && (
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5A93B]/45 bg-[#E5A93B]/12 px-5 py-3 text-[15px]">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5A93B]/45 bg-[#E5A93B]/12 px-5 py-2.5 text-[14px]">
             <div className="flex items-center gap-2 text-[#FAF8F5]">
               <BoardBookmarkIcon className="h-4 w-4 text-[#E5A93B]" filled />
               <span>
@@ -1016,15 +777,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    boardOnly: !prev.boardOnly,
-                  }))
-                }
+                onClick={() => setBoardOnly((prev) => !prev)}
                 className="rounded-full border border-[#E5A93B]/60 bg-[#09090B] px-3.5 py-1 text-[13px] font-semibold text-[#E5A93B]"
               >
-                {filterState.boardOnly ? "전체 보기" : "공유 컷만 보기"}
+                {boardOnly ? "전체 보기" : "공유 컷만 보기"}
               </button>
               <button
                 type="button"
@@ -1045,24 +801,31 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           </div>
         )}
 
-        {/* True Multi-Column Full-Bleed Masonry Wall */}
-        {filteredItems.length > 0 ? (
+        {/* Deterministic Fixed-Column Flex Masonry (Zero Right-Column Tear, Append-Only Stability) */}
+        {displayedPool.length > 0 ? (
           <>
             <section
               aria-label="큐레이션 아카이브 그리드"
-              className="columns-1 gap-1.5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6"
+              className="grid grid-cols-1 items-start gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
             >
-              {visibleItems.map((item) => (
-                <SlideMountCard
-                  key={item.id}
-                  item={item}
-                  isInBoard={filterState.boardIds.includes(item.id)}
-                  isInCompare={compareIds.includes(item.id)}
-                  compareFull={compareIds.length >= 2}
-                  onOpenDetail={(target) => setSelectedItemId(target.id)}
-                  onToggleBoard={handleToggleBoard}
-                  onToggleCompare={handleToggleCompare}
-                />
+              {masonryColumns.map((colItems, colIdx) => (
+                <div
+                  key={`col-${colIdx}`}
+                  className="flex min-w-0 flex-col gap-1.5"
+                >
+                  {colItems.map((item) => (
+                    <SlideMountCard
+                      key={item.id}
+                      item={item}
+                      isInBoard={boardIds.includes(item.id)}
+                      isInCompare={compareIds.includes(item.id)}
+                      compareFull={compareIds.length >= 2}
+                      onOpenDetail={(target) => setSelectedItemId(target.id)}
+                      onToggleBoard={handleToggleBoard}
+                      onToggleCompare={handleToggleCompare}
+                    />
+                  ))}
+                </div>
               ))}
             </section>
 
@@ -1087,10 +850,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                     onClick={() => {
                       if (hasMoreItems) {
                         setVisibleCount((prev) =>
-                          Math.min(filteredItems.length, prev + LOAD_MORE_STEP)
+                          Math.min(displayedPool.length, prev + LOAD_MORE_STEP)
                         );
                       } else {
-                        fetchNextConduitPage();
+                        void fetchNextConduitPage();
                       }
                     }}
                     className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.16] bg-[#141519] px-6 text-[14px] font-semibold text-[#FAF8F5] transition-colors hover:border-[#E5A93B] hover:text-[#E5A93B]"
@@ -1104,30 +867,24 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         ) : (
           <section className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#111216] px-6 py-24 text-center">
             <h2 className="text-[20px] font-bold text-[#FAF8F5]">
-              선택한 조건에 일치하는 아카이브가 없습니다
+              표시할 아카이브가 없습니다
             </h2>
-            <p className="mt-2 text-[15px] text-[#D0CBC0]">
-              다른 카테고리나 국가 필터를 선택하거나 전체 아카이브로 돌아가세요.
-            </p>
             <button
               type="button"
-              onClick={handleResetFilters}
+              onClick={() => setBoardOnly(false)}
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#FAF8F5] px-6 py-2.5 text-[15px] font-bold text-[#09090B] hover:bg-white"
             >
-              <ResetIcon className="h-4 w-4" />
-              전체 아카이브 보기
+              전체 무빙 월 보기
             </button>
           </section>
         )}
       </main>
 
       {/* Minimal Darkroom Footer */}
-      <footer className="mt-8 border-t border-white/[0.07] bg-[#09090B] py-4">
-        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-4 font-mono text-[13px] text-[#B8B3A8] sm:flex-row sm:items-center sm:px-6 2xl:px-10">
-          <span>KINOFRAME · VISUAL ARCHIVE</span>
-          <span>
-            Internet Archive · Wikimedia Commons · NASA Images · YouTube Official Embed
-          </span>
+      <footer className="mt-6 border-t border-white/[0.07] bg-[#09090B] py-4">
+        <div className="mx-auto flex w-full max-w-[2560px] flex-col items-start justify-between gap-2 px-4 font-mono text-[13px] text-[#B8B3A8] sm:flex-row sm:items-center sm:px-6 2xl:px-8">
+          <span>KINOFRAME · MOVING VISUAL ARCHIVE</span>
+          <span>Internet Archive · Wikimedia Commons · NASA Images</span>
         </div>
       </footer>
 
@@ -1168,10 +925,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           allItems={allCatalogItems}
           hasPrev={selectedIndex > 0}
           hasNext={
-            selectedIndex >= 0 && selectedIndex < filteredItems.length - 1
+            selectedIndex >= 0 && selectedIndex < displayedPool.length - 1
           }
           isAuthenticated={session.authenticated}
-          isInBoard={filterState.boardIds.includes(selectedItem.id)}
+          isInBoard={boardIds.includes(selectedItem.id)}
           isInCompare={compareIds.includes(selectedItem.id)}
           compareFull={compareIds.length >= 2}
           folders={vault.folders}
@@ -1179,19 +936,22 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           onClose={() => setSelectedItemId(null)}
           onPrev={() => {
             if (selectedIndex > 0) {
-              setSelectedItemId(filteredItems[selectedIndex - 1].id);
+              setSelectedItemId(displayedPool[selectedIndex - 1].id);
             }
           }}
           onNext={() => {
             if (
               selectedIndex >= 0 &&
-              selectedIndex < filteredItems.length - 1
+              selectedIndex < displayedPool.length - 1
             ) {
               const nextIdx = selectedIndex + 1;
-              setSelectedItemId(filteredItems[nextIdx].id);
+              setSelectedItemId(displayedPool[nextIdx].id);
               if (nextIdx >= visibleCount) {
                 setVisibleCount((prev) =>
-                  Math.min(filteredItems.length, Math.max(prev, nextIdx + LOAD_MORE_STEP))
+                  Math.min(
+                    displayedPool.length,
+                    Math.max(prev, nextIdx + LOAD_MORE_STEP)
+                  )
                 );
               }
             }
@@ -1220,16 +980,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           items={boardItems}
           vault={vault}
           session={session}
-          boardOnly={filterState.boardOnly}
+          boardOnly={boardOnly}
           onClose={() => setBoardOpen(false)}
           onRemoveItem={(id) => performToggleBoard(id)}
           onClearBoard={handleClearBoard}
-          onToggleBoardOnly={() =>
-            setFilterState((prev) => ({
-              ...prev,
-              boardOnly: !prev.boardOnly,
-            }))
-          }
+          onToggleBoardOnly={() => setBoardOnly((prev) => !prev)}
           onOpenDetail={(target) => setSelectedItemId(target.id)}
           onCreateFolder={handleCreateFolder}
           onRenameFolder={handleRenameFolder}
@@ -1247,7 +1002,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       {authOpen && (
         <AuthModal
           session={session}
-          savedCount={filterState.boardIds.length}
+          savedCount={boardIds.length}
           boardCount={vault.folders.length}
           onClose={() => {
             setAuthOpen(false);
