@@ -98,6 +98,7 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   const [inView, setInView] = useState(false);
   const [slotAllowed, setSlotAllowed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   // Recompute highlight window ONLY when item identity changes (never overwrite on re-render)
@@ -105,6 +106,7 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     windowRef.current = getHighlightWindow(item);
     initialSeekDoneRef.current = false;
     evictedRef.current = false;
+    setVideoFailed(false);
   }, [item.id, item.durationSec, item.startSec]);
 
   const isAutoLoopVideo =
@@ -230,15 +232,16 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   }, [shouldPlayVideo, isAutoLoopVideo, videoReady]);
 
   // Auto-evict stalled/unplayable video tiles if not decoded within 6.5s of slot grant
+  // (Keep tile visible as crisp .webp poster if poster already loaded on H.264-less Chromium)
   useEffect(() => {
-    if (!shouldPlayVideo || videoReady || !onEvictItem) return;
+    if (!shouldPlayVideo || videoReady || videoFailed || !onEvictItem) return;
     const timer = window.setTimeout(() => {
-      if (!videoReady) {
+      if (!videoReady && !imgLoaded) {
         triggerEvict();
       }
     }, STALL_EVICT_TIMEOUT_MS);
     return () => window.clearTimeout(timer);
-  }, [shouldPlayVideo, videoReady, onEvictItem, triggerEvict]);
+  }, [shouldPlayVideo, videoReady, videoFailed, imgLoaded, onEvictItem, triggerEvict]);
 
   const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     if (isShortNativeLoop) {
@@ -348,7 +351,10 @@ export const SlideMountCard = React.memo(function SlideMountCard({
           }`}
         />
 
-        {isAutoLoopVideo && isNearViewport && item.previewVideoUrl && (
+        {isAutoLoopVideo &&
+          isNearViewport &&
+          !videoFailed &&
+          item.previewVideoUrl && (
           <video
             ref={videoRef}
             src={item.previewVideoUrl}
@@ -386,7 +392,15 @@ export const SlideMountCard = React.memo(function SlideMountCard({
               }
             }}
             onTimeUpdate={isShortNativeLoop ? undefined : handleTimeUpdate}
-            onError={triggerEvict}
+            onError={(e) => {
+              const code = e.currentTarget.error?.code;
+              if (imgLoaded || (isShortNativeLoop && code === 4)) {
+                setVideoFailed(true);
+                setVideoReady(false);
+                return;
+              }
+              triggerEvict();
+            }}
             className={`absolute inset-0 h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
               videoReady ? "opacity-100" : "opacity-0"
             }`}

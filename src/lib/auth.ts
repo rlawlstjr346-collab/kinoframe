@@ -6,6 +6,13 @@ import type { NextRequest } from "next/server";
 export type OAuthProvider = "google" | "naver" | "kakao";
 export type AuthProvider = OAuthProvider | "account";
 
+export function normalizeOAuthProvider(raw: unknown): OAuthProvider | null {
+  if (raw === "kakao" || raw === "naver" || raw === "google") {
+    return raw;
+  }
+  return null;
+}
+
 export interface SessionUser {
   sub: string;
   provider: AuthProvider;
@@ -148,7 +155,8 @@ function writeStoredUsers(users: StoredAccount[]): void {
 export function registerLocalAccount(
   rawUsername: string,
   password: string,
-  rawDisplayName?: string
+  rawDisplayName?: string,
+  linkedProvider?: OAuthProvider | null
 ):
   | { ok: true; user: SessionUser }
   | { ok: false; error: string; status: number } {
@@ -190,7 +198,7 @@ export function registerLocalAccount(
     ok: true,
     user: {
       sub: `account:${record.id}`,
-      provider: "account",
+      provider: linkedProvider ?? "account",
       name: record.displayName,
       email: username.includes("@") ? username : undefined,
     },
@@ -249,7 +257,8 @@ export function authenticateLocalAccount(
 export function authenticateOrRegisterAccount(
   rawUsername: string,
   password: string,
-  rawDisplayName?: string
+  rawDisplayName?: string,
+  linkedProvider?: OAuthProvider | null
 ):
   | { ok: true; user: SessionUser; created: boolean }
   | { ok: false; error: string; status: number } {
@@ -284,14 +293,19 @@ export function authenticateOrRegisterAccount(
       created: false,
       user: {
         sub: `account:${found.id}`,
-        provider: "account",
+        provider: linkedProvider ?? "account",
         name: found.displayName,
         email: username.includes("@") ? username : undefined,
       },
     };
   }
 
-  const reg = registerLocalAccount(rawUsername, password, rawDisplayName);
+  const reg = registerLocalAccount(
+    rawUsername,
+    password,
+    rawDisplayName,
+    linkedProvider
+  );
   if (!reg.ok) return reg;
   return { ok: true, created: true, user: reg.user };
 }

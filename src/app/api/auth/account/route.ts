@@ -6,6 +6,7 @@ import {
   createSessionToken,
   getAuthConfigStatus,
   isSecureCookie,
+  normalizeOAuthProvider,
   registerLocalAccount,
 } from "@/lib/auth";
 
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
     username?: string;
     password?: string;
     displayName?: string;
+    provider?: string;
   };
   try {
     body = (await req.json()) as typeof body;
@@ -37,13 +39,19 @@ export async function POST(req: NextRequest) {
   const password = typeof body.password === "string" ? body.password : "";
   const displayName =
     typeof body.displayName === "string" ? body.displayName : undefined;
+  const linkedProvider = normalizeOAuthProvider(body.provider);
 
   const result =
     mode === "register"
-      ? registerLocalAccount(username, password, displayName)
+      ? registerLocalAccount(username, password, displayName, linkedProvider)
       : mode === "login"
       ? authenticateLocalAccount(username, password)
-      : authenticateOrRegisterAccount(username, password, displayName);
+      : authenticateOrRegisterAccount(
+          username,
+          password,
+          displayName,
+          linkedProvider
+        );
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
