@@ -295,7 +295,12 @@ export async function captureReferenceCardPngBlob(
   cursorY += 34;
   ctx.fillStyle = "#ECE8DF";
   ctx.font = "400 24px -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif";
-  const insightLines = wrapTextLines(ctx, item.breakdown.hook3s, mediaWidth, 2);
+  const insightLines = wrapTextLines(
+    ctx,
+    item.breakdown?.hook3s || item.breakdown?.hook || item.titleKo,
+    mediaWidth,
+    2
+  );
   insightLines.forEach((line, idx) => {
     ctx.fillText(line, pad, cursorY + idx * 34);
   });

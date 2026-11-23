@@ -72,12 +72,7 @@ export function getHighlightWindow(
 
 interface SlideMountCardProps {
   item: ArchiveItem;
-  isInBoard?: boolean;
-  isInCompare?: boolean;
-  compareFull?: boolean;
   onOpenDetail: (item: ArchiveItem) => void;
-  onToggleBoard?: (id: string) => void;
-  onToggleCompare?: (id: string) => void;
   onEvictItem?: (id: string) => void;
 }
 
@@ -101,7 +96,6 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   const [videoFailed, setVideoFailed] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // Recompute highlight window ONLY when item identity changes (never overwrite on re-render)
   useEffect(() => {
     windowRef.current = getHighlightWindow(item);
     initialSeekDoneRef.current = false;
@@ -123,7 +117,6 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     onEvictItem?.(item.id);
   }, [item.id, onEvictItem]);
 
-  // Offscreen hardware decoder & socket reclamation: mount <video> only within 160px of viewport
   useEffect(() => {
     if (!isAutoLoopVideo) {
       setIsNearViewport(false);
@@ -153,7 +146,6 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     return () => proximityObserver.disconnect();
   }, [isAutoLoopVideo]);
 
-  // Global concurrent playback slot scheduler (desktop 8 / mobile 4 + hysteresis + modal suspension)
   useEffect(() => {
     if (!isAutoLoopVideo) return;
     const node = cardRef.current;
@@ -196,7 +188,6 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     };
   }, [isAutoLoopVideo, item.id]);
 
-  // Explicit hardware decoder flush when <video> unmounts or leaves proximity
   useEffect(() => {
     if (!isNearViewport) return;
     return () => {
@@ -231,8 +222,6 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     }
   }, [shouldPlayVideo, isAutoLoopVideo, videoReady]);
 
-  // Auto-evict stalled/unplayable video tiles if not decoded within 6.5s of slot grant
-  // (Keep tile visible as crisp .webp poster if poster already loaded on H.264-less Chromium)
   useEffect(() => {
     if (!shouldPlayVideo || videoReady || videoFailed || !onEvictItem) return;
     const timer = window.setTimeout(() => {
@@ -241,7 +230,14 @@ export const SlideMountCard = React.memo(function SlideMountCard({
       }
     }, STALL_EVICT_TIMEOUT_MS);
     return () => window.clearTimeout(timer);
-  }, [shouldPlayVideo, videoReady, videoFailed, imgLoaded, onEvictItem, triggerEvict]);
+  }, [
+    shouldPlayVideo,
+    videoReady,
+    videoFailed,
+    imgLoaded,
+    onEvictItem,
+    triggerEvict,
+  ]);
 
   const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     if (isShortNativeLoop) {
@@ -282,16 +278,21 @@ export const SlideMountCard = React.memo(function SlideMountCard({
       try {
         video.currentTime = win.startSec;
       } catch {
-        // ignore seek restrictions
+        // ignore
       }
     }
   };
 
-  // Normalize excessive portrait 4:5 tiles to crisp 4:3 frames on the 5-column wall
-  const gridAspectClass =
-    item.aspectRatio === "4:5"
-      ? "aspect-[4/3]"
-      : getAspectRatioClass(item.aspectRatio);
+  const hasExactDims =
+    typeof item.width === "number" &&
+    typeof item.height === "number" &&
+    item.width > 0 &&
+    item.height > 0;
+  const gridAspectClass = hasExactDims
+    ? ""
+    : item.aspectRatio === "4:5"
+    ? "aspect-[4/3]"
+    : getAspectRatioClass(item.aspectRatio);
 
   return (
     <article
@@ -316,9 +317,9 @@ export const SlideMountCard = React.memo(function SlideMountCard({
           globalVideoScheduler.update(item.id, { hovered: false });
         }
       }}
-      className="relative w-full cursor-pointer overflow-hidden rounded-[16px] bg-[#0B0C0F] ring-1 ring-white/[0.08]"
+      className="relative w-full cursor-pointer overflow-hidden rounded-[18px] bg-[#141416] ring-1 ring-white/[0.07] transition-all duration-200 hover:ring-white/[0.22]"
     >
-      {/* Zero-Chrome Tile: crisp full-bleed 16px radius frame with subtle darkroom edge */}
+      {/* Apple HIG Zero-Chrome Tile: exact native ratio, 18px radius */}
       <div
         role="button"
         tabIndex={0}
@@ -331,7 +332,12 @@ export const SlideMountCard = React.memo(function SlideMountCard({
         }}
         title={item.titleKo}
         aria-label={`${item.titleKo} 상세 보기`}
-        className={`relative w-full overflow-hidden rounded-[16px] bg-[#0B0C0F] ${gridAspectClass}`}
+        style={
+          hasExactDims
+            ? { aspectRatio: `${item.width} / ${item.height}` }
+            : undefined
+        }
+        className={`relative w-full overflow-hidden rounded-[18px] bg-[#141416] ${gridAspectClass}`}
       >
         <img
           src={item.thumbnailUrl}
@@ -342,7 +348,7 @@ export const SlideMountCard = React.memo(function SlideMountCard({
           onError={() => {
             if (!isAutoLoopVideo) triggerEvict();
           }}
-          className={`h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
+          className={`h-full w-full rounded-[18px] object-cover transition-opacity duration-200 ease-linear ${
             videoReady && isNearViewport
               ? "opacity-0"
               : imgLoaded
@@ -355,57 +361,57 @@ export const SlideMountCard = React.memo(function SlideMountCard({
           isNearViewport &&
           !videoFailed &&
           item.previewVideoUrl && (
-          <video
-            ref={videoRef}
-            src={item.previewVideoUrl}
-            poster={item.thumbnailUrl}
-            preload={
-              isShortNativeLoop
-                ? "auto"
-                : slotAllowed || videoReady
-                ? "metadata"
-                : "none"
-            }
-            autoPlay={isShortNativeLoop && shouldPlayVideo}
-            muted
-            loop
-            playsInline
-            onLoadedMetadata={handleLoadedMetadata}
-            onSeeked={handleSeeked}
-            onPlaying={() => setVideoReady(true)}
-            onLoadedData={() => {
-              if (
-                isShortNativeLoop ||
-                windowRef.current.startSec === 0 ||
-                initialSeekDoneRef.current
-              ) {
-                setVideoReady(true);
+            <video
+              ref={videoRef}
+              src={item.previewVideoUrl}
+              poster={item.thumbnailUrl}
+              preload={
+                isShortNativeLoop
+                  ? "auto"
+                  : slotAllowed || videoReady
+                  ? "metadata"
+                  : "none"
               }
-            }}
-            onCanPlay={() => {
-              if (
-                isShortNativeLoop ||
-                windowRef.current.startSec === 0 ||
-                initialSeekDoneRef.current
-              ) {
-                setVideoReady(true);
-              }
-            }}
-            onTimeUpdate={isShortNativeLoop ? undefined : handleTimeUpdate}
-            onError={(e) => {
-              const code = e.currentTarget.error?.code;
-              if (imgLoaded || (isShortNativeLoop && code === 4)) {
-                setVideoFailed(true);
-                setVideoReady(false);
-                return;
-              }
-              triggerEvict();
-            }}
-            className={`absolute inset-0 h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
-              videoReady ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        )}
+              autoPlay={isShortNativeLoop && shouldPlayVideo}
+              muted
+              loop
+              playsInline
+              onLoadedMetadata={handleLoadedMetadata}
+              onSeeked={handleSeeked}
+              onPlaying={() => setVideoReady(true)}
+              onLoadedData={() => {
+                if (
+                  isShortNativeLoop ||
+                  windowRef.current.startSec === 0 ||
+                  initialSeekDoneRef.current
+                ) {
+                  setVideoReady(true);
+                }
+              }}
+              onCanPlay={() => {
+                if (
+                  isShortNativeLoop ||
+                  windowRef.current.startSec === 0 ||
+                  initialSeekDoneRef.current
+                ) {
+                  setVideoReady(true);
+                }
+              }}
+              onTimeUpdate={isShortNativeLoop ? undefined : handleTimeUpdate}
+              onError={(e) => {
+                const code = e.currentTarget.error?.code;
+                if (imgLoaded || (isShortNativeLoop && code === 4)) {
+                  setVideoFailed(true);
+                  setVideoReady(false);
+                  return;
+                }
+                triggerEvict();
+              }}
+              className={`absolute inset-0 h-full w-full rounded-[18px] object-cover transition-opacity duration-200 ease-linear ${
+                videoReady ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          )}
       </div>
     </article>
   );

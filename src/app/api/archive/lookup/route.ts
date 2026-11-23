@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadFullCatalogForLookup } from "@/lib/poc-loader";
-import { searchItemByQuery } from "@/lib/visual-techniques";
+import { searchArchiveItems } from "@/lib/search";
 import type { ArchiveItem } from "@/types/archive";
 
 export const runtime = "nodejs";
@@ -30,14 +30,11 @@ export async function GET(req: NextRequest) {
   }
 
   if (queryParam) {
-    let queryCount = 0;
-    for (const item of catalog) {
-      if (seen.has(item.id)) continue;
-      if (searchItemByQuery(item, queryParam)) {
+    const hits = searchArchiveItems(catalog, queryParam).slice(0, 120);
+    for (const item of hits) {
+      if (!seen.has(item.id)) {
         seen.add(item.id);
         matched.push(item);
-        queryCount += 1;
-        if (queryCount >= 120) break;
       }
     }
   }

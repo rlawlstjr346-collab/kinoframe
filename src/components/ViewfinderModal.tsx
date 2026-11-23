@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import type { ArchiveItem, VaultBookmark, VaultFolder } from "@/types/archive";
-import {
-  formatPreciseTimestamp,
-  resolveItemCategory,
-} from "@/lib/taxonomy";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import type { ArchiveItem } from "@/types/archive";
+import { formatPreciseTimestamp } from "@/lib/taxonomy";
 import {
   captureRawFramePngBlob,
   copyPngBlobToClipboard,
@@ -17,56 +14,142 @@ import { globalVideoScheduler } from "@/lib/video-scheduler";
 
 interface ViewfinderModalProps {
   item: ArchiveItem;
-  allItems: ArchiveItem[];
   hasPrev: boolean;
   hasNext: boolean;
-  isAuthenticated: boolean;
-  isInBoard: boolean;
-  folders: VaultFolder[];
-  existingBookmark?: VaultBookmark;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
-  onSelectItem: (item: ArchiveItem) => void;
-  onToggleBoard: (id: string, folderId?: string) => void;
-  onSaveToVault: (payload: {
-    itemId: string;
-    folderId: string;
-    timestampSec: number | null;
-    memo: string;
-  }) => void;
+}
+
+/**
+ * Clean title & sub-caption parser:
+ * Avoids redundant parentheses like "기생충 (Parasite) (2019)" ->
+ *   primaryTitle: "기생충"
+ *   subCaption:   "Parasite · 2019 · Bong Joon-ho"
+ */
+export function formatCleanModalMeta(item: ArchiveItem): {
+  primaryTitle: string;
+  subCaption: string;
+} {
+  let primary = (item.titleKo || item.originalTitle || "").trim();
+  // Remove trailing year parenthesis like "(1971)" or "(2019)" from primary title
+  primary = primary.replace(/\s*\((?:19|20)\d{2}\)\s*$/, "").trim();
+  // If titleKo is "한글제목 (English Title)", extract clean Korean main title
+  const parenMatch = primary.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+  if (parenMatch) {
+    const left = parenMatch[1].trim();
+    const inside = parenMatch[2].trim();
+    // Only strip parenthetical if it's an English title / duplicate of originalTitle
+    if (/[가-힣]/.test(left) && /[A-Za-z]/.test(inside)) {
+      primary = left;
+    }
+  }
+  // Remove trailing director/credit after middle dot if duplicated in brandOrSource
+  primary = primary.replace(/\s*·\s*$/, "").trim();
+
+  // Extract clean original work title (strip "(Director, Year)" suffix)
+  let origWork = (item.originalTitle || "").trim();
+  let extractedCredit = "";
+  const origCreditMatch = origWork.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+  if (origCreditMatch) {
+    origWork = origCreditMatch[1].trim();
+    const creditParts = origCreditMatch[2]
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s && !/^(?:19|20)\d{2}$/.test(s));
+    if (creditParts.length > 0) {
+      extractedCredit = creditParts.join(", ");
+    }
+  }
+
+  const credit = (extractedCredit || item.brandOrSource || "")
+    .replace(/\s*\((?:19|20)\d{2}\)\s*$/, "")
+    .trim();
+
+  const parts: string[] = [];
+  if (origWork && origWork.toLowerCase() !== primary.toLowerCase()) {
+    parts.push(origWork);
+  }
+  if (item.year) {
+    parts.push(String(item.year));
+  }
+  if (
+    credit &&
+    !parts.some((p) => p.toLowerCase().includes(credit.toLowerCase()))
+  ) {
+    parts.push(credit);
+  }
+
+  return {
+    primaryTitle: primary || item.originalTitle,
+    subCaption: parts.join(" · "),
+  };
+}
+
+/**
+ * Guarantees zero dead links on '원본 보기 ↗':
+ * Uses item.sourceUrl when it is a valid http(s) URL, otherwise falls back safely
+ * to an official YouTube search for the work + year.
+ */
+export function resolveValidSourceUrl(item: ArchiveItem): string {
+  const raw = (item.sourceUrl || "").trim();
+  if (raw) {
+    try {
+      const u = new URL(raw);
+      if (u.protocol === "https:" || u.protocol === "http:") {
+        return u.toString();
+      }
+    } catch {
+      // fall through
+    }
+  }
+  const q = `${item.originalTitle || item.titleKo} ${item.year || ""}`.trim();
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 }
 
 export function ViewfinderModal({
   item,
   hasPrev,
   hasNext,
-  isAuthenticated,
-  isInBoard,
-  folders,
-  existingBookmark,
   onClose,
   onPrev,
   onNext,
-  onToggleBoard,
-  onSaveToVault,
 }: ViewfinderModalProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const initialJumpedRef = useRef<boolean>(false);
+  const toastTimerRef = useRef<number | null>(null);
 
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [selectedFolderId, setSelectedFolderId] = useState<string>(
-    existingBookmark?.folderId || folders[0]?.id || "jp-vintage-cf"
-  );
-  const [boardPickerOpen, setBoardPickerOpen] = useState<boolean>(false);
+  const [userPaused, setUserPaused] = useState<boolean>(false);
+  const [detectedSd, setDetectedSd] = useState<boolean>(false);
+  const [videoFailed, setVideoFailed] = useState<boolean>(false);
   const [busyAction, setBusyAction] = useState<"download" | "capture" | null>(
     null
   );
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const category = resolveItemCategory(item);
-  const genreBadge = category === "TVCF" ? "TVCF" : "Cinema";
+  const { primaryTitle, subCaption } = useMemo(
+    () => formatCleanModalMeta(item),
+    [item]
+  );
+  const externalSourceUrl = useMemo(() => resolveValidSourceUrl(item), [item]);
+
+  const isArchivalSd = useMemo(() => {
+    if (item.isArchivalSd === true) return true;
+    if (detectedSd) return true;
+    if (
+      typeof item.width === "number" &&
+      typeof item.height === "number" &&
+      item.width > 0 &&
+      item.height > 0 &&
+      item.width <= 1024 &&
+      item.width / item.height < 1.58
+    ) {
+      return true;
+    }
+    return false;
+  }, [item.isArchivalSd, item.width, item.height, detectedSd]);
 
   // Suspend background grid videos while theater modal is open
   useEffect(() => {
@@ -80,21 +163,30 @@ export function ViewfinderModal({
     initialJumpedRef.current = false;
     setCurrentTimeSec(0);
     setIsPaused(false);
-    setBoardPickerOpen(false);
+    setUserPaused(false);
+    setDetectedSd(false);
+    setVideoFailed(false);
     setToastMsg(null);
-    setSelectedFolderId(
-      existingBookmark?.folderId || folders[0]?.id || "jp-vintage-cf"
-    );
-  }, [item, existingBookmark, folders]);
+  }, [item]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   const togglePlayPause = () => {
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      void v.play().catch(() => {});
+      setUserPaused(false);
       setIsPaused(false);
+      void v.play().catch(() => {});
     } else {
       v.pause();
+      setUserPaused(true);
       setIsPaused(true);
     }
   };
@@ -128,42 +220,13 @@ export function ViewfinderModal({
 
   const flashToast = (msg: string) => {
     setToastMsg(msg);
-    window.setTimeout(() => setToastMsg(null), 2600);
-  };
-
-  // Button 1: Save to My Board (AuthModal z-[140] auto-opens for guest + auto-saves on login)
-  const handleSaveBoardClick = () => {
-    if (!isAuthenticated) {
-      onToggleBoard(item.id, selectedFolderId);
-      return;
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
     }
-    if (folders.length > 1) {
-      setBoardPickerOpen((prev) => !prev);
-      if (!isInBoard) {
-        onToggleBoard(item.id, selectedFolderId);
-        flashToast("내 보드에 저장됨");
-      }
-    } else {
-      onToggleBoard(item.id, selectedFolderId);
-      flashToast(isInBoard ? "보드에서 제거됨" : "내 보드에 저장됨");
-    }
+    toastTimerRef.current = window.setTimeout(() => setToastMsg(null), 2600);
   };
 
-  const handlePickFolder = (folderId: string) => {
-    setSelectedFolderId(folderId);
-    const ts = item.mediaSource === "archive_mp4" ? currentTimeSec : null;
-    onSaveToVault({
-      itemId: item.id,
-      folderId,
-      timestampSec: ts,
-      memo: existingBookmark?.memo || "",
-    });
-    const folderName = folders.find((f) => f.id === folderId)?.name;
-    flashToast(folderName ? `'${folderName}' 보드에 저장됨` : "보드에 저장됨");
-    setBoardPickerOpen(false);
-  };
-
-  // Button 2: Download original loop video (.mp4) as kinoframe-<id>.mp4
+  // Button 2: Download original loop video (.mp4)
   const handleDownloadMp4 = async () => {
     setBusyAction("download");
     try {
@@ -182,7 +245,7 @@ export function ViewfinderModal({
     }
   };
 
-  // Button 3: Capture current live <video> frame at video.currentTime -> BOTH .png download AND clipboard image copy
+  // Button 3: Capture current live <video> frame -> PNG download + clipboard copy + top Apple toast
   const handleCaptureCurrentFrame = async () => {
     setBusyAction("capture");
     try {
@@ -196,12 +259,12 @@ export function ViewfinderModal({
       downloadBlobAsPng(blob, filename);
       const copied = await copyPngBlobToClipboard(blob);
       if (copied) {
-        flashToast("현재 프레임 PNG 저장 및 클립보드 복사 완료");
+        flashToast("프레임 PNG 저장 및 클립보드 복사 완료");
       } else {
-        flashToast(`현재 프레임 PNG 저장 완료 (${filename})`);
+        flashToast(`프레임 PNG 저장 완료 (${filename})`);
       }
     } catch {
-      flashToast("현재 프레임 캡처에 실패했습니다");
+      flashToast("프레임 캡처에 실패했습니다");
     } finally {
       setBusyAction(null);
     }
@@ -210,9 +273,17 @@ export function ViewfinderModal({
   const handleModalVideoMetadata = (
     e: React.SyntheticEvent<HTMLVideoElement>
   ) => {
+    const video = e.currentTarget;
+    if (
+      video.videoWidth > 0 &&
+      video.videoHeight > 0 &&
+      video.videoWidth <= 1024 &&
+      video.videoWidth / video.videoHeight < 1.58
+    ) {
+      setDetectedSd(true);
+    }
     if (initialJumpedRef.current) return;
     initialJumpedRef.current = true;
-    const video = e.currentTarget;
     const realDur =
       Number.isFinite(video.duration) && video.duration > 0
         ? video.duration
@@ -231,33 +302,48 @@ export function ViewfinderModal({
     }
   };
 
+  const mediaScaleClass = isArchivalSd
+    ? "max-h-[min(60vh,720px)] max-w-[min(74vw,960px)] w-auto h-auto block"
+    : "max-h-[76vh] max-w-[86vw] w-auto h-auto block";
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0A0B0E]/88 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/82 p-3 backdrop-blur-2xl sm:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={`${item.titleKo} 상세 뷰`}
+      aria-label={`${primaryTitle} 상세 뷰`}
       onClick={onClose}
     >
-      {/* Top-Right Fluid Large Close Button */}
+      {/* Top Floating Rounded Apple Glass Toast */}
+      {toastMsg && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed left-1/2 top-6 z-[130] -translate-x-1/2 rounded-full border border-white/[0.14] bg-[#1C1C1E]/92 px-5 py-2.5 text-[14px] font-medium tracking-[-0.01em] text-white shadow-[0_14px_40px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
+        >
+          {toastMsg}
+        </div>
+      )}
+
+      {/* Top-Right Close Button (Apple Glass Circle) */}
       <button
         type="button"
         onClick={onClose}
         aria-label="닫기"
-        className="fixed right-[clamp(16px,1.5vw,32px)] top-[clamp(16px,1.5vw,32px)] z-[120] inline-flex h-[clamp(46px,3vw,64px)] w-[clamp(46px,3vw,64px)] items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
+        className="fixed right-[clamp(16px,1.5vw,32px)] top-[clamp(16px,1.5vw,32px)] z-[120] inline-flex h-[clamp(42px,2.7vw,54px)] w-[clamp(42px,2.7vw,54px)] items-center justify-center rounded-full border border-white/[0.12] bg-[#1C1C1E]/80 text-white backdrop-blur-2xl transition-colors hover:bg-white/[0.20]"
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-[clamp(22px,1.4vw,30px)] w-[clamp(22px,1.4vw,30px)]"
+          className="h-[clamp(19px,1.2vw,24px)] w-[clamp(19px,1.2vw,24px)]"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.4"
+          strokeWidth="2.2"
         >
-          <path strokeLinecap="round" d="M5 5l14 14M19 5L5 19" />
+          <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
         </svg>
       </button>
 
-      {/* Left / Right Fluid Navigation Chevrons */}
+      {/* Left / Right Navigation Chevrons */}
       {hasPrev && (
         <button
           type="button"
@@ -266,14 +352,14 @@ export function ViewfinderModal({
             onPrev();
           }}
           aria-label="이전 클립"
-          className="fixed left-[clamp(12px,1.4vw,32px)] top-1/2 z-[120] inline-flex h-[clamp(52px,3.4vw,76px)] w-[clamp(52px,3.4vw,76px)] -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
+          className="fixed left-[clamp(12px,1.4vw,30px)] top-1/2 z-[120] inline-flex h-[clamp(46px,3vw,62px)] w-[clamp(46px,3vw,62px)] -translate-y-1/2 items-center justify-center rounded-full border border-white/[0.12] bg-[#1C1C1E]/80 text-white backdrop-blur-2xl transition-colors hover:bg-white/[0.20]"
         >
           <svg
             viewBox="0 0 24 24"
-            className="h-[clamp(24px,1.6vw,36px)] w-[clamp(24px,1.6vw,36px)]"
+            className="h-[clamp(20px,1.3vw,28px)] w-[clamp(20px,1.3vw,28px)]"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.4"
+            strokeWidth="2.2"
           >
             <path
               strokeLinecap="round"
@@ -292,14 +378,14 @@ export function ViewfinderModal({
             onNext();
           }}
           aria-label="다음 클립"
-          className="fixed right-[clamp(12px,1.4vw,32px)] top-1/2 z-[120] inline-flex h-[clamp(52px,3.4vw,76px)] w-[clamp(52px,3.4vw,76px)] -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
+          className="fixed right-[clamp(12px,1.4vw,30px)] top-1/2 z-[120] inline-flex h-[clamp(46px,3vw,62px)] w-[clamp(46px,3vw,62px)] -translate-y-1/2 items-center justify-center rounded-full border border-white/[0.12] bg-[#1C1C1E]/80 text-white backdrop-blur-2xl transition-colors hover:bg-white/[0.20]"
         >
           <svg
             viewBox="0 0 24 24"
-            className="h-[clamp(24px,1.6vw,36px)] w-[clamp(24px,1.6vw,36px)]"
+            className="h-[clamp(20px,1.3vw,28px)] w-[clamp(20px,1.3vw,28px)]"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.4"
+            strokeWidth="2.2"
           >
             <path
               strokeLinecap="round"
@@ -310,243 +396,161 @@ export function ViewfinderModal({
         </button>
       )}
 
-      {/* Fluid FHD/QHD/4K Theater Container */}
+      {/* Concentric Apple Dark-Glass Theater Container (Tightly hugs native video aspect ratio, zero pillarbox bars) */}
       <div
-        className="relative z-[105] flex max-h-screen w-full items-center justify-center p-3 sm:p-6"
-        onClick={onClose}
+        className="relative z-[105] w-fit max-w-[90vw] rounded-[30px] border border-white/[0.12] bg-[#1C1C1E]/88 p-3 shadow-[0_40px_120px_rgba(0,0,0,0.88)] backdrop-blur-2xl sm:p-4"
+        onClick={(e) => e.stopPropagation()}
       >
+        {/* Concentric Inner Stage (rounded-[20px], zero black filler box) */}
         <div
-          className="max-h-[94vh] w-[min(86vw,2800px)] overflow-y-auto rounded-[24px] bg-[#111318] p-5 shadow-[0_32px_100px_rgba(0,0,0,0.92)] ring-1 ring-white/[0.14] sm:p-7 xl:p-9"
-          onClick={(e) => e.stopPropagation()}
+          onClick={
+            item.mediaSource === "archive_mp4" &&
+            item.previewVideoUrl &&
+            !videoFailed
+              ? togglePlayPause
+              : undefined
+          }
+          className={`relative overflow-hidden rounded-[20px] bg-[#0B0B0D] ${
+            item.mediaSource === "archive_mp4" &&
+            item.previewVideoUrl &&
+            !videoFailed
+              ? "cursor-pointer"
+              : ""
+          }`}
         >
-          {/* PURE CHROME-FREE CINEMA STAGE (Click / Space to toggle Play/Pause) */}
-          <div
-            onClick={
-              item.mediaSource === "archive_mp4" && item.previewVideoUrl
-                ? togglePlayPause
-                : undefined
-            }
-            className={`relative flex w-full items-center justify-center overflow-hidden rounded-[18px] bg-[#060709] ring-1 ring-white/[0.08] ${
-              item.mediaSource === "archive_mp4" && item.previewVideoUrl
-                ? "cursor-pointer"
-                : ""
-            }`}
-          >
-            {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
-              <>
-                <video
-                  key={item.id}
-                  ref={videoRef}
-                  src={item.previewVideoUrl}
-                  poster={item.thumbnailUrl}
-                  preload="auto"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  onLoadedMetadata={handleModalVideoMetadata}
-                  onTimeUpdate={(e) =>
-                    setCurrentTimeSec(e.currentTarget.currentTime)
-                  }
-                  onSeeked={(e) =>
-                    setCurrentTimeSec(e.currentTarget.currentTime)
-                  }
-                  onPlay={() => setIsPaused(false)}
-                  onPause={() => setIsPaused(true)}
-                  className="h-[min(75vh,1360px)] w-full object-contain"
-                />
-                {isPaused && (
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#0A0B0E]/30"
-                  >
-                    <span className="inline-flex h-[clamp(64px,4.5vw,96px)] w-[clamp(64px,4.5vw,96px)] items-center justify-center rounded-full bg-[#0A0B0E]/75 text-[#C89E52] ring-1 ring-[#C89E52]/60 backdrop-blur-sm">
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="ml-1 h-[clamp(28px,2vw,42px)] w-[clamp(28px,2vw,42px)]"
-                        fill="currentColor"
-                      >
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <img
+          {item.mediaSource === "archive_mp4" &&
+          item.previewVideoUrl &&
+          !videoFailed ? (
+            <>
+              <video
                 key={item.id}
-                src={item.thumbnailUrl}
-                alt={item.titleKo}
-                className="h-[min(75vh,1360px)] w-full object-contain"
+                ref={videoRef}
+                src={item.previewVideoUrl}
+                poster={item.thumbnailUrl}
+                preload="auto"
+                autoPlay
+                muted
+                loop
+                playsInline
+                onLoadedMetadata={handleModalVideoMetadata}
+                onTimeUpdate={(e) =>
+                  setCurrentTimeSec(e.currentTarget.currentTime)
+                }
+                onSeeked={(e) =>
+                  setCurrentTimeSec(e.currentTarget.currentTime)
+                }
+                onPlay={() => {
+                  setIsPaused(false);
+                  setUserPaused(false);
+                }}
+                onPause={() => setIsPaused(true)}
+                onError={() => setVideoFailed(true)}
+                className={mediaScaleClass}
               />
+              {/* Show translucent Apple glass pause icon ONLY when explicitly paused by user */}
+              {userPaused && isPaused && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/22"
+                >
+                  <span className="inline-flex h-[clamp(56px,4vw,80px)] w-[clamp(56px,4vw,80px)] items-center justify-center rounded-full border border-white/[0.18] bg-[#1C1C1E]/75 text-white backdrop-blur-xl">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-[clamp(24px,1.7vw,34px)] w-[clamp(24px,1.7vw,34px)]"
+                      fill="currentColor"
+                    >
+                      <rect x="6.5" y="5" width="3.8" height="14" rx="1.2" />
+                      <rect x="13.7" y="5" width="3.8" height="14" rx="1.2" />
+                    </svg>
+                  </span>
+                </div>
+              )}
+            </>
+          ) : (
+            <img
+              key={item.id}
+              src={item.thumbnailUrl}
+              alt={primaryTitle}
+              className={mediaScaleClass}
+            />
+          )}
+        </div>
+
+        {/* Bottom Metadata + Strictly 3 Apple Pill Buttons */}
+        <div className="mt-3.5 flex flex-col gap-3 px-1 sm:mt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-2">
+          {/* Left: Clean Primary Title + One-Line Sub-Caption */}
+          <div className="min-w-0">
+            <h1 className="truncate text-[clamp(17px,1.1vw,23px)] font-semibold leading-snug tracking-[-0.02em] text-white">
+              {primaryTitle}
+            </h1>
+            {subCaption && (
+              <p className="mt-0.5 truncate text-[clamp(13px,0.82vw,16px)] tracking-[-0.01em] text-[#98989D]">
+                {subCaption}
+              </p>
             )}
           </div>
 
-          {/* Inline Toast Feedback */}
-          {toastMsg && (
-            <div
-              role="status"
-              className="mt-4 rounded-full border border-[#C89E52]/60 bg-[#C89E52]/15 px-6 py-2.5 text-center text-[clamp(14px,0.9vw,18px)] font-medium text-[#F2EFE9]"
+          {/* Right: 3 Intuitive Apple Capsule Buttons ('원본 보기 ↗' · '다운로드' · '프레임 캡처') */}
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-2.5">
+            {/* 1. 원본 보기 ↗ (Apple Signature White Pill) */}
+            <a
+              href={externalSourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="원본 영상 새 탭에서 보기"
+              className="inline-flex h-[clamp(38px,2.3vw,48px)] items-center justify-center gap-1.5 rounded-full bg-white px-[clamp(16px,1.1vw,22px)] text-[clamp(13.5px,0.84vw,16.5px)] font-semibold tracking-[-0.015em] text-[#111111] transition-colors hover:bg-white/90"
             >
-              {toastMsg}
-            </div>
-          )}
+              <span>원본 보기 ↗</span>
+            </a>
 
-          {/* BOTTOM CONTROL BAR: Left Work Title + Right 3 Fluid Action Buttons */}
-          <div className="mt-5 flex flex-col gap-4 border-t border-white/[0.10] pt-5 lg:flex-row lg:items-center lg:justify-between">
-            {/* Left: Genre Badge + Single Large Bold Work Title + Year + Source Link */}
-            <div className="flex min-w-0 flex-wrap items-center gap-3">
-              <span className="inline-flex shrink-0 items-center rounded-full bg-[#C89E52] px-3.5 py-1 font-mono text-[clamp(0.85rem,0.85vw,1.15rem)] font-bold uppercase tracking-wider text-[#0A0B0E]">
-                {genreBadge}
-              </span>
-              <h1 className="truncate text-[clamp(1.25rem,1.45vw,2.15rem)] font-bold leading-tight tracking-tight text-[#F2EFE9]">
-                {item.titleKo}
-              </h1>
-              <span className="shrink-0 font-mono text-[clamp(1.05rem,1.1vw,1.6rem)] font-semibold text-[#C89E52]">
-                ({item.year})
-              </span>
-              <a
-                href={item.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 shrink-0 text-[clamp(0.85rem,0.85vw,1.15rem)] font-medium text-[#C8C4BC] transition-colors hover:text-[#C89E52] hover:underline"
+            {/* 2. 다운로드 (Apple Dark Glass Pill) */}
+            <button
+              type="button"
+              onClick={handleDownloadMp4}
+              disabled={busyAction !== null}
+              aria-label="원본 루프 영상 MP4 다운로드"
+              className="inline-flex h-[clamp(38px,2.3vw,48px)] items-center justify-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.12] px-[clamp(16px,1.1vw,22px)] text-[clamp(13.5px,0.84vw,16.5px)] font-medium tracking-[-0.015em] text-white transition-colors hover:bg-white/[0.20] disabled:opacity-45"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[clamp(16px,1.0vw,19px)] w-[clamp(16px,1.0vw,19px)]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                원본 ↗
-              </a>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"
+                />
+              </svg>
+              <span>{busyAction === "download" ? "저장 중..." : "다운로드"}</span>
+            </button>
 
-            {/* Right: Strictly 3 Fluid Action Buttons Left-to-Right ('저장' · '다운로드' · '현재 프레임 캡처') */}
-            <div className="flex shrink-0 flex-wrap items-center gap-3">
-              {/* 1. 저장 / 저장됨 ✓ (Anodized Champagne Brass Solid) */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={handleSaveBoardClick}
-                  aria-label={isInBoard ? "내 보드 관리" : "내 보드에 저장"}
-                  className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-[#C89E52] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#0A0B0E] transition-colors hover:bg-[#D9B36A]"
-                >
-                  {isInBoard ? (
-                    <span>저장됨 ✓</span>
-                  ) : (
-                    <>
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)]"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 4h14a1 1 0 0 1 1 1v16l-8-4.5L4 21V5a1 1 0 0 1 1-1z"
-                        />
-                      </svg>
-                      <span>저장</span>
-                    </>
-                  )}
-                </button>
-
-                {isAuthenticated && boardPickerOpen && (
-                  <div className="absolute bottom-[calc(100%+12px)] left-0 z-30 w-72 rounded-[16px] border border-[#C89E52]/80 bg-[#111318] p-4 shadow-2xl lg:left-auto lg:right-0">
-                    <div className="mb-2.5 flex items-center justify-between text-[15px] font-semibold text-[#F2EFE9]">
-                      <span>보드 선택</span>
-                      {isInBoard && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onToggleBoard(item.id);
-                            setBoardPickerOpen(false);
-                            flashToast("보드에서 제거됨");
-                          }}
-                          className="text-[13px] text-[#C89E52] hover:text-[#D9B36A] hover:underline"
-                        >
-                          저장 해제
-                        </button>
-                      )}
-                    </div>
-                    <ul className="max-h-52 overflow-y-auto">
-                      {folders.map((folder) => {
-                        const active =
-                          isInBoard && selectedFolderId === folder.id;
-                        return (
-                          <li
-                            key={folder.id}
-                            className="border-b border-white/15 py-2.5 last:border-b-0"
-                          >
-                            <button
-                              type="button"
-                              onClick={() => handlePickFolder(folder.id)}
-                              className="flex w-full items-center justify-between text-left text-[15px] text-[#F2EFE9] transition-colors hover:text-[#C89E52]"
-                            >
-                              <span className="truncate">{folder.name}</span>
-                              <span className="ml-2 font-mono text-[13px] text-[#C89E52]">
-                                {active ? "SAVED" : "+"}
-                              </span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* 2. 다운로드 (Original Loop .mp4 -> kinoframe-<id>.mp4) */}
-              <button
-                type="button"
-                onClick={handleDownloadMp4}
-                disabled={busyAction !== null}
-                aria-label="원본 루프 영상 MP4 다운로드"
-                className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-white/[0.08] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#F2EFE9] ring-1 ring-white/[0.14] transition-colors hover:bg-white/[0.16] disabled:opacity-40"
+            {/* 3. 프레임 캡처 (Apple Dark Glass Pill) */}
+            <button
+              type="button"
+              onClick={handleCaptureCurrentFrame}
+              disabled={busyAction !== null}
+              aria-label="현재 프레임 PNG 캡처 및 클립보드 복사"
+              className="inline-flex h-[clamp(38px,2.3vw,48px)] items-center justify-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.12] px-[clamp(16px,1.1vw,22px)] text-[clamp(13.5px,0.84vw,16.5px)] font-medium tracking-[-0.015em] text-white transition-colors hover:bg-white/[0.20] disabled:opacity-45"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[clamp(16px,1.0vw,19px)] w-[clamp(16px,1.0vw,19px)]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)] text-[#C89E52]"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"
-                  />
-                </svg>
-                <span>
-                  {busyAction === "download" ? "다운로드 중..." : "다운로드"}
-                </span>
-              </button>
-
-              {/* 3. 현재 프레임 캡처 (High-res Canvas PNG download + clipboard image copy simultaneously) */}
-              <button
-                type="button"
-                onClick={handleCaptureCurrentFrame}
-                disabled={busyAction !== null}
-                aria-label="현재 프레임 PNG 캡처 및 클립보드 복사"
-                className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-white/[0.08] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#F2EFE9] ring-1 ring-white/[0.14] transition-colors hover:bg-white/[0.16] disabled:opacity-40"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)] text-[#C89E52]"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 14h2a2 2 0 0 0 2-2v-2"
-                  />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                <span>
-                  {busyAction === "capture"
-                    ? "캡처 중..."
-                    : "현재 프레임 캡처"}
-                </span>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 14h2a2 2 0 0 0 2-2v-2"
+                />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span>{busyAction === "capture" ? "캡처 중..." : "프레임 캡처"}</span>
+            </button>
           </div>
         </div>
       </div>

@@ -1,25 +1,33 @@
 #!/usr/bin/env python3
 """
-KINOFRAME Autonomous Dawn Harvester (Zero-Secret GitHub Releases Cloud Engine)
+KINOFRAME Autonomous Dawn Harvester (Two-Track 1080p HD Cinema & Vintage CF Restoration Engine)
 - Designed to run twice daily on GitHub Actions (02:17 & 04:43 KST) using built-in GITHUB_TOKEN.
 - Never commits binaries or JSON to `main` (zero Vercel rebuild triggers).
-- Multi-source parallel extraction (`ThreadPoolExecutor(max_workers=4)`):
-    1) Internet Archive API (`mediatype:movies`, vivid color cinema & 1950s-2000s color TVCF/brand films;
-       multi-cut extraction: 3~4 distinct non-overlapping highlights per source via HTTP Byte-Range)
-    2) Vimeo cinematography / commercial clips (fast opportunistic)
-    3) YouTube opportunistic fallback (3s fast-fail circuit breaker on bot-check)
-- Quality gates on every clip:
-    * Cinema: 5.0s, scdet=threshold=12 == 0 cuts (uncut single take)
-    * TVCF: 4.5s, scdet=threshold=12 <= 1 cut
-    * Vivid color check (rejects B&W/monochrome, dark blackouts, white flashes, flat title/text cards)
-    * cropdetect=24:2:0 letterbox/pillarbox removal
-    * 960px H.264 (-crf 21, fallback 24 if >2.2MB) -an -pix_fmt yuv420p -movflags +faststart
-    * Mid-frame .webp + real-pixel 5-color HEX palette
-- Sharding & Perpetual 8.5GB Rotation:
-    * Media shards `kinoframe-media-s01` .. `kinoframe-media-s20` (max 450 clips / 900 files per shard)
-    * `kinoframe-meta/wall-active.json`: max 600 active clips (60% Cinema : 40% TVCF balanced)
-    * `kinoframe-meta/catalog-full.json`: cumulative archive up to 10,000 clips (archived clips remain playable)
-    * Automatic LRU deletion of oldest `archived` Release assets when cumulative storage exceeds 8.5 GB.
+- Strict Safety & Quality Architecture:
+    1) Hard NSFW / adult / porn / cartoon / compilation / gameplay / broadcast-news blocklist.
+    2) Zero-distortion 5-point symmetric `cropdetect` guardrail:
+       * Normalizes SAR first (`scale='trunc(iw*sar/2)*2:trunc(ih/2)*2',setsar=1`).
+       * Samples 5 distributed points across source and takes the median crop rectangle.
+       * Applies crop ONLY when margins are symmetric AND resulting aspect ratio is in 1.30..2.45
+         (and >= 1.66 for post-1995 cinema). Rejects portrait/vertical videos (< 1.25).
+    3) Two-Track Era & Resolution Encoding:
+       * Track A (Modern Cinema & TVCF, year >= 2002 OR CLASSIC_FILM):
+         Requires source height >= 720p (1080p preferred), encodes up to 1920px with
+         `-crf 18 -preset fast -tune film -pix_fmt yuv420p -movflags +faststart` (`isArchivalSd: false`).
+       * Track B (Vintage TVCF, year <= 2001):
+         Allows SD sources, restores with `hqdn3d=1.5:1.5:3:3,scale=960:-2:flags=lanczos,cas=0.3`
+         and `-crf 18` (`isArchivalSd: true`).
+    4) 4-Pillar Cinematic/Photographic Hook Scoring (excluding first 18% & last 15% credits):
+       * Pillar 1: Subject-background sharpness separation (center focus vs periphery bokeh/DoF).
+       * Pillar 2: Lighting & color contrast (P85 bright-pixel saturation + chiaroscuro/neon/golden-hour tonal spread).
+       * Pillar 3: Uncut stability (`scdet=threshold=12`: 0 cuts for Cinema, <= 1 cut for TVCF).
+       * Pillar 4: Zero corner watermarks, zero burned-in subtitles, zero flat title cards / talking heads.
+       * Selects ONLY the highest-scoring highlight window per candidate.
+    5) Wikidata public API (`ko|en`) multilingual alias enrichment for instant cross-language search.
+    6) Perpetual Sharded Storage:
+       * Media shards `kinoframe-media-s01` .. `kinoframe-media-s20` (max 450 clips / 900 files per shard).
+       * `kinoframe-meta/wall-active.json`: max 600 active clips (60% Cinema : 40% TVCF balanced).
+       * `kinoframe-meta/catalog-full.json`: cumulative archive within 8.5 GB hard ceiling (~3,500 HD clips LRU rotation).
 """
 
 import argparse
@@ -32,6 +40,7 @@ import os
 import random
 import re
 import shutil
+import statistics
 import subprocess
 import tempfile
 import threading
@@ -40,7 +49,7 @@ import urllib.parse
 import urllib.request
 from collections import Counter
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageFilter
 
 DEFAULT_REPO = "rlawlstjr346-collab/kinoframe"
 META_TAG = "kinoframe-meta"
@@ -57,12 +66,18 @@ BLOCKED_TITLE_RE = re.compile(
     r"b&w|monochrome|lecture|university|educational|classroom|instructional|training\s*film|"
     r"safety\s*film|psa|public\s*service|sermon|speech|seminar|religious|church|bible|gospel|"
     r"choir|sing[\s-]*along|karaoke|disney\s*sing|christmas\s*songs|webinar|podcast|interview|"
-    r"slideshow|powerpoint|audiobook|gameplay|minecraft|cartoon|animation|animated|anime|"
-    r"popeye|tfa-319b|lucky\s*strike|silent\s*film|home\s*movie|amateur|family\s*reel|"
-    r"infomercial|home\s*shopping|teleshopping|qvc|photo\s*album|tv\s*series|complete\s*series|"
-    r"episode|sitcom|soap\s*opera|game\s*show|talk\s*show|newscast|broadcast\s*news|"
-    r"radio\s*station|tv\s*station|weather|c-span|congress|hearing|lyrics|reaction|review|"
-    r"explained|unboxing|trailer\s*reaction|vhs\s*variant|tape\s*transfer|opening\s*credits)",
+    r"slideshow|powerpoint|audiobook|gameplay|minecraft|nintendo\s*switch|playstation|xbox|"
+    r"cartoon|animation|animated|anime|pixar|popeye|tfa-319b|lucky\s*strike|silent\s*film|"
+    r"home\s*movie|amateur|family\s*reel|infomercial|home\s*shopping|teleshopping|qvc|"
+    r"photo\s*album|tv\s*series|complete\s*series|episode|sitcom|soap\s*opera|game\s*show|"
+    r"talk\s*show|newscast|broadcast\s*news|radio\s*station|tv\s*station|weather|c-span|"
+    r"congress|hearing|lyrics|reaction|review|explained|unboxing|trailer\s*reaction|"
+    r"vhs\s*variant|tape\s*transfer|opening\s*credits|compilation|commercial\s*collection|"
+    r"toy\s*commercial|fast\s*food\s*chain|"
+    # Strict NSFW / Adult / Exploitation blocklist
+    r"porn|xxx|nsfw|erotic|erotica|hentai|femdom|bdsm|fetish|humillaci|humiliation|"
+    r"joi\b|cei\b|pene\b|penis|vagina|nude|nudity|naked|stripper|playboy|penthouse|"
+    r"sex\s*tape|adult\s*film|softcore|hardcore|onlyfans|camgirl|virgin\s*witch|exploitation)",
     re.I,
 )
 
@@ -83,27 +98,26 @@ BLOCKED_IA_COLLECTIONS = {
     "computerchronicles",
     "video_games",
     "classic_cartoons",
+    "adult",
+    "erotica",
+    "pornography",
+    "nsfw",
 }
 
 IA_CINEMA_QUERIES = [
-    'mediatype:movies AND collection:(feature_films OR short_films OR independent_film) AND (technicolor OR eastmancolor OR color) AND year:[1965 TO 2024] NOT (newsreel OR military OR cartoon OR lecture OR church OR museum OR series OR episode)',
-    'mediatype:movies AND collection:(feature_films OR short_films) AND (cinematography OR drama OR thriller OR noir OR sci-fi) AND color AND year:[1970 TO 2024] NOT (newsreel OR cartoon OR lecture OR documentary OR museum)',
-    'mediatype:movies AND ("short film" OR "independent film" OR "music-free cinema") AND (1080p OR 720p OR HD) AND color AND year:[1980 TO 2024] NOT (review OR interview OR podcast OR lecture OR cartoon OR animation)',
+    'mediatype:movies AND collection:(feature_films OR short_films OR independent_film) AND (technicolor OR eastmancolor OR color) AND year:[1965 TO 2024] NOT (newsreel OR military OR cartoon OR lecture OR church OR museum OR series OR episode OR adult OR erotic OR compilation)',
+    'mediatype:movies AND collection:(feature_films OR short_films) AND (cinematography OR drama OR thriller OR noir OR sci-fi) AND color AND year:[1975 TO 2024] NOT (newsreel OR cartoon OR lecture OR documentary OR museum OR adult OR erotic OR compilation)',
+    'mediatype:movies AND ("short film" OR "independent film" OR "cinematography") AND (1080p OR 720p OR HD) AND color AND year:[1990 TO 2024] NOT (review OR interview OR podcast OR lecture OR cartoon OR animation OR adult OR gameplay)',
 ]
 
 IA_TVCF_QUERIES = [
-    'mediatype:movies AND collection:(classic_tv_commercials OR commercials) AND (1080p OR 720p OR HD OR color) AND year:[1975 TO 2024] NOT (newsreel OR infomercial OR cartoon OR sing-along OR military OR museum OR psa OR lecture)',
-    'mediatype:movies AND ("brand film" OR "fashion film" OR "commercial reel" OR "director reel") AND (1080p OR 720p OR HD) AND color AND year:[1990 TO 2024] NOT (interview OR podcast OR lecture OR museum OR cartoon)',
-]
-
-VIMEO_FALLBACK_QUERIES = [
-    ("CLASSIC_FILM", "https://vimeo.com/channels/staffpicks"),
-    ("TVCF", "https://vimeo.com/channels/commercials"),
+    'mediatype:movies AND collection:(classic_tv_commercials OR commercials) AND color AND year:[1970 TO 2001] NOT (newsreel OR infomercial OR cartoon OR sing-along OR military OR museum OR psa OR lecture OR compilation OR collection OR toy)',
+    'mediatype:movies AND ("brand film" OR "fashion film" OR "commercial spot" OR "director reel") AND (1080p OR 720p OR HD) AND color AND year:[2002 TO 2024] NOT (interview OR podcast OR lecture OR museum OR cartoon OR compilation OR gameplay)',
 ]
 
 YT_OPPORTUNISTIC_QUERIES = [
-    ("CLASSIC_FILM", "ytsearch3:classic cinema scene 1080p clip"),
-    ("TVCF", "ytsearch3:iconic vintage TV commercial HD"),
+    ("CLASSIC_FILM", "ytsearch3:classic cinema cinematography scene 1080p"),
+    ("TVCF", "ytsearch3:award winning commercial director film 1080p"),
 ]
 
 COMPOSITION_POOL = [
@@ -130,12 +144,57 @@ def http_get_json(url: str, timeout: int = 15):
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "KinoframeDawnHarvester/1.0 (+https://github.com/rlawlstjr346-collab/kinoframe)",
+            "User-Agent": "KinoframeDawnHarvester/2.0 (https://kinoframe.vercel.app)",
             "Accept": "application/json",
         },
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode("utf-8", errors="ignore"))
+
+
+def fetch_wikidata_aliases(title: str, creator: str = "") -> list[str]:
+    """Enrich clip with official Korean & English Wikidata labels/aliases."""
+    aliases: set[str] = set()
+    queries = [q for q in (title.strip(), creator.strip()) if q and len(q) >= 3 and q.lower() != "internet archive"]
+    for q in queries[:2]:
+        try:
+            search_url = "https://www.wikidata.org/w/api.php?" + urllib.parse.urlencode(
+                {
+                    "action": "wbsearchentities",
+                    "search": q[:64],
+                    "language": "en",
+                    "format": "json",
+                    "limit": 1,
+                }
+            )
+            data = http_get_json(search_url, timeout=8)
+            hits = data.get("search") or []
+            if not hits:
+                continue
+            qid = hits[0].get("id")
+            if not qid:
+                continue
+            ent_url = "https://www.wikidata.org/w/api.php?" + urllib.parse.urlencode(
+                {
+                    "action": "wbgetentities",
+                    "ids": qid,
+                    "props": "labels|aliases",
+                    "languages": "ko|en",
+                    "format": "json",
+                }
+            )
+            ent = (http_get_json(ent_url, timeout=8).get("entities") or {}).get(qid) or {}
+            for lang in ("ko", "en"):
+                lbl = (ent.get("labels") or {}).get(lang, {}).get("value")
+                if lbl and len(lbl) <= 48:
+                    aliases.add(lbl.strip())
+                for al in (ent.get("aliases") or {}).get(lang, [])[:3]:
+                    val = al.get("value")
+                    if val and len(val) <= 44:
+                        aliases.add(val.strip())
+        except Exception:
+            continue
+    return sorted(aliases)[:10]
 
 
 def rgb_to_hsv(r: int, g: int, b: int):
@@ -162,7 +221,7 @@ def get_pixels(im: Image.Image):
 
 
 def has_text_subtitle_or_tv_bug(im: Image.Image) -> bool:
-    """Reject burned-in subtitles, karaoke lyrics, opening credit names, title cards, and TV corner bugs."""
+    """Reject burned-in subtitles, opening credit names, title cards, and all 4-corner watermarks."""
     g = im.convert("L").resize((160, 90), Image.Resampling.BILINEAR)
     px = g.load()
 
@@ -182,7 +241,7 @@ def has_text_subtitle_or_tv_bug(im: Image.Image) -> bool:
     if sub_rows >= 4 and sub_bright >= 40:
         return True
 
-    # 2) Center opening credit / station logo / title card text band (y: 26%..72%)
+    # 2) Center opening credit / station logo / title card text band
     center_rows = 0
     center_bright = 0
     center_dark = 0
@@ -201,24 +260,37 @@ def has_text_subtitle_or_tv_bug(im: Image.Image) -> bool:
     if center_rows >= 6 and center_bright >= 75 and center_dark >= 400:
         return True
 
-    # 3) Top-right bright TV channel watermark bug (x: 80%..97%, y: 3%..17%)
-    bug_bright = 0
-    bug_edges = 0
-    for y in range(3, 16):
-        for x in range(128, 155):
-            v = px[x, y]
-            if v > 210:
-                bug_bright += 1
-            if abs(v - px[x - 1, y]) > 85:
-                bug_edges += 1
-    if 12 <= bug_bright <= 160 and bug_edges >= 14:
-        return True
+    # 3) All 4 corners watermark/channel bug scan (CulturePub.fr, Movieclips, TV station bugs)
+    corner_boxes = [
+        (126, 156, 3, 16),   # top-right
+        (4, 34, 3, 16),      # top-left
+        (126, 156, 74, 87),  # bottom-right
+        (4, 34, 74, 87),     # bottom-left
+    ]
+    for x0, x1, y0, y1 in corner_boxes:
+        bug_bright = 0
+        bug_edges = 0
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                v = px[x, y]
+                if v > 210:
+                    bug_bright += 1
+                if abs(v - px[x - 1, y]) > 84:
+                    bug_edges += 1
+        if 12 <= bug_bright <= 165 and bug_edges >= 15:
+            return True
 
     return False
 
 
-def score_color_frame(png_bytes: bytes):
-    """Hardened 3-frame quality gate: rejects B&W, sepia, faded docs, blackouts, text cards, subtitles, TV bugs."""
+def score_aesthetic_frame(png_bytes: bytes) -> tuple[float, str]:
+    """
+    4-Pillar Photographic/Cinematic Hook Frame Scorer:
+    1) Subject-background sharpness separation (shallow DoF / focal clarity)
+    2) Lighting & color contrast (P85 bright-pixel saturation + chiaroscuro/neon/golden-hour tonal spread)
+    3) Anti-blackout / anti-washout / anti-flat-talking-head filter
+    4) Zero subtitles, zero title cards, zero 4-corner watermarks
+    """
     try:
         im = Image.open(io.BytesIO(png_bytes)).convert("RGB")
     except Exception:
@@ -228,17 +300,16 @@ def score_color_frame(png_bytes: bytes):
         return -1.0, "text_subtitle_or_watermark"
 
     w, h = im.size
-    crop = im.crop((int(w * 0.10), int(h * 0.12), int(w * 0.90), int(h * 0.88)))
-    small = crop.resize((96, 54), Image.Resampling.BILINEAR)
+    crop = im.crop((int(w * 0.08), int(h * 0.10), int(w * 0.92), int(h * 0.90)))
+    small = crop.resize((120, 68), Image.Resampling.BILINEAR)
     pixels = get_pixels(small)
     total = len(pixels)
 
     near_black = 0
     near_white = 0
     lums = []
-    sats = []
+    bright_sats = []
     chromas = []
-    spreads = []
     buckets = {}
 
     for r, g, b in pixels:
@@ -253,32 +324,54 @@ def score_color_frame(png_bytes: bytes):
         bkey = (r >> 4, g >> 4, b >> 4)
         buckets[bkey] = buckets.get(bkey, 0) + 1
         _, sv, vv = rgb_to_hsv(r, g, b)
-        if vv > 0.10:
-            sats.append(sv)
+        if vv > 0.14:
+            bright_sats.append(sv)
             chromas.append((mx - mn) / 255.0)
-            spreads.append(mx - mn)
 
     mean_lum = sum(lums) / total
     lum_std = math.sqrt(sum((x - mean_lum) ** 2 for x in lums) / total)
     max_bucket_ratio = max(buckets.values()) / total
 
-    if near_black / total > 0.55 or mean_lum < 28:
+    if near_black / total > 0.58 or mean_lum < 24:
         return -1.0, "too_dark"
     if near_white / total > 0.45 or mean_lum > 224:
         return -1.0, "too_white"
-    if max_bucket_ratio > 0.40:
+    if max_bucket_ratio > 0.42:
         return -1.0, "flat_text_or_logo_card"
     if lum_std < 23.0:
         return -1.0, "low_contrast"
+    if not bright_sats:
+        return -1.0, "no_bright_pixels"
 
-    avg_sat = sum(sats) / max(1, len(sats))
+    # Pillar 2: P85 bright-pixel saturation (supports moody chiaroscuro/neon without requiring whole frame bright)
+    bright_sats.sort()
+    p85_sat = bright_sats[int(len(bright_sats) * 0.85)]
     avg_chroma = sum(chromas) / max(1, len(chromas))
-    avg_spread = sum(spreads) / max(1, len(spreads))
-    # Strictly block B&W, sepia, and washed-out archival footage
-    if avg_sat < 0.22 or avg_chroma < 0.115 or avg_spread < 14.0:
+    if p85_sat < 0.26 or avg_chroma < 0.105:
         return -1.0, "monochrome_sepia_or_low_color"
 
-    score = avg_sat * 1.4 + avg_chroma * 2.5 + min(lum_std, 80.0) / 100.0
+    # Pillar 1: Subject-background sharpness separation (center focus vs background softness)
+    gray = crop.convert("L").resize((120, 68), Image.Resampling.BILINEAR)
+    edge_im = gray.filter(ImageFilter.FIND_EDGES)
+    epx = edge_im.load()
+    center_edges = []
+    border_edges = []
+    for y in range(4, 64):
+        for x in range(4, 116):
+            val = epx[x, y]
+            if 30 <= x <= 90 and 15 <= y <= 53:
+                center_edges.append(val)
+            else:
+                border_edges.append(val)
+
+    c_sharp = sum(center_edges) / max(1, len(center_edges))
+    b_sharp = sum(border_edges) / max(1, len(border_edges))
+    if c_sharp < 9.0:
+        return -1.0, "blurry_or_out_of_focus"
+    dof_separation = min(2.4, c_sharp / max(6.0, b_sharp))
+
+    # Combined photographic/cinematic hook score
+    score = p85_sat * 2.1 + avg_chroma * 2.2 + min(lum_std, 82.0) / 85.0 + dof_separation * 0.95
     return score, "ok"
 
 
@@ -362,37 +455,121 @@ def count_scene_cuts(raw_mp4: Path, clip_dur: float, threshold: float = 12.0) ->
     return len(interior)
 
 
-def detect_crop(raw_mp4: Path, orig_w: int, orig_h: int):
-    cmd = [
-        "ffmpeg",
-        "-hide_banner",
-        "-i",
-        str(raw_mp4),
-        "-vf",
-        "cropdetect=24:2:0",
-        "-f",
-        "null",
-        "-",
-    ]
-    p = run_cmd(cmd, timeout=20)
-    matches = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", p.stderr)
-    if not matches:
+def probe_stream_dims(media_path: str | Path) -> tuple[int, int, float]:
+    """Return (width, height, sar_float) for video stream 0."""
+    p = run_cmd(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height,sample_aspect_ratio",
+            "-of",
+            "json",
+            str(media_path),
+        ],
+        timeout=12,
+    )
+    if p.returncode != 0:
+        return 0, 0, 1.0
+    try:
+        st = json.loads(p.stdout)["streams"][0]
+        w, h = int(st.get("width") or 0), int(st.get("height") or 0)
+        sar_raw = str(st.get("sample_aspect_ratio") or "1:1")
+        if ":" in sar_raw:
+            n, d = sar_raw.split(":")
+            sar = float(n) / max(1.0, float(d)) if float(n) > 0 and float(d) > 0 else 1.0
+        else:
+            sar = 1.0
+        return w, h, sar
+    except Exception:
+        return 0, 0, 1.0
+
+
+def detect_safe_median_crop(
+    stream_url: str,
+    dur: float,
+    orig_w: int,
+    orig_h: int,
+    sar: float,
+    year: int,
+    is_film: bool,
+) -> str | None:
+    """
+    Zero-distortion 5-point median cropdetect guardrail:
+    - Normalizes SAR first (`scale='trunc(iw*sar/2)*2:trunc(ih/2)*2',setsar=1`).
+    - Samples 5 distributed timestamps across the video to avoid night-scene false crops.
+    - Requires symmetric margins (left~=right, top~=bottom) and valid output aspect ratio
+      (1.30..2.45; >= 1.66 for post-1995 cinema).
+    """
+    norm_w = int(round(orig_w * sar)) & ~1
+    norm_h = orig_h & ~1
+    if norm_w < 320 or norm_h < 240 or dur < 10.0:
         return None
-    half = matches[len(matches) // 3 :] or matches
-    most_common, _ = Counter(half).most_common(1)[0]
-    cw, ch, cx, cy = map(int, most_common)
-    if cw < orig_w * 0.58 or ch < orig_h * 0.50:
+
+    sample_pts = [dur * f for f in (0.18, 0.34, 0.50, 0.66, 0.82)]
+    cws, chs, cxs, cys = [], [], [], []
+    for t in sample_pts:
+        p = run_cmd(
+            [
+                "ffmpeg",
+                "-hide_banner",
+                "-ss",
+                f"{t:.2f}",
+                "-i",
+                stream_url,
+                "-t",
+                "0.7",
+                "-vf",
+                "scale='trunc(iw*sar/2)*2:trunc(ih/2)*2',setsar=1,cropdetect=24:2:0",
+                "-f",
+                "null",
+                "-",
+            ],
+            timeout=20,
+        )
+        matches = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", p.stderr)
+        if matches:
+            cw, ch, cx, cy = map(int, matches[-1])
+            cws.append(cw)
+            chs.append(ch)
+            cxs.append(cx)
+            cys.append(cy)
+
+    if len(cws) < 3:
         return None
-    cw = cw & ~1
-    ch = ch & ~1
-    if cw >= orig_w - 4 and ch >= orig_h - 4:
+
+    cw = int(statistics.median(cws)) & ~1
+    ch = int(statistics.median(chs)) & ~1
+    cx = int(statistics.median(cxs))
+    cy = int(statistics.median(cys))
+
+    # Enforce horizontal & vertical margin symmetry (blocks dark night-scene side over-crops)
+    left_m, right_m = cx, max(0, norm_w - (cx + cw))
+    top_m, bot_m = cy, max(0, norm_h - (cy + ch))
+    if abs(left_m - right_m) > max(18, norm_w * 0.03):
+        cw, cx = norm_w, 0
+    if abs(top_m - bot_m) > max(18, norm_h * 0.03):
+        ch, cy = norm_h, 0
+
+    if cw >= norm_w - 8 and ch >= norm_h - 8:
         return None
+    if cw < norm_w * 0.62 or ch < norm_h * 0.52:
+        return None
+
+    res_ratio = cw / max(1, ch)
+    min_ar = 1.66 if (is_film and year >= 1995) else 1.30
+    if not (min_ar <= res_ratio <= 2.45):
+        return None
+
     return f"crop={cw}:{ch}:{cx}:{cy}"
 
 
-def score_raw_segment(raw_mp4: Path, clip_dur: float):
+def score_raw_segment(raw_mp4: Path, clip_dur: float) -> tuple[float, str]:
     scores = []
-    for st in (0.6, clip_dur * 0.5, max(1.0, clip_dur - 0.6)):
+    for st in (0.5, clip_dur * 0.5, max(1.0, clip_dur - 0.5)):
         cmd = [
             "ffmpeg",
             "-hide_banner",
@@ -413,7 +590,7 @@ def score_raw_segment(raw_mp4: Path, clip_dur: float):
         res = subprocess.run(cmd, capture_output=True, timeout=14)
         if res.returncode != 0 or not res.stdout:
             return -1.0, "frame_err"
-        sc, reason = score_color_frame(res.stdout)
+        sc, reason = score_aesthetic_frame(res.stdout)
         if sc < 0:
             return -1.0, reason
         scores.append(sc)
@@ -502,7 +679,7 @@ def discover_ia_sources(category: str, max_items: int = 45) -> list[dict]:
 
 
 def resolve_ia_stream(item: dict):
-    """Fetch IA metadata and locate best direct H.264 MP4 stream + duration."""
+    """Fetch IA metadata and locate best direct H.264 MP4 stream matching two-track resolution policy."""
     ident = item["source_id"]
     try:
         meta = http_get_json(f"https://archive.org/metadata/{urllib.parse.quote(ident)}", timeout=12)
@@ -514,9 +691,12 @@ def resolve_ia_stream(item: dict):
         colls = [colls]
     if any(str(c).lower() in BLOCKED_IA_COLLECTIONS for c in colls):
         return None
-    subj_text = f"{meta_obj.get('subject') or ''} {meta_obj.get('description') or ''}"
-    if BLOCKED_TITLE_RE.search(subj_text[:500]):
+    subj_text = f"{meta_obj.get('subject') or ''} {meta_obj.get('description') or ''} {meta_obj.get('title') or ''}"
+    if BLOCKED_TITLE_RE.search(subj_text[:800]):
         return None
+
+    is_vintage_tvcf = item["category"] == "TVCF" and int(item.get("year") or 2000) <= 2001
+    min_height = 360 if is_vintage_tvcf else 720
 
     files = meta.get("files") or []
     mp4_candidates = []
@@ -525,7 +705,7 @@ def resolve_ia_stream(item: dict):
         if not name.lower().endswith(".mp4"):
             continue
         size = int(f.get("size") or 0)
-        if size < 4_000_000:
+        if size < (2_000_000 if is_vintage_tvcf else 4_500_000):
             continue
         dur_raw = f.get("length")
         dur = 0.0
@@ -541,14 +721,18 @@ def resolve_ia_stream(item: dict):
                     dur = float(dur_raw)
             except Exception:
                 dur = 0.0
-        if dur < 35 or dur > 10800:
+        if dur < 20 or dur > 10800:
             continue
         h = int(f.get("height") or 0)
         w = int(f.get("width") or 0)
-        # Strictly require HD (>=720p) to block blurry VHS/TV rips
-        if h < 720:
+        if h < min_height:
             continue
-        rank = (h, 0 if "_512kb" in name else 1, size)
+        # Reject vertical / portrait videos outright (ratio < 1.25)
+        if w > 0 and h > 0 and (w / h) < 1.25:
+            continue
+        # Prefer 1080p for modern cinema/TVCF
+        hd_pref = 1 if 1000 <= h <= 1200 else 0
+        rank = (hd_pref, h, 0 if "_512kb" in name else 1, size)
         mp4_candidates.append((rank, name, dur, w, h))
 
     if not mp4_candidates:
@@ -560,13 +744,13 @@ def resolve_ia_stream(item: dict):
         **item,
         "stream_url": stream_url,
         "duration": dur,
-        "height": h or 480,
-        "width": w or 640,
+        "height": h or 720,
+        "width": w or 1280,
     }
 
 
 def discover_opportunistic_yt_vimeo(yt_blocked_event: threading.Event) -> list[dict]:
-    """Fast opportunistic Vimeo / YouTube candidate discovery (strict 3s fail-fast on bot blocks)."""
+    """Fast opportunistic YouTube candidate discovery (strict 3s fail-fast on bot blocks)."""
     results = []
     if not yt_blocked_event.is_set():
         for cat, q in YT_OPPORTUNISTIC_QUERIES:
@@ -619,6 +803,9 @@ def discover_opportunistic_yt_vimeo(yt_blocked_event: threading.Event) -> list[d
                     continue
                 fmts.sort(key=lambda f: f.get("height") or 0, reverse=True)
                 best = fmts[0]
+                bw, bh = int(best.get("width") or 1280), int(best.get("height") or 720)
+                if bw / max(1, bh) < 1.25:
+                    continue
                 results.append(
                     {
                         "origin": "yt",
@@ -631,8 +818,8 @@ def discover_opportunistic_yt_vimeo(yt_blocked_event: threading.Event) -> list[d
                         or f"https://www.youtube.com/watch?v={info.get('id')}",
                         "stream_url": best["url"],
                         "duration": dur,
-                        "height": best.get("height") or 720,
-                        "width": best.get("width") or 1280,
+                        "height": bh,
+                        "width": bw,
                     }
                 )
     return results
@@ -644,9 +831,14 @@ def extract_clips_from_source(
     existing_source_keys: set,
     lock: threading.Lock,
     deadline: float,
-    max_cuts_per_source: int = 3,
+    max_cuts_per_source: int = 2,
 ) -> list[dict]:
-    """Extract 1~4 distinct non-overlapping high-quality color loops from a single source."""
+    """
+    Two-Track Aesthetic Hook Extractor:
+    - Excludes first 18% & last 15% credits.
+    - Evaluates multiple candidate windows with 4-pillar aesthetic scoring + scdet.
+    - Keeps ONLY the highest-scoring highlight window(s), discarding ordinary dialogue shots.
+    """
     if time.time() >= deadline:
         return []
 
@@ -657,25 +849,42 @@ def extract_clips_from_source(
         src = resolved
 
     is_film = src["category"] == "CLASSIC_FILM"
+    year = int(src.get("year") or 2000)
+    is_vintage_sd = (not is_film) and year <= 2001 and int(src.get("height") or 0) < 720
     clip_dur = 5.0 if is_film else 4.5
     max_cuts_allowed = 0 if is_film else 1
     dur = float(src["duration"])
 
     # Strictly forbid first 18% (opening credits/station IDs) and last 15% (end credits/logos)
-    lo = max(18.0, dur * 0.18) if dur > 90 else max(6.0, dur * 0.18)
-    hi = min(dur - 15.0, dur * 0.85 - clip_dur) if dur > 90 else min(dur - 6.0, dur * 0.85 - clip_dur)
+    lo = max(18.0, dur * 0.18) if dur > 90 else max(5.0, dur * 0.18)
+    hi = min(dur - 15.0, dur * 0.85 - clip_dur) if dur > 90 else min(dur - 5.0, dur * 0.85 - clip_dur)
     if hi <= lo + clip_dur:
         return []
 
-    # 4 non-overlapping candidate windows spread across the film/spot
-    fracs = (0.12, 0.36, 0.60, 0.84) if dur >= 120 else (0.18, 0.50, 0.78)
+    # Probe true SAR/dims & compute 5-point symmetric median crop ONCE per source
+    pw, ph, sar = probe_stream_dims(src["stream_url"])
+    orig_w = pw or int(src.get("width") or 1280)
+    orig_h = ph or int(src.get("height") or 720)
+    if orig_w < 320 or orig_h < 240:
+        return []
+    if (orig_w * sar) / max(1, orig_h) < 1.25:
+        return []
+    if (is_film or year >= 2002) and orig_h < 720:
+        return []
+
+    crop_filter = detect_safe_median_crop(
+        src["stream_url"], dur, orig_w, orig_h, sar, year, is_film
+    )
+
+    # Evaluate 5 distributed candidate windows and keep only top-scoring hook cuts
+    fracs = (0.10, 0.30, 0.50, 0.70, 0.88) if dur >= 120 else (0.15, 0.45, 0.75)
     timestamps = [lo + (hi - lo) * f for f in fracs]
 
-    produced = []
+    scored_candidates = []
     tid = threading.get_ident()
 
     for idx, start_t in enumerate(timestamps):
-        if len(produced) >= max_cuts_per_source or time.time() >= deadline:
+        if time.time() >= deadline:
             break
         if start_t + clip_dur >= dur - 2.0:
             continue
@@ -687,9 +896,6 @@ def extract_clips_from_source(
                 continue
 
         raw_mp4 = work_dir / f"raw_{tid}_{idx}.mp4"
-        out_mp4 = work_dir / f"out_{tid}_{idx}_{int(time.time() * 1000)}.mp4"
-        out_webp = out_mp4.with_suffix(".webp")
-
         try:
             cut_cmd = [
                 "ffmpeg",
@@ -715,52 +921,63 @@ def extract_clips_from_source(
                 str(raw_mp4),
             ]
             res = run_cmd(cut_cmd, timeout=35)
-            if res.returncode != 0 or not raw_mp4.exists() or raw_mp4.stat().st_size < 14_000:
+            if res.returncode != 0 or not raw_mp4.exists() or raw_mp4.stat().st_size < 16_000:
+                raw_mp4.unlink(missing_ok=True)
                 continue
 
-            # 1) Strict color + anti-blackout + anti-text-card quality check
+            # 4-pillar aesthetic hook score (discard mundane / flat shots < 2.15)
             fscore, _ = score_raw_segment(raw_mp4, clip_dur)
-            if fscore < 0:
+            if fscore < 2.15:
+                raw_mp4.unlink(missing_ok=True)
                 continue
 
-            # 2) Strict scene-cut verification (scdet=threshold=12: 0 for films, <=1 for TVCF)
             cuts = count_scene_cuts(raw_mp4, clip_dur, threshold=12.0)
             if cuts > max_cuts_allowed:
+                raw_mp4.unlink(missing_ok=True)
                 continue
 
-            # 3) Probe dimensions & run cropdetect=24:2:0
-            probe = run_cmd(
-                [
-                    "ffprobe",
-                    "-v",
-                    "error",
-                    "-select_streams",
-                    "v:0",
-                    "-show_entries",
-                    "stream=width,height",
-                    "-of",
-                    "csv=p=0:s=x",
-                    str(raw_mp4),
-                ],
-                timeout=10,
-            )
-            try:
-                orig_w, orig_h = map(int, probe.stdout.strip().split("x"))
-            except Exception:
-                orig_w, orig_h = 960, 540
-            if orig_w < 360 or orig_h < 240:
-                continue
+            scored_candidates.append((fscore, cuts, start_t, skey, raw_mp4))
+        except Exception:
+            raw_mp4.unlink(missing_ok=True)
 
-            crop_filter = detect_crop(raw_mp4, orig_w, orig_h)
-            vf_parts = []
+    if not scored_candidates:
+        return []
+
+    # Sort best hook cuts first; discard lower-scoring raw files
+    scored_candidates.sort(key=lambda x: x[0], reverse=True)
+    winners = scored_candidates[:max_cuts_per_source]
+    for _, _, _, _, loser_mp4 in scored_candidates[max_cuts_per_source:]:
+        loser_mp4.unlink(missing_ok=True)
+
+    # Fetch Wikidata ko|en aliases once per source
+    wd_aliases = fetch_wikidata_aliases(src["title"], src.get("creator", ""))
+
+    produced = []
+    for fscore, cuts, start_t, skey, raw_mp4 in winners:
+        out_mp4 = work_dir / f"out_{tid}_{int(time.time() * 1000)}_{len(produced)}.mp4"
+        out_webp = out_mp4.with_suffix(".webp")
+        try:
+            vf_parts = ["scale='trunc(iw*sar/2)*2:trunc(ih/2)*2'", "setsar=1"]
             if crop_filter:
                 vf_parts.append(crop_filter)
-            vf_parts.append("scale='min(960,iw)':-2:flags=lanczos")
+
+            if is_vintage_sd:
+                # Track B: Vintage SD TVCF restoration (deblock + Lanczos 960px + subtle CAS sharpening)
+                vf_parts.extend(["hqdn3d=1.5:1.5:3:3", "scale=960:-2:flags=lanczos", "cas=0.3"])
+                crf_ladder = ("18", "20")
+                tune_args: list[str] = []
+                size_cap = 3_600_000
+            else:
+                # Track A: Modern 1080p HD Cinema / TVCF master (-crf 18 -preset fast -tune film)
+                vf_parts.append("scale='min(1920,iw)':-2:flags=lanczos")
+                crf_ladder = ("18", "20", "22")
+                tune_args = ["-tune", "film"]
+                size_cap = 4_800_000
+
             vf = ",".join(vf_parts)
 
-            # 4) Final H.264 960px faststart encode
             enc_ok = False
-            for crf in ("21", "24"):
+            for crf in crf_ladder:
                 er = run_cmd(
                     [
                         "ffmpeg",
@@ -779,6 +996,7 @@ def extract_clips_from_source(
                         crf,
                         "-preset",
                         "fast",
+                        *tune_args,
                         "-pix_fmt",
                         "yuv420p",
                         "-movflags",
@@ -787,16 +1005,16 @@ def extract_clips_from_source(
                         f"{clip_dur:.2f}",
                         str(out_mp4),
                     ],
-                    timeout=35,
+                    timeout=55,
                 )
-                if er.returncode == 0 and out_mp4.exists() and out_mp4.stat().st_size > 25_000:
+                if er.returncode == 0 and out_mp4.exists() and out_mp4.stat().st_size > 30_000:
                     enc_ok = True
-                    if out_mp4.stat().st_size <= 2_250_000:
+                    if out_mp4.stat().st_size <= size_cap:
                         break
             if not enc_ok:
                 continue
 
-            # 5) Mid-frame WebP + real 5-color HEX palette
+            # Mid-frame high-quality WebP + real 5-color HEX palette
             wr = run_cmd(
                 [
                     "ffmpeg",
@@ -813,7 +1031,7 @@ def extract_clips_from_source(
                     "-c:v",
                     "libwebp",
                     "-quality",
-                    "86",
+                    "88",
                     str(out_webp),
                 ],
                 timeout=18,
@@ -822,6 +1040,13 @@ def extract_clips_from_source(
                 continue
 
             palette, aspect, cw, ch = extract_palette_and_aspect(out_webp)
+            # Final aspect-ratio sanity guardrail
+            final_ratio = cw / max(1, ch)
+            if final_ratio < 1.25 or (is_film and year >= 1995 and final_ratio < 1.66):
+                out_mp4.unlink(missing_ok=True)
+                out_webp.unlink(missing_ok=True)
+                continue
+
             with lock:
                 if skey in existing_source_keys:
                     continue
@@ -833,7 +1058,7 @@ def extract_clips_from_source(
                     "webp": out_webp,
                     "source_key": skey,
                     "title": src["title"],
-                    "year": src["year"],
+                    "year": year,
                     "creator": src["creator"],
                     "category": src["category"],
                     "source_url": src["source_url"],
@@ -841,19 +1066,18 @@ def extract_clips_from_source(
                     "duration_sec": clip_dur,
                     "width": cw,
                     "height": ch,
+                    "is_archival_sd": is_vintage_sd or (cw <= 1024 and final_ratio < 1.58),
                     "cuts": cuts,
+                    "hook_score": round(fscore, 2),
                     "palette": palette,
+                    "aliases": wd_aliases,
                     "bytes": out_mp4.stat().st_size + out_webp.stat().st_size,
                 }
             )
         except Exception:
             continue
         finally:
-            if raw_mp4.exists():
-                try:
-                    raw_mp4.unlink()
-                except Exception:
-                    pass
+            raw_mp4.unlink(missing_ok=True)
 
     return produced
 
@@ -917,7 +1141,6 @@ def pick_target_shard(shard_counts: dict[str, int]) -> str:
         tag = f"kinoframe-media-s{idx:02d}"
         if shard_counts.get(tag, 0) < MAX_CLIPS_PER_SHARD:
             return tag
-    # Fallback to least-populated shard if all 20 are near capacity
     return min(
         (f"kinoframe-media-s{i:02d}" for i in range(1, MAX_SHARDS + 1)),
         key=lambda t: shard_counts.get(t, 0),
@@ -953,10 +1176,10 @@ def delete_release_asset(repo: str, tag: str, asset_name: str):
 
 def rotate_active_wall(catalog: list[dict]) -> tuple[list[dict], list[dict]]:
     """Select up to 600 active clips (60% Cinema / 40% TVCF balanced) and mark rest archived."""
-    # Sort newest first so fresh harvests surface immediately while preserving seed masterpieces
     ordered = sorted(
         catalog,
         key=lambda x: (
+            1 if x.get("seedMasterpiece") else 0,
             str(x.get("harvestedAt") or x.get("addedAt") or ""),
             str(x.get("id") or ""),
         ),
@@ -972,7 +1195,6 @@ def rotate_active_wall(catalog: list[dict]) -> tuple[list[dict], list[dict]]:
     picked_tvcfs = tvcfs[:tvcf_target]
     active_ids = {x["id"] for x in picked_films} | {x["id"] for x in picked_tvcfs}
 
-    # Fill remainder up to 600 if one category has fewer than its quota
     if len(active_ids) < ACTIVE_WALL_CAP:
         for x in ordered:
             if x["id"] not in active_ids:
@@ -993,11 +1215,10 @@ def rotate_active_wall(catalog: list[dict]) -> tuple[list[dict], list[dict]]:
 
 def enforce_storage_cap(repo: str, catalog: list[dict]) -> list[dict]:
     """When cumulative bytes exceed 8.5 GB (or > 10,000 items), LRU-evict oldest archived assets."""
-    total_bytes = sum(int(x.get("bytes") or 850_000) for x in catalog)
+    total_bytes = sum(int(x.get("bytes") or 2_200_000) for x in catalog)
     if total_bytes <= STORAGE_CAP_BYTES and len(catalog) <= CATALOG_MAX_ITEMS:
         return catalog
 
-    # Candidates for eviction: archived non-seed items first (oldest harvestedAt first)
     archived = [
         x
         for x in catalog
@@ -1019,7 +1240,7 @@ def enforce_storage_cap(repo: str, catalog: list[dict]) -> list[dict]:
         if shard and vid:
             delete_release_asset(repo, shard, f"{vid}.mp4")
             delete_release_asset(repo, shard, f"{vid}.webp")
-        total_bytes -= int(victim.get("bytes") or 850_000)
+        total_bytes -= int(victim.get("bytes") or 2_200_000)
         evict_ids.add(vid)
         print(f"[EVICT] Removed archived asset {vid} from {shard} (8.5GB cap)", flush=True)
 
@@ -1042,7 +1263,7 @@ def main():
     today_str = now_iso[:10]
 
     print(
-        f"=== KINOFRAME DAWN HARVESTER START === repo={repo} target={target_count} max_min={args.max_minutes}",
+        f"=== KINOFRAME TWO-TRACK DAWN HARVESTER START === repo={repo} target={target_count} max_min={args.max_minutes}",
         flush=True,
     )
 
@@ -1058,17 +1279,15 @@ def main():
     next_num = next_harvest_number(catalog)
     root_commit = get_root_commit()
 
-    # Build 60% Cinema / 40% TVCF candidate pool
     film_goal = max(1, round(target_count * 0.60))
     tvcf_goal = max(1, target_count - film_goal)
 
-    ia_films = discover_ia_sources("CLASSIC_FILM", max_items=max(20, film_goal * 2))
+    ia_films = discover_ia_sources("CLASSIC_FILM", max_items=max(24, film_goal * 2))
     ia_tvcfs = discover_ia_sources("TVCF", max_items=max(16, tvcf_goal * 2))
 
     yt_blocked = threading.Event()
     opp_sources = discover_opportunistic_yt_vimeo(yt_blocked)
 
-    # Interleave cinema and TVCF candidates at 6:4 ratio
     candidates = []
     fi, ti = 0, 0
     while fi < len(ia_films) or ti < len(ia_tvcfs):
@@ -1096,7 +1315,7 @@ def main():
         def worker_task(src_item: dict):
             if stop_event.is_set() or time.time() >= deadline:
                 return []
-            cuts_limit = 3 if target_count >= 24 else 2
+            cuts_limit = 2
             return extract_clips_from_source(
                 src_item, work_dir, existing_source_keys, lock, deadline, cuts_limit
             )
@@ -1113,8 +1332,9 @@ def main():
                     continue
                 for cl in clips:
                     harvested_raw.append(cl)
+                    track = "SD-RESTORE" if cl["is_archival_sd"] else "1080P-HD"
                     print(
-                        f"  [HARVEST {len(harvested_raw)}/{target_count}] {cl['category']} | {cl['width']}x{cl['height']} ({cl['aspect']}) | {cl['bytes'] // 1024}KB | cuts={cl['cuts']} | pal={cl['palette'][0]} | {cl['title'][:40]}",
+                        f"  [HARVEST {len(harvested_raw)}/{target_count}] [{track}] {cl['category']} | {cl['width']}x{cl['height']} ({cl['aspect']}) | {cl['bytes'] // 1024}KB | hook={cl['hook_score']} cuts={cl['cuts']} | {cl['title'][:38]}",
                         flush=True,
                     )
                     if len(harvested_raw) >= target_count:
@@ -1129,7 +1349,6 @@ def main():
             print("[HARVEST] 0 new clips produced in this window; leaving Releases untouched.", flush=True)
             return
 
-        # Assign IDs, target shards, rename files, and group uploads by shard
         uploads_by_shard: dict[str, list[Path]] = {}
         new_items: list[dict] = []
 
@@ -1158,6 +1377,9 @@ def main():
                 "category": cat,
                 "country": "GLOBAL",
                 "aspectRatio": cl["aspect"],
+                "width": cl["width"],
+                "height": cl["height"],
+                "isArchivalSd": cl["is_archival_sd"],
                 "durationSec": cl["duration_sec"],
                 "startSec": 0,
                 "mediaSource": "archive_mp4",
@@ -1165,10 +1387,11 @@ def main():
                 "previewVideoUrl": f"{base_dl}/{clip_id}.mp4",
                 "youtubeId": None,
                 "sourceUrl": cl["source_url"],
-                "licenseNote": f"Dawn Harvest ({cl['width']}x{cl['height']}, {cl['bytes'] // 1024}KB, cuts={cl['cuts']})",
+                "licenseNote": f"Dawn Harvest ({cl['width']}x{cl['height']}, {cl['bytes'] // 1024}KB, hook={cl['hook_score']})",
                 "compositionTags": COMPOSITION_POOL[idx % len(COMPOSITION_POOL)],
                 "persuasionTags": PERSUASION_POOL[idx % len(PERSUASION_POOL)],
                 "palette": cl["palette"],
+                "aliases": cl.get("aliases") or [],
                 "viewfinder": {
                     "vanishingPoint": [50, 48],
                     "eyePath": [[25, 58], [50, 48], [75, 38]],
@@ -1184,8 +1407,8 @@ def main():
                 ],
                 "breakdown": {
                     "hook3s": f"{cl['title']} 컬러 무빙 하이라이트",
-                    "framing": f"무여백 크롭({cl['width']}x{cl['height']}) · 주조색 {cl['palette'][0]}",
-                    "marketingApply": "시네마·TVCF 구도와 색채 레퍼런스 보드 즉시 활용",
+                    "framing": f"정비율 크롭({cl['width']}x{cl['height']}) · 주조색 {cl['palette'][0]}",
+                    "marketingApply": "시네마·TVCF 구도와 색채 레퍼런스 즉시 활용",
                 },
                 "addedAt": today_str,
                 "harvestedAt": now_iso,
@@ -1196,7 +1419,6 @@ def main():
             }
             new_items.append(item_doc)
 
-        # Ensure releases exist & upload media shards
         ensure_release_exists(repo, META_TAG, root_commit)
         for shard, file_list in uploads_by_shard.items():
             ensure_release_exists(repo, shard, root_commit)
@@ -1206,7 +1428,6 @@ def main():
             )
             upload_files_chunked(repo, shard, file_list, chunk_size=30)
 
-        # Merge catalog, rotate active 600 wall, enforce 8.5 GB perpetual LRU ceiling
         merged_catalog = catalog + new_items
         active_wall, merged_catalog = rotate_active_wall(merged_catalog)
         merged_catalog = enforce_storage_cap(repo, merged_catalog)
@@ -1249,7 +1470,7 @@ def main():
 
     elapsed = time.time() - start_ts
     print(
-        f"\n=== DAWN HARVEST COMPLETE === Added={len(new_items)} | ActiveWall={len(active_wall)} | FullCatalog={len(merged_catalog)} | TotalStorage={total_bytes / (1024 * 1024):.2f}MB | Elapsed={elapsed:.1f}s",
+        f"=== DAWN HARVEST COMPLETE === added={len(new_items)} active={len(active_wall)} total={len(merged_catalog)} storage={total_bytes / (1024 * 1024):.1f}MB in {elapsed:.1f}s",
         flush=True,
     )
 

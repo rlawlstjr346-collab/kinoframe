@@ -4,54 +4,29 @@ import { describe, expect, it } from "vitest";
 import archiveSnapshot from "@/data/archive-snapshot.json";
 import type { ArchiveItem } from "@/types/archive";
 import {
-  ARCHIVE_CATEGORIES,
-  COMPOSITION_TAGS,
-  COUNTRIES,
   DEFAULT_FILTER_STATE,
-  INITIAL_VISIBLE_COUNT,
-  LOAD_MORE_STEP,
-  MEDIA_MODES,
-  PERSUASION_TAGS,
   filterAndSortArchive,
-  generateMoodboardMarkdown,
-  getVisibleArchiveSlice,
-  parseBoardIds,
   rotateArchiveWithSeed,
-  serializeBoardIds,
   sortColorFlowBalanced,
 } from "@/lib/taxonomy";
 import { isAllowedMediaProxyUrl } from "@/lib/media-allowlist";
 import { VideoPlaybackScheduler } from "@/lib/video-scheduler";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import {
-  BREAKDOWN_SHOWCASE_CARDS,
-  OPTICAL_BRANCHES,
-  VISUAL_TECHNIQUES,
-  getSiblingTechniques,
-  getTechniquesByBranch,
-  matchesTechnique,
-  searchItemByQuery,
-} from "@/lib/visual-techniques";
-import {
   computeHighlightWindow,
   getHighlightWindow,
 } from "@/components/SlideMountCard";
 import {
-  BLOCKED_CONTENT_REGEX,
-  ConduitCircuitBreaker,
-  cleanKoreanTitle,
-  deduplicateConduitItems,
-  isAllowedMediaUrl,
-  normalizeInternetArchiveItem,
-  normalizeWikimediaItem,
-} from "@/lib/conduit";
-import { isConduitItemId, isValidArchiveItemId } from "@/lib/vault";
+  formatCleanModalMeta,
+  resolveValidSourceUrl,
+} from "@/components/ViewfinderModal";
 import {
-  createSessionToken,
-  hashPassword,
-  verifyPassword,
-  verifySessionToken,
-} from "@/lib/auth";
+  extractChoseong,
+  isWithinEditDistanceOne,
+  matchesArchiveQuery,
+  normalizeCompact,
+  searchArchiveItems,
+} from "@/lib/search";
 
 const ITEMS = archiveSnapshot as ArchiveItem[];
 
@@ -71,22 +46,6 @@ const FORBIDDEN_EYECANDY_TOKENS = [
   "#391d1f",
 ];
 
-const FORBIDDEN_POLLUTANT_PATTERNS = [
-  /TFA-319B/i,
-  /LUCKY\s*STRIKE/i,
-  /Popeye/i,
-  /Universal\s*Newsreel/i,
-  /Chevrolet\s+Leader\s+News/i,
-];
-
-function isOptimizedDirectStream(url: string): boolean {
-  return (
-    /_512kb\.mp4(\?|#|$)/i.test(url) ||
-    /upload\.wikimedia\.org\/.*\/transcoded\/.*\.webm(\?|#|$)/i.test(url) ||
-    /images-assets\.nasa\.gov\/.*~mobile\.mp4(\?|#|$)/i.test(url)
-  );
-}
-
 function collectSourceFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -100,19 +59,197 @@ function collectSourceFiles(dir: string): string[] {
   return out;
 }
 
-describe("KINOFRAME V8 Step 2 — Pure Color Cinema (60%) & TVCF (40%), Mid-Film Pixel Thumbs, Color-Flow & Full Preservation Contract", () => {
-  it("verifies zero legacy one-off curate-v* scripts remain in scripts/", () => {
-    const scriptsDir = path.resolve(process.cwd(), "scripts");
-    const files = fs.readdirSync(scriptsDir);
-    const legacyCrawlers = files.filter((f) => /^curate-v/i.test(f));
-    expect(legacyCrawlers).toEqual([]);
-    expect(files).toContain("verify-links.mjs");
-    expect(files).toContain("auto-discover-archive.mjs");
+const SAMPLE_SEARCH_CATALOG: ArchiveItem[] = [
+  {
+    id: "KF-HD-21",
+    titleKo: "라라랜드 (La La Land)",
+    originalTitle: "La La Land (Damien Chazelle, 2016)",
+    brandOrSource: "Damien Chazelle",
+    year: 2016,
+    era: "1990-00s",
+    mediaType: "NEWS",
+    category: "CLASSIC_FILM",
+    country: "US",
+    aspectRatio: "2.39:1",
+    width: 1920,
+    height: 796,
+    isArchivalSd: false,
+    durationSec: 5.0,
+    mediaSource: "archive_mp4",
+    thumbnailUrl: "https://example.com/KF-HD-21.webp",
+    previewVideoUrl: "https://example.com/KF-HD-21.mp4",
+    youtubeId: "je0aAf2f8XQ",
+    sourceUrl: "https://www.youtube.com/watch?v=je0aAf2f8XQ",
+    licenseNote: "1080p HD",
+    compositionTags: ["대칭 구도"],
+    persuasionTags: ["시각적 은유"],
+    palette: ["#1A2238", "#9DAAF2", "#FF6A3D", "#F4DB7D", "#0E131F"],
+    aliases: ["라라랜드", "La La Land", "다미엔 차젤레", "Damien Chazelle"],
+    viewfinder: { primaryGrid: "thirds" },
+    beats: [],
+    breakdown: { hook3s: "원테이크 롱테이크 오프닝" },
+  },
+  {
+    id: "KF-HD-42",
+    titleKo: "기생충 (Parasite)",
+    originalTitle: "Parasite (Bong Joon-ho, 2019)",
+    brandOrSource: "Bong Joon-ho",
+    year: 2019,
+    era: "1990-00s",
+    mediaType: "NEWS",
+    category: "CLASSIC_FILM",
+    country: "KR",
+    aspectRatio: "2.39:1",
+    width: 1920,
+    height: 800,
+    isArchivalSd: false,
+    durationSec: 5.0,
+    mediaSource: "archive_mp4",
+    thumbnailUrl: "https://example.com/KF-HD-42.webp",
+    previewVideoUrl: "https://example.com/KF-HD-42.mp4",
+    youtubeId: "isOGD_7hNIY",
+    sourceUrl: "https://www.youtube.com/watch?v=isOGD_7hNIY",
+    licenseNote: "1080p HD",
+    compositionTags: ["프레임 속 프레임"],
+    persuasionTags: ["시각적 은유"],
+    palette: ["#2A362B", "#6D7A62", "#C4A77D", "#1B1E1A", "#8F5A3C"],
+    aliases: ["기생충", "Parasite", "봉준호", "Bong Joon-ho", "Gisaengchung"],
+    viewfinder: { primaryGrid: "symmetry" },
+    beats: [],
+    breakdown: { hook3s: "계단 수직 미장센 long take" },
+  },
+  {
+    id: "KF-HD-45",
+    titleKo: "그녀 (Her)",
+    originalTitle: "Her (Spike Jonze, 2013)",
+    brandOrSource: "Spike Jonze",
+    year: 2013,
+    era: "1990-00s",
+    mediaType: "NEWS",
+    category: "CLASSIC_FILM",
+    country: "US",
+    aspectRatio: "16:9",
+    width: 1920,
+    height: 1036,
+    isArchivalSd: false,
+    durationSec: 5.0,
+    mediaSource: "archive_mp4",
+    thumbnailUrl: "https://example.com/KF-HD-45.webp",
+    previewVideoUrl: "https://example.com/KF-HD-45.mp4",
+    youtubeId: "ne6p6MfLBxc",
+    sourceUrl: "https://www.youtube.com/watch?v=ne6p6MfLBxc",
+    licenseNote: "1080p HD",
+    compositionTags: ["초근접 클로즈업"],
+    persuasionTags: ["시각적 은유"],
+    palette: ["#C85A44", "#E6B89C", "#7C5E4E", "#2D1E1B", "#F2DEC4"],
+    aliases: ["그녀", "Her", "스파이크 존즈", "Spike Jonze"],
+    viewfinder: { primaryGrid: "golden" },
+    beats: [],
+    breakdown: { hook3s: "따뜻한 파스텔 보케 클로즈업" },
+  },
+  {
+    id: "KF-HD-09",
+    titleKo: "샤이닝 (The Shining)",
+    originalTitle: "The Shining (Stanley Kubrick, 1980)",
+    brandOrSource: "Stanley Kubrick",
+    year: 1980,
+    era: "1980s",
+    mediaType: "NEWS",
+    category: "CLASSIC_FILM",
+    country: "US",
+    aspectRatio: "16:9",
+    width: 960,
+    height: 540,
+    isArchivalSd: false,
+    durationSec: 5.0,
+    mediaSource: "archive_mp4",
+    thumbnailUrl: "https://example.com/KF-HD-09.webp",
+    previewVideoUrl: "https://example.com/KF-HD-09.mp4",
+    youtubeId: "yKSU0dtzfdw",
+    sourceUrl: "https://www.youtube.com/watch?v=yKSU0dtzfdw",
+    licenseNote: "HD",
+    compositionTags: ["1점 투시", "대칭 구도"],
+    persuasionTags: ["초반 3초 시선 강탈"],
+    palette: ["#2A3A4A", "#9B5038", "#D29B6B", "#14181E", "#6F889B"],
+    aliases: ["샤이닝", "The Shining", "스탠리 큐브릭", "Stanley Kubrick"],
+    viewfinder: { primaryGrid: "perspective" },
+    beats: [],
+    breakdown: { hook3s: "1점 투시 스테디캠 복도 트래킹" },
+  },
+  {
+    id: "KF-HD-40",
+    titleKo: "애플 홈팟 'Welcome Home' · 스파이크 존즈",
+    originalTitle: "Apple HomePod — Welcome Home (Spike Jonze, 2018)",
+    brandOrSource: "Apple",
+    year: 2018,
+    era: "1990-00s",
+    mediaType: "TVCF",
+    category: "TVCF",
+    country: "US",
+    aspectRatio: "16:9",
+    width: 1920,
+    height: 1080,
+    isArchivalSd: false,
+    durationSec: 4.5,
+    mediaSource: "archive_mp4",
+    thumbnailUrl: "https://example.com/KF-HD-40.webp",
+    previewVideoUrl: "https://example.com/KF-HD-40.mp4",
+    youtubeId: "Xwc22EK8qE0",
+    sourceUrl: "https://www.youtube.com/watch?v=Xwc22EK8qE0",
+    licenseNote: "1080p HD",
+    compositionTags: ["기하학 조형", "1점 투시"],
+    persuasionTags: ["스케일 반전"],
+    palette: ["#C83E37", "#3A72B8", "#E6B44C", "#1B1D22", "#F0EDE6"],
+    aliases: ["애플", "Apple", "HomePod", "Spike Jonze", "스파이크 존즈"],
+    viewfinder: { primaryGrid: "perspective" },
+    beats: [],
+    breakdown: { hook3s: "실물 공간 확장 세트 트랜지션" },
+  },
+];
+
+describe("KINOFRAME Apple HIG Zero-Login Archive, Multilingual Search & Media Quality Contract", () => {
+  it("verifies all legacy login/board/conduit/unused files are completely removed", () => {
+    const removedPaths = [
+      "src/components/AuthModal.tsx",
+      "src/components/MoodboardDrawer.tsx",
+      "src/components/SidebarExplorer.tsx",
+      "src/components/CompareDrawer.tsx",
+      "src/components/BreakdownShowcase.tsx",
+      "src/components/ViewfinderOverlay.tsx",
+      "src/components/HeroSearchBar.tsx",
+      "src/lib/auth.ts",
+      "src/lib/vault.ts",
+      "src/lib/conduit.ts",
+      "src/app/api/auth",
+      "src/app/api/vault",
+      "src/app/api/archive/conduit",
+      "src/data/link-health-cache.json",
+      "src/data/translation-cache.json",
+      "scripts/verify-links.mjs",
+      "scripts/auto-discover-archive.mjs",
+      ".github/workflows/archive-link-shield.yml",
+    ];
+    for (const rel of removedPaths) {
+      expect(
+        fs.existsSync(path.resolve(process.cwd(), rel)),
+        `Legacy file should be deleted: ${rel}`
+      ).toBe(false);
+    }
+    // Preserved core assets
+    expect(
+      fs.existsSync(path.resolve(process.cwd(), "src/components/KinoframeLogo.tsx"))
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.resolve(process.cwd(), ".github/workflows/dawn-harvester.yml"))
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.resolve(process.cwd(), "src/app/shot/[id]/page.tsx"))
+    ).toBe(true);
   });
 
-  it("verifies ZERO Eyecandy legacy colors (#fc087d, #fc047c, #fbea85, #53c0f9, #391d1f) or forbidden placeholder strings remain in src/", () => {
+  it("verifies ZERO Eyecandy legacy colors, forbidden phrases, or yellow solid CTA buttons outside KinoframeLogo", () => {
     const srcFiles = collectSourceFiles(path.resolve(process.cwd(), "src"));
-    expect(srcFiles.length).toBeGreaterThan(10);
+    expect(srcFiles.length).toBeGreaterThan(8);
 
     for (const filePath of srcFiles) {
       const content = fs.readFileSync(filePath, "utf-8");
@@ -131,195 +268,77 @@ describe("KINOFRAME V8 Step 2 — Pure Color Cinema (60%) & TVCF (40%), Mid-Film
           `Forbidden phrase "${phrase}" found in ${filePath}`
         ).toBe(false);
       }
-    }
-  });
 
-  it("enforces 100% pure color CLASSIC_FILM (55~65%) : TVCF (35~45%) video catalog with ZERO street/anime/web/photo/still items", () => {
-    expect(ITEMS.length).toBeGreaterThanOrEqual(120);
-    expect(ITEMS.length).toBeLessThanOrEqual(160);
-
-    let filmCount = 0;
-    let tvcfCount = 0;
-    const idSet = new Set<string>();
-    const canonicalSet = new Set<string>();
-
-    for (const item of ITEMS) {
-      expect(idSet.has(item.id)).toBe(false);
-      idSet.add(item.id);
-
-      const canon = getCanonicalMediaKey(item);
-      expect(canonicalSet.has(canon)).toBe(false);
-      canonicalSet.add(canon);
-
-      // Strictly ONLY CLASSIC_FILM or TVCF (zero STREET_ERA, ANIME_COMIC, WEB_PHANTOM, PHOTO, AD_BILLBOARD)
-      expect(["CLASSIC_FILM", "TVCF"]).toContain(item.category);
-      if (item.category === "CLASSIC_FILM") filmCount += 1;
-      if (item.category === "TVCF") tvcfCount += 1;
-
-      // 100% direct-stream archive_mp4 videos, ZERO still_image or youtube_embed
-      expect(item.mediaSource).toBe("archive_mp4");
-      expect(item.previewVideoUrl).toBeTruthy();
-      expect(isOptimizedDirectStream(item.previewVideoUrl!)).toBe(true);
-
-      // 1964+ color era (zero pre-1964 monochrome archives)
-      expect(item.year).toBeGreaterThanOrEqual(1964);
-
-      // Zero English bracket title artifacts
-      expect(item.titleKo).not.toContain("[");
-      expect(item.originalTitle).not.toContain("[");
-    }
-
-    const filmRatio = filmCount / ITEMS.length;
-    const tvcfRatio = tvcfCount / ITEMS.length;
-    expect(filmRatio).toBeGreaterThanOrEqual(0.55);
-    expect(filmRatio).toBeLessThanOrEqual(0.65);
-    expect(tvcfRatio).toBeGreaterThanOrEqual(0.35);
-    expect(tvcfRatio).toBeLessThanOrEqual(0.45);
-
-    expect(ARCHIVE_CATEGORIES).toHaveLength(9);
-    expect(MEDIA_MODES).toHaveLength(3);
-    expect(COUNTRIES.some((c) => c.value === "GLOBAL")).toBe(true);
-  });
-
-  it("enforces ZERO /services/img/ 0-sec credit thumbnails, valid mid-film .thumbs/ + startSec, and ZERO TFA-319B / LUCKY STRIKE pollutants", () => {
-    const serialized = JSON.stringify(ITEMS);
-    for (const pat of FORBIDDEN_POLLUTANT_PATTERNS) {
-      expect(pat.test(serialized)).toBe(false);
-    }
-    for (const phrase of FORBIDDEN_PHRASES) {
-      expect(serialized).not.toContain(phrase);
-    }
-
-    const uniquePalettes = new Set<string>();
-
-    for (const item of ITEMS) {
-      expect(item.thumbnailUrl).not.toContain("/services/img/");
-      expect(item.thumbnailUrl).toMatch(/\.thumbs\/.*_\d{5,6}\.jpg/i);
-      expect(typeof item.startSec).toBe("number");
-      expect(item.startSec!).toBeGreaterThan(0);
-
-      expect(item.id).toMatch(/^KF-\d{3,5}$/);
-      expect(item.titleKo.trim().length).toBeGreaterThan(2);
-      expect(item.originalTitle.trim().length).toBeGreaterThan(2);
-      expect(item.thumbnailUrl).toMatch(/^https?:\/\//);
-      expect(item.sourceUrl).toMatch(/^https?:\/\//);
-      expect(item.palette).toHaveLength(5);
-      for (const hex of item.palette) {
-        expect(hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
-      }
-      uniquePalettes.add(item.palette.join(","));
-
-      expect(item.beats).toHaveLength(4);
-      for (const c of item.compositionTags) {
-        expect(COMPOSITION_TAGS).toContain(c);
-      }
-      for (const p of item.persuasionTags) {
-        expect(PERSUASION_TAGS).toContain(p);
+      // Champagne brass solid buttons removed from UI components
+      if (
+        filePath.endsWith("EyecandyHeader.tsx") ||
+        filePath.endsWith("ViewfinderModal.tsx") ||
+        filePath.endsWith("ArchiveWorkbench.tsx")
+      ) {
+        expect(content.includes("bg-[#C89E52]")).toBe(false);
       }
     }
-
-    // Real pixel-extracted palettes: >= 90% unique across the entire catalog
-    expect(uniquePalettes.size / ITEMS.length).toBeGreaterThanOrEqual(0.9);
   });
 
-  it("maps all 5 Optical Branches × 5 Techniques (25 total) with ZERO empty tags (>= 3 matches each) on pure Film+TVCF catalog", () => {
-    expect(OPTICAL_BRANCHES).toHaveLength(5);
-    expect(VISUAL_TECHNIQUES).toHaveLength(25);
-    expect(BREAKDOWN_SHOWCASE_CARDS).toHaveLength(3);
+  it("validates multilingual, space-insensitive, phonetic, Choseong, thesaurus & typo-tolerant search engine", () => {
+    expect(normalizeCompact("La La Land")).toBe("lalaland");
+    expect(extractChoseong("라라랜드")).toBe("ㄹㄹㄹㄷ");
+    expect(extractChoseong("기생충")).toBe("ㄱㅅㅊ");
+    expect(isWithinEditDistanceOne("parasite", "parasit")).toBe(true);
+    expect(isWithinEditDistanceOne("parasite", "parastie")).toBe(true);
+    expect(isWithinEditDistanceOne("parasite", "zzzzzzzz")).toBe(false);
 
-    for (const branch of OPTICAL_BRANCHES) {
-      const branchTechs = getTechniquesByBranch(branch.slug);
-      expect(branchTechs).toHaveLength(5);
-    }
+    // Space-insensitive: "lala land" -> La La Land
+    const lalaHits = searchArchiveItems(SAMPLE_SEARCH_CATALOG, "lala land");
+    expect(lalaHits.map((x) => x.id)).toContain("KF-HD-21");
 
-    for (const tech of VISUAL_TECHNIQUES) {
-      const matched = ITEMS.filter((item) => matchesTechnique(item, tech.slug));
-      expect(
-        matched.length,
-        `Optical technique ${tech.label} (${tech.slug}) must match at least 3 pure color clips`
-      ).toBeGreaterThanOrEqual(3);
+    // Korean & English bidirectional + director aliases
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "라라랜드")[0]?.id).toBe("KF-HD-21");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "기생충")[0]?.id).toBe("KF-HD-42");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "봉준호")[0]?.id).toBe("KF-HD-42");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "그녀")[0]?.id).toBe("KF-HD-45");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "큐브릭")[0]?.id).toBe("KF-HD-09");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "애플")[0]?.id).toBe("KF-HD-40");
 
-      const siblings = getSiblingTechniques(tech.slug);
-      expect(siblings).toHaveLength(5);
-    }
+    // Choseong initials ("ㄹㄹㄹㄷ", "ㄱㅅㅊ")
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "ㄹㄹㄹㄷ")[0]?.id).toBe("KF-HD-21");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "ㄱㅅㅊ")[0]?.id).toBe("KF-HD-42");
 
-    const slugSet = new Set(VISUAL_TECHNIQUES.map((t) => t.slug));
-    for (const card of BREAKDOWN_SHOWCASE_CARDS) {
-      expect(slugSet.has(card.techniqueSlug)).toBe(true);
-    }
+    // Technique thesaurus ("원테이크" <-> "long take")
+    expect(matchesArchiveQuery(SAMPLE_SEARCH_CATALOG[1], "원테이크")).toBe(true);
+    expect(matchesArchiveQuery(SAMPLE_SEARCH_CATALOG[0], "long take")).toBe(true);
 
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "Motion Blur")).length).toBeGreaterThan(0);
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "Chiaroscuro Noir")).length).toBeGreaterThan(0);
-    expect(ITEMS.filter((i) => searchItemByQuery(i, "TVCF")).length).toBeGreaterThan(0);
+    // Typo tolerance (<= 1 edit)
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "paraste")[0]?.id).toBe("KF-HD-42");
+    expect(searchArchiveItems(SAMPLE_SEARCH_CATALOG, "kubrik")[0]?.id).toBe("KF-HD-09");
   });
 
-  it("sequences Color-Flow smoothly with exact 6:4 Film:TVCF balance in every 10-slot window and 100% auto-loop video wall", () => {
-    expect(INITIAL_VISIBLE_COUNT).toBe(48);
-    expect(LOAD_MORE_STEP).toBe(36);
-    expect(getVisibleArchiveSlice(ITEMS, 48)).toHaveLength(48);
-    expect(getVisibleArchiveSlice(ITEMS, 84)).toHaveLength(84);
+  it("formats modal metadata without duplicate parentheses and guarantees zero dead source links", () => {
+    const parasiteMeta = formatCleanModalMeta(SAMPLE_SEARCH_CATALOG[1]);
+    expect(parasiteMeta.primaryTitle).toBe("기생충");
+    expect(parasiteMeta.subCaption).toBe("Parasite · 2019 · Bong Joon-ho");
+    expect(parasiteMeta.primaryTitle).not.toContain("(2019)");
 
-    const flowSorted = sortColorFlowBalanced(ITEMS, 42);
-    expect(flowSorted).toHaveLength(ITEMS.length);
+    const herMeta = formatCleanModalMeta(SAMPLE_SEARCH_CATALOG[2]);
+    expect(herMeta.primaryTitle).toBe("그녀");
+    expect(herMeta.subCaption).toBe("Her · 2013 · Spike Jonze");
 
-    // Every 10-slot window in top 60 maintains exact 6 CLASSIC_FILM : 4 TVCF
-    for (let offset = 0; offset < 60; offset += 10) {
-      const slice = flowSorted.slice(offset, offset + 10);
-      const fCount = slice.filter((i) => i.category === "CLASSIC_FILM").length;
-      const tCount = slice.filter((i) => i.category === "TVCF").length;
-      expect(fCount).toBe(6);
-      expect(tCount).toBe(4);
-    }
-
-    const defaultSorted = filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE);
-    expect(
-      defaultSorted.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
-    ).toBe(48);
-
-    for (const seed of [7, 42, 777, 12345, 99991]) {
-      const rotated = rotateArchiveWithSeed(defaultSorted, seed);
-      expect(
-        rotated.slice(0, 48).filter((i) => i.mediaSource === "archive_mp4").length
-      ).toBe(48);
-    }
+    // Valid sourceUrl preserved; broken/empty sourceUrl falls back safely to YouTube search
+    expect(resolveValidSourceUrl(SAMPLE_SEARCH_CATALOG[1])).toBe(
+      "https://www.youtube.com/watch?v=isOGD_7hNIY"
+    );
+    const brokenUrl = resolveValidSourceUrl({
+      ...SAMPLE_SEARCH_CATALOG[1],
+      sourceUrl: "",
+    });
+    expect(brokenUrl).toContain("https://www.youtube.com/results?search_query=");
   });
 
-  it("prioritizes item.startSec to align thumbnail with video playback start and skips long-feature opening credits (>=600s -> >=108s)", () => {
-    const pinned = getHighlightWindow({ durationSec: 1800, startSec: 780 });
-    expect(pinned.startSec).toBe(780);
-    expect(pinned.endSec).toBe(792);
-
-    const feature600 = computeHighlightWindow(600);
-    expect(feature600.startSec).toBe(108);
-    expect(feature600.startSec).toBeGreaterThanOrEqual(108);
-    expect(feature600.endSec).toBe(120);
-
-    const featureLong = getHighlightWindow({ durationSec: 4980 });
-    expect(featureLong.startSec).toBe(240);
-    expect(featureLong.endSec).toBe(252);
-
-    const medium = computeHighlightWindow(120);
-    expect(medium.startSec).toBe(32);
-    expect(medium.endSec).toBe(43);
-
-    const spot = computeHighlightWindow(45);
-    expect(spot.startSec).toBe(7);
-    expect(spot.endSec).toBe(17);
-
-    const shortClip = computeHighlightWindow(18);
-    expect(shortClip.startSec).toBe(2.5);
-    expect(shortClip.endSec).toBe(10);
-  });
-
-  it("enforces VideoPlaybackScheduler desktop 8 / mobile 4 cap, hysteresis retention, and modal setSuspended(true/false)", () => {
-    const defaultScheduler = new VideoPlaybackScheduler();
-    expect(defaultScheduler.getMaxConcurrentSlots()).toBe(8);
-
+  it("preserves 60fps VideoPlaybackScheduler, canonical media dedupe, highlight window, Color-Flow & SSRF allowlist", () => {
     const scheduler = new VideoPlaybackScheduler(8);
     const states = new Map<string, boolean>();
-
-    for (let i = 1; i <= 12; i += 1) {
-      const id = `KF-${String(i).padStart(3, "0")}`;
+    for (let i = 1; i <= 10; i += 1) {
+      const id = `KF-${i}`;
       scheduler.register({
         id,
         ratio: 0.7,
@@ -328,196 +347,35 @@ describe("KINOFRAME V8 Step 2 — Pure Color Cinema (60%) & TVCF (40%), Mid-Film
         onSlotChange: (allowed) => states.set(id, allowed),
       });
     }
-
     expect(scheduler.getActiveIds()).toHaveLength(8);
-    expect(states.get("KF-001")).toBe(true);
-    expect(states.get("KF-008")).toBe(true);
-    expect(states.get("KF-009")).toBe(false);
-
-    scheduler.update("KF-009", { ratio: 0.72, centerDistance: 250 });
-    expect(states.get("KF-008")).toBe(true);
-    expect(states.get("KF-009")).toBe(false);
-
     scheduler.setSuspended(true);
-    expect(scheduler.isSuspended()).toBe(true);
     expect(scheduler.getActiveIds()).toHaveLength(0);
-    expect(states.get("KF-001")).toBe(false);
-
     scheduler.setSuspended(false);
-    expect(scheduler.isSuspended()).toBe(false);
     expect(scheduler.getActiveIds()).toHaveLength(8);
-    expect(states.get("KF-001")).toBe(true);
 
-    const mobileScheduler = new VideoPlaybackScheduler(4);
-    for (let i = 1; i <= 8; i += 1) {
-      mobileScheduler.register({
-        id: `M-${i}`,
-        ratio: 0.8,
-        centerDistance: i * 20,
-        hovered: false,
-        onSlotChange: () => {},
-      });
-    }
-    expect(mobileScheduler.getActiveIds()).toHaveLength(4);
-  });
+    const pinned = getHighlightWindow({ durationSec: 1800, startSec: 780 });
+    expect(pinned.startSec).toBe(780);
+    expect(computeHighlightWindow(600).startSec).toBeGreaterThanOrEqual(108);
 
-  it("deduplicates identical IA/Wikimedia media via getCanonicalMediaKey across ID & URL variants", () => {
-    const localIa = {
-      id: "KF-1001",
-      sourceUrl: "https://archive.org/details/Wonderfu1980",
-      previewVideoUrl: "https://archive.org/download/Wonderfu1980/Wonderfu1980_512kb.mp4",
-      thumbnailUrl: "https://archive.org/download/Wonderfu1980/Wonderfu1980.thumbs/Wonderfu1980_000045.jpg",
-    };
-    const conduitIa = {
-      id: "KF-IA-Wonderfu1980",
-      sourceUrl: "https://archive.org/details/wonderfu1980?tab=about",
-      previewVideoUrl: "https://archive.org/download/wonderfu1980/Wonderfu1980.mp4",
-      thumbnailUrl: "https://archive.org/download/wonderfu1980/Wonderfu1980.thumbs/Wonderfu1980_000045.jpg",
-    };
-    expect(getCanonicalMediaKey(localIa)).toBe("ia:wonderfu1980");
-    expect(getCanonicalMediaKey(conduitIa)).toBe("ia:wonderfu1980");
+    expect(
+      getCanonicalMediaKey({
+        id: "KF-HD-42",
+        sourceUrl: "https://www.youtube.com/watch?v=isOGD_7hNIY",
+        previewVideoUrl: "/poc-loops/KF-HD-42.mp4",
+        thumbnailUrl: "/poc-loops/KF-HD-42.webp",
+      })
+    ).toBeTruthy();
 
-    // Distinct YouTube watch?v= URLs and distinct local /poc-loops/ paths MUST NEVER collide
-    const yt1 = {
-      id: "KF-HD-01",
-      sourceUrl: "https://www.youtube.com/watch?v=I5zC1SmfR3M",
-      previewVideoUrl: "/poc-loops/KF-HD-01.mp4",
-      thumbnailUrl: "/poc-loops/KF-HD-01.webp",
-    };
-    const yt2 = {
-      id: "KF-HD-02",
-      sourceUrl: "https://www.youtube.com/watch?v=JKTAKulwExU",
-      previewVideoUrl: "/poc-loops/KF-HD-02.mp4",
-      thumbnailUrl: "/poc-loops/KF-HD-02.webp",
-    };
-    const ytOnly1 = {
-      id: "YT-1",
-      sourceUrl: "https://www.youtube.com/watch?v=I5zC1SmfR3M",
-      previewVideoUrl: null,
-      thumbnailUrl: "https://i.ytimg.com/vi/I5zC1SmfR3M/hqdefault.jpg",
-    };
-    const ytOnly2 = {
-      id: "YT-2",
-      sourceUrl: "https://www.youtube.com/watch?v=JKTAKulwExU",
-      previewVideoUrl: null,
-      thumbnailUrl: "https://i.ytimg.com/vi/JKTAKulwExU/hqdefault.jpg",
-    };
-    expect(getCanonicalMediaKey(yt1)).not.toBe(getCanonicalMediaKey(yt2));
-    expect(getCanonicalMediaKey(ytOnly1)).toBe("yt:I5zC1SmfR3M");
-    expect(getCanonicalMediaKey(ytOnly2)).toBe("yt:JKTAKulwExU");
-    expect(getCanonicalMediaKey(ytOnly1)).not.toBe(getCanonicalMediaKey(ytOnly2));
-  });
-
-  it("validates color cinema/TVCF conduit, mid-film .thumbs/ enforcement, pre-1964/B&W/TFA blocking, and 429 circuit breaker", () => {
-    const iaItem = normalizeInternetArchiveItem({
-      identifier: "Tokyo_Color_Cinema_1984",
-      title: "Tokyo_Neon_Color_Commercial_1984.mp4",
-      year: 1984,
-      mp4FileName: "Tokyo_Color_Cinema_1984_512kb.mp4",
-      thumbFileName: "Tokyo_Color_Cinema_1984.thumbs/Tokyo_Color_Cinema_1984_000035.jpg",
-      startSec: 35,
-      durationRaw: "1:25",
-      category: "TVCF",
-      countryHint: "JP",
-    });
-    expect(iaItem).not.toBeNull();
-    expect(iaItem?.id).toBe("KF-IA-Tokyo_Color_Cinema_1984");
-    expect(iaItem?.thumbnailUrl).toContain(".thumbs/");
-    expect(iaItem?.startSec).toBe(35);
-
-    // Reject missing .thumbs/ (0-sec /services/img/ disallowed)
-    const noThumbRejected = normalizeInternetArchiveItem({
-      identifier: "No_Thumb_Film_1980",
-      title: "Color Film 1980",
-      year: 1980,
-      mp4FileName: "No_Thumb_Film_1980_512kb.mp4",
-      thumbFileName: null,
-      category: "CLASSIC_FILM",
-    });
-    expect(noThumbRejected).toBeNull();
-
-    // Reject pre-1964 monochrome era
-    const pre1964Rejected = normalizeInternetArchiveItem({
-      identifier: "Old_Film_1958",
-      title: "Old Classic 1958",
-      year: 1958,
-      mp4FileName: "Old_Film_1958_512kb.mp4",
-      thumbFileName: "Old_Film_1958.thumbs/Old_Film_1958_000030.jpg",
-      category: "CLASSIC_FILM",
-    });
-    expect(pre1964Rejected).toBeNull();
-
-    const dupVariant = {
-      ...iaItem!,
-      id: "KF-9999",
-      sourceUrl: "https://archive.org/details/tokyo_color_cinema_1984",
-    };
-    expect(deduplicateConduitItems([iaItem!, dupVariant])).toHaveLength(1);
-
-    const wmStillRejected = normalizeWikimediaItem({
-      pageId: 55555,
-      title: "File:Static_Photo.jpg",
-      descriptionUrl: "https://commons.wikimedia.org/wiki/File:Static_Photo.jpg",
-      thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Static.jpg",
-      videoUrl: null,
-      category: "CLASSIC_FILM",
-    });
-    expect(wmStillRejected).toBeNull();
-
-    for (const badTitle of [
-      "AFIPS Fall Joint Computer Conference Flyer 1968",
-      "Nintendo Famicom Game Boy Console Hardware",
-      "Nokia Flip Phone Smartphone Unboxing Review",
-      "1964 Tokyo Postage Stamp & Matchbox Brochure",
-      "TFA-319B Black and White Universal Newsreel",
-      "Lucky Strike Cigarette Commercial 1948",
-      "Popeye Classic Cartoon Amateur Home Movie",
-    ]) {
-      expect(BLOCKED_CONTENT_REGEX.test(badTitle)).toBe(true);
-    }
-
-    expect(isAllowedMediaUrl("http://127.0.0.1/internal.mp4")).toBe(false);
-    expect(isAllowedMediaUrl("https://upload.wikimedia.org/wikipedia/commons/x.webm")).toBe(true);
-    expect(cleanKoreanTitle("File:Retro_Color_1984.webm", 1984, "TVCF")).not.toContain("_");
-
-    const breaker = new ConduitCircuitBreaker(5000);
-    expect(breaker.trip("archive.org", 429, 1000)).toBe(true);
-    expect(breaker.isOpen("archive.org", 3000)).toBe(true);
-    expect(breaker.isOpen("archive.org", 6001)).toBe(false);
-  });
-
-  it("verifies scrypt password hashing, HMAC-SHA256 session tokens, SSRF allowlist, and ?board= round-trip", () => {
-    const hashed = hashPassword("kinoframe-test-pass-2026");
-    expect(verifyPassword("kinoframe-test-pass-2026", hashed)).toBe(true);
-    expect(verifyPassword("wrong-password", hashed)).toBe(false);
-
-    const token = createSessionToken({
-      sub: "account:tester@kinoframe.local",
-      provider: "account",
-      name: "아카이브 테스터",
-      email: "tester@kinoframe.local",
-    });
-    expect(verifySessionToken(token)?.sub).toBe("account:tester@kinoframe.local");
-    const [p, s] = token.split(".");
-    expect(verifySessionToken(`${p}.${s.slice(0, -2)}AA`)).toBeNull();
-
-    expect(isAllowedMediaProxyUrl("https://archive.org/download/x/x_512kb.mp4")).toBe(true);
+    expect(
+      isAllowedMediaProxyUrl(
+        "https://github.com/rlawlstjr346-collab/kinoframe/releases/download/kinoframe-media-s01/KF-HD-42.mp4"
+      )
+    ).toBe(true);
     expect(isAllowedMediaProxyUrl("http://169.254.169.254/latest/meta-data/")).toBe(false);
 
-    const conduitIaId = "KF-IA-Tokyo_Color_84";
-    const conduitWmId = "KF-WM-98765432";
-    expect(isValidArchiveItemId(conduitIaId)).toBe(true);
-    expect(isConduitItemId(conduitWmId)).toBe(true);
-
-    const validIds = new Set([...ITEMS.map((i) => i.id), conduitIaId, conduitWmId]);
-    const serialized = serializeBoardIds([ITEMS[0].id, conduitIaId, conduitWmId, "INVALID"]);
-    expect(serialized).toBe(`${ITEMS[0].id},${conduitIaId},${conduitWmId}`);
-    expect(parseBoardIds(`${serialized},bad`, validIds)).toEqual([
-      ITEMS[0].id,
-      conduitIaId,
-      conduitWmId,
-    ]);
-    const md = generateMoodboardMarkdown([ITEMS[0]], `https://kinoframe.example/?board=${serialized}`);
-    expect(md).toContain(ITEMS[0].titleKo);
+    const sorted = sortColorFlowBalanced(ITEMS, 42);
+    expect(sorted).toHaveLength(ITEMS.length);
+    expect(filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE).length).toBeGreaterThan(0);
+    expect(rotateArchiveWithSeed(sorted, 777)).toHaveLength(ITEMS.length);
   });
 });

@@ -3,20 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --kf-bg: #0a0b0e;
-  --kf-surface: #111318;
-  --kf-stage: #060709;
-  --kf-tile-bg: #0b0c0f;
-  --kf-brass: #c89e52;
-  --kf-brass-hover: #d9b36a;
-  --kf-brass-highlight: #e5c883;
-  --kf-brass-bronze: #8a6529;
-  --kf-text: #f2efe9;
-  --kf-text-secondary: #c8c4bc;
-  --kf-text-muted: #7e7b74;
-  --kf-typed-hint: rgba(242, 239, 233, 0.44);
-  --kf-font-sans: "Plus Jakarta Sans", "Pretendard", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --kf-bg: #000000;
+  --kf-surface: rgba(28, 28, 30, 0.85);
+  --kf-tile-bg: #141416;
+  --kf-text: #ffffff;
+  --kf-text-secondary: #98989d;
+  --kf-text-muted: #6e6e73;
+  --kf-font-sans: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", sans-serif;
 }
 
 html {
@@ -33,8 +27,8 @@ body {
   font-family: var(--kf-font-sans);
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   min-height: 100vh;
   min-width: 300px;
   overflow-x: hidden;
@@ -43,86 +37,27 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Home Link Center-Expanding Champagne Brass Underline */
-.kf-technique-link {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 2px;
-  color: #f2efe9;
-  font-size: 0.88rem;
-  line-height: 1.3;
-  text-transform: uppercase;
-  text-decoration: none;
-  overflow: hidden;
-  vertical-align: top;
-  transition: color 0.2s ease;
-}
-
-.kf-technique-link:hover,
-.kf-technique-link:focus-visible,
-.kf-technique-link[data-active="true"] {
-  color: #c89e52;
-}
-
-.kf-technique-link::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: #c89e52;
-  transform: scaleX(0);
-  transform-origin: center center;
-  transition: transform 0.28s cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.kf-technique-link:hover::after,
-.kf-technique-link:focus-visible::after,
-.kf-technique-link[data-active="true"]::after {
-  transform: scaleX(1);
-}
-
-/* Breakdown Showcase Animated Gradient Card */
-@keyframes breakdown-grad {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.breakdown-gradient-card {
-  background: linear-gradient(183deg, #8a6529, #c89e52);
-  background-size: 400% 400%;
-  animation: breakdown-grad 12s ease infinite;
-}
-
-/* Darkroom Obsidian scrollbar */
+/* Minimal Apple-style dark scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0b0e;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #23262e;
-  border-radius: 4px;
+  background: #2c2c2e;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c89e52;
+  background: #48484a;
 }
 
-/* Focus outline in Anodized Champagne Brass */
+/* Crisp neutral Apple focus ring */
 *:focus-visible {
-  outline: 2px solid #c89e52;
+  outline: 2px solid rgba(255, 255, 255, 0.55);
   outline-offset: 2px;
 }

@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "KINOFRAME",
     title: "KINOFRAME — 광고·영화 영상 연출 레퍼런스 무빙 아카이브",
     description:
-      "고화질 컬러 영화 본편 미장센과 글로벌 아이코닉 TVCF 무빙 루프를 한눈에 탐색하고 1클릭 프레임 캡처·보드 저장까지 끝내는 디렉터용 아카이브.",
+      "고화질 컬러 영화 본편 미장센과 글로벌 아이코닉 TVCF 무빙 루프를 한눈에 탐색하고 1클릭 프레임 캡처·원본 탐색까지 끝내는 디렉터용 아카이브.",
   },
   twitter: {
     card: "summary_large_image",
@@ -96,27 +96,20 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
+          rel="stylesheet"
+          as="style"
           crossOrigin="anonymous"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
         />
       </head>
-      <body className="bg-[#0A0B0E] text-[#F2EFE9] antialiased selection:bg-[#C89E52]/35 selection:text-[#F2EFE9]">
-        <div className="relative z-10 min-h-screen bg-[#0A0B0E]">{children}</div>
+      <body className="bg-[#000000] text-white antialiased selection:bg-white/25 selection:text-white">
+        <div className="relative z-10 min-h-screen bg-[#000000]">{children}</div>
       </body>
     </html>
   );

@@ -41,22 +41,32 @@ export type PersuasionTag =
   | "다큐 리얼리즘";
 
 export interface ViewfinderSpec {
-  vanishingPoint: [number, number];
-  eyePath: [[number, number], [number, number], [number, number]];
+  vanishingPoint?: [number, number];
+  eyePath?: [[number, number], [number, number], [number, number]];
   primaryGrid: PrimaryGrid;
+  focalPoint?: { x: number; y: number };
+  horizonY?: number;
+  notes?: string;
 }
 
 export interface ContactBeat {
-  label: string;
-  timeOrZone: string;
-  noteKo: string;
-  focusCrop: string;
+  label?: string;
+  phase?: string;
+  timeOrZone?: string;
+  timecode?: string;
+  noteKo?: string;
+  summary?: string;
+  focusCrop?: string;
 }
 
 export interface BreakdownSpec {
-  hook3s: string;
-  framing: string;
-  marketingApply: string;
+  hook3s?: string;
+  hook?: string;
+  framing?: string;
+  camera?: string;
+  lighting?: string;
+  editing?: string;
+  marketingApply?: string;
 }
 
 export interface ArchiveItem {
@@ -71,6 +81,9 @@ export interface ArchiveItem {
   country?: CountryCode;
   priorityBoost?: number;
   aspectRatio: AspectRatio;
+  width?: number;
+  height?: number;
+  isArchivalSd?: boolean;
   durationSec: number | null;
   startSec?: number;
   mediaSource: MediaSource;
@@ -83,9 +96,14 @@ export interface ArchiveItem {
   persuasionTags: PersuasionTag[];
   palette: [string, string, string, string, string];
   viewfinder: ViewfinderSpec;
-  beats: [ContactBeat, ContactBeat, ContactBeat, ContactBeat];
+  beats: ContactBeat[];
   breakdown: BreakdownSpec;
+  aliases?: string[];
   addedAt?: string;
+  harvestedAt?: string;
+  shard?: string;
+  status?: "active" | "archived";
+  bytes?: number;
 }
 
 export type SortOption =
@@ -106,43 +124,4 @@ export interface FilterState {
   persuasionTags: PersuasionTag[];
   query: string;
   sort: SortOption;
-  boardOnly: boolean;
-  boardIds: string[];
-}
-
-export interface OverlayVisibility {
-  perspective: boolean;
-  thirds: boolean;
-  symmetry: boolean;
-  eyePath: boolean;
-}
-
-export interface VaultFolder {
-  id: string;
-  name: string;
-}
-
-export interface VaultBookmark {
-  itemId: string;
-  folderId: string;
-  timestampSec: number | null;
-  memo: string;
-  savedAt: string;
-}
-
-export interface VaultState {
-  folders: VaultFolder[];
-  bookmarks: VaultBookmark[];
-}
-
-export interface AuthSessionState {
-  authenticated: boolean;
-  user: {
-    sub: string;
-    provider: "kakao" | "naver" | "google" | "account";
-    name: string;
-    email?: string;
-    avatar?: string;
-  } | null;
-  cloudSyncAvailable: boolean;
 }

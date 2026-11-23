@@ -111,8 +111,6 @@ export const DEFAULT_FILTER_STATE: FilterState = {
   persuasionTags: [],
   query: "",
   sort: "curation_density",
-  boardOnly: false,
-  boardIds: [],
 };
 
 const VALID_V6_CATEGORIES = new Set<string>([
@@ -785,15 +783,11 @@ export function filterAndSortArchive(
   state: FilterState
 ): ArchiveItem[] {
   const q = state.query.trim().toLowerCase();
-  const boardSet = new Set(state.boardIds);
   const activeCategory = state.category ?? "ALL";
   const activeCountry = state.country ?? "ALL";
   const activeMediaMode = state.mediaMode ?? "ALL";
 
   const filtered = items.filter((item) => {
-    if (state.boardOnly && !boardSet.has(item.id)) {
-      return false;
-    }
     if (state.mediaType !== "ALL" && item.mediaType !== state.mediaType) {
       return false;
     }
