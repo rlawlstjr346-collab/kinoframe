@@ -274,7 +274,10 @@ export function ArchiveWorkbench({
     [allCatalogItems]
   );
 
-  const initialBoardParam = searchParams.get("board");
+  // Capture ?board= ONLY from initial page load so saving your own clips never triggers the "shared board link" banner
+  const [initialBoardParam] = useState<string | null>(() =>
+    searchParams.get("board")
+  );
   const rawInitialBoardIds = useMemo(
     () => parseRawBoardParamIds(initialBoardParam),
     [initialBoardParam]
