@@ -2,7 +2,11 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
+import {
+  SESSION_COOKIE_NAME,
+  resolveWritableDataDir,
+  verifySessionToken,
+} from "@/lib/auth";
 import type { VaultState } from "@/types/archive";
 
 export const runtime = "nodejs";
@@ -14,28 +18,37 @@ function getSupabaseConfig() {
   return { url, key };
 }
 
-function getLocalVaultPath(userSub: string): string {
-  const vaultsDir = path.join(process.cwd(), ".data", "vaults");
-  if (!fs.existsSync(vaultsDir)) {
-    fs.mkdirSync(vaultsDir, { recursive: true });
-  }
-  const safeKey = crypto.createHash("sha256").update(userSub).digest("hex").slice(0, 32);
-  return path.join(vaultsDir, `${safeKey}.json`);
+function getSafeVaultFilename(userSub: string): string {
+  const safeKey = crypto
+    .createHash("sha256")
+    .update(userSub)
+    .digest("hex")
+    .slice(0, 32);
+  return `${safeKey}.json`;
 }
 
 function readServerLocalVault(userSub: string): VaultState | null {
-  try {
-    const filePath = getLocalVaultPath(userSub);
-    if (!fs.existsSync(filePath)) return null;
-    return JSON.parse(fs.readFileSync(filePath, "utf8")) as VaultState;
-  } catch {
-    return null;
+  const filename = getSafeVaultFilename(userSub);
+  const candidates = [
+    path.join(process.cwd(), ".data", "vaults", filename),
+    path.join("/tmp", "kinoframe-data", "vaults", filename),
+  ];
+  for (const filePath of candidates) {
+    try {
+      if (!fs.existsSync(filePath)) continue;
+      return JSON.parse(fs.readFileSync(filePath, "utf8")) as VaultState;
+    } catch {
+      // continue to next candidate
+    }
   }
+  return null;
 }
 
 function writeServerLocalVault(userSub: string, vault: VaultState): boolean {
+  const dir = resolveWritableDataDir("vaults");
+  if (!dir) return false;
   try {
-    const filePath = getLocalVaultPath(userSub);
+    const filePath = path.join(dir, getSafeVaultFilename(userSub));
     fs.writeFileSync(filePath, JSON.stringify(vault, null, 2) + "\n", "utf8");
     return true;
   } catch {

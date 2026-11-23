@@ -2,20 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   SESSION_COOKIE_NAME,
   authenticateLocalAccount,
-  authenticateLocalSocialProfile,
+  authenticateOrRegisterAccount,
   createSessionToken,
   getAuthConfigStatus,
   isSecureCookie,
   registerLocalAccount,
-  type OAuthProvider,
 } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   let body: {
-    mode?: "register" | "login" | "social_local";
-    provider?: OAuthProvider;
+    mode?: "register" | "login" | "auto";
     username?: string;
     password?: string;
     displayName?: string;
@@ -29,34 +27,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Local 1-click social profile fallback when OAuth env keys are not set locally
-  if (body.mode === "social_local") {
-    const provider = body.provider;
-    if (provider !== "kakao" && provider !== "naver" && provider !== "google") {
-      return NextResponse.json(
-        { error: "지원하지 않는 소셜 공급자입니다." },
-        { status: 400 }
-      );
-    }
-    const user = authenticateLocalSocialProfile(provider);
-    const token = createSessionToken(user);
-    const { supabaseEnabled } = getAuthConfigStatus();
-    const res = NextResponse.json({
-      authenticated: true,
-      user,
-      cloudSyncAvailable: supabaseEnabled,
-    });
-    res.cookies.set(SESSION_COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isSecureCookie(req),
-      path: "/",
-      maxAge: 60 * 60 * 24 * 14,
-    });
-    return res;
-  }
-
-  const mode = body.mode === "register" ? "register" : "login";
+  const mode =
+    body.mode === "register"
+      ? "register"
+      : body.mode === "login"
+      ? "login"
+      : "auto";
   const username = typeof body.username === "string" ? body.username : "";
   const password = typeof body.password === "string" ? body.password : "";
   const displayName =
@@ -65,7 +41,9 @@ export async function POST(req: NextRequest) {
   const result =
     mode === "register"
       ? registerLocalAccount(username, password, displayName)
-      : authenticateLocalAccount(username, password);
+      : mode === "login"
+      ? authenticateLocalAccount(username, password)
+      : authenticateOrRegisterAccount(username, password, displayName);
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
@@ -84,7 +62,7 @@ export async function POST(req: NextRequest) {
     sameSite: "lax",
     secure: isSecureCookie(req),
     path: "/",
-    maxAge: 60 * 60 * 24 * 14,
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   return res;

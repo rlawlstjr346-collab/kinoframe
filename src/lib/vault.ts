@@ -91,13 +91,19 @@ export const DEFAULT_VAULT_STATE: VaultState = {
 };
 
 function getAccountStorageKey(accountKey: string): string {
+  return `kinoframe_vault:${accountKey}`;
+}
+
+function getLegacyAccountStorageKey(accountKey: string): string {
   return `kinoframe_vault_v4:${accountKey}`;
 }
 
 export function loadAccountVault(accountKey: string): VaultState {
   if (typeof window === "undefined" || !accountKey) return DEFAULT_VAULT_STATE;
   try {
-    const raw = window.localStorage.getItem(getAccountStorageKey(accountKey));
+    const raw =
+      window.localStorage.getItem(getAccountStorageKey(accountKey)) ||
+      window.localStorage.getItem(getLegacyAccountStorageKey(accountKey));
     if (!raw) return DEFAULT_VAULT_STATE;
     const parsed = JSON.parse(raw) as Partial<VaultState>;
     const folders =

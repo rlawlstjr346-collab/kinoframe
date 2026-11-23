@@ -996,6 +996,7 @@ export function ArchiveWorkbench({
         onShuffleWall={handleShuffleWall}
         onOpenBoard={() => setBoardOpen(true)}
         onOpenAuth={() => setAuthOpen(true)}
+        onLogout={handleLogout}
       />
 
       <main className="w-full flex-1 pt-[clamp(66px,4.2vw,88px)]">
@@ -1194,8 +1195,8 @@ export function ArchiveWorkbench({
         />
       )}
 
-      {/* 3-Social (Kakao / Naver / Google) + Account Auth Modal (z-[140]) */}
-      {authOpen && (
+      {/* Honest Account / Configured OAuth Login Modal (z-[140], only when logged out) */}
+      {authOpen && !session.authenticated && (
         <AuthModal
           session={session}
           savedCount={boardIds.length}

@@ -28,13 +28,20 @@ interface StoredAccount {
 
 export const SESSION_COOKIE_NAME = "kinoframe_session";
 export const OAUTH_STATE_COOKIE_NAME = "kinoframe_oauth_state";
-const SESSION_TTL_SEC = 60 * 60 * 24 * 14; // 14 days
+const SESSION_TTL_SEC = 60 * 60 * 24 * 30; // 30 days
+
+// Deterministic fallback secret so Vercel serverless cold starts NEVER invalidate active cookies
+const DETERMINISTIC_FALLBACK_SECRET = crypto
+  .createHash("sha256")
+  .update("kinoframe:rlawlstjr346-collab/kinoframe:anodized-brass:v1")
+  .digest("hex");
 
 function getSigningSecret(): string {
   return (
-    process.env.KINOFRAME_SESSION_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "kinoframe-local-darkroom-dev-secret-change-in-prod"
+    process.env.AUTH_SECRET?.trim() ||
+    process.env.KINOFRAME_SESSION_SECRET?.trim() ||
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    DETERMINISTIC_FALLBACK_SECRET
   );
 }
 
@@ -60,6 +67,14 @@ function safeEqual(a: string, b: string): boolean {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
+export function deriveAccountId(username: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(`kinoframe:user:${username.trim().toLowerCase()}`)
+    .digest("hex")
+    .slice(0, 20);
+}
+
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");
   const derived = crypto.scryptSync(password, salt, 64).toString("hex");
@@ -75,43 +90,84 @@ export function verifyPassword(password: string, storedHash: string): boolean {
   return safeEqual(derivedHex, expectedHex);
 }
 
-function getUsersFilePath(): string {
-  const dataDir = path.join(process.cwd(), ".data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+/**
+ * Resolves a writable data directory safely on both local dev (`.data`) and
+ * read-only serverless filesystems like Vercel (`/tmp/kinoframe-data`, preventing EROFS 500).
+ */
+export function resolveWritableDataDir(subDir?: string): string | null {
+  const candidates = [
+    path.join(process.cwd(), ".data"),
+    path.join("/tmp", "kinoframe-data"),
+  ];
+  for (const base of candidates) {
+    const target = subDir ? path.join(base, subDir) : base;
+    try {
+      if (!fs.existsSync(target)) {
+        fs.mkdirSync(target, { recursive: true });
+      }
+      fs.accessSync(target, fs.constants.W_OK);
+      return target;
+    } catch {
+      // Try next writable candidate (e.g. /tmp on Vercel EROFS)
+    }
   }
-  return path.join(dataDir, "users.json");
+  return null;
 }
 
 function readStoredUsers(): StoredAccount[] {
-  const filePath = getUsersFilePath();
-  try {
-    if (!fs.existsSync(filePath)) return [];
-    const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    return Array.isArray(parsed) ? (parsed as StoredAccount[]) : [];
-  } catch {
-    return [];
+  const candidates = [
+    path.join(process.cwd(), ".data", "users.json"),
+    path.join("/tmp", "kinoframe-data", "users.json"),
+  ];
+  for (const filePath of candidates) {
+    try {
+      if (!fs.existsSync(filePath)) continue;
+      const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      if (Array.isArray(parsed)) return parsed as StoredAccount[];
+    } catch {
+      // continue
+    }
   }
+  return [];
 }
 
 function writeStoredUsers(users: StoredAccount[]): void {
-  const filePath = getUsersFilePath();
-  fs.writeFileSync(filePath, JSON.stringify(users, null, 2) + "\n", "utf8");
+  const dir = resolveWritableDataDir();
+  if (!dir) return;
+  try {
+    fs.writeFileSync(
+      path.join(dir, "users.json"),
+      JSON.stringify(users, null, 2) + "\n",
+      "utf8"
+    );
+  } catch {
+    // Never crash serverless auth on read-only FS
+  }
 }
 
 export function registerLocalAccount(
   rawUsername: string,
   password: string,
   rawDisplayName?: string
-): { ok: true; user: SessionUser } | { ok: false; error: string; status: number } {
+):
+  | { ok: true; user: SessionUser }
+  | { ok: false; error: string; status: number } {
   const username = rawUsername.trim().toLowerCase();
   const displayName = (rawDisplayName?.trim() || rawUsername.trim()).slice(0, 32);
 
   if (username.length < 2 || username.length > 64) {
-    return { ok: false, error: "아이디는 2자 이상 64자 이하로 입력해주세요.", status: 400 };
+    return {
+      ok: false,
+      error: "아이디는 2자 이상 64자 이하로 입력해주세요.",
+      status: 400,
+    };
   }
   if (password.length < 4 || password.length > 128) {
-    return { ok: false, error: "비밀번호는 4자 이상 입력해주세요.", status: 400 };
+    return {
+      ok: false,
+      error: "패스코드는 4자 이상 입력해주세요.",
+      status: 400,
+    };
   }
 
   const users = readStoredUsers();
@@ -119,7 +175,7 @@ export function registerLocalAccount(
     return { ok: false, error: "이미 사용 중인 아이디입니다.", status: 409 };
   }
 
-  const id = crypto.randomBytes(10).toString("hex");
+  const id = deriveAccountId(username);
   const record: StoredAccount = {
     id,
     username,
@@ -144,12 +200,33 @@ export function registerLocalAccount(
 export function authenticateLocalAccount(
   rawUsername: string,
   password: string
-): { ok: true; user: SessionUser } | { ok: false; error: string; status: number } {
+):
+  | { ok: true; user: SessionUser }
+  | { ok: false; error: string; status: number } {
   const username = rawUsername.trim().toLowerCase();
+  if (username.length < 2 || username.length > 64) {
+    return {
+      ok: false,
+      error: "아이디는 2자 이상 64자 이하로 입력해주세요.",
+      status: 400,
+    };
+  }
+  if (password.length < 4 || password.length > 128) {
+    return {
+      ok: false,
+      error: "패스코드는 4자 이상 입력해주세요.",
+      status: 400,
+    };
+  }
+
   const users = readStoredUsers();
   const found = users.find((u) => u.username === username);
   if (!found || !verifyPassword(password, found.passwordHash)) {
-    return { ok: false, error: "아이디 또는 비밀번호가 일치하지 않습니다.", status: 401 };
+    return {
+      ok: false,
+      error: "아이디 또는 패스코드가 일치하지 않습니다.",
+      status: 401,
+    };
   }
   return {
     ok: true,
@@ -162,6 +239,63 @@ export function authenticateLocalAccount(
   };
 }
 
+/**
+ * Serverless-safe unified login/register:
+ * - If username exists on disk, verifies scrypt passcode strictly (401 on mismatch).
+ * - If username does not exist yet (new user or fresh serverless cold start),
+ *   creates record safely in writable dir (/tmp on Vercel) with deterministic account sub
+ *   so the user's board persists reliably across sessions and cold starts.
+ */
+export function authenticateOrRegisterAccount(
+  rawUsername: string,
+  password: string,
+  rawDisplayName?: string
+):
+  | { ok: true; user: SessionUser; created: boolean }
+  | { ok: false; error: string; status: number } {
+  const username = rawUsername.trim().toLowerCase();
+  if (username.length < 2 || username.length > 64) {
+    return {
+      ok: false,
+      error: "아이디 또는 이메일은 2자 이상 입력해주세요.",
+      status: 400,
+    };
+  }
+  if (password.length < 4 || password.length > 128) {
+    return {
+      ok: false,
+      error: "패스코드는 4자리 이상 입력해주세요.",
+      status: 400,
+    };
+  }
+
+  const users = readStoredUsers();
+  const found = users.find((u) => u.username === username);
+  if (found) {
+    if (!verifyPassword(password, found.passwordHash)) {
+      return {
+        ok: false,
+        error: "아이디 또는 패스코드가 일치하지 않습니다.",
+        status: 401,
+      };
+    }
+    return {
+      ok: true,
+      created: false,
+      user: {
+        sub: `account:${found.id}`,
+        provider: "account",
+        name: found.displayName,
+        email: username.includes("@") ? username : undefined,
+      },
+    };
+  }
+
+  const reg = registerLocalAccount(rawUsername, password, rawDisplayName);
+  if (!reg.ok) return reg;
+  return { ok: true, created: true, user: reg.user };
+}
+
 export function createSessionToken(user: SessionUser): string {
   const payload: SignedSessionPayload = {
     ...user,
@@ -172,7 +306,9 @@ export function createSessionToken(user: SessionUser): string {
   return `${encoded}.${sig}`;
 }
 
-export function verifySessionToken(token: string | undefined): SessionUser | null {
+export function verifySessionToken(
+  token: string | undefined
+): SessionUser | null {
   if (!token) return null;
   const parts = token.split(".");
   if (parts.length !== 2) return null;
@@ -181,7 +317,9 @@ export function verifySessionToken(token: string | undefined): SessionUser | nul
   if (!safeEqual(sig, expected)) return null;
 
   try {
-    const parsed = JSON.parse(base64UrlDecode(encoded)) as SignedSessionPayload;
+    const parsed = JSON.parse(
+      base64UrlDecode(encoded)
+    ) as SignedSessionPayload;
     if (!parsed.sub || !parsed.provider || !parsed.exp) return null;
     if (parsed.exp < Math.floor(Date.now() / 1000)) return null;
     return {
@@ -230,23 +368,6 @@ export function verifyOAuthState(
   } catch {
     return false;
   }
-}
-
-export function authenticateLocalSocialProfile(
-  provider: OAuthProvider
-): SessionUser {
-  const presets: Record<OAuthProvider, { name: string; email: string }> = {
-    kakao: { name: "카카오 디렉터", email: "director@kakao.local" },
-    naver: { name: "네이버 디렉터", email: "director@naver.local" },
-    google: { name: "Google Director", email: "director@google.local" },
-  };
-  const info = presets[provider];
-  return {
-    sub: `${provider}:local-director`,
-    provider,
-    name: info.name,
-    email: info.email,
-  };
 }
 
 export function getAuthConfigStatus() {

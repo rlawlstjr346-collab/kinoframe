@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { AuthSessionState } from "@/types/archive";
 import { KinoframeLogo } from "@/components/KinoframeLogo";
 
@@ -15,6 +15,7 @@ interface EyecandyHeaderProps {
   onShuffleWall: () => void;
   onOpenBoard: () => void;
   onOpenAuth: () => void;
+  onLogout: () => Promise<void>;
 }
 
 export function EyecandyHeader({
@@ -28,7 +29,20 @@ export function EyecandyHeader({
   onShuffleWall,
   onOpenBoard,
   onOpenAuth,
+  onLogout,
 }: EyecandyHeaderProps) {
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogoutClick = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await onLogout();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-[60] h-[clamp(60px,3.8vw,80px)] px-4 transition-colors duration-200 ease-out sm:px-7 xl:px-10 ${
@@ -122,7 +136,7 @@ export function EyecandyHeader({
           </button>
         </div>
 
-        {/* 3. Right: Auth Capsule ONLY (Logged-out: single '로그인' / Logged-in: '내 보드' + Account/Logout) */}
+        {/* 3. Right: Strictly 1 button when logged out ('로그인'), strictly 2 buttons when logged in ('내 보드' + '로그아웃') */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           {session.authenticated && session.user ? (
             <>
@@ -130,7 +144,7 @@ export function EyecandyHeader({
                 type="button"
                 onClick={onOpenBoard}
                 aria-label="내 보드 열기"
-                className="inline-flex h-[clamp(38px,2.45vw,50px)] items-center justify-center gap-2 rounded-full bg-[#C89E52] px-[clamp(14px,1.1vw,24px)] text-[clamp(13px,0.85vw,16px)] font-semibold text-[#0A0B0E] transition-colors hover:bg-[#D9B36A]"
+                className="inline-flex h-[clamp(38px,2.45vw,50px)] items-center justify-center gap-2 rounded-full bg-[#C89E52] px-[clamp(14px,1.15vw,24px)] text-[clamp(13px,0.85vw,16px)] font-semibold text-[#0A0B0E] transition-colors hover:bg-[#D9B36A]"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -155,16 +169,12 @@ export function EyecandyHeader({
 
               <button
                 type="button"
-                onClick={onOpenAuth}
-                aria-label={`계정 관리 (${session.user.name})`}
-                className="inline-flex h-[clamp(38px,2.45vw,50px)] items-center justify-center gap-2 rounded-full border border-white/[0.14] bg-[#111318] px-[clamp(12px,1vw,20px)] text-[clamp(13px,0.85vw,16px)] font-medium text-[#F2EFE9] transition-colors hover:border-[#C89E52]/70 hover:bg-white/[0.08]"
+                onClick={handleLogoutClick}
+                disabled={loggingOut}
+                aria-label="로그아웃"
+                className="inline-flex h-[clamp(38px,2.45vw,50px)] items-center justify-center rounded-full border border-white/[0.16] bg-[#111318] px-[clamp(14px,1.1vw,22px)] text-[clamp(13px,0.85vw,16px)] font-medium text-[#F2EFE9] transition-colors hover:border-[#C89E52] hover:text-[#C89E52] disabled:opacity-50"
               >
-                <span className="inline-flex h-[clamp(22px,1.4vw,28px)] w-[clamp(22px,1.4vw,28px)] items-center justify-center rounded-full bg-[#C89E52]/20 text-[clamp(11px,0.72vw,14px)] font-bold text-[#C89E52]">
-                  {session.user.name.slice(0, 1).toUpperCase()}
-                </span>
-                <span className="hidden max-w-[120px] truncate sm:inline">
-                  {session.user.name}
-                </span>
+                {loggingOut ? "로그아웃..." : "로그아웃"}
               </button>
             </>
           ) : (

@@ -51,28 +51,49 @@ CATALOG_MAX_ITEMS = 10_000
 STORAGE_CAP_BYTES = int(8.5 * 1024 * 1024 * 1024)  # 8.5 GB hard ceiling
 
 BLOCKED_TITLE_RE = re.compile(
-    r"(newsreel|black\s*and\s*white|b&w|monochrome|lecture|sermon|speech|seminar|"
-    r"webinar|podcast|interview|slideshow|powerpoint|audiobook|gameplay|minecraft|"
-    r"cartoon|popeye|tfa-319b|lucky\s*strike|silent\s*film|home\s*movie|amateur|"
-    r"bible|church|preach|congress|hearing|c-span|council\s*meeting|board\s*meeting|"
-    r"karaoke|lyrics|reaction|review|explained|unboxing|trailer\s*reaction)",
+    r"(newsreel|afvn|vietnam|military|army|navy|air\s*force|war\s*dept|us\s*gov|"
+    r"government|museum|national\s*air|space\s*museum|semiconductor|circuit|microchip|"
+    r"gremlin|tape\s*archive|rom\s*dump|hardware|computer\s*chronicles|black\s*and\s*white|"
+    r"b&w|monochrome|lecture|university|educational|classroom|instructional|training\s*film|"
+    r"safety\s*film|psa|public\s*service|sermon|speech|seminar|religious|church|bible|gospel|"
+    r"choir|sing[\s-]*along|karaoke|disney\s*sing|christmas\s*songs|webinar|podcast|interview|"
+    r"slideshow|powerpoint|audiobook|gameplay|minecraft|cartoon|animation|animated|anime|"
+    r"popeye|tfa-319b|lucky\s*strike|silent\s*film|home\s*movie|amateur|family\s*reel|"
+    r"infomercial|home\s*shopping|teleshopping|qvc|photo\s*album|tv\s*series|complete\s*series|"
+    r"episode|sitcom|soap\s*opera|game\s*show|talk\s*show|newscast|broadcast\s*news|"
+    r"radio\s*station|tv\s*station|weather|c-span|congress|hearing|lyrics|reaction|review|"
+    r"explained|unboxing|trailer\s*reaction|vhs\s*variant|tape\s*transfer|opening\s*credits)",
     re.I,
 )
 
+BLOCKED_IA_COLLECTIONS = {
+    "newsandpublicaffairs",
+    "fedflix",
+    "us_government",
+    "opensource_audio",
+    "software",
+    "education",
+    "television_news",
+    "tvnews",
+    "cartoons",
+    "animationandcartoons",
+    "home_movies",
+    "spiritualityandreligion",
+    "vhs_vault",
+    "computerchronicles",
+    "video_games",
+    "classic_cartoons",
+}
+
 IA_CINEMA_QUERIES = [
-    'mediatype:movies AND (color OR technicolor OR eastmancolor) AND (cinema OR feature OR drama OR thriller OR noir OR sci-fi) AND year:[1958 TO 2024]',
-    'mediatype:movies AND (kodachrome OR technicolor) AND (film OR movie OR story) AND year:[1955 TO 2015]',
-    'mediatype:movies AND collection:(feature_films OR classic_tv OR sci_fi_horror) AND (color OR technicolor) AND year:[1960 TO 2020]',
-    'mediatype:movies AND ("short film" OR "independent film" OR "cinematography") AND color AND year:[1965 TO 2024]',
-    'mediatype:movies AND (italian OR french OR japanese OR european) AND (film OR cinema) AND color AND year:[1960 TO 2018]',
+    'mediatype:movies AND collection:(feature_films OR short_films OR independent_film) AND (technicolor OR eastmancolor OR color) AND year:[1965 TO 2024] NOT (newsreel OR military OR cartoon OR lecture OR church OR museum OR series OR episode)',
+    'mediatype:movies AND collection:(feature_films OR short_films) AND (cinematography OR drama OR thriller OR noir OR sci-fi) AND color AND year:[1970 TO 2024] NOT (newsreel OR cartoon OR lecture OR documentary OR museum)',
+    'mediatype:movies AND ("short film" OR "independent film" OR "music-free cinema") AND (1080p OR 720p OR HD) AND color AND year:[1980 TO 2024] NOT (review OR interview OR podcast OR lecture OR cartoon OR animation)',
 ]
 
 IA_TVCF_QUERIES = [
-    'mediatype:movies AND (commercial OR "tv commercial" OR tvcf OR advertisement) AND (color OR 1970 OR 1980 OR 1990) AND year:[1962 TO 2024]',
-    'mediatype:movies AND collection:(prelinger OR classic_tv_commercials OR television) AND (commercial OR advertisement OR spot) AND color AND year:[1960 TO 2008]',
-    'mediatype:movies AND ("vintage commercial" OR "retro commercial" OR "japanese commercial" OR "brand film") AND year:[1965 TO 2022]',
-    'mediatype:movies AND (coca-cola OR pepsi OR sony OR toyota OR honda OR kodak OR nike OR apple OR canon OR panasonic) AND commercial AND year:[1964 TO 2022]',
-    'mediatype:movies AND ("industrial film" OR "promotional film" OR "car commercial" OR "fashion film") AND color AND year:[1964 TO 2018]',
+    'mediatype:movies AND collection:(classic_tv_commercials OR commercials) AND (1080p OR 720p OR HD OR color) AND year:[1975 TO 2024] NOT (newsreel OR infomercial OR cartoon OR sing-along OR military OR museum OR psa OR lecture)',
+    'mediatype:movies AND ("brand film" OR "fashion film" OR "commercial reel" OR "director reel") AND (1080p OR 720p OR HD) AND color AND year:[1990 TO 2024] NOT (interview OR podcast OR lecture OR museum OR cartoon)',
 ]
 
 VIMEO_FALLBACK_QUERIES = [
@@ -140,12 +161,71 @@ def get_pixels(im: Image.Image):
     return list(im.getdata())
 
 
+def has_text_subtitle_or_tv_bug(im: Image.Image) -> bool:
+    """Reject burned-in subtitles, karaoke lyrics, opening credit names, title cards, and TV corner bugs."""
+    g = im.convert("L").resize((160, 90), Image.Resampling.BILINEAR)
+    px = g.load()
+
+    # 1) Bottom subtitle / karaoke text band (y: 78%..96%)
+    sub_rows = 0
+    sub_bright = 0
+    for y in range(70, 86):
+        edges = 0
+        for x in range(20, 140):
+            v = px[x, y]
+            if v > 212:
+                sub_bright += 1
+            if abs(v - px[x - 1, y]) > 72:
+                edges += 1
+        if edges >= 13:
+            sub_rows += 1
+    if sub_rows >= 4 and sub_bright >= 40:
+        return True
+
+    # 2) Center opening credit / station logo / title card text band (y: 26%..72%)
+    center_rows = 0
+    center_bright = 0
+    center_dark = 0
+    for y in range(24, 66):
+        edges = 0
+        for x in range(28, 132):
+            v = px[x, y]
+            if v > 218:
+                center_bright += 1
+            elif v < 45:
+                center_dark += 1
+            if abs(v - px[x - 1, y]) > 82:
+                edges += 1
+        if edges >= 15:
+            center_rows += 1
+    if center_rows >= 6 and center_bright >= 75 and center_dark >= 400:
+        return True
+
+    # 3) Top-right bright TV channel watermark bug (x: 80%..97%, y: 3%..17%)
+    bug_bright = 0
+    bug_edges = 0
+    for y in range(3, 16):
+        for x in range(128, 155):
+            v = px[x, y]
+            if v > 210:
+                bug_bright += 1
+            if abs(v - px[x - 1, y]) > 85:
+                bug_edges += 1
+    if 12 <= bug_bright <= 160 and bug_edges >= 14:
+        return True
+
+    return False
+
+
 def score_color_frame(png_bytes: bytes):
-    """Strict color & visual richness gate: rejects B&W, blackouts, white flashes, and flat text cards."""
+    """Hardened 3-frame quality gate: rejects B&W, sepia, faded docs, blackouts, text cards, subtitles, TV bugs."""
     try:
         im = Image.open(io.BytesIO(png_bytes)).convert("RGB")
     except Exception:
         return -1.0, "decode_err"
+
+    if has_text_subtitle_or_tv_bug(im):
+        return -1.0, "text_subtitle_or_watermark"
 
     w, h = im.size
     crop = im.crop((int(w * 0.10), int(h * 0.12), int(w * 0.90), int(h * 0.88)))
@@ -158,6 +238,7 @@ def score_color_frame(png_bytes: bytes):
     lums = []
     sats = []
     chromas = []
+    spreads = []
     buckets = {}
 
     for r, g, b in pixels:
@@ -165,7 +246,7 @@ def score_color_frame(png_bytes: bytes):
         mn = min(r, g, b)
         lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
         lums.append(lum)
-        if mx < 20:
+        if mx < 22:
             near_black += 1
         if mn > 236:
             near_white += 1
@@ -175,27 +256,29 @@ def score_color_frame(png_bytes: bytes):
         if vv > 0.10:
             sats.append(sv)
             chromas.append((mx - mn) / 255.0)
+            spreads.append(mx - mn)
 
     mean_lum = sum(lums) / total
     lum_std = math.sqrt(sum((x - mean_lum) ** 2 for x in lums) / total)
     max_bucket_ratio = max(buckets.values()) / total
 
-    if near_black / total > 0.60 or mean_lum < 24:
+    if near_black / total > 0.55 or mean_lum < 28:
         return -1.0, "too_dark"
-    if near_white / total > 0.54 or mean_lum > 228:
+    if near_white / total > 0.45 or mean_lum > 224:
         return -1.0, "too_white"
-    if max_bucket_ratio > 0.46:
+    if max_bucket_ratio > 0.40:
         return -1.0, "flat_text_or_logo_card"
-    if lum_std < 22.0:
+    if lum_std < 23.0:
         return -1.0, "low_contrast"
 
     avg_sat = sum(sats) / max(1, len(sats))
     avg_chroma = sum(chromas) / max(1, len(chromas))
-    # Reject monochrome / black-and-white / washed-out sepia lectures
-    if avg_chroma < 0.085 or avg_sat < 0.14:
-        return -1.0, "monochrome_or_low_color"
+    avg_spread = sum(spreads) / max(1, len(spreads))
+    # Strictly block B&W, sepia, and washed-out archival footage
+    if avg_sat < 0.22 or avg_chroma < 0.115 or avg_spread < 14.0:
+        return -1.0, "monochrome_sepia_or_low_color"
 
-    score = avg_sat * 1.4 + avg_chroma * 2.4 + min(lum_std, 80.0) / 100.0
+    score = avg_sat * 1.4 + avg_chroma * 2.5 + min(lum_std, 80.0) / 100.0
     return score, "ok"
 
 
@@ -425,6 +508,16 @@ def resolve_ia_stream(item: dict):
         meta = http_get_json(f"https://archive.org/metadata/{urllib.parse.quote(ident)}", timeout=12)
     except Exception:
         return None
+    meta_obj = meta.get("metadata") or {}
+    colls = meta_obj.get("collection") or []
+    if isinstance(colls, str):
+        colls = [colls]
+    if any(str(c).lower() in BLOCKED_IA_COLLECTIONS for c in colls):
+        return None
+    subj_text = f"{meta_obj.get('subject') or ''} {meta_obj.get('description') or ''}"
+    if BLOCKED_TITLE_RE.search(subj_text[:500]):
+        return None
+
     files = meta.get("files") or []
     mp4_candidates = []
     for f in files:
@@ -432,7 +525,7 @@ def resolve_ia_stream(item: dict):
         if not name.lower().endswith(".mp4"):
             continue
         size = int(f.get("size") or 0)
-        if size < 1_500_000:
+        if size < 4_000_000:
             continue
         dur_raw = f.get("length")
         dur = 0.0
@@ -448,12 +541,14 @@ def resolve_ia_stream(item: dict):
                     dur = float(dur_raw)
             except Exception:
                 dur = 0.0
-        if dur < 22 or dur > 10800:
+        if dur < 35 or dur > 10800:
             continue
         h = int(f.get("height") or 0)
         w = int(f.get("width") or 0)
-        # Prefer >= 480p and non-512kb when HD MP4 exists, else 512kb fallback
-        rank = (1 if h >= 720 else (0 if h >= 480 else -1), 0 if "_512kb" in name else 1, size)
+        # Strictly require HD (>=720p) to block blurry VHS/TV rips
+        if h < 720:
+            continue
+        rank = (h, 0 if "_512kb" in name else 1, size)
         mp4_candidates.append((rank, name, dur, w, h))
 
     if not mp4_candidates:
@@ -566,9 +661,9 @@ def extract_clips_from_source(
     max_cuts_allowed = 0 if is_film else 1
     dur = float(src["duration"])
 
-    # Skip opening studio logos / credits and end credits
-    lo = max(12.0, dur * 0.14) if dur > 90 else max(4.0, dur * 0.16)
-    hi = min(dur - 12.0, dur * 0.84) if dur > 90 else min(dur - 6.0, dur * 0.78)
+    # Strictly forbid first 18% (opening credits/station IDs) and last 15% (end credits/logos)
+    lo = max(18.0, dur * 0.18) if dur > 90 else max(6.0, dur * 0.18)
+    hi = min(dur - 15.0, dur * 0.85 - clip_dur) if dur > 90 else min(dur - 6.0, dur * 0.85 - clip_dur)
     if hi <= lo + clip_dur:
         return []
 
