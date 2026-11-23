@@ -1468,6 +1468,27 @@ def main():
         )
         upload_files_chunked(repo, META_TAG, [wall_path, full_path], chunk_size=2)
 
+        # Auto-ping Naver Search Advisor & global IndexNow with newly harvested /shot/ URLs (fault-isolated)
+        try:
+            import sys as _sys
+
+            _scripts_dir = str(Path(__file__).resolve().parent)
+            if _scripts_dir not in _sys.path:
+                _sys.path.insert(0, _scripts_dir)
+            import ping_indexnow as _idxnow
+
+            _site_url = _idxnow.resolve_site_url()
+            _new_ids = [str(it["id"]) for it in new_items if it.get("id")]
+            _submit_urls = _idxnow.build_default_urls(_site_url, _new_ids)
+            _ping_res = _idxnow.ping_indexnow(_submit_urls, site_url=_site_url)
+            for _ep_name, _ep_info in _ping_res.items():
+                print(
+                    f"[INDEXNOW] {_ep_name}: HTTP {_ep_info.get('status')} (urls={_ep_info.get('submitted')}, ok={_ep_info.get('ok')})",
+                    flush=True,
+                )
+        except Exception as _idx_err:
+            print(f"[INDEXNOW] Non-fatal ping skipped: {_idx_err}", flush=True)
+
     elapsed = time.time() - start_ts
     print(
         f"=== DAWN HARVEST COMPLETE === added={len(new_items)} active={len(active_wall)} total={len(merged_catalog)} storage={total_bytes / (1024 * 1024):.1f}MB in {elapsed:.1f}s",

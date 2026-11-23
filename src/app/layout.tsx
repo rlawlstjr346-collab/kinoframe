@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
+import { getSiteUrl } from "@/lib/seo-topics";
 import "./globals.css";
 
-const SITE_URL = "https://kinoframe.vercel.app";
+const SITE_URL = getSiteUrl();
+const GOOGLE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+const NAVER_VERIFICATION = process.env.NAVER_SITE_VERIFICATION?.trim();
+
+const verificationConfig: Metadata["verification"] =
+  GOOGLE_VERIFICATION || NAVER_VERIFICATION
+    ? {
+        ...(GOOGLE_VERIFICATION ? { google: GOOGLE_VERIFICATION } : {}),
+        ...(NAVER_VERIFICATION
+          ? { other: { "naver-site-verification": NAVER_VERIFICATION } }
+          : {}),
+      }
+    : undefined;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -27,7 +40,16 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
+    types: {
+      "application/rss+xml": [
+        {
+          url: "/rss.xml",
+          title: "KINOFRAME RSS 2.0 Feed",
+        },
+      ],
+    },
   },
+  ...(verificationConfig ? { verification: verificationConfig } : {}),
   openGraph: {
     type: "website",
     locale: "ko_KR",

@@ -3,15 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadFullCatalogForLookup } from "@/lib/poc-loader";
 import { resolveItemCategory } from "@/lib/taxonomy";
-import { KinoframeLogo } from "@/components/KinoframeLogo";
 import {
-  formatCleanModalMeta,
-  resolveValidSourceUrl,
-} from "@/components/ViewfinderModal";
+  SEO_TOPICS,
+  formatSeoItemMeta,
+  getSiteUrl,
+  resolveSeoSourceUrl,
+} from "@/lib/seo-topics";
+import { KinoframeLogo } from "@/components/KinoframeLogo";
 
 export const revalidate = 300;
 
-const SITE_URL = "https://kinoframe.vercel.app";
+const SITE_URL = getSiteUrl();
 
 export async function generateMetadata({
   params,
@@ -34,7 +36,7 @@ export async function generateMetadata({
   const category = resolveItemCategory(item);
   const categoryKo =
     category === "TVCF" ? "TVCF 광고 레퍼런스" : "영화 미장센 레퍼런스";
-  const { primaryTitle } = formatCleanModalMeta(item);
+  const { primaryTitle } = formatSeoItemMeta(item);
   const title = `${primaryTitle} (${item.year}) — ${categoryKo} · 영상 연출 구도`;
   const hookText = item.breakdown?.hook3s || item.breakdown?.hook || "";
   const frameText = item.breakdown?.framing || item.breakdown?.camera || "";
@@ -98,8 +100,8 @@ export default async function ShotDetailPage({
   }
 
   const category = resolveItemCategory(item);
-  const { primaryTitle, subCaption } = formatCleanModalMeta(item);
-  const externalSourceUrl = resolveValidSourceUrl(item);
+  const { primaryTitle, subCaption } = formatSeoItemMeta(item);
+  const externalSourceUrl = resolveSeoSourceUrl(item);
   const hookText = item.breakdown?.hook3s || item.breakdown?.hook || "";
   const frameText = item.breakdown?.framing || item.breakdown?.camera || "";
 
@@ -221,7 +223,7 @@ export default async function ShotDetailPage({
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {related.map((rel) => {
-              const relMeta = formatCleanModalMeta(rel);
+              const relMeta = formatSeoItemMeta(rel);
               return (
                 <Link
                   key={rel.id}
@@ -250,6 +252,17 @@ export default async function ShotDetailPage({
           </div>
         </section>
       </main>
+
+      {/* Semantic Crawler Internal Link Graph to Discover Hubs (0px visual change) */}
+      <nav aria-label="주제별 아카이브 탐색 허브" className="sr-only">
+        <ul>
+          {SEO_TOPICS.map((topic) => (
+            <li key={topic.slug}>
+              <Link href={`/discover/${topic.slug}`}>{topic.h1}</Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 }

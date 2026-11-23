@@ -1,15 +1,17 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/seo-topics";
 
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = getSiteUrl();
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/shot/"],
+        allow: ["/", "/discover/", "/shot/", "/rss.xml"],
         disallow: ["/api/"],
       },
     ],
-    sitemap: "https://kinoframe.vercel.app/sitemap.xml",
-    host: "https://kinoframe.vercel.app",
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

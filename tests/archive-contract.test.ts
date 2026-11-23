@@ -27,6 +27,12 @@ import {
   normalizeCompact,
   searchArchiveItems,
 } from "@/lib/search";
+import {
+  INDEXNOW_KEY,
+  SEO_TOPICS,
+  filterItemsBySeoTopic,
+  getSeoTopicBySlug,
+} from "@/lib/seo-topics";
 
 const ITEMS = archiveSnapshot as ArchiveItem[];
 
@@ -377,5 +383,54 @@ describe("KINOFRAME Apple HIG Zero-Login Archive, Multilingual Search & Media Qu
     expect(sorted).toHaveLength(ITEMS.length);
     expect(filterAndSortArchive(ITEMS, DEFAULT_FILTER_STATE).length).toBeGreaterThan(0);
     expect(rotateArchiveWithSeed(sorted, 777)).toHaveLength(ITEMS.length);
+  });
+
+  it("validates 6 non-branded SEO discover hubs, Naver RSS 2.0 route, and 32-char IndexNow key consistency", () => {
+    const expectedSlugs = [
+      "tvcf-reference",
+      "cinema-composition",
+      "one-take",
+      "color-grading",
+      "vintage-commercial",
+      "visual-hook",
+    ];
+    expect(SEO_TOPICS.map((t) => t.slug)).toEqual(expectedSlugs);
+
+    for (const slug of expectedSlugs) {
+      const topic = getSeoTopicBySlug(slug);
+      expect(topic).toBeDefined();
+      expect(topic!.metaTitle.length).toBeGreaterThan(10);
+      expect(topic!.metaDescription.length).toBeGreaterThan(30);
+      const matched = filterItemsBySeoTopic(SAMPLE_SEARCH_CATALOG, topic!);
+      expect(matched.length).toBeGreaterThan(0);
+    }
+
+    // Verify deterministic 32-char alphanumeric IndexNow key file & Python script alignment
+    expect(INDEXNOW_KEY).toMatch(/^[a-z0-9]{32}$/);
+    const keyFilePath = path.resolve(process.cwd(), "public", `${INDEXNOW_KEY}.txt`);
+    expect(fs.existsSync(keyFilePath)).toBe(true);
+    expect(fs.readFileSync(keyFilePath, "utf-8").trim()).toBe(INDEXNOW_KEY);
+
+    const pingScript = fs.readFileSync(
+      path.resolve(process.cwd(), "scripts/ping_indexnow.py"),
+      "utf-8"
+    );
+    expect(pingScript).toContain(INDEXNOW_KEY);
+    expect(pingScript).toContain("https://searchadvisor.naver.com/indexnow");
+    expect(pingScript).toContain("https://api.indexnow.org/indexnow");
+
+    const harvesterScript = fs.readFileSync(
+      path.resolve(process.cwd(), "scripts/auto_harvester.py"),
+      "utf-8"
+    );
+    expect(harvesterScript).toContain("ping_indexnow");
+
+    const rssRoute = fs.readFileSync(
+      path.resolve(process.cwd(), "src/app/rss.xml/route.ts"),
+      "utf-8"
+    );
+    expect(rssRoute).toContain("application/rss+xml; charset=utf-8");
+    expect(rssRoute).toContain('<rss version="2.0"');
+    expect(rssRoute).toContain("<pubDate>");
   });
 });

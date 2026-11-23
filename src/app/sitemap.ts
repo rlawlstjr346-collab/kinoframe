@@ -1,28 +1,47 @@
 import type { MetadataRoute } from "next";
-import { loadFullCatalogForLookup } from "@/lib/poc-loader";
+import { loadFullCatalogForLookup, loadWallActiveCatalog } from "@/lib/poc-loader";
+import { SEO_TOPICS, getSiteUrl } from "@/lib/seo-topics";
 
 export const revalidate = 300;
 
-const SITE_URL = "https://kinoframe.vercel.app";
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const catalog = await loadFullCatalogForLookup();
-  const now = new Date();
+  const siteUrl = getSiteUrl();
+  const [fullCatalog, wallResult] = await Promise.all([
+    loadFullCatalogForLookup(),
+    loadWallActiveCatalog(),
+  ]);
 
+  const now = new Date();
   const entries: MetadataRoute.Sitemap = [
     {
-      url: SITE_URL,
+      url: siteUrl,
       lastModified: now,
       changeFrequency: "daily",
       priority: 1.0,
     },
   ];
 
-  for (const item of catalog) {
-    const parsedDate = item.addedAt ? new Date(item.addedAt) : now;
+  // All non-branded search intent landing hubs (/discover/[slug])
+  for (const topic of SEO_TOPICS) {
+    entries.push({
+      url: `${siteUrl}/discover/${encodeURIComponent(topic.slug)}`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    });
+  }
+
+  // Deduplicated full catalog (catalog-full.json with wall-active.json merge/fallback)
+  const seenIds = new Set<string>();
+  const combined = [...fullCatalog, ...wallResult.items];
+  for (const item of combined) {
+    if (!item.id || seenIds.has(item.id)) continue;
+    seenIds.add(item.id);
+    const rawDate = item.harvestedAt || item.addedAt;
+    const parsedDate = rawDate ? new Date(rawDate) : now;
     const lastModified = Number.isNaN(parsedDate.getTime()) ? now : parsedDate;
     entries.push({
-      url: `${SITE_URL}/shot/${encodeURIComponent(item.id)}`,
+      url: `${siteUrl}/shot/${encodeURIComponent(item.id)}`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.8,
