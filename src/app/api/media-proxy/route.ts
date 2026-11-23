@@ -7,6 +7,20 @@ const USER_AGENT =
   "KinoframeMediaProxy/1.0 (+https://github.com/rlawlstjr346-collab/kinoframe; frame-capture-proxy)";
 const MAX_REDIRECTS = 5;
 
+function inferMimeFromUrl(url: string, upstreamType: string | null): string {
+  const clean = (upstreamType || "").split(";")[0].trim().toLowerCase();
+  if (clean && clean !== "application/octet-stream" && clean !== "binary/octet-stream") {
+    return upstreamType!;
+  }
+  const pathPart = url.split("?")[0].toLowerCase();
+  if (pathPart.endsWith(".mp4")) return "video/mp4";
+  if (pathPart.endsWith(".webm")) return "video/webm";
+  if (pathPart.endsWith(".webp")) return "image/webp";
+  if (pathPart.endsWith(".png")) return "image/png";
+  if (pathPart.endsWith(".jpg") || pathPart.endsWith(".jpeg")) return "image/jpeg";
+  return upstreamType || "application/octet-stream";
+}
+
 async function fetchWithSafeRedirects(
   initialUrl: string,
   rangeHeader: string | null
@@ -30,6 +44,8 @@ async function fetchWithSafeRedirects(
       method: "GET",
       headers,
       redirect: "manual",
+      cache: "no-store",
+      signal: AbortSignal.timeout(15000),
     });
 
     if (
@@ -84,15 +100,14 @@ export async function GET(req: NextRequest) {
     }
 
     const headers = new Headers();
-    const contentType =
-      upstream.headers.get("content-type") || "application/octet-stream";
+    const contentType = inferMimeFromUrl(
+      targetUrl,
+      upstream.headers.get("content-type")
+    );
     headers.set("Content-Type", contentType);
     headers.set("Access-Control-Allow-Origin", "*");
     headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
     headers.set("Cross-Origin-Resource-Policy", "cross-origin");
-
-    const contentLength = upstream.headers.get("content-length");
-    if (contentLength) headers.set("Content-Length", contentLength);
 
     const contentRange = upstream.headers.get("content-range");
     if (contentRange) headers.set("Content-Range", contentRange);
@@ -105,6 +120,21 @@ export async function GET(req: NextRequest) {
         .replace(/[^a-zA-Z0-9._-]/g, "_")
         .slice(0, 100);
       headers.set("Content-Disposition", `attachment; filename="${safeName}"`);
+    }
+
+    const rawLength = Number(upstream.headers.get("content-length") || "0");
+    // Buffer <= 25MB payloads cleanly (avoids Next.js ReadableStream stall on 302 GitHub Releases assets)
+    if (rawLength > 0 && rawLength <= 25 * 1024 * 1024) {
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      headers.set("Content-Length", String(buf.byteLength));
+      return new NextResponse(buf, {
+        status: upstream.status,
+        headers,
+      });
+    }
+
+    if (rawLength > 0) {
+      headers.set("Content-Length", String(rawLength));
     }
 
     return new NextResponse(upstream.body, {
