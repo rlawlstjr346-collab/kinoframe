@@ -3,16 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --kf-bg: #000000;
+  --kf-bg: #0a0b0e;
   --kf-surface: #111318;
   --kf-stage: #060709;
   --kf-tile-bg: #0b0c0f;
-  --kf-amber: #f3a833;
-  --kf-amber-hover: #ffbe55;
-  --kf-text: #faf7f0;
+  --kf-brass: #c89e52;
+  --kf-brass-hover: #d9b36a;
+  --kf-brass-highlight: #e5c883;
+  --kf-brass-bronze: #8a6529;
+  --kf-text: #f2efe9;
   --kf-text-secondary: #c8c4bc;
   --kf-text-muted: #7e7b74;
-  --kf-typed-hint: rgba(250, 247, 240, 0.44);
+  --kf-typed-hint: rgba(242, 239, 233, 0.44);
   --kf-font-sans: "Plus Jakarta Sans", "Pretendard", -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 }
@@ -41,12 +43,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Home Hero Optical Technique Tag Cloud Center-Expanding Amber Underline */
+/* Home Link Center-Expanding Champagne Brass Underline */
 .kf-technique-link {
   position: relative;
   display: inline-block;
   padding-bottom: 2px;
-  color: #faf7f0;
+  color: #f2efe9;
   font-size: 0.88rem;
   line-height: 1.3;
   text-transform: uppercase;
@@ -59,7 +61,7 @@ body {
 .kf-technique-link:hover,
 .kf-technique-link:focus-visible,
 .kf-technique-link[data-active="true"] {
-  color: #f3a833;
+  color: #c89e52;
 }
 
 .kf-technique-link::after {
@@ -69,7 +71,7 @@ body {
   left: 0;
   width: 100%;
   height: 1px;
-  background: #f3a833;
+  background: #c89e52;
   transform: scaleX(0);
   transform-origin: center center;
   transition: transform 0.28s cubic-bezier(0.77, 0, 0.175, 1);
@@ -95,19 +97,19 @@ body {
 }
 
 .breakdown-gradient-card {
-  background: linear-gradient(183deg, #c96a1c, #f3a833);
+  background: linear-gradient(183deg, #8a6529, #c89e52);
   background-size: 400% 400%;
   animation: breakdown-grad 12s ease infinite;
 }
 
-/* Pure black darkroom scrollbar */
+/* Darkroom Obsidian scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #0a0b0e;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -116,11 +118,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #f3a833;
+  background: #c89e52;
 }
 
-/* Focus outline in Kodak 500T Tungsten Amber */
+/* Focus outline in Anodized Champagne Brass */
 *:focus-visible {
-  outline: 2px solid #f3a833;
+  outline: 2px solid #c89e52;
   outline-offset: 2px;
 }

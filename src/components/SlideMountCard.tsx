@@ -109,6 +109,11 @@ export const SlideMountCard = React.memo(function SlideMountCard({
 
   const isAutoLoopVideo =
     item.mediaSource === "archive_mp4" && Boolean(item.previewVideoUrl);
+  const isShortNativeLoop =
+    isAutoLoopVideo &&
+    item.durationSec !== null &&
+    Number.isFinite(item.durationSec) &&
+    item.durationSec <= 6;
 
   const triggerEvict = useCallback(() => {
     if (evictedRef.current) return;
@@ -236,6 +241,10 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   }, [shouldPlayVideo, videoReady, onEvictItem, triggerEvict]);
 
   const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    if (isShortNativeLoop) {
+      initialSeekDoneRef.current = true;
+      return;
+    }
     const video = e.currentTarget;
     const realDur =
       Number.isFinite(video.duration) && video.duration > 0
@@ -344,23 +353,39 @@ export const SlideMountCard = React.memo(function SlideMountCard({
             ref={videoRef}
             src={item.previewVideoUrl}
             poster={item.thumbnailUrl}
-            preload={slotAllowed || videoReady ? "metadata" : "none"}
+            preload={
+              isShortNativeLoop
+                ? "auto"
+                : slotAllowed || videoReady
+                ? "metadata"
+                : "none"
+            }
+            autoPlay={isShortNativeLoop && shouldPlayVideo}
             muted
             loop
             playsInline
             onLoadedMetadata={handleLoadedMetadata}
             onSeeked={handleSeeked}
+            onPlaying={() => setVideoReady(true)}
             onLoadedData={() => {
-              if (windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
+              if (
+                isShortNativeLoop ||
+                windowRef.current.startSec === 0 ||
+                initialSeekDoneRef.current
+              ) {
                 setVideoReady(true);
               }
             }}
             onCanPlay={() => {
-              if (windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
+              if (
+                isShortNativeLoop ||
+                windowRef.current.startSec === 0 ||
+                initialSeekDoneRef.current
+              ) {
                 setVideoReady(true);
               }
             }}
-            onTimeUpdate={handleTimeUpdate}
+            onTimeUpdate={isShortNativeLoop ? undefined : handleTimeUpdate}
             onError={triggerEvict}
             className={`absolute inset-0 h-full w-full rounded-[16px] object-cover transition-opacity duration-200 ease-linear ${
               videoReady ? "opacity-100" : "opacity-0"

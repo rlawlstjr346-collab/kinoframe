@@ -26,6 +26,9 @@ yarn-error.log*
 # local server runtime data (accounts & vaults)
 .data/
 
+# local HD 3.5s loop PoC media & manifest (zero Git repo bloat)
+/public/poc-loops/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

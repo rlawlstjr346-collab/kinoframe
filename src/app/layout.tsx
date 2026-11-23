@@ -26,8 +26,8 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
         />
       </head>
-      <body className="bg-black text-[#FAF7F0] antialiased selection:bg-[#F3A833]/35 selection:text-[#FAF7F0]">
-        <div className="relative z-10 min-h-screen bg-black">{children}</div>
+      <body className="bg-[#0A0B0E] text-[#F2EFE9] antialiased selection:bg-[#C89E52]/35 selection:text-[#F2EFE9]">
+        <div className="relative z-10 min-h-screen bg-[#0A0B0E]">{children}</div>
       </body>
     </html>
   );

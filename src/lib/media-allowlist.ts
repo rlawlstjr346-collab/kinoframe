@@ -5,6 +5,9 @@ export const ALLOWED_MEDIA_PROXY_HOSTS = [
   "images-assets.nasa.gov",
   "i.ytimg.com",
   "tile.loc.gov",
+  "github.com",
+  "objects.githubusercontent.com",
+  "release-assets.githubusercontent.com",
 ] as const;
 
 const ALLOWED_EXACT_SET = new Set<string>(ALLOWED_MEDIA_PROXY_HOSTS);

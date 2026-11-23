@@ -139,7 +139,7 @@ export interface AuthSessionState {
   authenticated: boolean;
   user: {
     sub: string;
-    provider: "google" | "naver" | "account";
+    provider: "kakao" | "naver" | "google" | "account";
     name: string;
     email?: string;
     avatar?: string;

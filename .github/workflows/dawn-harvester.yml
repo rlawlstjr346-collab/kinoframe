@@ -1,0 +1,49 @@
+name: KINOFRAME Dawn Harvester
+
+on:
+  schedule:
+    # 02:17 KST (17:17 UTC)
+    - cron: "17 17 * * *"
+    # 04:43 KST (19:43 UTC)
+    - cron: "43 19 * * *"
+  workflow_dispatch:
+    inputs:
+      target_count:
+        description: "Target clips to harvest in this run"
+        required: false
+        default: "160"
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kinoframe-dawn-harvester
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ffmpeg and Python media dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg python3-pip
+          python3 -m pip install --quiet --break-system-packages pillow yt-dlp
+
+      - name: Run autonomous cinema & TVCF harvester (GitHub Releases storage)
+        run: |
+          TARGET="${{ inputs.target_count || '160' }}"
+          python3 scripts/auto_harvester.py \
+            --repo "${{ github.repository }}" \
+            --target-count "$TARGET" \
+            --max-minutes 21 \
+            --workers 4

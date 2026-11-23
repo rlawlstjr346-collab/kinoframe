@@ -58,7 +58,7 @@ export function CompareDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#050507]/92 p-3 backdrop-blur-xl sm:p-6"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-[#050507]/92 p-3 backdrop-blur-xl sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="좌우 비주얼 비교"

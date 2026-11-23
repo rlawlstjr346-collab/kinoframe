@@ -6,7 +6,7 @@ import type {
 } from "@/types/archive";
 
 export const VALID_ARCHIVE_ITEM_ID_REGEX =
-  /^KF-(?:\d{3,5}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
+  /^KF-(?:\d{3,5}|(?:HD|HV)-\d{2,6}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
 
 export const CONDUIT_ITEM_ID_REGEX =
   /^KF-(?:IA|WM)-[A-Za-z0-9_-]{2,48}$/;

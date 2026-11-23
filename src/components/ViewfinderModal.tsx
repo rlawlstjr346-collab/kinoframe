@@ -1,21 +1,17 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { ArchiveItem, VaultBookmark, VaultFolder } from "@/types/archive";
 import {
-  formatDuration,
   formatPreciseTimestamp,
-  getCategoryLabel,
-  getCountryLabel,
   resolveItemCategory,
-  resolveItemCountry,
 } from "@/lib/taxonomy";
 import {
   captureRawFramePngBlob,
   copyPngBlobToClipboard,
   downloadBlobAsPng,
+  downloadVideoMp4,
 } from "@/lib/frame-capture";
-import { getBranchBySlug, getTechniquesForItem } from "@/lib/visual-techniques";
 import { getHighlightWindow } from "@/components/SlideMountCard";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 
@@ -26,17 +22,13 @@ interface ViewfinderModalProps {
   hasNext: boolean;
   isAuthenticated: boolean;
   isInBoard: boolean;
-  isInCompare: boolean;
-  compareFull: boolean;
   folders: VaultFolder[];
   existingBookmark?: VaultBookmark;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
   onSelectItem: (item: ArchiveItem) => void;
-  onSelectTechnique?: (slug: string) => void;
   onToggleBoard: (id: string, folderId?: string) => void;
-  onToggleCompare: (id: string) => void;
   onSaveToVault: (payload: {
     itemId: string;
     folderId: string;
@@ -51,34 +43,32 @@ export function ViewfinderModal({
   hasNext,
   isAuthenticated,
   isInBoard,
-  isInCompare,
-  compareFull,
   folders,
   existingBookmark,
   onClose,
   onPrev,
   onNext,
-  onSelectTechnique,
   onToggleBoard,
-  onToggleCompare,
   onSaveToVault,
 }: ViewfinderModalProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const initialJumpedRef = useRef<boolean>(false);
 
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [selectedFolderId, setSelectedFolderId] = useState<string>(
     existingBookmark?.folderId || folders[0]?.id || "jp-vintage-cf"
   );
   const [boardPickerOpen, setBoardPickerOpen] = useState<boolean>(false);
-  const [busyAction, setBusyAction] = useState<"raw" | "copy" | null>(null);
+  const [busyAction, setBusyAction] = useState<"download" | "capture" | null>(
+    null
+  );
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const techniques = useMemo(() => getTechniquesForItem(item, 6), [item]);
-  const categoryLabel = getCategoryLabel(resolveItemCategory(item));
-  const countryLabel = getCountryLabel(resolveItemCountry(item));
+  const category = resolveItemCategory(item);
+  const genreBadge = category === "TVCF" ? "TVCF" : "Cinema";
 
-  // Suspend background grid videos while lightbox is open so modal gets 100% socket bandwidth
+  // Suspend background grid videos while theater modal is open
   useEffect(() => {
     globalVideoScheduler.setSuspended(true);
     return () => {
@@ -89,12 +79,25 @@ export function ViewfinderModal({
   useEffect(() => {
     initialJumpedRef.current = false;
     setCurrentTimeSec(0);
+    setIsPaused(false);
     setBoardPickerOpen(false);
     setToastMsg(null);
     setSelectedFolderId(
       existingBookmark?.folderId || folders[0]?.id || "jp-vintage-cf"
     );
   }, [item, existingBookmark, folders]);
+
+  const togglePlayPause = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      void v.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      v.pause();
+      setIsPaused(true);
+    }
+  };
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -107,6 +110,10 @@ export function ViewfinderModal({
 
       if (e.key === "Escape") onClose();
       if (isTyping) return;
+      if (e.key === " " && item.mediaSource === "archive_mp4") {
+        e.preventDefault();
+        togglePlayPause();
+      }
       if (e.key === "ArrowLeft" && hasPrev) onPrev();
       if (e.key === "ArrowRight" && hasNext) onNext();
     };
@@ -117,49 +124,14 @@ export function ViewfinderModal({
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prevOverflow;
     };
-  }, [onClose, onPrev, onNext, hasPrev, hasNext]);
+  }, [onClose, onPrev, onNext, hasPrev, hasNext, item.mediaSource]);
 
   const flashToast = (msg: string) => {
     setToastMsg(msg);
-    window.setTimeout(() => setToastMsg(null), 2400);
+    window.setTimeout(() => setToastMsg(null), 2600);
   };
 
-  const timestampSuffix =
-    item.mediaSource === "archive_mp4"
-      ? `_${formatPreciseTimestamp(currentTimeSec).replace(/[:.]/g, "-")}`
-      : "";
-
-  const handleCopyFrameImage = async () => {
-    setBusyAction("copy");
-    try {
-      const blob = await captureRawFramePngBlob(item, videoRef.current);
-      const copied = await copyPngBlobToClipboard(blob);
-      if (copied) {
-        flashToast("프레임 이미지가 클립보드에 복사되었습니다");
-      } else {
-        downloadBlobAsPng(blob, `${item.id}_frame${timestampSuffix}.png`);
-        flashToast("PNG 파일로 저장되었습니다");
-      }
-    } catch {
-      flashToast("이미지 복사에 실패했습니다");
-    } finally {
-      setBusyAction(null);
-    }
-  };
-
-  const handleDownloadRawPng = async () => {
-    setBusyAction("raw");
-    try {
-      const blob = await captureRawFramePngBlob(item, videoRef.current);
-      downloadBlobAsPng(blob, `${item.id}_frame${timestampSuffix}.png`);
-      flashToast("원본 PNG 다운로드 완료");
-    } catch {
-      flashToast("다운로드에 실패했습니다");
-    } finally {
-      setBusyAction(null);
-    }
-  };
-
+  // Button 1: Save to My Board (AuthModal z-[140] auto-opens for guest + auto-saves on login)
   const handleSaveBoardClick = () => {
     if (!isAuthenticated) {
       onToggleBoard(item.id, selectedFolderId);
@@ -191,6 +163,50 @@ export function ViewfinderModal({
     setBoardPickerOpen(false);
   };
 
+  // Button 2: Download original loop video (.mp4) as kinoframe-<id>.mp4
+  const handleDownloadMp4 = async () => {
+    setBusyAction("download");
+    try {
+      if (item.mediaSource === "archive_mp4" && item.previewVideoUrl) {
+        await downloadVideoMp4(item);
+        flashToast(`kinoframe-${item.id}.mp4 다운로드 완료`);
+      } else {
+        const blob = await captureRawFramePngBlob(item, videoRef.current);
+        downloadBlobAsPng(blob, `kinoframe-${item.id}.png`);
+        flashToast(`kinoframe-${item.id}.png 다운로드 완료`);
+      }
+    } catch {
+      flashToast("영상 다운로드에 실패했습니다");
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
+  // Button 3: Capture current live <video> frame at video.currentTime -> BOTH .png download AND clipboard image copy
+  const handleCaptureCurrentFrame = async () => {
+    setBusyAction("capture");
+    try {
+      const liveTime = videoRef.current?.currentTime ?? currentTimeSec;
+      const tsSuffix =
+        item.mediaSource === "archive_mp4"
+          ? `_${formatPreciseTimestamp(liveTime).replace(/[:.]/g, "-")}`
+          : "";
+      const blob = await captureRawFramePngBlob(item, videoRef.current);
+      const filename = `kinoframe-${item.id}_frame${tsSuffix}.png`;
+      downloadBlobAsPng(blob, filename);
+      const copied = await copyPngBlobToClipboard(blob);
+      if (copied) {
+        flashToast("현재 프레임 PNG 저장 및 클립보드 복사 완료");
+      } else {
+        flashToast(`현재 프레임 PNG 저장 완료 (${filename})`);
+      }
+    } catch {
+      flashToast("현재 프레임 캡처에 실패했습니다");
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
   const handleModalVideoMetadata = (
     e: React.SyntheticEvent<HTMLVideoElement>
   ) => {
@@ -201,6 +217,7 @@ export function ViewfinderModal({
       Number.isFinite(video.duration) && video.duration > 0
         ? video.duration
         : item.durationSec;
+    if (realDur && realDur <= 6) return;
     const win = getHighlightWindow({
       durationSec: realDur,
       startSec: item.startSec,
@@ -216,31 +233,31 @@ export function ViewfinderModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0A0B0E]/88 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label={`${item.titleKo} 상세 뷰`}
       onClick={onClose}
     >
-      {/* Top-Right Close X (Kodak 500T Amber) */}
+      {/* Top-Right Fluid Large Close Button */}
       <button
         type="button"
         onClick={onClose}
         aria-label="닫기"
-        className="fixed right-4 top-4 z-[110] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#111318]/90 text-[#F3A833] transition-colors hover:border-[#F3A833] hover:text-[#FFBE55]"
+        className="fixed right-[clamp(16px,1.5vw,32px)] top-[clamp(16px,1.5vw,32px)] z-[120] inline-flex h-[clamp(46px,3vw,64px)] w-[clamp(46px,3vw,64px)] items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5"
+          className="h-[clamp(22px,1.4vw,30px)] w-[clamp(22px,1.4vw,30px)]"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.2"
+          strokeWidth="2.4"
         >
           <path strokeLinecap="round" d="M5 5l14 14M19 5L5 19" />
         </svg>
       </button>
 
-      {/* Left / Right Instant Clip Navigation Chevrons */}
+      {/* Left / Right Fluid Navigation Chevrons */}
       {hasPrev && (
         <button
           type="button"
@@ -249,10 +266,20 @@ export function ViewfinderModal({
             onPrev();
           }}
           aria-label="이전 클립"
-          className="fixed left-2.5 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#111318]/80 text-[#FAF7F0]/85 transition-colors hover:border-[#F3A833] hover:text-[#F3A833] sm:left-4"
+          className="fixed left-[clamp(12px,1.4vw,32px)] top-1/2 z-[120] inline-flex h-[clamp(52px,3.4vw,76px)] w-[clamp(52px,3.4vw,76px)] -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
         >
-          <svg viewBox="0 0 12 20" className="h-5 w-3.5" fill="currentColor">
-            <polygon points="10.8 1.5 9.3 0 0 9.6 9.3 19.2 10.8 17.7 3 9.6 10.8 1.5" />
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[clamp(24px,1.6vw,36px)] w-[clamp(24px,1.6vw,36px)]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 5l-7 7 7 7"
+            />
           </svg>
         </button>
       )}
@@ -265,35 +292,54 @@ export function ViewfinderModal({
             onNext();
           }}
           aria-label="다음 클립"
-          className="fixed right-2.5 top-1/2 z-[110] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#111318]/80 text-[#FAF7F0]/85 transition-colors hover:border-[#F3A833] hover:text-[#F3A833] sm:right-4"
+          className="fixed right-[clamp(12px,1.4vw,32px)] top-1/2 z-[120] inline-flex h-[clamp(52px,3.4vw,76px)] w-[clamp(52px,3.4vw,76px)] -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.10] text-[#F2EFE9] ring-1 ring-white/[0.18] backdrop-blur-md transition-colors hover:bg-[#C89E52] hover:text-[#0A0B0E]"
         >
-          <svg viewBox="0 0 12 20" className="h-5 w-3.5" fill="currentColor">
-            <polygon points="1.2 17.7 2.7 19.2 12 9.6 2.7 0 1.2 1.5 9 9.6 1.2 17.7" />
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[clamp(24px,1.6vw,36px)] w-[clamp(24px,1.6vw,36px)]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       )}
 
-      {/* Centered Scrollable Viewport Wrapper */}
+      {/* Fluid FHD/QHD/4K Theater Container */}
       <div
-        className="relative z-[105] max-h-screen w-full overflow-y-auto px-3 py-8 sm:px-8 sm:py-10"
+        className="relative z-[105] flex max-h-screen w-full items-center justify-center p-3 sm:p-6"
         onClick={onClose}
       >
-        {/* Dark-Glass Theater Container (#111318 clearly separated from #000 backdrop) */}
         <div
-          className="mx-auto w-[min(94vw,1120px)] rounded-[20px] bg-[#111318] p-5 shadow-[0_32px_100px_rgba(0,0,0,0.92)] ring-1 ring-white/[0.12] sm:p-7"
+          className="max-h-[94vh] w-[min(86vw,2800px)] overflow-y-auto rounded-[24px] bg-[#111318] p-5 shadow-[0_32px_100px_rgba(0,0,0,0.92)] ring-1 ring-white/[0.14] sm:p-7 xl:p-9"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* TOP: 64vh Theater Media Stage + Right Circular Action Bar */}
-          <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center">
-            <div className="relative flex w-full min-w-0 flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-[#060709] ring-1 ring-white/[0.07]">
-              {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
+          {/* PURE CHROME-FREE CINEMA STAGE (Click / Space to toggle Play/Pause) */}
+          <div
+            onClick={
+              item.mediaSource === "archive_mp4" && item.previewVideoUrl
+                ? togglePlayPause
+                : undefined
+            }
+            className={`relative flex w-full items-center justify-center overflow-hidden rounded-[18px] bg-[#060709] ring-1 ring-white/[0.08] ${
+              item.mediaSource === "archive_mp4" && item.previewVideoUrl
+                ? "cursor-pointer"
+                : ""
+            }`}
+          >
+            {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
+              <>
                 <video
                   key={item.id}
                   ref={videoRef}
                   src={item.previewVideoUrl}
                   poster={item.thumbnailUrl}
                   preload="auto"
-                  controls
                   autoPlay
                   muted
                   loop
@@ -305,60 +351,105 @@ export function ViewfinderModal({
                   onSeeked={(e) =>
                     setCurrentTimeSec(e.currentTarget.currentTime)
                   }
-                  className="h-[min(64vh,600px)] w-full object-contain"
+                  onPlay={() => setIsPaused(false)}
+                  onPause={() => setIsPaused(true)}
+                  className="h-[min(75vh,1360px)] w-full object-contain"
                 />
-              ) : (
-                <img
-                  key={item.id}
-                  src={item.thumbnailUrl}
-                  alt={item.titleKo}
-                  className="h-auto max-h-[min(64vh,600px)] w-auto max-w-full object-contain"
-                />
-              )}
+                {isPaused && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#0A0B0E]/30"
+                  >
+                    <span className="inline-flex h-[clamp(64px,4.5vw,96px)] w-[clamp(64px,4.5vw,96px)] items-center justify-center rounded-full bg-[#0A0B0E]/75 text-[#C89E52] ring-1 ring-[#C89E52]/60 backdrop-blur-sm">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="ml-1 h-[clamp(28px,2vw,42px)] w-[clamp(28px,2vw,42px)]"
+                        fill="currentColor"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <img
+                key={item.id}
+                src={item.thumbnailUrl}
+                alt={item.titleKo}
+                className="h-[min(75vh,1360px)] w-full object-contain"
+              />
+            )}
+          </div>
+
+          {/* Inline Toast Feedback */}
+          {toastMsg && (
+            <div
+              role="status"
+              className="mt-4 rounded-full border border-[#C89E52]/60 bg-[#C89E52]/15 px-6 py-2.5 text-center text-[clamp(14px,0.9vw,18px)] font-medium text-[#F2EFE9]"
+            >
+              {toastMsg}
+            </div>
+          )}
+
+          {/* BOTTOM CONTROL BAR: Left Work Title + Right 3 Fluid Action Buttons */}
+          <div className="mt-5 flex flex-col gap-4 border-t border-white/[0.10] pt-5 lg:flex-row lg:items-center lg:justify-between">
+            {/* Left: Genre Badge + Single Large Bold Work Title + Year + Source Link */}
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <span className="inline-flex shrink-0 items-center rounded-full bg-[#C89E52] px-3.5 py-1 font-mono text-[clamp(0.85rem,0.85vw,1.15rem)] font-bold uppercase tracking-wider text-[#0A0B0E]">
+                {genreBadge}
+              </span>
+              <h1 className="truncate text-[clamp(1.25rem,1.45vw,2.15rem)] font-bold leading-tight tracking-tight text-[#F2EFE9]">
+                {item.titleKo}
+              </h1>
+              <span className="shrink-0 font-mono text-[clamp(1.05rem,1.1vw,1.6rem)] font-semibold text-[#C89E52]">
+                ({item.year})
+              </span>
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 shrink-0 text-[clamp(0.85rem,0.85vw,1.15rem)] font-medium text-[#C8C4BC] transition-colors hover:text-[#C89E52] hover:underline"
+              >
+                원본 ↗
+              </a>
             </div>
 
-            {/* Right (Mobile Bottom) Kodak 500T Amber Circular Action Bar */}
-            <div className="flex shrink-0 items-center justify-end gap-2.5 lg:flex-col lg:justify-center">
-              {/* 1. Solid #F3A833 Circle Save to Board */}
+            {/* Right: Strictly 3 Fluid Action Buttons Left-to-Right ('저장' · '다운로드' · '현재 프레임 캡처') */}
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              {/* 1. 저장 / 저장됨 ✓ (Anodized Champagne Brass Solid) */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={handleSaveBoardClick}
-                  title={isInBoard ? "내 보드 관리" : "내 보드에 저장"}
                   aria-label={isInBoard ? "내 보드 관리" : "내 보드에 저장"}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#F3A833] bg-[#F3A833] text-black transition-colors hover:border-[#FFBE55] hover:bg-[#FFBE55]"
+                  className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-[#C89E52] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#0A0B0E] transition-colors hover:bg-[#D9B36A]"
                 >
                   {isInBoard ? (
-                    <svg
-                      viewBox="0 0 20 20"
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 10.5l3.5 3.5 7.5-8"
-                      />
-                    </svg>
+                    <span>저장됨 ✓</span>
                   ) : (
-                    <svg
-                      viewBox="0 0 20 20"
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                    >
-                      <path strokeLinecap="round" d="M10 4v12M4 10h12" />
-                    </svg>
+                    <>
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)]"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 4h14a1 1 0 0 1 1 1v16l-8-4.5L4 21V5a1 1 0 0 1 1-1z"
+                        />
+                      </svg>
+                      <span>저장</span>
+                    </>
                   )}
                 </button>
 
-                {/* Board Picker Popover */}
                 {isAuthenticated && boardPickerOpen && (
-                  <div className="absolute bottom-12 right-0 z-30 w-60 rounded-[16px] border border-[#F3A833]/80 bg-[#111318] p-3.5 shadow-2xl lg:bottom-auto lg:right-12 lg:top-0">
-                    <div className="mb-2 flex items-center justify-between text-[13px] font-semibold text-[#FAF7F0]">
+                  <div className="absolute bottom-[calc(100%+12px)] left-0 z-30 w-72 rounded-[16px] border border-[#C89E52]/80 bg-[#111318] p-4 shadow-2xl lg:left-auto lg:right-0">
+                    <div className="mb-2.5 flex items-center justify-between text-[15px] font-semibold text-[#F2EFE9]">
                       <span>보드 선택</span>
                       {isInBoard && (
                         <button
@@ -368,28 +459,28 @@ export function ViewfinderModal({
                             setBoardPickerOpen(false);
                             flashToast("보드에서 제거됨");
                           }}
-                          className="text-[12px] text-[#F3A833] hover:text-[#FFBE55] hover:underline"
+                          className="text-[13px] text-[#C89E52] hover:text-[#D9B36A] hover:underline"
                         >
                           저장 해제
                         </button>
                       )}
                     </div>
-                    <ul className="max-h-44 overflow-y-auto">
+                    <ul className="max-h-52 overflow-y-auto">
                       {folders.map((folder) => {
                         const active =
                           isInBoard && selectedFolderId === folder.id;
                         return (
                           <li
                             key={folder.id}
-                            className="border-b border-white/15 py-1.5 last:border-b-0"
+                            className="border-b border-white/15 py-2.5 last:border-b-0"
                           >
                             <button
                               type="button"
                               onClick={() => handlePickFolder(folder.id)}
-                              className="flex w-full items-center justify-between text-left text-[13px] text-[#FAF7F0] transition-colors hover:text-[#F3A833]"
+                              className="flex w-full items-center justify-between text-left text-[15px] text-[#F2EFE9] transition-colors hover:text-[#C89E52]"
                             >
                               <span className="truncate">{folder.name}</span>
-                              <span className="ml-2 font-mono text-[12px] text-[#F3A833]">
+                              <span className="ml-2 font-mono text-[13px] text-[#C89E52]">
                                 {active ? "SAVED" : "+"}
                               </span>
                             </button>
@@ -401,39 +492,17 @@ export function ViewfinderModal({
                 )}
               </div>
 
-              {/* 2. 1-Click Copy Frame */}
+              {/* 2. 다운로드 (Original Loop .mp4 -> kinoframe-<id>.mp4) */}
               <button
                 type="button"
-                onClick={handleCopyFrameImage}
+                onClick={handleDownloadMp4}
                 disabled={busyAction !== null}
-                title="현재 프레임 클립보드 복사"
-                aria-label="현재 프레임 클립보드 복사"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] bg-[#060709] text-[#F3A833] transition-colors hover:bg-[#F3A833] hover:text-black disabled:opacity-40"
+                aria-label="원본 루프 영상 MP4 다운로드"
+                className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-white/[0.08] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#F2EFE9] ring-1 ring-white/[0.14] transition-colors hover:bg-white/[0.16] disabled:opacity-40"
               >
                 <svg
                   viewBox="0 0 24 24"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <rect x="9" y="9" width="11" height="11" rx="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-              </button>
-
-              {/* 3. Raw PNG Download */}
-              <button
-                type="button"
-                onClick={handleDownloadRawPng}
-                disabled={busyAction !== null}
-                title="원본 PNG 다운로드"
-                aria-label="원본 PNG 다운로드"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] bg-[#060709] text-[#F3A833] transition-colors hover:bg-[#F3A833] hover:text-black disabled:opacity-40"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4"
+                  className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)] text-[#C89E52]"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -444,130 +513,39 @@ export function ViewfinderModal({
                     d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"
                   />
                 </svg>
+                <span>
+                  {busyAction === "download" ? "다운로드 중..." : "다운로드"}
+                </span>
               </button>
 
-              {/* 4. Add/Remove Side-by-Side Compare */}
+              {/* 3. 현재 프레임 캡처 (High-res Canvas PNG download + clipboard image copy simultaneously) */}
               <button
                 type="button"
-                onClick={() => {
-                  onToggleCompare(item.id);
-                  flashToast(
-                    isInCompare ? "비교 슬롯 해제됨" : "좌우 비교에 담김"
-                  );
-                }}
-                disabled={!isInCompare && compareFull}
-                title={isInCompare ? "비교 슬롯 해제" : "좌우 비교에 담기"}
-                aria-label={isInCompare ? "비교 슬롯 해제" : "좌우 비교에 담기"}
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F3A833] transition-colors disabled:opacity-35 ${
-                  isInCompare
-                    ? "bg-[#F3A833] text-black"
-                    : "bg-[#060709] text-[#F3A833] hover:bg-[#F3A833] hover:text-black"
-                }`}
+                onClick={handleCaptureCurrentFrame}
+                disabled={busyAction !== null}
+                aria-label="현재 프레임 PNG 캡처 및 클립보드 복사"
+                className="inline-flex h-[clamp(46px,3.1vw,64px)] items-center justify-center gap-2.5 rounded-full bg-white/[0.08] px-[clamp(20px,1.5vw,34px)] text-[clamp(15px,0.95vw,20px)] font-semibold text-[#F2EFE9] ring-1 ring-white/[0.14] transition-colors hover:bg-white/[0.16] disabled:opacity-40"
               >
                 <svg
                   viewBox="0 0 24 24"
-                  className="h-4 w-4"
+                  className="h-[clamp(20px,1.2vw,26px)] w-[clamp(20px,1.2vw,26px)] text-[#C89E52]"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                 >
-                  <rect x="3" y="4" width="7" height="16" rx="1.5" />
-                  <rect x="14" y="4" width="7" height="16" rx="1.5" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 14h2a2 2 0 0 0 2-2v-2"
+                  />
+                  <circle cx="12" cy="12" r="3" />
                 </svg>
+                <span>
+                  {busyAction === "capture"
+                    ? "캡처 중..."
+                    : "현재 프레임 캡처"}
+                </span>
               </button>
-            </div>
-          </div>
-
-          {/* Inline Toast Feedback */}
-          {toastMsg && (
-            <div
-              role="status"
-              className="mt-3.5 rounded-full border border-[#F3A833]/60 bg-[#F3A833]/15 px-4 py-1.5 text-center text-[13px] font-medium text-[#FAF7F0]"
-            >
-              {toastMsg}
-            </div>
-          )}
-
-          {/* BOTTOM: Cinema Metadata & Optical Taxonomy Tree Capsules */}
-          <div className="mt-5 border-t border-white/[0.08] pt-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h1 className="text-[1.35rem] font-semibold leading-[1.3] text-[#FAF7F0] sm:text-[1.75rem] sm:leading-[2.15rem]">
-                {item.titleKo}{" "}
-                <span className="font-mono font-medium text-[#F3A833]">
-                  ({item.year})
-                </span>
-              </h1>
-              {item.mediaSource === "archive_mp4" && (
-                <span className="font-mono text-[13px] text-[#C8C4BC]">
-                  {formatPreciseTimestamp(currentTimeSec)} /{" "}
-                  {formatDuration(item.durationSec)}
-                </span>
-              )}
-            </div>
-
-            <p className="mt-2 max-w-3xl text-[0.94rem] leading-[1.5] text-[#C8C4BC]">
-              {item.originalTitle} — {item.breakdown.framing}
-            </p>
-
-            {/* Structured Credits */}
-            <ul className="mt-4 grid gap-y-1.5 text-[0.88rem] text-[#FAF7F0] sm:grid-cols-2 sm:gap-x-6">
-              <li>
-                <span className="text-[#7E7B74]">Format — </span>
-                <span>
-                  {categoryLabel} ·{" "}
-                  {item.mediaSource === "archive_mp4"
-                    ? "Direct Loop Video"
-                    : "Archival Still"}
-                </span>
-              </li>
-              <li>
-                <span className="text-[#7E7B74]">Decade / Region — </span>
-                <span>
-                  {item.era} · {countryLabel}
-                </span>
-              </li>
-              <li>
-                <span className="text-[#7E7B74]">Aspect / Runtime — </span>
-                <span className="font-mono">
-                  {item.aspectRatio} · {formatDuration(item.durationSec)}
-                </span>
-              </li>
-              <li>
-                <span className="text-[#7E7B74]">Original Source — </span>
-                <a
-                  href={item.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#F3A833] hover:text-[#FFBE55] hover:underline"
-                >
-                  Open Source Archive ↗
-                </a>
-              </li>
-            </ul>
-
-            {/* Bottom Optical Technique Tree Capsules (Click -> Navigate to Technique Tree View) */}
-            <div className="mt-5 flex flex-wrap gap-2">
-              {techniques.map((tech) => {
-                const branch = getBranchBySlug(tech.branchSlug);
-                return (
-                  <button
-                    key={`pill-${tech.slug}`}
-                    type="button"
-                    onClick={() => {
-                      onSelectTechnique?.(tech.slug);
-                      onClose();
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-[2rem] border border-[#F3A833] bg-[#F3A833] px-3.5 py-1.5 text-[0.78rem] font-semibold uppercase leading-none text-black transition-colors duration-200 hover:border-[#FFBE55] hover:bg-[#FFBE55]"
-                  >
-                    {branch && (
-                      <span className="text-[0.68rem] font-medium opacity-70">
-                        {branch.label} /
-                      </span>
-                    )}
-                    <span>{tech.label}</span>
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>

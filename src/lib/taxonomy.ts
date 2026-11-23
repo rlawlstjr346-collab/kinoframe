@@ -896,7 +896,7 @@ export function filterAndSortArchive(
   return sorted;
 }
 
-const BOARD_ID_PATTERN = /^KF-(?:\d{3,5}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
+const BOARD_ID_PATTERN = /^KF-(?:\d{3,5}|(?:HD|HV)-\d{2,6}|(?:IA|WM)-[A-Za-z0-9_-]{2,48})$/;
 
 function normalizeBoardId(raw: string): string | null {
   const trimmed = raw.trim();
@@ -904,6 +904,10 @@ function normalizeBoardId(raw: string): string | null {
   const staticMatch = trimmed.match(/^kf-(\d{3,5})$/i);
   if (staticMatch) {
     return `KF-${staticMatch[1]}`;
+  }
+  const hdMatch = trimmed.match(/^kf-(hd|hv)-(\d{2,6})$/i);
+  if (hdMatch) {
+    return `KF-${hdMatch[1].toUpperCase()}-${hdMatch[2]}`;
   }
   const conduitMatch = trimmed.match(/^kf-(ia|wm)-([A-Za-z0-9_-]{2,48})$/i);
   if (conduitMatch) {

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { NextRequest } from "next/server";
 
-export type OAuthProvider = "google" | "naver";
+export type OAuthProvider = "google" | "naver" | "kakao";
 export type AuthProvider = OAuthProvider | "account";
 
 export interface SessionUser {
@@ -232,6 +232,23 @@ export function verifyOAuthState(
   }
 }
 
+export function authenticateLocalSocialProfile(
+  provider: OAuthProvider
+): SessionUser {
+  const presets: Record<OAuthProvider, { name: string; email: string }> = {
+    kakao: { name: "카카오 디렉터", email: "director@kakao.local" },
+    naver: { name: "네이버 디렉터", email: "director@naver.local" },
+    google: { name: "Google Director", email: "director@google.local" },
+  };
+  const info = presets[provider];
+  return {
+    sub: `${provider}:local-director`,
+    provider,
+    name: info.name,
+    email: info.email,
+  };
+}
+
 export function getAuthConfigStatus() {
   const google = Boolean(
     process.env.GOOGLE_CLIENT_ID?.trim() &&
@@ -241,11 +258,15 @@ export function getAuthConfigStatus() {
     process.env.NAVER_CLIENT_ID?.trim() &&
       process.env.NAVER_CLIENT_SECRET?.trim()
   );
+  const kakao = Boolean(
+    process.env.KAKAO_CLIENT_ID?.trim() &&
+      process.env.KAKAO_CLIENT_SECRET?.trim()
+  );
   const supabaseEnabled = Boolean(
     process.env.SUPABASE_URL?.trim() &&
       process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
   );
-  return { google, naver, supabaseEnabled };
+  return { google, naver, kakao, supabaseEnabled };
 }
 
 export function getAppOrigin(req: NextRequest): string {

@@ -38,11 +38,55 @@ function extractNasaId(url: string): string | null {
   return m[1].trim().toLowerCase();
 }
 
+function extractYouTubeVideoId(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    if (host === "youtu.be") {
+      const id = parsed.pathname.split("/").filter(Boolean)[0];
+      return id ? id.trim() : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+      const v = parsed.searchParams.get("v");
+      if (v) return v.trim();
+      const m = parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/?#]+)/i);
+      if (m) return m[1].trim();
+    }
+  } catch {
+    // ignore non-URL strings
+  }
+  return null;
+}
+
+function extractLocalMediaPath(url: string): string | null {
+  if (!url.startsWith("/")) return null;
+  const cleanPath = url.split(/[?#]/)[0].trim().toLowerCase();
+  if (!cleanPath || cleanPath === "/") return null;
+  const withoutExt = cleanPath.replace(/\.(?:mp4|webm|webp|jpg|jpeg|png)$/i, "");
+  return withoutExt || cleanPath;
+}
+
+function extractGithubReleaseClipKey(url: string): string | null {
+  const m = url.match(
+    /github\.com\/[^/]+\/[^/]+\/releases\/download\/([^/?#]+)\/([^/?#]+?)(?:\.(?:mp4|webm|webp|jpg|jpeg|png))?$/i
+  );
+  if (!m) return null;
+  return `ghrel:${m[1].toLowerCase()}/${m[2].toLowerCase()}`;
+}
+
 export function getCanonicalMediaKey(
   input:
     | Pick<ArchiveItem, "id" | "sourceUrl" | "previewVideoUrl" | "thumbnailUrl">
     | { sourceUrl?: string | null; previewVideoUrl?: string | null; thumbnailUrl?: string | null; id?: string }
 ): string {
+  // Distinct GitHub Releases harvested clip assets (multiple cuts from one IA source MUST stay distinct)
+  for (const url of [input.previewVideoUrl, input.thumbnailUrl]) {
+    if (typeof url === "string" && url.includes("/releases/download/")) {
+      const ghKey = extractGithubReleaseClipKey(url);
+      if (ghKey) return ghKey;
+    }
+  }
+
   const urls = [input.sourceUrl, input.previewVideoUrl, input.thumbnailUrl].filter(
     (u): u is string => typeof u === "string" && u.length > 0
   );
@@ -62,10 +106,26 @@ export function getCanonicalMediaKey(
     if (nasa) return `nasa:${nasa}`;
   }
 
+  // Local static loops (/poc-loops/KF-HD-01.mp4 -> local:/poc-loops/kf-hd-01)
+  for (const url of [input.previewVideoUrl, input.thumbnailUrl]) {
+    if (typeof url === "string" && url.startsWith("/")) {
+      const localKey = extractLocalMediaPath(url);
+      if (localKey) return `local:${localKey}`;
+    }
+  }
+
+  // YouTube watch?v=<id> / youtu.be/<id> (preserve video ID so distinct videos never collide!)
+  for (const url of urls) {
+    const ytId = extractYouTubeVideoId(url);
+    if (ytId) return `yt:${ytId}`;
+  }
+
   if (urls[0]) {
     try {
       const u = new URL(urls[0]);
-      return `url:${u.hostname.toLowerCase()}${decodeURIComponent(u.pathname).toLowerCase()}`;
+      const vParam = u.searchParams.get("v") || u.searchParams.get("id");
+      const queryPart = vParam ? `?id=${vParam.toLowerCase()}` : "";
+      return `url:${u.hostname.toLowerCase()}${decodeURIComponent(u.pathname).toLowerCase()}${queryPart}`;
     } catch {
       return `url:${urls[0].toLowerCase()}`;
     }

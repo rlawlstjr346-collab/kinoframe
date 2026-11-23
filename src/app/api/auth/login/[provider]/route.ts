@@ -15,8 +15,15 @@ export async function GET(
   context: { params: Promise<{ provider: string }> }
 ) {
   const { provider: rawProvider } = await context.params;
-  if (rawProvider !== "google" && rawProvider !== "naver") {
-    return NextResponse.json({ error: "지원하지 않는 로그인 공급자입니다." }, { status: 400 });
+  if (
+    rawProvider !== "google" &&
+    rawProvider !== "naver" &&
+    rawProvider !== "kakao"
+  ) {
+    return NextResponse.json(
+      { error: "지원하지 않는 로그인 공급자입니다." },
+      { status: 400 }
+    );
   }
   const provider: OAuthProvider = rawProvider;
   const status = getAuthConfigStatus();
@@ -42,7 +49,7 @@ export async function GET(
       prompt: "select_account",
     });
     authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  } else {
+  } else if (provider === "naver") {
     const params = new URLSearchParams({
       client_id: process.env.NAVER_CLIENT_ID!,
       redirect_uri: redirectUri,
@@ -50,6 +57,14 @@ export async function GET(
       state,
     });
     authUrl = `https://nid.naver.com/oauth2.0/authorize?${params.toString()}`;
+  } else {
+    const params = new URLSearchParams({
+      client_id: process.env.KAKAO_CLIENT_ID!,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      state,
+    });
+    authUrl = `https://kauth.kakao.com/oauth/authorize?${params.toString()}`;
   }
 
   const res = NextResponse.redirect(authUrl);

@@ -21,12 +21,103 @@ function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
+async function captureOffscreenProxiedVideoFrame(
+  proxiedVideoUrl: string,
+  targetTimeSec: number
+): Promise<HTMLCanvasElement> {
+  return new Promise((resolve, reject) => {
+    const offVideo = document.createElement("video");
+    offVideo.crossOrigin = "anonymous";
+    offVideo.muted = true;
+    offVideo.playsInline = true;
+    offVideo.preload = "auto";
+
+    let settled = false;
+    const cleanup = () => {
+      offVideo.onloadeddata = null;
+      offVideo.onseeked = null;
+      offVideo.onerror = null;
+      try {
+        offVideo.pause();
+        offVideo.removeAttribute("src");
+        offVideo.load();
+      } catch {
+        // ignore
+      }
+    };
+    const finishErr = (err: Error) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      cleanup();
+      reject(err);
+    };
+    const drawNow = () => {
+      if (settled) return;
+      if (offVideo.videoWidth <= 0 || offVideo.videoHeight <= 0) {
+        finishErr(new Error("OFFSCREEN_VIDEO_EMPTY"));
+        return;
+      }
+      try {
+        const c = document.createElement("canvas");
+        c.width = offVideo.videoWidth;
+        c.height = offVideo.videoHeight;
+        const ctx = c.getContext("2d");
+        if (!ctx) throw new Error("NO_CANVAS_CONTEXT");
+        ctx.drawImage(offVideo, 0, 0, c.width, c.height);
+        ctx.getImageData(0, 0, 1, 1);
+        settled = true;
+        window.clearTimeout(timer);
+        cleanup();
+        resolve(c);
+      } catch (e) {
+        finishErr(e instanceof Error ? e : new Error("OFFSCREEN_DRAW_FAILED"));
+      }
+    };
+
+    const timer = window.setTimeout(
+      () => finishErr(new Error("OFFSCREEN_TIMEOUT")),
+      6500
+    );
+
+    offVideo.onerror = () => finishErr(new Error("OFFSCREEN_LOAD_FAILED"));
+    offVideo.onloadeddata = () => {
+      const safeTarget =
+        Number.isFinite(targetTimeSec) && targetTimeSec > 0.05
+          ? Math.min(
+              targetTimeSec,
+              Number.isFinite(offVideo.duration) && offVideo.duration > 0.2
+                ? offVideo.duration - 0.05
+                : targetTimeSec
+            )
+          : 0;
+      if (safeTarget > 0.05) {
+        offVideo.onseeked = drawNow;
+        try {
+          offVideo.currentTime = safeTarget;
+        } catch {
+          drawNow();
+        }
+      } else {
+        drawNow();
+      }
+    };
+
+    offVideo.src = proxiedVideoUrl;
+  });
+}
+
 async function resolveFrameCanvas(
   item: ArchiveItem,
   videoEl: HTMLVideoElement | null
 ): Promise<HTMLCanvasElement> {
-  // 1. Try direct live video frame capture when video is loaded and CORS-clean
-  if (videoEl && videoEl.readyState >= 2 && videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+  // 1. Try direct live video frame capture when video is same-origin / CORS-clean
+  if (
+    videoEl &&
+    videoEl.readyState >= 2 &&
+    videoEl.videoWidth > 0 &&
+    videoEl.videoHeight > 0
+  ) {
     try {
       const c = document.createElement("canvas");
       c.width = videoEl.videoWidth;
@@ -39,12 +130,30 @@ async function resolveFrameCanvas(
         return c;
       }
     } catch {
-      // Fallback cleanly to CORS-safe proxy thumbnail below
+      // Cross-origin GitHub Releases video (streamed directly without crossOrigin):
+      // capture exact video.currentTime frame cleanly via same-origin /api/media-proxy offscreen video
     }
   }
 
-  // 2. Load high-resolution thumbnail through same-origin allowlisted media proxy
-  const proxySrc = buildMediaProxyUrl(item.thumbnailUrl);
+  // 2. For external archive_mp4 videos (e.g. GitHub Releases), capture exact live currentTime via /api/media-proxy
+  if (
+    item.mediaSource === "archive_mp4" &&
+    item.previewVideoUrl &&
+    !item.previewVideoUrl.startsWith("/")
+  ) {
+    try {
+      const targetTime = videoEl?.currentTime ?? 0;
+      const proxiedVideo = buildMediaProxyUrl(item.previewVideoUrl);
+      return await captureOffscreenProxiedVideoFrame(proxiedVideo, targetTime);
+    } catch {
+      // Fall back cleanly to proxied high-res thumbnail below
+    }
+  }
+
+  // 3. Load high-resolution thumbnail directly (same-origin local loop) or via allowlisted proxy
+  const proxySrc = item.thumbnailUrl.startsWith("/")
+    ? item.thumbnailUrl
+    : buildMediaProxyUrl(item.thumbnailUrl);
   const img = await loadImageClean(proxySrc);
   const c = document.createElement("canvas");
   c.width = img.naturalWidth || 1280;
@@ -203,6 +312,37 @@ export function downloadBlobAsPng(blob: Blob, filename: string): void {
   a.click();
   a.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+}
+
+export async function downloadVideoMp4(item: ArchiveItem): Promise<void> {
+  const filename = `kinoframe-${item.id}.mp4`;
+  const videoUrl = item.previewVideoUrl;
+  if (!videoUrl) {
+    throw new Error("NO_VIDEO_URL");
+  }
+  const fetchUrl = videoUrl.startsWith("/")
+    ? videoUrl
+    : buildMediaProxyUrl(videoUrl, filename);
+  try {
+    const res = await fetch(fetchUrl);
+    if (!res.ok) throw new Error("VIDEO_FETCH_FAILED");
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objUrl), 2500);
+  } catch {
+    const a = document.createElement("a");
+    a.href = fetchUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
 }
 
 export async function copyPngBlobToClipboard(blob: Blob): Promise<boolean> {

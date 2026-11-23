@@ -39,6 +39,16 @@ export class VideoPlaybackScheduler {
     }
   }
 
+  setMaxSlotsOverride(nextCap: number | null): void {
+    const normalized =
+      typeof nextCap === "number" && Number.isFinite(nextCap)
+        ? Math.max(1, Math.floor(nextCap))
+        : null;
+    if (this.maxSlotsOverride === normalized) return;
+    this.maxSlotsOverride = normalized;
+    this.recompute();
+  }
+
   getMaxConcurrentSlots(): number {
     if (this.maxSlotsOverride !== null) {
       return Math.max(1, this.maxSlotsOverride);

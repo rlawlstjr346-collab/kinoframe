@@ -135,7 +135,7 @@ export function MoodboardDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-[#050507]/82 backdrop-blur-md"
+      className="fixed inset-0 z-[90] flex justify-end bg-[#050507]/82 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label="내 보드 (My Boards)"

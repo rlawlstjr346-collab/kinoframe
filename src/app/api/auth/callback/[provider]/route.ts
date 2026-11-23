@@ -19,8 +19,14 @@ export async function GET(
   const { provider: rawProvider } = await context.params;
   const origin = getAppOrigin(req);
 
-  if (rawProvider !== "google" && rawProvider !== "naver") {
-    return NextResponse.redirect(`${origin}/?auth=error&reason=invalid_provider`);
+  if (
+    rawProvider !== "google" &&
+    rawProvider !== "naver" &&
+    rawProvider !== "kakao"
+  ) {
+    return NextResponse.redirect(
+      `${origin}/?auth=error&reason=invalid_provider`
+    );
   }
   const provider: OAuthProvider = rawProvider;
 
@@ -71,7 +77,7 @@ export async function GET(
         email: profile.email,
         avatar: profile.picture,
       };
-    } else {
+    } else if (provider === "naver") {
       const tokenParams = new URLSearchParams({
         grant_type: "authorization_code",
         client_id: process.env.NAVER_CLIENT_ID || "",
@@ -108,6 +114,58 @@ export async function GET(
         name: r.nickname || r.name || r.email || "Naver User",
         email: r.email,
         avatar: r.profile_image,
+      };
+    } else {
+      const tokenBody = new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: process.env.KAKAO_CLIENT_ID || "",
+        redirect_uri: redirectUri,
+        code,
+      });
+      if (process.env.KAKAO_CLIENT_SECRET?.trim()) {
+        tokenBody.set("client_secret", process.env.KAKAO_CLIENT_SECRET.trim());
+      }
+      const tokenRes = await fetch("https://kauth.kakao.com/oauth/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
+        body: tokenBody,
+      });
+      if (!tokenRes.ok) throw new Error("KAKAO_TOKEN_FAILED");
+      const tokenJson = (await tokenRes.json()) as { access_token?: string };
+      if (!tokenJson.access_token) throw new Error("KAKAO_NO_TOKEN");
+
+      const profileRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+        headers: {
+          Authorization: `Bearer ${tokenJson.access_token}`,
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
+      });
+      if (!profileRes.ok) throw new Error("KAKAO_PROFILE_FAILED");
+      const profileJson = (await profileRes.json()) as {
+        id?: number | string;
+        properties?: { nickname?: string; profile_image?: string };
+        kakao_account?: {
+          email?: string;
+          profile?: { nickname?: string; profile_image_url?: string };
+        };
+      };
+      if (!profileJson.id) throw new Error("KAKAO_NO_PROFILE");
+      const nickname =
+        profileJson.kakao_account?.profile?.nickname ||
+        profileJson.properties?.nickname ||
+        profileJson.kakao_account?.email ||
+        "Kakao User";
+      const avatar =
+        profileJson.kakao_account?.profile?.profile_image_url ||
+        profileJson.properties?.profile_image;
+      user = {
+        sub: `kakao:${profileJson.id}`,
+        provider: "kakao",
+        name: nickname,
+        email: profileJson.kakao_account?.email,
+        avatar,
       };
     }
 

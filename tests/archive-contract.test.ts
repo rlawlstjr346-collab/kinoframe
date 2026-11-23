@@ -376,6 +376,36 @@ describe("KINOFRAME V8 Step 2 — Pure Color Cinema (60%) & TVCF (40%), Mid-Film
     };
     expect(getCanonicalMediaKey(localIa)).toBe("ia:wonderfu1980");
     expect(getCanonicalMediaKey(conduitIa)).toBe("ia:wonderfu1980");
+
+    // Distinct YouTube watch?v= URLs and distinct local /poc-loops/ paths MUST NEVER collide
+    const yt1 = {
+      id: "KF-HD-01",
+      sourceUrl: "https://www.youtube.com/watch?v=I5zC1SmfR3M",
+      previewVideoUrl: "/poc-loops/KF-HD-01.mp4",
+      thumbnailUrl: "/poc-loops/KF-HD-01.webp",
+    };
+    const yt2 = {
+      id: "KF-HD-02",
+      sourceUrl: "https://www.youtube.com/watch?v=JKTAKulwExU",
+      previewVideoUrl: "/poc-loops/KF-HD-02.mp4",
+      thumbnailUrl: "/poc-loops/KF-HD-02.webp",
+    };
+    const ytOnly1 = {
+      id: "YT-1",
+      sourceUrl: "https://www.youtube.com/watch?v=I5zC1SmfR3M",
+      previewVideoUrl: null,
+      thumbnailUrl: "https://i.ytimg.com/vi/I5zC1SmfR3M/hqdefault.jpg",
+    };
+    const ytOnly2 = {
+      id: "YT-2",
+      sourceUrl: "https://www.youtube.com/watch?v=JKTAKulwExU",
+      previewVideoUrl: null,
+      thumbnailUrl: "https://i.ytimg.com/vi/JKTAKulwExU/hqdefault.jpg",
+    };
+    expect(getCanonicalMediaKey(yt1)).not.toBe(getCanonicalMediaKey(yt2));
+    expect(getCanonicalMediaKey(ytOnly1)).toBe("yt:I5zC1SmfR3M");
+    expect(getCanonicalMediaKey(ytOnly2)).toBe("yt:JKTAKulwExU");
+    expect(getCanonicalMediaKey(ytOnly1)).not.toBe(getCanonicalMediaKey(ytOnly2));
   });
 
   it("validates color cinema/TVCF conduit, mid-film .thumbs/ enforcement, pre-1964/B&W/TFA blocking, and 429 circuit breaker", () => {
