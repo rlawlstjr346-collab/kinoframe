@@ -74,19 +74,25 @@ interface SlideMountCardProps {
   item: ArchiveItem;
   onOpenDetail: (item: ArchiveItem) => void;
   onEvictItem?: (id: string) => void;
+  onImpression?: (id: string) => void;
+  deckEpoch?: number;
 }
 
 const STALL_EVICT_TIMEOUT_MS = 6500;
+const IMPRESSION_DWELL_MS = 900;
 
 export const SlideMountCard = React.memo(function SlideMountCard({
   item,
   onOpenDetail,
   onEvictItem,
+  onImpression,
+  deckEpoch = 0,
 }: SlideMountCardProps) {
   const cardRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const evictedRef = useRef<boolean>(false);
   const initialSeekDoneRef = useRef<boolean>(false);
+  const impressionRecordedEpochRef = useRef<number>(-1);
   const windowRef = useRef<HighlightWindow>(getHighlightWindow(item));
 
   const [isNearViewport, setIsNearViewport] = useState(false);
@@ -187,6 +193,56 @@ export const SlideMountCard = React.memo(function SlideMountCard({
       setSlotAllowed(false);
     };
   }, [isAutoLoopVideo, item.id]);
+
+  // Automatic viewport dwell impression tracking (>= 35% visible for >= 900ms)
+  useEffect(() => {
+    if (!onImpression) return;
+    const node = cardRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    let dwellTimer: number | null = null;
+    const clearTimer = () => {
+      if (dwellTimer !== null) {
+        window.clearTimeout(dwellTimer);
+        dwellTimer = null;
+      }
+    };
+
+    const impressionObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        const meetsThreshold =
+          entry.isIntersecting && entry.intersectionRatio >= 0.35;
+        if (meetsThreshold) {
+          if (
+            dwellTimer === null &&
+            impressionRecordedEpochRef.current !== deckEpoch
+          ) {
+            dwellTimer = window.setTimeout(() => {
+              dwellTimer = null;
+              if (impressionRecordedEpochRef.current !== deckEpoch) {
+                impressionRecordedEpochRef.current = deckEpoch;
+                onImpression(item.id);
+              }
+            }, IMPRESSION_DWELL_MS);
+          }
+        } else {
+          clearTimer();
+        }
+      },
+      {
+        threshold: [0, 0.35],
+        rootMargin: "0px",
+      }
+    );
+
+    impressionObserver.observe(node);
+    return () => {
+      clearTimer();
+      impressionObserver.disconnect();
+    };
+  }, [item.id, onImpression, deckEpoch]);
 
   useEffect(() => {
     if (!isNearViewport) return;
@@ -297,6 +353,7 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   return (
     <article
       ref={cardRef}
+      data-clip-id={item.id}
       onMouseEnter={() => {
         if (isAutoLoopVideo) {
           globalVideoScheduler.update(item.id, { hovered: true });

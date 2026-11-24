@@ -6,6 +6,13 @@ import type { ArchiveItem, AspectRatio } from "@/types/archive";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 import { searchArchiveItems } from "@/lib/search";
+import {
+  TOP_DECK_SIZE,
+  buildImpressionDeckOrder,
+  loadImpressionDeckState,
+  recordImpressionsInState,
+  saveImpressionDeckState,
+} from "@/lib/impression-deck";
 import { EyecandyHeader } from "@/components/EyecandyHeader";
 import { SlideMountCard } from "@/components/SlideMountCard";
 import { ViewfinderModal } from "@/components/ViewfinderModal";
@@ -14,9 +21,6 @@ interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
 }
 
-const SEEN_STORAGE_KEY = "kinoframe_seen_v1";
-const MAX_SEEN_IDS = 450;
-const AUTO_RESET_UNSEEN_THRESHOLD = 20;
 const WALL_PAGE_STEP = 48;
 
 const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
@@ -69,90 +73,18 @@ function distributeToColumns(
   return cols;
 }
 
-function fisherYatesShuffle<T>(arr: readonly T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = out[i];
-    out[i] = out[j];
-    out[j] = tmp;
-  }
-  return out;
-}
-
-function loadSeenIds(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(SEEN_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((x): x is string => typeof x === "string")
-      .slice(-MAX_SEEN_IDS);
-  } catch {
-    return [];
-  }
-}
-
-function appendSeenIds(newIds: readonly string[]): void {
-  if (typeof window === "undefined" || newIds.length === 0) return;
-  try {
-    const current = loadSeenIds();
-    const seenSet = new Set(current);
-    const merged = [...current];
-    for (const id of newIds) {
-      if (!seenSet.has(id)) {
-        seenSet.add(id);
-        merged.push(id);
-      }
-    }
-    window.localStorage.setItem(
-      SEEN_STORAGE_KEY,
-      JSON.stringify(merged.slice(-MAX_SEEN_IDS))
-    );
-  } catch {
-    // ignore storage quota errors
-  }
-}
-
-function buildUnseenFirstOrder(allIds: readonly string[]): string[] {
-  const seenList = loadSeenIds();
-  const seenSet = new Set(seenList);
-
-  const unseen: string[] = [];
-  const seen: string[] = [];
-  for (const id of allIds) {
-    if (seenSet.has(id)) {
-      seen.push(id);
-    } else {
-      unseen.push(id);
-    }
-  }
-
-  if (allIds.length >= 25 && unseen.length < AUTO_RESET_UNSEEN_THRESHOLD) {
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage.removeItem(SEEN_STORAGE_KEY);
-      } catch {
-        // ignore
-      }
-    }
-    return fisherYatesShuffle(allIds);
-  }
-
-  return [...fisherYatesShuffle(unseen), ...fisherYatesShuffle(seen)];
-}
-
 export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q")?.trim() || "";
 
+  const [liveItems, setLiveItems] = useState<ArchiveItem[]>(items);
   const [columnCount, setColumnCount] = useState<number>(5);
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [shuffledOrderIds, setShuffledOrderIds] = useState<string[] | null>(
     null
   );
+  const [deckEpoch, setDeckEpoch] = useState<number>(0);
+  const [shuffleTick, setShuffleTick] = useState<number>(0);
   const [rawSearch, setRawSearch] = useState<string>(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(initialQuery);
   const [searchLookupItems, setSearchLookupItems] = useState<ArchiveItem[]>([]);
@@ -161,17 +93,25 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
+  const deckInitializedRef = useRef<boolean>(false);
+  const visibleItemsRef = useRef<ArchiveItem[]>([]);
+  const liveItemsRef = useRef<ArchiveItem[]>(items);
+
+  useEffect(() => {
+    setLiveItems(items);
+    liveItemsRef.current = items;
+  }, [items]);
 
   const isShortLoopCatalog = useMemo(
     () =>
-      items.length > 0 &&
-      items.every(
+      liveItems.length > 0 &&
+      liveItems.every(
         (entry) =>
           entry.mediaSource === "archive_mp4" &&
           entry.durationSec !== null &&
           entry.durationSec <= 6
       ),
-    [items]
+    [liveItems]
   );
 
   // Unlock 20 simultaneous desktop slots (mobile 6) for ultra-light HD loops
@@ -193,10 +133,35 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     };
   }, [isShortLoopCatalog]);
 
-  // Hydration-safe Unseen-First Fisher-Yates shuffle on client mount
+  // Hydration-safe Impression Deck build on initial client mount (0% overlap with lastDeckIds)
   useEffect(() => {
-    setShuffledOrderIds(buildUnseenFirstOrder(items.map((entry) => entry.id)));
-  }, [items]);
+    if (deckInitializedRef.current || liveItems.length === 0) return;
+    deckInitializedRef.current = true;
+    const state = loadImpressionDeckState();
+    const { orderedIds, nextState } = buildImpressionDeckOrder(liveItems, state);
+    saveImpressionDeckState(nextState);
+    setShuffledOrderIds(orderedIds);
+    setDeckEpoch((prev) => prev + 1);
+  }, [liveItems]);
+
+  // Background fresh wall sync from /api/archive/wall (Cache-Control: no-store)
+  const syncLatestWallPool = useCallback(async (): Promise<ArchiveItem[] | null> => {
+    try {
+      const res = await fetch("/api/archive/wall", {
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      const data = (await res.json()) as { items?: ArchiveItem[] } | null;
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        liveItemsRef.current = data.items;
+        setLiveItems(data.items);
+        return data.items;
+      }
+    } catch {
+      // keep existing catalog seamlessly
+    }
+    return null;
+  }, []);
 
   // Responsive 5 / 3 / 2 column sync on mount and resize
   useEffect(() => {
@@ -250,7 +215,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return () => ctrl.abort();
   }, [debouncedQuery]);
 
-  // Deduplicated master catalog (active wall + deep search lookup hits)
+  // Deduplicated master catalog (live active wall + deep search lookup hits)
   const allCatalogItems = useMemo(() => {
     const out: ArchiveItem[] = [];
     const seenIds = new Set<string>();
@@ -263,10 +228,10 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       seenCanonical.add(canon);
       out.push(entry);
     };
-    for (const entry of items) appendUnique(entry);
+    for (const entry of liveItems) appendUnique(entry);
     for (const entry of searchLookupItems) appendUnique(entry);
     return out;
-  }, [items, searchLookupItems, evictedIds]);
+  }, [liveItems, searchLookupItems, evictedIds]);
 
   const orderedBaseItems = useMemo(() => {
     if (!shuffledOrderIds) {
@@ -303,13 +268,9 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     [displayedPool, visibleCount]
   );
 
-  // Record viewed IDs for Unseen-First randomization
   useEffect(() => {
-    if (!shuffledOrderIds || debouncedQuery) return;
-    if (visibleItems.length > 0) {
-      appendSeenIds(visibleItems.map((entry) => entry.id));
-    }
-  }, [visibleItems, shuffledOrderIds, debouncedQuery]);
+    visibleItemsRef.current = visibleItems;
+  }, [visibleItems]);
 
   const hasMoreItems = visibleCount < displayedPool.length;
 
@@ -362,28 +323,87 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     });
   }, []);
 
+  // Automatic >= 35% / >= 900ms viewport dwell impression logger
+  const handleCardImpression = useCallback((id: string) => {
+    const current = loadImpressionDeckState();
+    const updated = recordImpressionsInState(current, [id], Date.now());
+    saveImpressionDeckState(updated);
+  }, []);
+
+  // Rotate to 100% fresh non-overlapping 40-cut deck + sync latest /api/archive/wall in background
+  const rotateFreshDeck = useCallback(
+    (clearSearch: boolean) => {
+      if (clearSearch) {
+        setRawSearch("");
+        setDebouncedQuery("");
+        setSelectedItemId(null);
+      }
+      const currentTopIds = visibleItemsRef.current
+        .slice(0, TOP_DECK_SIZE)
+        .map((entry) => entry.id);
+
+      const currentState = loadImpressionDeckState();
+      const recordedState = recordImpressionsInState(
+        {
+          ...currentState,
+          lastDeckIds:
+            currentTopIds.length > 0 ? currentTopIds : currentState.lastDeckIds,
+        },
+        currentTopIds,
+        Date.now()
+      );
+
+      const pool = liveItemsRef.current.filter((e) => !evictedIds.has(e.id));
+      const { orderedIds, nextState } = buildImpressionDeckOrder(
+        pool,
+        recordedState
+      );
+      saveImpressionDeckState(nextState);
+      setShuffledOrderIds(orderedIds);
+      setDeckEpoch((prev) => prev + 1);
+      setVisibleCount(WALL_PAGE_STEP);
+
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Sync latest GitHub Releases pool in background for next deck / newly added clips
+      void syncLatestWallPool();
+    },
+    [evictedIds, syncLatestWallPool]
+  );
+
   const handleShuffleWall = useCallback(() => {
-    setShuffledOrderIds(
-      fisherYatesShuffle(allCatalogItems.map((entry) => entry.id))
-    );
-    setVisibleCount(WALL_PAGE_STEP);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [allCatalogItems]);
+    rotateFreshDeck(true);
+  }, [rotateFreshDeck]);
 
   const handleLogoClick = useCallback(() => {
-    setRawSearch("");
-    setDebouncedQuery("");
-    setSelectedItemId(null);
-    setShuffledOrderIds(
-      fisherYatesShuffle(allCatalogItems.map((entry) => entry.id))
-    );
-    setVisibleCount(WALL_PAGE_STEP);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [allCatalogItems]);
+    rotateFreshDeck(true);
+  }, [rotateFreshDeck]);
+
+  // Keyboard shortcut `R` (outside inputs & when modal is closed) -> trigger '새로운 컷'
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key !== "r" && e.key !== "R") return;
+      if (selectedItemId) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      e.preventDefault();
+      setShuffleTick((t) => t + 1);
+      rotateFreshDeck(true);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [rotateFreshDeck, selectedItemId]);
 
   const handleSearchSubmit = useCallback(() => {
     setDebouncedQuery(rawSearch.trim());
@@ -392,6 +412,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
 
   const handleOpenDetail = useCallback((item: ArchiveItem) => {
     setSelectedItemId(item.id);
+    const current = loadImpressionDeckState();
+    saveImpressionDeckState(recordImpressionsInState(current, [item.id], Date.now()));
   }, []);
 
   return (
@@ -406,6 +428,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         onSearchSubmit={handleSearchSubmit}
         onLogoClick={handleLogoClick}
         onShuffleWall={handleShuffleWall}
+        shuffleTick={shuffleTick}
       />
 
       <main className="w-full flex-1 pt-[clamp(68px,4.3vw,88px)]">
@@ -428,6 +451,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                         item={item}
                         onOpenDetail={handleOpenDetail}
                         onEvictItem={handleEvictItem}
+                        onImpression={handleCardImpression}
+                        deckEpoch={deckEpoch}
                       />
                     ))}
                   </div>

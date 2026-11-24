@@ -33,6 +33,12 @@ import {
   filterItemsBySeoTopic,
   getSeoTopicBySlug,
 } from "@/lib/seo-topics";
+import {
+  TOP_DECK_SIZE,
+  buildImpressionDeckOrder,
+  createEmptyImpressionState,
+  recordImpressionsInState,
+} from "@/lib/impression-deck";
 
 const ITEMS = archiveSnapshot as ArchiveItem[];
 
@@ -275,15 +281,64 @@ describe("KINOFRAME Apple HIG Zero-Login Archive, Multilingual Search & Media Qu
         ).toBe(false);
       }
 
-      // Champagne brass solid buttons removed from UI components
+      // Champagne brass solid CTA is allowed ONLY for the header '새로운 컷' button
       if (
-        filePath.endsWith("EyecandyHeader.tsx") ||
         filePath.endsWith("ViewfinderModal.tsx") ||
         filePath.endsWith("ArchiveWorkbench.tsx")
       ) {
         expect(content.includes("bg-[#C89E52]")).toBe(false);
       }
     }
+
+    // Verify top-right Champagne Gold '새로운 컷' button renders in EyecandyHeader
+    const headerSrc = fs.readFileSync(
+      path.resolve(process.cwd(), "src/components/EyecandyHeader.tsx"),
+      "utf-8"
+    );
+    expect(headerSrc).toContain("bg-[#C89E52]");
+    expect(headerSrc).toContain("새로운 컷");
+    expect(headerSrc).toContain("새로운 컷으로 교체 (단축키 R)");
+  });
+
+  it("verifies zero-reset impression deck rotation with 0% top-40 overlap across consecutive loads", () => {
+    const mockPool: ArchiveItem[] = Array.from({ length: 120 }, (_, idx) => ({
+      ...SAMPLE_SEARCH_CATALOG[idx % SAMPLE_SEARCH_CATALOG.length],
+      id: `KF-HV-${String(idx + 1).padStart(4, "0")}`,
+      createdAt: new Date(Date.UTC(2026, 10, 1 + (idx % 20))).toISOString(),
+      protectedSeed: idx < 20,
+    }));
+
+    // Load 1
+    let state = createEmptyImpressionState();
+    const deck1 = buildImpressionDeckOrder(mockPool, state);
+    expect(deck1.topDeckIds).toHaveLength(TOP_DECK_SIZE);
+    state = recordImpressionsInState(deck1.nextState, deck1.topDeckIds, 10_000);
+
+    // Load 2: 0% overlap with Load 1 top 40, and impressions never wiped
+    const deck2 = buildImpressionDeckOrder(mockPool, state);
+    expect(deck2.topDeckIds).toHaveLength(TOP_DECK_SIZE);
+    const set1 = new Set(deck1.topDeckIds);
+    const overlap12 = deck2.topDeckIds.filter((id) => set1.has(id));
+    expect(overlap12).toHaveLength(0);
+    expect(Object.keys(deck2.nextState.impressions)).toHaveLength(TOP_DECK_SIZE);
+
+    // Load 3: after recording Load 2, 0% overlap with Load 2 top 40, and cumulative impressions preserved (80)
+    state = recordImpressionsInState(deck2.nextState, deck2.topDeckIds, 20_000);
+    const deck3 = buildImpressionDeckOrder(mockPool, state);
+    const set2 = new Set(deck2.topDeckIds);
+    const overlap23 = deck3.topDeckIds.filter((id) => set2.has(id));
+    expect(overlap23).toHaveLength(0);
+    expect(Object.keys(deck3.nextState.impressions)).toHaveLength(TOP_DECK_SIZE * 2);
+
+    // Load 4: once all 120 clips have been seen (count=1), still zero reset & oldest lastSeenAt prioritized first
+    state = recordImpressionsInState(deck3.nextState, deck3.topDeckIds, 30_000);
+    const deck4 = buildImpressionDeckOrder(mockPool, state);
+    expect(Object.keys(deck4.nextState.impressions)).toHaveLength(120);
+    const set3 = new Set(deck3.topDeckIds);
+    expect(deck4.topDeckIds.filter((id) => set3.has(id))).toHaveLength(0);
+    // All top 40 in Load 4 should come from Load 1 (oldest lastSeenAt = 1000)
+    const fromOldest = deck4.topDeckIds.filter((id) => set1.has(id));
+    expect(fromOldest).toHaveLength(TOP_DECK_SIZE);
   });
 
   it("validates multilingual, space-insensitive, phonetic, Choseong, thesaurus & typo-tolerant search engine", () => {

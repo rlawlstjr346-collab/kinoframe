@@ -100,7 +100,10 @@ export interface ArchiveItem {
   breakdown: BreakdownSpec;
   aliases?: string[];
   addedAt?: string;
+  createdAt?: string;
   harvestedAt?: string;
+  protectedSeed?: boolean;
+  seedMasterpiece?: boolean;
   shard?: string;
   status?: "active" | "archived";
   bytes?: number;

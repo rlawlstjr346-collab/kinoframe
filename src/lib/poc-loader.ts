@@ -49,17 +49,28 @@ function readLocalPocManifest(): ArchiveItem[] | null {
   }
 }
 
+function withMinuteCacheBuster(url: string, exactBust?: number): string {
+  const sep = url.includes("?") ? "&" : "?";
+  const token =
+    typeof exactBust === "number"
+      ? exactBust
+      : Math.floor(Date.now() / 60_000);
+  return `${url}${sep}v=${token}`;
+}
+
 async function fetchReleaseCatalogJson(
   url: string,
-  timeoutMs = 5000
+  timeoutMs = 5000,
+  exactBust?: number
 ): Promise<ArchiveItem[] | null> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(withMinuteCacheBuster(url, exactBust), {
       headers: {
         Accept: "application/json",
-        "User-Agent": "KinoframeCatalogLoader/1.0",
+        "Cache-Control": "no-cache",
+        "User-Agent": "KinoframeCatalogLoader/2.0",
       },
-      next: { revalidate: 300 },
+      cache: "no-store",
       signal: AbortSignal.timeout(timeoutMs),
     });
     if (!res.ok) return null;
@@ -78,12 +89,18 @@ export interface LoadedArchiveCatalog {
 }
 
 /**
- * Loads the active main-wall catalog (up to 600 clips) from GitHub Releases
- * (`kinoframe-meta/wall-active.json`, ISR 300s) with zero-error fallback to
- * local `public/poc-loops/manifest.json` and then built-in `archive-snapshot.json`.
+ * Loads the active main-wall catalog (up to 600 clips) directly from GitHub Releases
+ * (`kinoframe-meta/wall-active.json`) with `cache: "no-store"` and a minute-level
+ * cache buster so Vercel never serves stale catalog builds.
  */
-export async function loadWallActiveCatalog(): Promise<LoadedArchiveCatalog> {
-  const remote = await fetchReleaseCatalogJson(WALL_ACTIVE_RELEASE_URL, 4500);
+export async function loadWallActiveCatalog(options?: {
+  exactBust?: number;
+}): Promise<LoadedArchiveCatalog> {
+  const remote = await fetchReleaseCatalogJson(
+    WALL_ACTIVE_RELEASE_URL,
+    5500,
+    options?.exactBust
+  );
   if (remote && remote.length > 0) {
     return {
       items: remote,
@@ -110,8 +127,8 @@ export async function loadWallActiveCatalog(): Promise<LoadedArchiveCatalog> {
 
 /**
  * Loads the full cumulative catalog (up to 10,000 clips including `archived` items)
- * from GitHub Releases (`kinoframe-meta/catalog-full.json`, ISR 300s) for permanent
- * My Board / `?board=` restoration and full-archive keyword search.
+ * from GitHub Releases (`kinoframe-meta/catalog-full.json`) with `cache: "no-store"`
+ * for full-archive keyword search and `/shot/[id]` resolution.
  */
 export async function loadFullCatalogForLookup(): Promise<ArchiveItem[]> {
   const remoteFull = await fetchReleaseCatalogJson(
@@ -124,7 +141,7 @@ export async function loadFullCatalogForLookup(): Promise<ArchiveItem[]> {
 
   const remoteWall = await fetchReleaseCatalogJson(
     WALL_ACTIVE_RELEASE_URL,
-    4000
+    4500
   );
   if (remoteWall && remoteWall.length > 0) {
     return remoteWall;
