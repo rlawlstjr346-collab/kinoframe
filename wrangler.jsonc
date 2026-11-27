@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kinoframe",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV", "id": "96de418102804e6db650ce8eb201e95b" }],
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "kinoframe" }],
+  "observability": { "enabled": true }
+}

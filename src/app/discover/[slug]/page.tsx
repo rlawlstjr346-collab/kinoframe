@@ -68,7 +68,7 @@ export default async function DiscoverTopicPage({
   }
 
   const siteUrl = getSiteUrl();
-  const { items } = await loadWallActiveCatalog();
+  const { items } = await loadWallActiveCatalog({ revalidateSeconds: 300 });
   const matchedItems = filterItemsBySeoTopic(items, topic);
 
   const structuredData = {

@@ -26,8 +26,8 @@ function safeCdata(input: string): string {
 export async function GET() {
   const siteUrl = getSiteUrl();
   const [{ items: wallItems }, fullItems] = await Promise.all([
-    loadWallActiveCatalog(),
-    loadFullCatalogForLookup(),
+    loadWallActiveCatalog({ revalidateSeconds: 300 }),
+    loadFullCatalogForLookup({ revalidateSeconds: 300 }),
   ]);
 
   const activeItems = wallItems.length > 0 ? wallItems : fullItems;

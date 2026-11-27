@@ -1,0 +1,2 @@
+# Local-only (gitignored) PoC loops never ship as static assets.
+poc-loops

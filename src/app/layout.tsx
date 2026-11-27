@@ -16,6 +16,15 @@ const verificationConfig: Metadata["verification"] =
       }
     : undefined;
 
+// Pre-rendered share card in public/ (static asset, zero Worker CPU) instead of a next/og route.
+const OG_IMAGE = {
+  url: "/opengraph-image.png",
+  width: 1200,
+  height: 630,
+  type: "image/png",
+  alt: "KINOFRAME. — Cinema & TVCF Moving Reference Archive",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -50,6 +59,7 @@ export const metadata: Metadata = {
     },
   },
   ...(verificationConfig ? { verification: verificationConfig } : {}),
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "any" }] },
   openGraph: {
     type: "website",
     locale: "ko_KR",
@@ -58,12 +68,14 @@ export const metadata: Metadata = {
     title: "KINOFRAME — 광고·영화 영상 연출 레퍼런스 무빙 아카이브",
     description:
       "고화질 컬러 영화 본편 미장센과 글로벌 아이코닉 TVCF 무빙 루프를 한눈에 탐색하고 1클릭 프레임 캡처·원본 탐색까지 끝내는 디렉터용 아카이브.",
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "KINOFRAME — 광고·영화 영상 연출 레퍼런스 아카이브",
     description:
       "TVCF 레퍼런스, 원테이크 샷, 초반 3초 훅, 시네마틱 색감 아카이브 — film & commercial visual reference.",
+    images: [OG_IMAGE],
   },
   robots: {
     index: true,

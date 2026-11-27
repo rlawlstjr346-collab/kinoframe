@@ -13,6 +13,11 @@ import { KinoframeLogo } from "@/components/KinoframeLogo";
 
 export const revalidate = 300;
 
+// Rendered on first visit, then served from the ISR cache (no shot is prebuilt at deploy time).
+export function generateStaticParams() {
+  return [];
+}
+
 const SITE_URL = getSiteUrl();
 
 export async function generateMetadata({
@@ -21,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const catalog = await loadFullCatalogForLookup();
+  const catalog = await loadFullCatalogForLookup({ revalidateSeconds: 300 });
   const item = catalog.find(
     (entry) => entry.id.toLowerCase() === id.toLowerCase()
   );
@@ -90,7 +95,7 @@ export default async function ShotDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const catalog = await loadFullCatalogForLookup();
+  const catalog = await loadFullCatalogForLookup({ revalidateSeconds: 300 });
   const item = catalog.find(
     (entry) => entry.id.toLowerCase() === id.toLowerCase()
   );

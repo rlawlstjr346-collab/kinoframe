@@ -1,0 +1,2 @@
+# Former next/og route -> pre-rendered PNG (keeps previously shared links working).
+/opengraph-image /opengraph-image.png 301

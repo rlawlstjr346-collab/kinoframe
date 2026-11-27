@@ -6,6 +6,7 @@ import type { ArchiveItem, AspectRatio } from "@/types/archive";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 import { searchArchiveItems } from "@/lib/search";
+import { normalizeCatalogPayload } from "@/lib/catalog-payload";
 import {
   TOP_DECK_SIZE,
   buildImpressionDeckOrder,
@@ -71,6 +72,22 @@ function distributeToColumns(
   }
 
   return cols;
+}
+
+let fullCatalogPromise: Promise<ArchiveItem[]> | null = null;
+
+function loadFullCatalogOnce(): Promise<ArchiveItem[]> {
+  fullCatalogPromise ??= fetch("/api/archive/full")
+    .then((res) => {
+      if (!res.ok) throw new Error(`catalog ${res.status}`);
+      return res.json();
+    })
+    .then((json) => normalizeCatalogPayload(json));
+  // Failed downloads are retried on the next query instead of being cached.
+  fullCatalogPromise.catch(() => {
+    fullCatalogPromise = null;
+  });
+  return fullCatalogPromise;
 }
 
 export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
@@ -151,11 +168,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         cache: "no-store",
       });
       if (!res.ok) return null;
-      const data = (await res.json()) as { items?: ArchiveItem[] } | null;
-      if (data && Array.isArray(data.items) && data.items.length > 0) {
-        liveItemsRef.current = data.items;
-        setLiveItems(data.items);
-        return data.items;
+      const fresh = normalizeCatalogPayload(await res.json());
+      if (fresh.length > 0) {
+        liveItemsRef.current = fresh;
+        setLiveItems(fresh);
+        return fresh;
       }
     } catch {
       // keep existing catalog seamlessly
@@ -194,25 +211,23 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     return () => window.clearTimeout(t);
   }, [rawSearch]);
 
-  // Deep full-catalog search via /api/archive/lookup?q=... when searching
+  // Deep full-catalog search: the full catalog is downloaded once (/api/archive/full, streamed)
+  // and searched in the browser with the same matcher /api/archive/lookup uses (top 120 hits).
   useEffect(() => {
     const q = debouncedQuery.trim();
     if (q.length < 2) {
       setSearchLookupItems([]);
       return;
     }
-    const ctrl = new AbortController();
-    fetch(`/api/archive/lookup?q=${encodeURIComponent(q)}`, {
-      signal: ctrl.signal,
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { items?: ArchiveItem[] } | null) => {
-        if (data && Array.isArray(data.items)) {
-          setSearchLookupItems(data.items);
-        }
+    let cancelled = false;
+    loadFullCatalogOnce()
+      .then((catalog) => {
+        if (!cancelled) setSearchLookupItems(searchArchiveItems(catalog, q).slice(0, 120));
       })
       .catch(() => {});
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery]);
 
   // Deduplicated master catalog (live active wall + deep search lookup hits)
