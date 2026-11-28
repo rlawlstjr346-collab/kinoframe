@@ -162,7 +162,8 @@ export default async function ShotDetailPage({
             {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
               <video
                 src={toStreamingMediaUrl(item.previewVideoUrl) ?? undefined}
-                poster={item.thumbnailUrl}
+                poster={toStreamingMediaUrl(item.thumbnailUrl) ?? undefined}
+                crossOrigin="anonymous"
                 autoPlay
                 muted
                 loop

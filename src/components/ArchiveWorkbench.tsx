@@ -275,10 +275,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     for (const entry of categoryPool) {
       for (const tag of entry.opticsTags ?? []) counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
-    return TECHNIQUE_ORDER.filter((tag) => (counts.get(tag) ?? 0) >= MIN_TECHNIQUE_COUNT || tag === technique).map((tag) => ({
-      tag,
-      count: counts.get(tag) ?? 0,
-    }));
+    return TECHNIQUE_ORDER.filter((tag) => (counts.get(tag) ?? 0) >= MIN_TECHNIQUE_COUNT || tag === technique).map((tag) => ({ tag }));
   }, [categoryPool, technique]);
 
   const displayedPool = useMemo(() => {
@@ -545,7 +542,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
           techniques={techniqueChips}
           activeTechnique={technique}
           onTechniqueChange={handleTechniqueChange}
-          resultCount={displayedPool.length}
         />
       </EyecandyHeader>
 
@@ -590,7 +586,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
             </>
           ) : (
             <section className="mx-auto mt-10 flex max-w-lg flex-col items-center justify-center rounded-[28px] border border-white/[0.10] bg-[var(--kf-surface)] px-6 py-20 text-center">
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[var(--kf-text)]">일치하는 클립이 없습니다</h2>
+              <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[var(--kf-text)]">일치하는 클립 0건</h2>
               <p className="mt-2 text-[15px] text-[var(--kf-text-secondary)]">
                 작품명, 감독, 브랜드, 초성 또는 연출 기법으로 다시 검색해 보세요.
               </p>
@@ -609,9 +605,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
       <footer className="border-t border-white/[0.08] bg-[var(--kf-bg)] py-5">
         <div className="flex w-full flex-col items-start justify-between gap-2 px-[var(--kf-gutter)] text-[clamp(12px,0.72vw,25px)] tracking-[-0.01em] text-[var(--kf-text-secondary)] sm:flex-row sm:items-center">
           <span className="font-medium text-[var(--kf-text)]/80">KINOFRAME · 시네마·TVCF 무빙 레퍼런스 아카이브</span>
-          <span>
-            5초 루프 <span className="num">{liveItems.length}</span>편 · SD 아카이브 포함, 원본 해상도 그대로
-          </span>
+          <span>5초 무빙 루프 · SD 아카이브 포함, 원본 해상도 그대로</span>
         </div>
       </footer>
 
@@ -647,7 +641,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         onImportShared={() => {
           if (!sharedBoardIds) return;
           boardActions.addMany(sharedBoardIds);
-          showToast(`${sharedBoardIds.length}개 컷을 내 보드로 가져왔습니다`);
+          showToast("공유된 컷을 내 보드로 가져왔습니다");
           closeBoard();
         }}
         onToast={showToast}

@@ -14,7 +14,7 @@ on:
         default: "160"
         type: string
       min_height:
-        description: "Minimum source height (720 = HD gate; 480 re-admits SD archive spots)"
+        description: "Minimum height for 2005+ sources after bar crop (pre-2005 film/TV spots use 460)"
         required: false
         default: "720"
         type: string
@@ -43,7 +43,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg python3-pip
-          python3 -m pip install -U --quiet --break-system-packages "yt-dlp[default]" Pillow numpy
+          python3 -m pip install -U --quiet --break-system-packages "yt-dlp[default]" Pillow numpy cmudict
 
       - name: Run autonomous cinema & TVCF harvester (GitHub Releases storage)
         run: |

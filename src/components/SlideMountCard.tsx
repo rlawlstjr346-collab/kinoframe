@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
-import { toStreamingMediaUrl } from "@/lib/media-url";
 import { getCropLayerStyle, getVisibleAspect } from "@/lib/media-crop";
 import { BoardBookmarkIcon } from "@/components/Icons";
 
@@ -345,7 +344,9 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     }
   };
 
-  const videoSrc = toStreamingMediaUrl(item.previewVideoUrl);
+  // Wall loops load straight from the GitHub Releases CDN (no crossOrigin): zero Worker requests.
+  // Only the viewer modal uses the same-origin /media stream, because it needs an untainted canvas.
+  const videoSrc = item.previewVideoUrl;
   const setHovered = (hovered: boolean) => {
     if (isAutoLoopVideo) globalVideoScheduler.update(item.id, { hovered });
   };

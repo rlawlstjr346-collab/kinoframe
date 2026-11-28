@@ -261,9 +261,14 @@ if __name__ == "__main__":
         print(p, json.dumps(analyze_clip(Path(p)), ensure_ascii=False))
 
 
-def bar_crop_filter(mp4: Path) -> str | None:
+def detect_bar_crop(mp4: Path) -> dict | None:
+    """Active-picture box (fractions) inside bars that stay black for the whole clip."""
+    return detect_active_crop(luma(decode_frames(mp4)))
+
+
+def bar_crop_filter(mp4: Path, crop: dict | None = None) -> str | None:
     """ffmpeg crop expression (applied after SAR normalisation) that removes baked-in bars, or None."""
-    crop = detect_active_crop(luma(decode_frames(mp4)))
+    crop = crop if crop is not None else detect_bar_crop(mp4)
     if not crop:
         return None
     return (

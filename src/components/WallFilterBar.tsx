@@ -13,10 +13,9 @@ const CATEGORY_TABS: Array<{ value: WallCategory; label: string }> = [
 interface WallFilterBarProps {
   category: WallCategory;
   onCategoryChange: (value: WallCategory) => void;
-  techniques: Array<{ tag: string; count: number }>;
+  techniques: Array<{ tag: string }>;
   activeTechnique: string | null;
   onTechniqueChange: (tag: string | null) => void;
-  resultCount: number;
 }
 
 const CHIP_BASE =
@@ -28,7 +27,6 @@ export function WallFilterBar({
   techniques,
   activeTechnique,
   onTechniqueChange,
-  resultCount,
 }: WallFilterBarProps) {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [indicator, setIndicator] = useState<{ x: number; w: number } | null>(null);
@@ -80,7 +78,7 @@ export function WallFilterBar({
 
         <span aria-hidden="true" className="h-[calc(var(--kf-chip-h)*0.55)] w-px shrink-0 bg-white/[0.12]" />
 
-        {techniques.map(({ tag, count }) => {
+        {techniques.map(({ tag }) => {
           const active = tag === activeTechnique;
           return (
             <button
@@ -95,14 +93,11 @@ export function WallFilterBar({
               }`}
             >
               {tag}
-              <span className={`num text-[0.85em] ${active ? "text-[#F0D9A6]/80" : "text-[var(--kf-text-muted)]"}`}>{count}</span>
             </button>
           );
         })}
 
-        <span className="num ml-auto shrink-0 pl-2 pr-[56px] text-[length:var(--kf-text-chip)] text-[var(--kf-text-muted)]" aria-live="polite">
-          {resultCount}컷
-        </span>
+        <span aria-hidden="true" className="w-[56px] shrink-0" />
       </div>
     </nav>
   );

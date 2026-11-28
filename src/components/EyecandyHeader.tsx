@@ -101,14 +101,16 @@ export function EyecandyHeader({
           <button
             type="button"
             onClick={onOpenBoard}
-            aria-label={`내 보드 열기 (${boardCount}개 담김)`}
+            aria-label={boardCount > 0 ? `내 보드 열기 (${boardCount}개 담김)` : "내 보드 열기"}
             className={`flex h-[var(--kf-control-h)] items-center gap-[clamp(6px,0.4vw,14px)] whitespace-nowrap rounded-full border border-white/[0.12] bg-white/[0.06] px-[clamp(12px,0.9vw,32px)] text-[length:var(--kf-text-ui)] font-medium tracking-[-0.015em] text-white transition-[background-color,transform] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-white/[0.14] ${PRESS}`}
           >
             <BoardBookmarkIcon filled={boardCount > 0} className={`h-[var(--kf-icon)] w-[var(--kf-icon)] ${boardCount > 0 ? "text-[var(--kf-champagne)]" : ""}`} />
-            <span className="hidden md:inline">내 보드</span>
-            <span className="num text-[var(--kf-text-secondary)]" data-testid="board-count">
-              {boardCount}
-            </span>
+            <span>내 보드</span>
+            {boardCount > 0 && (
+              <span className="num text-[var(--kf-champagne)]" data-testid="board-count">
+                · {boardCount}
+              </span>
+            )}
           </button>
 
           <button

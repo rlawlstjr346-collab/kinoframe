@@ -96,7 +96,8 @@ export function BoardDrawer({
         <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-[clamp(18px,1.2vw,44px)] py-[clamp(14px,0.9vw,32px)]">
           <div className="min-w-0">
             <h2 className="text-[clamp(17px,1.05vw,38px)] font-semibold tracking-[-0.022em] text-[var(--kf-text)]">
-              {title} <span className="num text-[var(--kf-text-muted)]">{items.length}</span>
+              {title}
+              {items.length > 0 && <span className="num text-[var(--kf-text-muted)]"> · {items.length}</span>}
             </h2>
             <p className="mt-0.5 text-[clamp(12.5px,0.75vw,26px)] text-[var(--kf-text-secondary)]">
               {mode === "shared" ? "링크로 받은 레퍼런스입니다. 내 보드로 가져올 수 있습니다." : "로그인 없이 이 브라우저에 저장됩니다."}

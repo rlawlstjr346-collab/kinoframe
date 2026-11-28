@@ -167,7 +167,7 @@ export function ViewfinderModal({
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [userPaused, setUserPaused] = useState<boolean>(false);
   const [videoFailed, setVideoFailed] = useState<boolean>(false);
-  const [busy, setBusy] = useState<"copy" | "png" | null>(null);
+  const [busy, setBusy] = useState<"png" | null>(null);
 
   const { primaryTitle, subCaption } = useMemo(() => formatCleanModalMeta(item), [item]);
   const externalSourceUrl = useMemo(() => resolveValidSourceUrl(item), [item]);
@@ -244,7 +244,7 @@ export function ViewfinderModal({
   // with the PNG produced from the playing <video> (same-origin stream, no re-download).
   const handleCopyFrame = async () => {
     const startedAt = performance.now();
-    setBusy("copy");
+    // No busy state here: a re-render before the draw would only delay the capture.
     const blobPromise = captureRawFramePngBlob(item, videoRef.current);
     try {
       if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) throw new Error("NO_CLIPBOARD");
@@ -257,8 +257,6 @@ export function ViewfinderModal({
       } catch {
         onToast("프레임을 캡처하지 못했습니다");
       }
-    } finally {
-      setBusy(null);
     }
   };
 

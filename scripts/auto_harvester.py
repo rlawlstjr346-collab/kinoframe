@@ -54,9 +54,11 @@ try:
 except Exception:
     np = None
 
-from kf_media_analysis import analyze_clip, bar_crop_filter
+from kf_media_analysis import analyze_clip, bar_crop_filter, detect_bar_crop
+from kf_title_ko import make_title_ko
 
 REJECTED_SOURCES_ASSET = "rejected-sources.json"
+VINTAGE_CUTOFF_YEAR = 2005
 REJECTED_SOURCE_TTL_DAYS = 30
 REJECT_COUNTS: Counter = Counter()
 _REJECT_LOCK = threading.Lock()
@@ -1111,8 +1113,8 @@ def resolve_ia_stream(item: dict):
     if "@" in subj_text[:500] or BLOCKED_TITLE_RE.search(subj_text[:1000]):
         return None
 
-    is_vintage_tvcf = item["category"] == "TVCF" and int(item.get("year") or 2000) <= 2001
-    min_height = 360 if is_vintage_tvcf else 720
+    # Same era rule as the extraction gate: pre-2005 film/TV spots from 460p, newer sources 720p.
+    min_height = 460 if int(item.get("year") or 2000) < VINTAGE_CUTOFF_YEAR else 720
 
     files = meta.get("files") or []
     mp4_candidates = []
@@ -1229,6 +1231,7 @@ def extract_clips_from_source(
     skip_wikidata: bool = False,
     min_height: int = 720,
     outcome: dict | None = None,
+    vintage_min_height: int = 460,
 ) -> list[dict]:
     """
     Two-Track Aesthetic Hook Extractor:
@@ -1252,7 +1255,6 @@ def extract_clips_from_source(
 
     is_film = src["category"] == "CLASSIC_FILM"
     year = int(src.get("year") or 2022)
-    is_vintage_sd = (not is_film) and year <= 2001 and int(src.get("height") or 0) < 720
     clip_dur = 5.0 if is_film else 4.5
     max_cuts_allowed = 0 if is_film else 1
     dur = float(src["duration"])
@@ -1275,9 +1277,13 @@ def extract_clips_from_source(
         return _reject("unreadable_dims", outcome)
     if (orig_w * sar) / max(1, orig_h) < 1.25:
         return _reject("portrait_or_square", outcome)
-    # Resolution gate (default 720p): SD sources only pass when --min-height is lowered on purpose.
-    if orig_h < min_height:
-        return _reject(f"below_{min_height}p", outcome)
+    # Era-aware resolution gate: modern sources (2005+) need 720p; vintage film and TV spots (pre-2005)
+    # are accepted from 460p and go through the SD restore track (denoise + 960px lanczos).
+    is_vintage = year < VINTAGE_CUTOFF_YEAR
+    required_h = vintage_min_height if is_vintage else min_height
+    if orig_h < required_h:
+        return _reject(f"below_{required_h}p", outcome)
+    is_vintage_sd = is_vintage and orig_h < 720
 
     # For direct MP4 (IA), probe remote median crop once; for Vimeo HLS, run instant local cropdetect per winner
     crop_filter = (
@@ -1373,12 +1379,24 @@ def extract_clips_from_source(
             seg_crop = crop_filter
             if seg_crop is None and src["origin"] == "vimeo":
                 seg_crop = detect_local_safe_crop(raw_mp4, orig_w, orig_h, sar, year, is_film)
+            effective_h = float(orig_h)
             if seg_crop is None:
                 # Bars that stay black for the whole segment are cut off before encoding.
                 try:
-                    seg_crop = bar_crop_filter(raw_mp4)
+                    bar_box = detect_bar_crop(raw_mp4)
+                    seg_crop = bar_crop_filter(raw_mp4, bar_box)
+                    if bar_box:
+                        effective_h = orig_h * bar_box["h"]
                 except Exception:
                     seg_crop = None
+            else:
+                m_crop = re.match(r"crop=(\d+):(\d+):", seg_crop)
+                if m_crop:
+                    effective_h = float(m_crop.group(2))
+            # The gate applies to the picture that is left once the bars are gone.
+            if effective_h < required_h:
+                _reject(f"below_{required_h}p_after_crop")
+                continue
 
             vf_parts = ["scale='trunc(iw*sar/2)*2:trunc(ih/2)*2'", "setsar=1"]
             if seg_crop:
@@ -1846,9 +1864,14 @@ def build_item_doc(cl: dict, clip_id: str, shard: str, repo: str, final_mp4: Pat
     optics = m["optics"]
     base_dl = f"https://github.com/{repo}/releases/download/{shard}"
     cat = cl["category"]
+    try:
+        title_ko = make_title_ko(cl["title"], cat)
+    except Exception:
+        title_ko = cl["title"]
     doc = {
         "id": clip_id,
-        "titleKo": cl["title"],
+        "titleKo": title_ko,
+        "titleKoAuto": True,
         "originalTitle": f"{cl['title']} ({cl['year']})",
         "brandOrSource": cl["creator"],
         "year": cl["year"],
@@ -1909,7 +1932,8 @@ def main():
     parser.add_argument("--exclude-ids", default="", help="Comma-separated staged clip IDs to drop before upload")
     parser.add_argument("--skip-wikidata", action="store_true", help="Skip Wikidata lookups for faster batch staging")
     parser.add_argument("--source-mode", choices=["all", "vimeo", "ia"], default="all", help="Restrict discovery pipeline")
-    parser.add_argument("--min-height", type=int, default=720, help="Minimum source height in pixels (720p gate)")
+    parser.add_argument("--min-height", type=int, default=720, help="Minimum height for 2005+ sources (after bar crop)")
+    parser.add_argument("--vintage-min-height", type=int, default=460, help="Minimum height for pre-2005 film/TV spots (after bar crop)")
     args = parser.parse_args()
 
     repo = args.repo
@@ -2078,6 +2102,7 @@ def main():
                 skip_wikidata=args.skip_wikidata,
                 min_height=args.min_height,
                 outcome=outcome,
+                vintage_min_height=args.vintage_min_height,
             )
             # Only a source that was fully evaluated (not cut short by the deadline) is remembered.
             if not clips and outcome.get("reason") and time.time() < deadline:
