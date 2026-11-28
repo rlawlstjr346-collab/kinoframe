@@ -13,6 +13,11 @@ on:
         required: false
         default: "160"
         type: string
+      min_height:
+        description: "Minimum source height (720 = HD gate; 480 re-admits SD archive spots)"
+        required: false
+        default: "720"
+        type: string
 
 permissions:
   contents: write
@@ -27,9 +32,10 @@ jobs:
     timeout-minutes: 25
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NEXT_PUBLIC_SITE_URL: https://kinoframe.rlawlstjr346.workers.dev
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -46,4 +52,5 @@ jobs:
             --repo "${{ github.repository }}" \
             --target-count "$TARGET" \
             --max-minutes 21 \
-            --workers 6
+            --workers 6 \
+            --min-height "${{ inputs.min_height || '720' }}"

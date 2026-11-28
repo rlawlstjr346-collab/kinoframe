@@ -30,42 +30,70 @@ function readLocalPocManifest(): ArchiveItem[] | null {
   }
 }
 
-function withMinuteCacheBuster(url: string, exactBust?: number): string {
-  const sep = url.includes("?") ? "&" : "?";
-  const token =
-    typeof exactBust === "number"
-      ? exactBust
-      : Math.floor(Date.now() / 60_000);
-  return `${url}${sep}v=${token}`;
+/**
+ * Per-isolate in-memory catalog cache (no KV, no incremental cache writes).
+ * A warm Worker isolate re-uses the release JSON for CATALOG_TTL_MS; a stale copy is kept as a
+ * fallback (up to CATALOG_STALE_MS) when GitHub Releases is slow or unreachable.
+ */
+const CATALOG_TTL_MS = 300_000;
+const CATALOG_STALE_MS = 3_600_000;
+
+interface CatalogMemoEntry {
+  at: number;
+  text: string;
+  items?: ArchiveItem[];
 }
 
-async function fetchReleaseCatalogJson(
-  url: string,
-  timeoutMs = 5000,
-  exactBust?: number,
-  revalidateSeconds?: number
-): Promise<ArchiveItem[] | null> {
+const catalogMemo = new Map<string, CatalogMemoEntry>();
+const catalogInflight = new Map<string, Promise<CatalogMemoEntry | null>>();
+
+async function downloadCatalogText(url: string, timeoutMs: number): Promise<CatalogMemoEntry | null> {
   try {
-    // ISR pages pass `revalidateSeconds` so the fetch stays cacheable (a no-store fetch would
-    // silently turn every ISR page into a full per-request render).
-    const res = revalidateSeconds
-      ? await fetch(url, {
-          headers: { Accept: "application/json", "User-Agent": "KinoframeCatalogLoader/2.0" },
-          next: { revalidate: revalidateSeconds },
-          signal: AbortSignal.timeout(timeoutMs),
-        })
-      : await fetch(withMinuteCacheBuster(url, exactBust), {
-          headers: {
-            Accept: "application/json",
-            "Cache-Control": "no-cache",
-            "User-Agent": "KinoframeCatalogLoader/2.0",
-          },
-          cache: "no-store",
-          signal: AbortSignal.timeout(timeoutMs),
-        });
+    const sep = url.includes("?") ? "&" : "?";
+    const res = await fetch(`${url}${sep}v=${Math.floor(Date.now() / 60_000)}`, {
+      headers: { Accept: "application/json", "User-Agent": "KinoframeCatalogLoader/3.0" },
+      // Same 5-minute window as the ISR routes: a no-store fetch would turn /shot and /discover
+      // into "static to dynamic at runtime" errors. No incremental cache is configured, so
+      // nothing is persisted; freshness comes from the isolate memo below.
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
     if (!res.ok) return null;
-    const json = (await res.json()) as unknown;
-    const items = normalizeCatalogPayload(json);
+    const text = await res.text();
+    if (!text.trim().startsWith("{") && !text.trim().startsWith("[")) return null;
+    return { at: Date.now(), text };
+  } catch {
+    return null;
+  }
+}
+
+/** Raw release catalog text from the isolate cache (refreshed every 5 minutes). */
+export async function getReleaseCatalogText(url: string, timeoutMs = 5500): Promise<string | null> {
+  const hit = catalogMemo.get(url);
+  if (hit && Date.now() - hit.at < CATALOG_TTL_MS) return hit.text;
+
+  let pending = catalogInflight.get(url);
+  if (!pending) {
+    pending = downloadCatalogText(url, timeoutMs).finally(() => catalogInflight.delete(url));
+    catalogInflight.set(url, pending);
+  }
+  const fresh = await pending;
+  if (fresh) {
+    catalogMemo.set(url, fresh);
+    return fresh.text;
+  }
+  if (hit && Date.now() - hit.at < CATALOG_STALE_MS) return hit.text;
+  return null;
+}
+
+async function fetchReleaseCatalogJson(url: string, timeoutMs = 5500): Promise<ArchiveItem[] | null> {
+  const text = await getReleaseCatalogText(url, timeoutMs);
+  if (!text) return null;
+  const entry = catalogMemo.get(url);
+  if (entry && entry.text === text && entry.items) return entry.items;
+  try {
+    const items = normalizeCatalogPayload(JSON.parse(text));
+    if (entry && entry.text === text) entry.items = items;
     return items.length > 0 ? items : null;
   } catch {
     return null;
@@ -78,21 +106,9 @@ export interface LoadedArchiveCatalog {
   disableConduit: boolean;
 }
 
-/**
- * Loads the active main-wall catalog (up to 600 clips) directly from GitHub Releases
- * (`kinoframe-meta/wall-active.json`) with `cache: "no-store"` and a minute-level
- * cache buster so Vercel never serves stale catalog builds.
- */
-export async function loadWallActiveCatalog(options?: {
-  exactBust?: number;
-  revalidateSeconds?: number;
-}): Promise<LoadedArchiveCatalog> {
-  const remote = await fetchReleaseCatalogJson(
-    WALL_ACTIVE_RELEASE_URL,
-    5500,
-    options?.exactBust,
-    options?.revalidateSeconds
-  );
+/** Active main-wall catalog (up to 600 clips) from GitHub Releases `kinoframe-meta/wall-active.json`. */
+export async function loadWallActiveCatalog(): Promise<LoadedArchiveCatalog> {
+  const remote = await fetchReleaseCatalogJson(WALL_ACTIVE_RELEASE_URL, 5500);
   if (remote && remote.length > 0) {
     return {
       items: remote,
@@ -122,51 +138,14 @@ export function loadOfflineCatalog(): LoadedArchiveCatalog {
   };
 }
 
-/**
- * Fetches a release catalog JSON without parsing it, so a route can stream the body straight
- * to the browser (near-zero Worker CPU). Returns null when the release is unreachable.
- */
-export async function fetchReleaseCatalogStream(url: string, timeoutMs = 5500): Promise<Response | null> {
-  try {
-    const res = await fetch(withMinuteCacheBuster(url, Date.now()), {
-      headers: {
-        Accept: "application/json",
-        "Cache-Control": "no-cache",
-        "User-Agent": "KinoframeCatalogLoader/2.0",
-      },
-      cache: "no-store",
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    return res.ok && res.body ? res : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Loads the full cumulative catalog (up to 10,000 clips including `archived` items)
- * from GitHub Releases (`kinoframe-meta/catalog-full.json`) with `cache: "no-store"`
- * for full-archive keyword search and `/shot/[id]` resolution.
- */
-export async function loadFullCatalogForLookup(options?: {
-  revalidateSeconds?: number;
-}): Promise<ArchiveItem[]> {
-  const remoteFull = await fetchReleaseCatalogJson(
-    CATALOG_FULL_RELEASE_URL,
-    5500,
-    undefined,
-    options?.revalidateSeconds
-  );
+/** Full cumulative catalog (`kinoframe-meta/catalog-full.json`) for deep search and `/shot/[id]`. */
+export async function loadFullCatalogForLookup(): Promise<ArchiveItem[]> {
+  const remoteFull = await fetchReleaseCatalogJson(CATALOG_FULL_RELEASE_URL, 5500);
   if (remoteFull && remoteFull.length > 0) {
     return remoteFull;
   }
 
-  const remoteWall = await fetchReleaseCatalogJson(
-    WALL_ACTIVE_RELEASE_URL,
-    4500,
-    undefined,
-    options?.revalidateSeconds
-  );
+  const remoteWall = await fetchReleaseCatalogJson(WALL_ACTIVE_RELEASE_URL, 4500);
   if (remoteWall && remoteWall.length > 0) {
     return remoteWall;
   }

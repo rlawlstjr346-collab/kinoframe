@@ -1,3 +1,5 @@
+export const KINOFRAME_GH_REPO_SLUG = "rlawlstjr346-collab/kinoframe";
+
 export const ALLOWED_MEDIA_PROXY_HOSTS = [
   "thumb.wikimedia.org",
   "upload.wikimedia.org",

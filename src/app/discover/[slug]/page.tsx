@@ -68,7 +68,7 @@ export default async function DiscoverTopicPage({
   }
 
   const siteUrl = getSiteUrl();
-  const { items } = await loadWallActiveCatalog({ revalidateSeconds: 300 });
+  const { items } = await loadWallActiveCatalog();
   const matchedItems = filterItemsBySeoTopic(items, topic);
 
   const structuredData = {
@@ -100,13 +100,13 @@ export default async function DiscoverTopicPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white">
+    <div className="min-h-screen bg-[#08080A] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <header className="sticky top-0 z-40 flex h-[clamp(62px,3.8vw,78px)] items-center justify-between border-b border-white/[0.08] bg-[#000000]/80 px-5 backdrop-blur-2xl sm:px-8">
+      <header className="sticky top-0 z-40 flex h-[clamp(62px,3.8vw,78px)] items-center justify-between border-b border-white/[0.08] bg-[#08080A]/80 px-5 backdrop-blur-2xl sm:px-8">
         <Link href="/" aria-label="KINOFRAME 홈">
           <KinoframeLogo className="h-[clamp(19px,1.2vw,26px)] w-auto" />
         </Link>

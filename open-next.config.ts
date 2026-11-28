@@ -1,10 +1,5 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
-import kvIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/kv-incremental-cache";
-import memoryQueue from "@opennextjs/cloudflare/overrides/queue/memory-queue";
 
-// ISR (`revalidate`) keeps working on Workers Free: KV stores regenerated pages,
-// the memory queue re-renders stale routes through the WORKER_SELF_REFERENCE binding.
-export default defineCloudflareConfig({
-  incrementalCache: kvIncrementalCache,
-  queue: memoryQueue,
-});
+// No incremental cache override: nothing is written to KV/R2. Catalog JSON is memoised per
+// Worker isolate (src/lib/poc-loader.ts) and pages render on demand with Cache-Control headers.
+export default defineCloudflareConfig({});

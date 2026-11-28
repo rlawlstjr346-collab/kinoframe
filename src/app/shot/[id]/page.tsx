@@ -10,6 +10,7 @@ import {
   resolveSeoSourceUrl,
 } from "@/lib/seo-topics";
 import { KinoframeLogo } from "@/components/KinoframeLogo";
+import { toStreamingMediaUrl } from "@/lib/media-url";
 
 export const revalidate = 300;
 
@@ -26,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const catalog = await loadFullCatalogForLookup({ revalidateSeconds: 300 });
+  const catalog = await loadFullCatalogForLookup();
   const item = catalog.find(
     (entry) => entry.id.toLowerCase() === id.toLowerCase()
   );
@@ -95,7 +96,7 @@ export default async function ShotDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const catalog = await loadFullCatalogForLookup({ revalidateSeconds: 300 });
+  const catalog = await loadFullCatalogForLookup();
   const item = catalog.find(
     (entry) => entry.id.toLowerCase() === id.toLowerCase()
   );
@@ -137,13 +138,13 @@ export default async function ShotDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white">
+    <div className="min-h-screen bg-[#08080A] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
       />
 
-      <header className="sticky top-0 z-40 flex h-[clamp(62px,3.8vw,78px)] items-center justify-between border-b border-white/[0.08] bg-[#000000]/80 px-5 backdrop-blur-2xl sm:px-8">
+      <header className="sticky top-0 z-40 flex h-[clamp(62px,3.8vw,78px)] items-center justify-between border-b border-white/[0.08] bg-[#08080A]/80 px-5 backdrop-blur-2xl sm:px-8">
         <Link href="/" aria-label="KINOFRAME 홈">
           <KinoframeLogo className="h-[clamp(19px,1.2vw,26px)] w-auto" />
         </Link>
@@ -160,7 +161,7 @@ export default async function ShotDetailPage({
           <div className="overflow-hidden rounded-[20px] bg-[#0B0B0D]">
             {item.mediaSource === "archive_mp4" && item.previewVideoUrl ? (
               <video
-                src={item.previewVideoUrl}
+                src={toStreamingMediaUrl(item.previewVideoUrl) ?? undefined}
                 poster={item.thumbnailUrl}
                 autoPlay
                 muted
@@ -187,11 +188,20 @@ export default async function ShotDetailPage({
                 {subCaption} · {item.aspectRatio}
               </p>
               {(hookText || frameText) && (
-                <p className="mt-2 text-[14px] leading-relaxed text-[#98989D]">
+                <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-[#C9C6BF]">
                   {hookText}
                   {hookText && frameText ? " — " : ""}
                   {frameText}
                 </p>
+              )}
+              {item.opticsTags && item.opticsTags.length > 0 && (
+                <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="광학·연출 태그">
+                  {item.opticsTags.map((tag) => (
+                    <li key={tag} className="rounded-full border border-white/[0.12] px-2.5 py-1 text-[12.5px] text-[#A8A8AE]">
+                      #{tag}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
 

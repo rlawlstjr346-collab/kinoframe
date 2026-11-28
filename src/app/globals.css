@@ -3,14 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --kf-bg: #000000;
-  --kf-surface: rgba(28, 28, 30, 0.85);
-  --kf-tile-bg: #141416;
-  --kf-text: #ffffff;
-  --kf-text-secondary: #98989d;
-  --kf-text-muted: #6e6e73;
-  --kf-font-sans: "Pretendard Variable", "Pretendard", -apple-system,
-    BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", sans-serif;
+  /* Darkroom surfaces */
+  --kf-bg: #08080a;
+  --kf-surface: #141416;
+  --kf-surface-raised: #1c1c1f;
+  --kf-tile-bg: #121214;
+  --kf-hairline: rgba(255, 255, 255, 0.1);
+  --kf-hairline-strong: rgba(255, 255, 255, 0.2);
+
+  /* Ink (contrast on #08080A: primary 18.9:1, secondary 7.4:1, muted 4.9:1) */
+  --kf-text: #f4f1ea;
+  --kf-text-secondary: #a8a8ae;
+  --kf-text-muted: #85858c;
+
+  /* Champagne / Kodak amber accents */
+  --kf-champagne: #c89e52;
+  --kf-champagne-hover: #d7af65;
+  --kf-amber: #d99b26;
+
+  --kf-font-sans: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
+    "SF Pro Display", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --kf-font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+
+  /* Motion physics */
+  --ease-ios-glide: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-tactile-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inertia-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-crisp-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-linear-fade: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-press: 120ms;
+  --dur-micro: 160ms;
+  --dur-hover: 200ms;
+  --dur-capsule: 240ms;
+  --dur-sheet: 280ms;
+  --dur-sheet-exit: 200ms;
+
+  /* Fluid chrome scale: 1440px -> 3840px stays proportional */
+  --kf-gutter: clamp(12px, 1.1vw, 44px);
+  --kf-control-h: clamp(40px, 2.6vw, 92px);
+  --kf-chip-h: clamp(32px, 2vw, 72px);
+  --kf-text-ui: clamp(13.5px, 0.9vw, 31px);
+  --kf-text-chip: clamp(13px, 0.82vw, 28px);
+  --kf-icon: clamp(16px, 1.05vw, 36px);
 }
 
 html {
@@ -27,37 +61,99 @@ body {
   font-family: var(--kf-font-sans);
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
   min-height: 100vh;
   min-width: 300px;
   overflow-x: hidden;
+  word-break: keep-all;
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Minimal Apple-style dark scrollbar */
+/* Tabular figures for every count, year, timecode and HEX value */
+.num,
+time,
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Horizontal chip rails scroll without a visible bar */
+.kf-rail {
+  scrollbar-width: none;
+}
+.kf-rail::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--kf-bg);
 }
-
 ::-webkit-scrollbar-thumb {
   background: #2c2c2e;
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #48484a;
 }
 
-/* Crisp neutral Apple focus ring */
 *:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.55);
+  outline: 2px solid rgba(244, 241, 234, 0.6);
   outline-offset: 2px;
+}
+
+@keyframes kf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kf-sheet-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-drawer-in {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes kf-drawer-up {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

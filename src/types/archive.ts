@@ -1,4 +1,4 @@
-export type Era = "1950-60s" | "1970s" | "1980s" | "1990-00s";
+export type Era = "1950-60s" | "1970s" | "1980s" | "1990-00s" | "2010s" | "2020s";
 
 export type MediaType = "TVCF" | "NEWS" | "PRINT" | "PHOTO";
 
@@ -14,7 +14,7 @@ export type ArchiveCategory =
 
 export type MediaMode = "ALL" | "MOTION" | "STILL";
 
-export type CountryCode = "KR" | "JP" | "TW" | "US" | "EU" | "GLOBAL";
+export type CountryCode = "KR" | "JP" | "CN" | "TW" | "US" | "EU" | "GLOBAL";
 
 export type AspectRatio = "4:3" | "3:2" | "4:5" | "16:9" | "2.39:1";
 
@@ -69,6 +69,28 @@ export interface BreakdownSpec {
   marketingApply?: string;
 }
 
+/** Active picture box inside baked-in letterbox/pillarbox bars, as fractions of the frame. */
+export interface MediaCrop {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** Values measured from the decoded clip by scripts/kf_media_analysis.py. */
+export interface OpticsSpec {
+  camera: string;
+  cuts: number;
+  motion: number;
+  key: string;
+  tone: string;
+  saturation: string;
+  luma?: number;
+  contrast?: number;
+  warmth?: number;
+  chroma?: number;
+}
+
 export interface ArchiveItem {
   id: string;
   titleKo: string;
@@ -106,6 +128,13 @@ export interface ArchiveItem {
   seedMasterpiece?: boolean;
   shard?: string;
   status?: "active" | "archived";
+  crop?: MediaCrop;
+  optics?: OpticsSpec;
+  opticsTags?: string[];
+  directingNote?: string;
+  /** Hand-reviewed contamination (news, idents, broken split screens); never shown. */
+  excluded?: boolean;
+  excludedReason?: string;
   bytes?: number;
 }
 

@@ -1,6 +1,9 @@
 import type { ArchiveItem } from "@/types/archive";
 
-/** Accepts a bare array or `{ items: [...] }` and keeps only well-formed clips (shared by server and browser). */
+/**
+ * Accepts a bare array or `{ items: [...] }` and keeps only well-formed, non-excluded clips
+ * (shared by server and browser).
+ */
 export function normalizeCatalogPayload(raw: unknown): ArchiveItem[] {
   const list = Array.isArray(raw)
     ? raw
@@ -17,7 +20,8 @@ export function normalizeCatalogPayload(raw: unknown): ArchiveItem[] {
           typeof entry === "object" &&
           typeof (entry as ArchiveItem).id === "string" &&
           typeof (entry as ArchiveItem).thumbnailUrl === "string" &&
-          typeof (entry as ArchiveItem).sourceUrl === "string"
+          typeof (entry as ArchiveItem).sourceUrl === "string" &&
+          (entry as ArchiveItem).excluded !== true
       )
   );
 }

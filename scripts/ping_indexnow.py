@@ -18,7 +18,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-DEFAULT_SITE_URL = "https://kinoframe.vercel.app"
+DEFAULT_SITE_URL = "https://kinoframe.rlawlstjr346.workers.dev"
 DEFAULT_REPO = "rlawlstjr346-collab/kinoframe"
 META_TAG = "kinoframe-meta"
 INDEXNOW_KEY = "51e58ede71e681c9ceef985dc0c9a62d"
@@ -55,6 +55,21 @@ def resolve_indexnow_key(cli_key: str | None = None) -> str:
     return INDEXNOW_KEY
 
 
+def active_endpoints() -> list[tuple[str, str]]:
+    """Naver only accepts hosts verified in Naver Search Advisor; opt in with INDEXNOW_NAVER=1."""
+    naver_enabled = os.environ.get("INDEXNOW_NAVER", "").strip() == "1"
+    return [(n, e) for n, e in INDEXNOW_ENDPOINTS if n != "naver" or naver_enabled]
+
+
+def key_file_is_live(key_location: str, key: str, timeout: int = 20) -> bool:
+    try:
+        req = urllib.request.Request(key_location, headers={"User-Agent": "KinoframeIndexNow/1.1"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read(200).decode("utf-8", errors="ignore").strip() == key
+    except Exception:
+        return False
+
+
 def fetch_catalog_shot_ids(repo: str = DEFAULT_REPO) -> list[str]:
     """Load all current shot IDs from catalog-full.json (fallback wall-active.json)."""
     for filename in ("catalog-full.json", "wall-active.json"):
@@ -63,7 +78,7 @@ def fetch_catalog_shot_ids(repo: str = DEFAULT_REPO) -> list[str]:
             req = urllib.request.Request(
                 url,
                 headers={
-                    "User-Agent": "KinoframeIndexNow/1.0 (+https://kinoframe.vercel.app)",
+                    "User-Agent": "KinoframeIndexNow/1.1",
                     "Accept": "application/json",
                 },
             )
@@ -131,14 +146,28 @@ def ping_indexnow(
     ).encode("utf-8")
 
     results: dict[str, dict] = {}
-    for name, endpoint in INDEXNOW_ENDPOINTS:
+
+    # Pre-flight: IndexNow endpoints reject (403) when the key file is not served at keyLocation.
+    if not key_file_is_live(key_location, resolved_key, timeout):
+        for name, endpoint in INDEXNOW_ENDPOINTS:
+            results[name] = {
+                "endpoint": endpoint,
+                "status": 0,
+                "ok": False,
+                "skipped": True,
+                "submitted": 0,
+                "error": f"key file not served at {key_location}",
+            }
+        return results
+
+    for name, endpoint in active_endpoints():
         req = urllib.request.Request(
             endpoint,
             data=payload_bytes,
             method="POST",
             headers={
                 "Content-Type": "application/json; charset=utf-8",
-                "User-Agent": "KinoframeIndexNow/1.0 (+https://kinoframe.vercel.app)",
+                "User-Agent": "KinoframeIndexNow/1.1",
             },
         )
         try:

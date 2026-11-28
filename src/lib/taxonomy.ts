@@ -46,6 +46,7 @@ export const COUNTRIES: Array<{ value: CountryCode | "ALL"; label: string }> = [
   { value: "ALL", label: "전체 국가" },
   { value: "KR", label: "한국" },
   { value: "JP", label: "일본" },
+  { value: "CN", label: "중국" },
   { value: "TW", label: "대만" },
   { value: "US", label: "북미" },
   { value: "EU", label: "유럽" },
@@ -70,6 +71,8 @@ export const ERAS: Array<{ value: Era | "ALL"; label: string }> = [
   { value: "1970s", label: "1970s" },
   { value: "1980s", label: "1980s" },
   { value: "1990-00s", label: "1990–00s" },
+  { value: "2010s", label: "2010s" },
+  { value: "2020s", label: "2020s" },
 ];
 
 export const COMPOSITION_TAGS: CompositionTag[] = [
@@ -281,7 +284,7 @@ const ELITE_BOOST_CATS = new Set<ArchiveCategory>([
   "ALBUM_POSTER",
 ]);
 
-const EAST_ASIA_COUNTRIES = new Set<CountryCode>(["KR", "JP", "TW"]);
+const EAST_ASIA_COUNTRIES = new Set<CountryCode>(["KR", "JP", "CN", "TW"]);
 
 export function computeCurationDensityScore(item: ArchiveItem): number {
   const chroma = analyzePaletteChroma(item.palette);
@@ -974,6 +977,8 @@ export function generateMoodboardMarkdown(
     lines.push(
       `- **카테고리 / 국가 / 화면비**: ${catLabel} · ${countryLabel} · ${item.aspectRatio} · ${formatDuration(item.durationSec)}`
     );
+    if (item.directingNote) lines.push(`- **연출 노트**: ${item.directingNote}`);
+    if (item.opticsTags?.length) lines.push(`- **광학·연출 태그**: ${item.opticsTags.join(" · ")}`);
     lines.push(`- **대표 5색 팔레트**: \`${item.palette.join("` `")}\``);
     lines.push(`- **원본 아카이브**: ${item.sourceUrl}`);
     lines.push("");

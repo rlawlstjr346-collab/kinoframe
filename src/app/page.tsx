@@ -7,7 +7,7 @@ import { SEO_TOPICS } from "@/lib/seo-topics";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const { items } = await loadWallActiveCatalog({ revalidateSeconds: 300 });
+  const { items } = await loadWallActiveCatalog();
   return (
     <>
       <ArchiveWorkbenchClient aspects={items.slice(0, 15).map((item) => item.aspectRatio)} />

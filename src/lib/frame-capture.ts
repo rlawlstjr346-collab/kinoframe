@@ -1,5 +1,6 @@
 import type { ArchiveItem } from "@/types/archive";
 import { buildMediaProxyUrl } from "@/lib/media-allowlist";
+import { toStreamingMediaUrl } from "@/lib/media-url";
 import { formatPreciseTimestamp } from "@/lib/taxonomy";
 
 function loadImageClean(src: string): Promise<HTMLImageElement> {
@@ -10,6 +11,24 @@ function loadImageClean(src: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error("IMAGE_LOAD_FAILED"));
     img.src = src;
   });
+}
+
+let pngEncoderWarm: Promise<void> | null = null;
+
+/**
+ * The browser's first PNG encode pays a one-off start-up cost (~300 ms measured on a 1920x1080
+ * frame vs ~25-45 ms afterwards). Encoding a tiny canvas when the viewer opens moves that cost out
+ * of the user's click, so the first "프레임 복사" is as fast as the following ones.
+ */
+export function warmPngEncoder(): Promise<void> {
+  pngEncoderWarm ??= new Promise<void>((resolve) => {
+    const c = document.createElement("canvas");
+    c.width = 64;
+    c.height = 64;
+    c.getContext("2d")?.fillRect(0, 0, 64, 64);
+    c.toBlob(() => resolve(), "image/png");
+  });
+  return pngEncoderWarm;
 }
 
 function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
@@ -111,7 +130,8 @@ async function resolveFrameCanvas(
   item: ArchiveItem,
   videoEl: HTMLVideoElement | null
 ): Promise<HTMLCanvasElement> {
-  // 1. Try direct live video frame capture when video is same-origin / CORS-clean
+  // 1. Draw the playing <video> directly. It streams from the same-origin /media route, so the
+  //    canvas is untainted and no byte is downloaded again (~instant).
   if (
     videoEl &&
     videoEl.readyState >= 2 &&
@@ -130,8 +150,7 @@ async function resolveFrameCanvas(
         return c;
       }
     } catch {
-      // Cross-origin GitHub Releases video (streamed directly without crossOrigin):
-      // capture exact video.currentTime frame cleanly via same-origin /api/media-proxy offscreen video
+      // Tainted canvas (foreign host): fall back to an offscreen same-origin copy below.
     }
   }
 
@@ -143,7 +162,9 @@ async function resolveFrameCanvas(
   ) {
     try {
       const targetTime = videoEl?.currentTime ?? 0;
-      const proxiedVideo = buildMediaProxyUrl(item.previewVideoUrl);
+      const streamed = toStreamingMediaUrl(item.previewVideoUrl);
+      const proxiedVideo =
+        streamed && streamed.startsWith("/") ? streamed : buildMediaProxyUrl(item.previewVideoUrl);
       return await captureOffscreenProxiedVideoFrame(proxiedVideo, targetTime);
     } catch {
       // Fall back cleanly to proxied high-res thumbnail below
@@ -151,9 +172,8 @@ async function resolveFrameCanvas(
   }
 
   // 3. Load high-resolution thumbnail directly (same-origin local loop) or via allowlisted proxy
-  const proxySrc = item.thumbnailUrl.startsWith("/")
-    ? item.thumbnailUrl
-    : buildMediaProxyUrl(item.thumbnailUrl);
+  const streamedThumb = toStreamingMediaUrl(item.thumbnailUrl) ?? item.thumbnailUrl;
+  const proxySrc = streamedThumb.startsWith("/") ? streamedThumb : buildMediaProxyUrl(item.thumbnailUrl);
   const img = await loadImageClean(proxySrc);
   const c = document.createElement("canvas");
   c.width = img.naturalWidth || 1280;
@@ -319,35 +339,23 @@ export function downloadBlobAsPng(blob: Blob, filename: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 1200);
 }
 
-export async function downloadVideoMp4(item: ArchiveItem): Promise<void> {
+/** Starts a browser-managed download from the streaming route (no in-page blob, no Worker buffering). */
+export function downloadVideoMp4(item: ArchiveItem): void {
   const filename = `kinoframe-${item.id}.mp4`;
   const videoUrl = item.previewVideoUrl;
-  if (!videoUrl) {
-    throw new Error("NO_VIDEO_URL");
-  }
-  const fetchUrl = videoUrl.startsWith("/")
-    ? videoUrl
+  if (!videoUrl) throw new Error("NO_VIDEO_URL");
+  const streamed = toStreamingMediaUrl(videoUrl) ?? videoUrl;
+  const href = streamed.startsWith("/media/")
+    ? `${streamed}?download=1`
+    : streamed.startsWith("/")
+    ? streamed
     : buildMediaProxyUrl(videoUrl, filename);
-  try {
-    const res = await fetch(fetchUrl);
-    if (!res.ok) throw new Error("VIDEO_FETCH_FAILED");
-    const blob = await res.blob();
-    const objUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.setTimeout(() => URL.revokeObjectURL(objUrl), 2500);
-  } catch {
-    const a = document.createElement("a");
-    a.href = fetchUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
 export async function copyPngBlobToClipboard(blob: Blob): Promise<boolean> {

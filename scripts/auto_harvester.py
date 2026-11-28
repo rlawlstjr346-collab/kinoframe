@@ -54,6 +54,22 @@ try:
 except Exception:
     np = None
 
+from kf_media_analysis import analyze_clip, bar_crop_filter
+
+REJECTED_SOURCES_ASSET = "rejected-sources.json"
+REJECTED_SOURCE_TTL_DAYS = 30
+REJECT_COUNTS: Counter = Counter()
+_REJECT_LOCK = threading.Lock()
+
+
+def _reject(reason: str, holder: dict | None = None) -> list:
+    """Counts why a source produced no clip (printed at the end of the run) and returns []."""
+    with _REJECT_LOCK:
+        REJECT_COUNTS[reason] += 1
+    if holder is not None:
+        holder["reason"] = reason
+    return []
+
 DEFAULT_REPO = "rlawlstjr346-collab/kinoframe"
 META_TAG = "kinoframe-meta"
 MAX_CLIPS_PER_SHARD = 450
@@ -129,6 +145,12 @@ VIMEO_PRO_FEEDS: list[tuple[str, str, int]] = [
     ("CLASSIC_FILM", "channel/action", 1),
     # Global Top Commercial Production Houses, Color Studios & Branded Film Channels
     ("TVCF", "company3", 2),
+    ("TVCF", "outsiders", 1),
+    ("TVCF", "blacksheep", 1),
+    ("TVCF", "nexusstudios", 2),
+    ("TVCF", "psyop", 2),
+    ("TVCF", "moonlightfilms", 1),
+    ("CLASSIC_FILM", "channel/colorgrading", 2),
     ("TVCF", "electrictheatre", 3),
     ("TVCF", "goodoil", 3),
     ("TVCF", "finchcompany", 3),
@@ -211,20 +233,6 @@ IA_WHITELIST_TVCF_QUERIES = [
     'mediatype:movies AND collection:classic_tv_commercials AND year:[1972 TO 2001] NOT collection:(opensource_movies OR home_movies OR newsandpublicaffairs OR cartoons) NOT (newsreel OR infomercial OR cartoon OR sing-along OR military OR war OR museum OR psa OR lecture OR compilation OR collection OR black OR monochrome OR amateur OR family)',
 ]
 
-COMPOSITION_POOL = [
-    ["1점 투시", "프레임 속 프레임", "역광 실루엣"],
-    ["대칭 구도", "기하학 조형", "극단적 여백"],
-    ["초근접 클로즈업", "프레임 속 프레임", "매치 컷"],
-    ["역광 실루엣", "극단적 여백", "1점 투시"],
-]
-
-PERSUASION_POOL = [
-    ["시각적 은유", "무대사 직관 전달"],
-    ["초반 3초 시선 강탈", "스케일 반전"],
-    ["카피×구도 일체형", "다큐 리얼리즘"],
-]
-
-PRIMARY_GRIDS = ["perspective", "thirds", "symmetry", "golden"]
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 
@@ -834,7 +842,11 @@ def year_to_era(year: int) -> str:
         return "1970s"
     if year < 1990:
         return "1980s"
-    return "1990-00s"
+    if year < 2010:
+        return "1990-00s"
+    if year < 2020:
+        return "2010s"
+    return "2020s"
 
 
 def clean_title(raw_title: str) -> str:
@@ -1215,6 +1227,8 @@ def extract_clips_from_source(
     deadline: float,
     max_cuts_per_source: int = 2,
     skip_wikidata: bool = False,
+    min_height: int = 720,
+    outcome: dict | None = None,
 ) -> list[dict]:
     """
     Two-Track Aesthetic Hook Extractor:
@@ -1228,12 +1242,12 @@ def extract_clips_from_source(
     if src["origin"] == "vimeo":
         resolved = resolve_vimeo_stream(src)
         if not resolved:
-            return []
+            return _reject("stream_unresolved", outcome)
         src = resolved
     elif src["origin"] == "ia":
         resolved = resolve_ia_stream(src)
         if not resolved:
-            return []
+            return _reject("stream_unresolved", outcome)
         src = resolved
 
     is_film = src["category"] == "CLASSIC_FILM"
@@ -1248,7 +1262,7 @@ def extract_clips_from_source(
     lo = max(14.0, dur * 0.18) if dur > 75 else max(4.0, dur * 0.18)
     hi = min(dur - 12.0, dur * 0.84 - clip_dur) if dur > 75 else min(dur - 4.0, dur * 0.84 - clip_dur)
     if hi <= lo + clip_dur:
-        return []
+        return _reject("too_short", outcome)
 
     if src["origin"] == "vimeo":
         orig_w, orig_h, sar = int(src.get("width") or 1920), int(src.get("height") or 1080), 1.0
@@ -1258,11 +1272,12 @@ def extract_clips_from_source(
         orig_h = ph or int(src.get("height") or 720)
 
     if orig_w < 320 or orig_h < 240:
-        return []
+        return _reject("unreadable_dims", outcome)
     if (orig_w * sar) / max(1, orig_h) < 1.25:
-        return []
-    if (is_film or year >= 2002) and orig_h < 720:
-        return []
+        return _reject("portrait_or_square", outcome)
+    # Resolution gate (default 720p): SD sources only pass when --min-height is lowered on purpose.
+    if orig_h < min_height:
+        return _reject(f"below_{min_height}p", outcome)
 
     # For direct MP4 (IA), probe remote median crop once; for Vimeo HLS, run instant local cropdetect per winner
     crop_filter = (
@@ -1341,7 +1356,7 @@ def extract_clips_from_source(
             raw_mp4.unlink(missing_ok=True)
 
     if not scored_candidates:
-        return []
+        return _reject("no_segment_passed_quality", outcome)
 
     scored_candidates.sort(key=lambda x: x[0], reverse=True)
     winners = scored_candidates[:effective_max_cuts]
@@ -1358,6 +1373,12 @@ def extract_clips_from_source(
             seg_crop = crop_filter
             if seg_crop is None and src["origin"] == "vimeo":
                 seg_crop = detect_local_safe_crop(raw_mp4, orig_w, orig_h, sar, year, is_film)
+            if seg_crop is None:
+                # Bars that stay black for the whole segment are cut off before encoding.
+                try:
+                    seg_crop = bar_crop_filter(raw_mp4)
+                except Exception:
+                    seg_crop = None
 
             vf_parts = ["scale='trunc(iw*sar/2)*2:trunc(ih/2)*2'", "setsar=1"]
             if seg_crop:
@@ -1443,6 +1464,7 @@ def extract_clips_from_source(
             if final_ratio < 1.25 or (is_film and year >= 1995 and final_ratio < 1.58):
                 out_mp4.unlink(missing_ok=True)
                 out_webp.unlink(missing_ok=True)
+                _reject("final_aspect")
                 continue
 
             with lock:
@@ -1602,8 +1624,9 @@ def rotate_active_wall(catalog: list[dict]) -> tuple[list[dict], list[dict]]:
     - Main wall (`wall-active.json`, up to 600 clips) prioritizes newest `createdAt` harvested clips
       first while maintaining 60% Cinema : 40% TVCF balance.
     """
+    eligible = [x for x in catalog if not x.get("excluded")]
     ordered = sorted(
-        catalog,
+        eligible,
         key=lambda x: (
             str(x.get("createdAt") or x.get("harvestedAt") or x.get("addedAt") or ""),
             str(x.get("id") or ""),
@@ -1629,6 +1652,9 @@ def rotate_active_wall(catalog: list[dict]) -> tuple[list[dict], list[dict]]:
 
     # Emit wall-active.json in newest-first createdAt order
     active_list = []
+    for item in catalog:
+        if item.get("excluded"):
+            item["status"] = "archived"
     for item in ordered:
         if item["id"] in active_ids:
             item["status"] = "active"
@@ -1792,6 +1818,85 @@ def publish_to_releases(repo: str, catalog: list[dict], new_items: list[dict], m
     return active_wall, merged_catalog, total_bytes
 
 
+def load_rejected_sources(repo: str) -> dict[str, dict]:
+    url = f"https://github.com/{repo}/releases/download/{META_TAG}/{REJECTED_SOURCES_ASSET}?t={int(time.time())}"
+    try:
+        data = http_get_json(url, timeout=20)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def fresh_rejections(rejected: dict[str, dict], now: float) -> set[str]:
+    """Source IDs rejected within the TTL; older ones get one more try (sources can change)."""
+    ttl = REJECTED_SOURCE_TTL_DAYS * 86400
+    return {sid for sid, info in rejected.items() if now - float(info.get("at") or 0) < ttl}
+
+
+def publish_rejected_sources(repo: str, rejected: dict[str, dict]):
+    with tempfile.TemporaryDirectory(prefix="kf_rej_") as d:
+        path = Path(d) / REJECTED_SOURCES_ASSET
+        path.write_text(json.dumps(rejected, ensure_ascii=False, indent=1) + "\n", "utf-8")
+        upload_files_chunked(repo, META_TAG, [path], chunk_size=1)
+
+
+def build_item_doc(cl: dict, clip_id: str, shard: str, repo: str, final_mp4: Path, today_str: str, now_iso: str) -> dict:
+    """Catalog entry for a harvested clip; every descriptive field is measured from the clip itself."""
+    m = analyze_clip(final_mp4)
+    optics = m["optics"]
+    base_dl = f"https://github.com/{repo}/releases/download/{shard}"
+    cat = cl["category"]
+    doc = {
+        "id": clip_id,
+        "titleKo": cl["title"],
+        "originalTitle": f"{cl['title']} ({cl['year']})",
+        "brandOrSource": cl["creator"],
+        "year": cl["year"],
+        "era": year_to_era(cl["year"]),
+        "mediaType": "TVCF" if cat == "TVCF" else "NEWS",
+        "category": cat,
+        "country": "GLOBAL",
+        "aspectRatio": cl["aspect"],
+        "width": cl["width"],
+        "height": cl["height"],
+        "isArchivalSd": cl["is_archival_sd"],
+        "durationSec": cl["duration_sec"],
+        "startSec": 0,
+        "mediaSource": "archive_mp4",
+        "thumbnailUrl": f"{base_dl}/{clip_id}.webp",
+        "previewVideoUrl": f"{base_dl}/{clip_id}.mp4",
+        "youtubeId": None,
+        "sourceUrl": cl["source_url"],
+        "licenseNote": f"Dawn Harvest ({cl['width']}x{cl['height']}, {cl['bytes'] // 1024}KB, hook={cl['hook_score']})",
+        "compositionTags": m["compositionTags"],
+        "persuasionTags": [],
+        "opticsTags": m["opticsTags"],
+        "optics": optics,
+        "directingNote": m["directingNote"],
+        "palette": cl["palette"],
+        "aliases": cl.get("aliases") or [],
+        "viewfinder": {"primaryGrid": "thirds"},
+        "beats": [],
+        "breakdown": {
+            "hook3s": m["directingNote"],
+            "camera": optics["camera"],
+            "lighting": f"{optics['key']} · {optics['tone']} · {optics['saturation']}",
+            "editing": "단일 테이크" if optics["cuts"] == 0 else f"컷 {optics['cuts']}회",
+            "framing": ", ".join(m["compositionTags"]),
+        },
+        "addedAt": today_str,
+        "createdAt": now_iso,
+        "harvestedAt": now_iso,
+        "shard": shard,
+        "status": "active",
+        "bytes": cl["bytes"],
+        "sourceKey": cl["source_key"],
+    }
+    if m["crop"]:
+        doc["crop"] = m["crop"]
+    return doc
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", default=DEFAULT_REPO)
@@ -1804,6 +1909,7 @@ def main():
     parser.add_argument("--exclude-ids", default="", help="Comma-separated staged clip IDs to drop before upload")
     parser.add_argument("--skip-wikidata", action="store_true", help="Skip Wikidata lookups for faster batch staging")
     parser.add_argument("--source-mode", choices=["all", "vimeo", "ia"], default="all", help="Restrict discovery pipeline")
+    parser.add_argument("--min-height", type=int, default=720, help="Minimum source height in pixels (720p gate)")
     args = parser.parse_args()
 
     repo = args.repo
@@ -1852,6 +1958,12 @@ def main():
         str(x.get("shard") or "kinoframe-media-s01") for x in catalog
     )
     next_num = next_harvest_number(catalog)
+
+    # Sources that produced nothing recently are skipped instead of being re-cut every run.
+    rejected_sources = load_rejected_sources(repo)
+    recently_rejected = fresh_rejections(rejected_sources, time.time())
+    existing_source_ids |= recently_rejected
+    print(f"[SKIP-CACHE] {len(recently_rejected)} recently rejected sources skipped", flush=True)
 
     stage_mode = bool(args.stage_dir)
     prior_staged: list[dict] = []
@@ -1955,7 +2067,8 @@ def main():
         def worker_task(src_item: dict):
             if stop_event.is_set() or time.time() >= deadline:
                 return []
-            return extract_clips_from_source(
+            outcome: dict = {}
+            clips = extract_clips_from_source(
                 src_item,
                 work_dir,
                 existing_source_keys,
@@ -1963,7 +2076,18 @@ def main():
                 deadline,
                 max_cuts_per_source=2,
                 skip_wikidata=args.skip_wikidata,
+                min_height=args.min_height,
+                outcome=outcome,
             )
+            # Only a source that was fully evaluated (not cut short by the deadline) is remembered.
+            if not clips and outcome.get("reason") and time.time() < deadline:
+                with lock:
+                    rejected_sources[str(src_item["source_id"])] = {
+                        "reason": outcome["reason"],
+                        "at": int(time.time()),
+                        "origin": src_item.get("origin"),
+                    }
+            return clips
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
             futures = [pool.submit(worker_task, c) for c in candidates]
@@ -1990,8 +2114,16 @@ def main():
                         pending.cancel()
                     break
 
+        print(f"[REJECTS] {dict(REJECT_COUNTS.most_common())}", flush=True)
+        if not stage_mode:
+            try:
+                publish_rejected_sources(repo, rejected_sources)
+                print(f"[SKIP-CACHE] saved {len(rejected_sources)} rejected sources", flush=True)
+            except Exception as rej_err:
+                print(f"[SKIP-CACHE] non-fatal save failure: {rej_err}", flush=True)
+
         if not harvested_raw and not prior_staged:
-            print("[HARVEST] 0 new clips produced in this window; leaving Releases untouched.", flush=True)
+            print("[HARVEST] 0 new clips produced in this window; catalog left untouched.", flush=True)
             return
 
         new_items: list[dict] = []
@@ -2006,60 +2138,11 @@ def main():
             shutil.move(str(cl["mp4"]), str(final_mp4))
             shutil.move(str(cl["webp"]), str(final_webp))
 
-            base_dl = f"https://github.com/{repo}/releases/download/{shard}"
-            cat = cl["category"]
-            item_doc = {
-                "id": clip_id,
-                "titleKo": cl["title"],
-                "originalTitle": f"{cl['title']} ({cl['year']})",
-                "brandOrSource": cl["creator"],
-                "year": cl["year"],
-                "era": year_to_era(cl["year"]),
-                "mediaType": "TVCF" if cat == "TVCF" else "NEWS",
-                "category": cat,
-                "country": "GLOBAL",
-                "aspectRatio": cl["aspect"],
-                "width": cl["width"],
-                "height": cl["height"],
-                "isArchivalSd": cl["is_archival_sd"],
-                "durationSec": cl["duration_sec"],
-                "startSec": 0,
-                "mediaSource": "archive_mp4",
-                "thumbnailUrl": f"{base_dl}/{clip_id}.webp",
-                "previewVideoUrl": f"{base_dl}/{clip_id}.mp4",
-                "youtubeId": None,
-                "sourceUrl": cl["source_url"],
-                "licenseNote": f"Dawn Harvest ({cl['width']}x{cl['height']}, {cl['bytes'] // 1024}KB, hook={cl['hook_score']})",
-                "compositionTags": COMPOSITION_POOL[idx % len(COMPOSITION_POOL)],
-                "persuasionTags": PERSUASION_POOL[idx % len(PERSUASION_POOL)],
-                "palette": cl["palette"],
-                "aliases": cl.get("aliases") or [],
-                "viewfinder": {
-                    "vanishingPoint": [50, 48],
-                    "eyePath": [[25, 58], [50, 48], [75, 38]],
-                    "primaryGrid": PRIMARY_GRIDS[idx % len(PRIMARY_GRIDS)],
-                },
-                "beats": [
-                    {
-                        "label": "오프닝 프레임",
-                        "timeOrZone": "0:00",
-                        "noteKo": f"{cl['title']} 컬러 루프 하이라이트",
-                        "focusCrop": "50% 48%",
-                    }
-                ],
-                "breakdown": {
-                    "hook3s": f"{cl['title']} 컬러 무빙 하이라이트",
-                    "framing": f"정비율 크롭({cl['width']}x{cl['height']}) · 주조색 {cl['palette'][0]}",
-                    "marketingApply": "시네마·TVCF 구도와 색채 레퍼런스 즉시 활용",
-                },
-                "addedAt": today_str,
-                "createdAt": now_iso,
-                "harvestedAt": now_iso,
-                "shard": shard,
-                "status": "active",
-                "bytes": cl["bytes"],
-                "sourceKey": cl["source_key"],
-            }
+            try:
+                item_doc = build_item_doc(cl, clip_id, shard, repo, final_mp4, today_str, now_iso)
+            except Exception as an_err:
+                print(f"  [ANALYSIS] skipped {clip_id}: {an_err}", flush=True)
+                continue
             new_items.append(item_doc)
 
         all_staged = prior_staged + new_items

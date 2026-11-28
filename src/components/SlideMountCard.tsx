@@ -2,8 +2,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { ArchiveItem } from "@/types/archive";
-import { getAspectRatioClass } from "@/lib/taxonomy";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
+import { toStreamingMediaUrl } from "@/lib/media-url";
+import { getCropLayerStyle, getVisibleAspect } from "@/lib/media-crop";
+import { BoardBookmarkIcon } from "@/components/Icons";
 
 export interface HighlightWindow {
   startSec: number;
@@ -76,6 +78,8 @@ interface SlideMountCardProps {
   onEvictItem?: (id: string) => void;
   onImpression?: (id: string) => void;
   deckEpoch?: number;
+  saved?: boolean;
+  onToggleBoard?: (item: ArchiveItem) => void;
 }
 
 const STALL_EVICT_TIMEOUT_MS = 6500;
@@ -87,6 +91,8 @@ export const SlideMountCard = React.memo(function SlideMountCard({
   onEvictItem,
   onImpression,
   deckEpoch = 0,
+  saved = false,
+  onToggleBoard,
 }: SlideMountCardProps) {
   const cardRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -339,44 +345,22 @@ export const SlideMountCard = React.memo(function SlideMountCard({
     }
   };
 
-  const hasExactDims =
-    typeof item.width === "number" &&
-    typeof item.height === "number" &&
-    item.width > 0 &&
-    item.height > 0;
-  const gridAspectClass = hasExactDims
-    ? ""
-    : item.aspectRatio === "4:5"
-    ? "aspect-[4/3]"
-    : getAspectRatioClass(item.aspectRatio);
+  const videoSrc = toStreamingMediaUrl(item.previewVideoUrl);
+  const setHovered = (hovered: boolean) => {
+    if (isAutoLoopVideo) globalVideoScheduler.update(item.id, { hovered });
+  };
 
   return (
     <article
       ref={cardRef}
       data-clip-id={item.id}
-      onMouseEnter={() => {
-        if (isAutoLoopVideo) {
-          globalVideoScheduler.update(item.id, { hovered: true });
-        }
-      }}
-      onMouseLeave={() => {
-        if (isAutoLoopVideo) {
-          globalVideoScheduler.update(item.id, { hovered: false });
-        }
-      }}
-      onFocus={() => {
-        if (isAutoLoopVideo) {
-          globalVideoScheduler.update(item.id, { hovered: true });
-        }
-      }}
-      onBlur={() => {
-        if (isAutoLoopVideo) {
-          globalVideoScheduler.update(item.id, { hovered: false });
-        }
-      }}
-      className="relative w-full cursor-pointer overflow-hidden rounded-[18px] bg-[#141416] ring-1 ring-white/[0.07] transition-all duration-200 hover:ring-white/[0.22]"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      className="group relative w-full rounded-[clamp(14px,0.95vw,30px)] bg-[var(--kf-tile-bg)] ring-1 ring-white/[0.07] transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.18)]"
     >
-      {/* Apple HIG Zero-Chrome Tile: exact native ratio, 18px radius */}
+      {/* Tile = visible picture only: baked-in letterbox/pillarbox bars are cropped away (item.crop). */}
       <div
         role="button"
         tabIndex={0}
@@ -389,46 +373,33 @@ export const SlideMountCard = React.memo(function SlideMountCard({
         }}
         title={item.titleKo}
         aria-label={`${item.titleKo} 상세 보기`}
-        style={
-          hasExactDims
-            ? { aspectRatio: `${item.width} / ${item.height}` }
-            : undefined
-        }
-        className={`relative w-full overflow-hidden rounded-[18px] bg-[#141416] ${gridAspectClass}`}
+        style={{ aspectRatio: String(getVisibleAspect(item)) }}
+        className="relative w-full cursor-pointer overflow-hidden rounded-[inherit] bg-[var(--kf-tile-bg)]"
       >
-        <img
-          src={item.thumbnailUrl}
-          alt={item.titleKo}
-          loading="lazy"
-          decoding="async"
-          onLoad={() => setImgLoaded(true)}
-          onError={() => {
-            if (!isAutoLoopVideo) triggerEvict();
-          }}
-          className={`h-full w-full rounded-[18px] object-cover transition-opacity duration-200 ease-linear ${
-            videoReady && isNearViewport
-              ? "opacity-0"
-              : imgLoaded
-              ? "opacity-100"
-              : "opacity-0"
-          }`}
-        />
+        <div
+          style={getCropLayerStyle(item)}
+          className="transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.03]"
+        >
+          <img
+            src={item.thumbnailUrl}
+            alt={item.titleKo}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              if (!isAutoLoopVideo) triggerEvict();
+            }}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ease-linear ${
+              videoReady && isNearViewport ? "opacity-0" : imgLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
 
-        {isAutoLoopVideo &&
-          isNearViewport &&
-          !videoFailed &&
-          item.previewVideoUrl && (
+          {isAutoLoopVideo && isNearViewport && !videoFailed && videoSrc && (
             <video
               ref={videoRef}
-              src={item.previewVideoUrl}
+              src={videoSrc}
               poster={item.thumbnailUrl}
-              preload={
-                isShortNativeLoop
-                  ? "auto"
-                  : slotAllowed || videoReady
-                  ? "metadata"
-                  : "none"
-              }
+              preload={isShortNativeLoop ? "auto" : slotAllowed || videoReady ? "metadata" : "none"}
               autoPlay={isShortNativeLoop && shouldPlayVideo}
               muted
               loop
@@ -437,20 +408,12 @@ export const SlideMountCard = React.memo(function SlideMountCard({
               onSeeked={handleSeeked}
               onPlaying={() => setVideoReady(true)}
               onLoadedData={() => {
-                if (
-                  isShortNativeLoop ||
-                  windowRef.current.startSec === 0 ||
-                  initialSeekDoneRef.current
-                ) {
+                if (isShortNativeLoop || windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
                   setVideoReady(true);
                 }
               }}
               onCanPlay={() => {
-                if (
-                  isShortNativeLoop ||
-                  windowRef.current.startSec === 0 ||
-                  initialSeekDoneRef.current
-                ) {
+                if (isShortNativeLoop || windowRef.current.startSec === 0 || initialSeekDoneRef.current) {
                   setVideoReady(true);
                 }
               }}
@@ -464,12 +427,29 @@ export const SlideMountCard = React.memo(function SlideMountCard({
                 }
                 triggerEvict();
               }}
-              className={`absolute inset-0 h-full w-full rounded-[18px] object-cover transition-opacity duration-200 ease-linear ${
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ease-linear ${
                 videoReady ? "opacity-100" : "opacity-0"
               }`}
             />
           )}
+        </div>
       </div>
+
+      {onToggleBoard && (
+        <button
+          type="button"
+          onClick={() => onToggleBoard(item)}
+          aria-pressed={saved}
+          aria-label={saved ? `${item.titleKo} 내 보드에서 빼기` : `${item.titleKo} 내 보드에 담기`}
+          className={`absolute right-[clamp(8px,0.5vw,18px)] top-[clamp(8px,0.5vw,18px)] inline-flex h-[clamp(32px,1.9vw,64px)] w-[clamp(32px,1.9vw,64px)] items-center justify-center rounded-full border border-white/[0.14] bg-black/55 backdrop-blur-xl transition-[opacity,transform,background-color] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-black/75 focus-visible:opacity-100 active:scale-[0.94] ${
+            saved
+              ? "text-[var(--kf-champagne)] opacity-100"
+              : "text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-0"
+          }`}
+        >
+          <BoardBookmarkIcon filled={saved} className="h-[clamp(15px,0.9vw,30px)] w-[clamp(15px,0.9vw,30px)]" />
+        </button>
+      )}
     </article>
   );
 });

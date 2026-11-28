@@ -122,20 +122,9 @@ export async function GET(req: NextRequest) {
       headers.set("Content-Disposition", `attachment; filename="${safeName}"`);
     }
 
-    const rawLength = Number(upstream.headers.get("content-length") || "0");
-    // Buffer <= 25MB payloads cleanly (avoids Next.js ReadableStream stall on 302 GitHub Releases assets)
-    if (rawLength > 0 && rawLength <= 25 * 1024 * 1024) {
-      const buf = Buffer.from(await upstream.arrayBuffer());
-      headers.set("Content-Length", String(buf.byteLength));
-      return new NextResponse(buf, {
-        status: upstream.status,
-        headers,
-      });
-    }
-
-    if (rawLength > 0) {
-      headers.set("Content-Length", String(rawLength));
-    }
+    // Stream the upstream body straight through (Range-aware, never buffered in Worker memory).
+    const contentLength = upstream.headers.get("content-length");
+    if (contentLength) headers.set("Content-Length", contentLength);
 
     return new NextResponse(upstream.body, {
       status: upstream.status,

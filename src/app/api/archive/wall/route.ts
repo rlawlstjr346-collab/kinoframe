@@ -1,37 +1,19 @@
 import { NextResponse } from "next/server";
-import {
-  WALL_ACTIVE_RELEASE_URL,
-  fetchReleaseCatalogStream,
-  loadOfflineCatalog,
-} from "@/lib/poc-loader";
+import { WALL_ACTIVE_RELEASE_URL, getReleaseCatalogText, loadOfflineCatalog } from "@/lib/poc-loader";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
-const NO_STORE = {
-  "Cache-Control": "no-store, max-age=0",
-  Pragma: "no-cache",
-};
+const CATALOG_CACHE = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" };
 
 export async function GET() {
-  // Stream the fresh release JSON as-is ({ items: [...] }); the browser validates it with
-  // normalizeCatalogPayload, so the Worker never parses the ~400 KB catalog.
-  const upstream = await fetchReleaseCatalogStream(WALL_ACTIVE_RELEASE_URL);
-  if (upstream) {
-    return new Response(upstream.body, {
-      headers: { "Content-Type": "application/json; charset=utf-8", ...NO_STORE },
+  // Served verbatim from the isolate cache; the browser validates it with normalizeCatalogPayload.
+  const text = await getReleaseCatalogText(WALL_ACTIVE_RELEASE_URL);
+  if (text) {
+    return new Response(text, {
+      headers: { "Content-Type": "application/json; charset=utf-8", ...CATALOG_CACHE },
     });
   }
-
   const { items, source } = loadOfflineCatalog();
-  return NextResponse.json(
-    {
-      items,
-      source,
-      activeCount: items.length,
-      fetchedAt: new Date().toISOString(),
-    },
-    { headers: NO_STORE }
-  );
+  return NextResponse.json({ items, source, activeCount: items.length }, { headers: CATALOG_CACHE });
 }

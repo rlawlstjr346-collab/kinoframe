@@ -142,8 +142,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
         />
       </head>
-      <body className="bg-[#000000] text-white antialiased selection:bg-white/25 selection:text-white">
-        <div className="relative z-10 min-h-screen bg-[#000000]">{children}</div>
+      <body className="bg-[#08080A] text-white antialiased selection:bg-white/25 selection:text-white">
+        <div className="relative z-10 min-h-screen bg-[#08080A]">{children}</div>
       </body>
     </html>
   );

@@ -7,8 +7,8 @@ export const revalidate = 300;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const [fullCatalog, wallResult] = await Promise.all([
-    loadFullCatalogForLookup({ revalidateSeconds: 300 }),
-    loadWallActiveCatalog({ revalidateSeconds: 300 }),
+    loadFullCatalogForLookup(),
+    loadWallActiveCatalog(),
   ]);
 
   const now = new Date();

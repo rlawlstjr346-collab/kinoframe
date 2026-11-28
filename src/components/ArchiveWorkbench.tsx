@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import type { ArchiveItem, AspectRatio } from "@/types/archive";
+import type { ArchiveItem } from "@/types/archive";
+import { getVisibleAspect } from "@/lib/media-crop";
 import { getCanonicalMediaKey } from "@/lib/canonical-media";
 import { globalVideoScheduler } from "@/lib/video-scheduler";
 import { searchArchiveItems } from "@/lib/search";
@@ -14,9 +15,13 @@ import {
   recordImpressionsInState,
   saveImpressionDeckState,
 } from "@/lib/impression-deck";
+import { parseBoardIds } from "@/lib/taxonomy";
+import { boardActions, useBoardIds } from "@/lib/board-store";
 import { EyecandyHeader } from "@/components/EyecandyHeader";
 import { SlideMountCard } from "@/components/SlideMountCard";
 import { ViewfinderModal } from "@/components/ViewfinderModal";
+import { BoardDrawer } from "@/components/BoardDrawer";
+import { WallFilterBar, type WallCategory } from "@/components/WallFilterBar";
 
 interface ArchiveWorkbenchProps {
   items: ArchiveItem[];
@@ -24,27 +29,37 @@ interface ArchiveWorkbenchProps {
 
 const WALL_PAGE_STEP = 48;
 
-const ASPECT_HEIGHT_WEIGHT: Record<AspectRatio, number> = {
-  "4:5": 0.75,
-  "4:3": 0.75,
-  "3:2": 0.667,
-  "16:9": 0.5625,
-  "2.39:1": 0.418,
-};
+// Technique chips shown in the filter bar (measured opticsTags), in reading order.
+const TECHNIQUE_ORDER = [
+  "고정 숏",
+  "핸드헬드",
+  "패닝",
+  "틸트",
+  "푸시인",
+  "풀아웃",
+  "단일 테이크",
+  "빠른 컷",
+  "로우키",
+  "하이키",
+  "고대비",
+  "웜톤",
+  "쿨톤",
+  "기하학 조형",
+  "극단적 여백",
+  "대칭 구도",
+  "역광 실루엣",
+];
+const MIN_TECHNIQUE_COUNT = 3;
+const TOAST_MS = 2600;
 
 function getItemHeightWeight(item: ArchiveItem): number {
-  if (
-    typeof item.width === "number" &&
-    typeof item.height === "number" &&
-    item.width > 0 &&
-    item.height > 0
-  ) {
-    return item.height / item.width;
-  }
-  return ASPECT_HEIGHT_WEIGHT[item.aspectRatio] ?? 0.5625;
+  return 1 / getVisibleAspect(item);
 }
 
+/** 2 / 3 / 5 columns up to FHD, then 6-7 on 4K so tiles never exceed ~550 CSS px (SD loops stay sharp). */
 function getResponsiveColumnCount(width: number): number {
+  if (width >= 3200) return 7;
+  if (width >= 2400) return 6;
   if (width >= 992) return 5;
   if (width >= 768) return 3;
   return 2;
@@ -108,6 +123,15 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const [evictedIds, setEvictedIds] = useState<Set<string>>(() => new Set());
   const [visibleCount, setVisibleCount] = useState<number>(WALL_PAGE_STEP);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [category, setCategory] = useState<WallCategory>("ALL");
+  const [technique, setTechnique] = useState<string | null>(null);
+  const [boardOpen, setBoardOpen] = useState<boolean>(false);
+  const [sharedBoardIds, setSharedBoardIds] = useState<string[] | null>(null);
+  const [fullCatalog, setFullCatalog] = useState<ArchiveItem[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
+  const boardIds = useBoardIds();
+  const boardIdSet = useMemo(() => new Set(boardIds), [boardIds]);
 
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
   const deckInitializedRef = useRef<boolean>(false);
@@ -118,37 +142,6 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     setLiveItems(items);
     liveItemsRef.current = items;
   }, [items]);
-
-  const isShortLoopCatalog = useMemo(
-    () =>
-      liveItems.length > 0 &&
-      liveItems.every(
-        (entry) =>
-          entry.mediaSource === "archive_mp4" &&
-          entry.durationSec !== null &&
-          entry.durationSec <= 6
-      ),
-    [liveItems]
-  );
-
-  // Unlock 20 simultaneous desktop slots (mobile 6) for ultra-light HD loops
-  useEffect(() => {
-    if (!isShortLoopCatalog) {
-      globalVideoScheduler.setMaxSlotsOverride(null);
-      return;
-    }
-    const syncSlotCap = () => {
-      const cap =
-        typeof window !== "undefined" && window.innerWidth < 768 ? 6 : 20;
-      globalVideoScheduler.setMaxSlotsOverride(cap);
-    };
-    syncSlotCap();
-    window.addEventListener("resize", syncSlotCap, { passive: true });
-    return () => {
-      window.removeEventListener("resize", syncSlotCap);
-      globalVideoScheduler.setMaxSlotsOverride(null);
-    };
-  }, [isShortLoopCatalog]);
 
   // Hydration-safe Impression Deck build on initial client mount (0% overlap with lastDeckIds)
   useEffect(() => {
@@ -272,11 +265,28 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   }, [allCatalogItems, shuffledOrderIds]);
 
   // Unified multilingual, phonetic, Choseong, thesaurus & typo-tolerant search
+  const categoryPool = useMemo(
+    () => (category === "ALL" ? orderedBaseItems : orderedBaseItems.filter((entry) => (entry.category ?? "CLASSIC_FILM") === category)),
+    [orderedBaseItems, category]
+  );
+
+  const techniqueChips = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const entry of categoryPool) {
+      for (const tag of entry.opticsTags ?? []) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+    return TECHNIQUE_ORDER.filter((tag) => (counts.get(tag) ?? 0) >= MIN_TECHNIQUE_COUNT || tag === technique).map((tag) => ({
+      tag,
+      count: counts.get(tag) ?? 0,
+    }));
+  }, [categoryPool, technique]);
+
   const displayedPool = useMemo(() => {
+    const pool = technique ? categoryPool.filter((entry) => entry.opticsTags?.includes(technique)) : categoryPool;
     const q = debouncedQuery.trim();
-    if (!q) return orderedBaseItems;
-    return searchArchiveItems(orderedBaseItems, q);
-  }, [orderedBaseItems, debouncedQuery]);
+    if (!q) return pool;
+    return searchArchiveItems(pool, q);
+  }, [categoryPool, technique, debouncedQuery]);
 
   const visibleItems = useMemo(
     () => displayedPool.slice(0, visibleCount),
@@ -316,9 +326,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
   const selectedItem = useMemo(
     () =>
       selectedItemId
-        ? allCatalogItems.find((entry) => entry.id === selectedItemId) ?? null
+        ? allCatalogItems.find((entry) => entry.id === selectedItemId) ??
+          fullCatalog.find((entry) => entry.id === selectedItemId) ??
+          null
         : null,
-    [allCatalogItems, selectedItemId]
+    [allCatalogItems, fullCatalog, selectedItemId]
   );
 
   const selectedIndex = useMemo(
@@ -401,7 +413,7 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key !== "r" && e.key !== "R") return;
-      if (selectedItemId) return;
+      if (selectedItemId || boardOpen) return;
       const target = e.target as HTMLElement | null;
       if (
         target &&
@@ -418,12 +430,86 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [rotateFreshDeck, selectedItemId]);
+  }, [rotateFreshDeck, selectedItemId, boardOpen]);
 
   const handleSearchSubmit = useCallback(() => {
     setDebouncedQuery(rawSearch.trim());
     setVisibleCount(WALL_PAGE_STEP);
   }, [rawSearch]);
+
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), TOAST_MS);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+  }, []);
+
+  const handleToggleBoard = useCallback(
+    (item: ArchiveItem) => {
+      const added = boardActions.toggle(item.id);
+      showToast(added ? "내 보드에 담았습니다" : "내 보드에서 뺐습니다");
+    },
+    [showToast]
+  );
+
+  const handleCategoryChange = useCallback((next: WallCategory) => {
+    setCategory(next);
+    setVisibleCount(WALL_PAGE_STEP);
+  }, []);
+
+  const handleTechniqueChange = useCallback((next: string | null) => {
+    setTechnique(next);
+    setVisibleCount(WALL_PAGE_STEP);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // Shared board link (?board=KF-..,KF-..): resolve against the full catalog and open it read-only.
+  const sharedBoardParam = searchParams.get("board");
+  useEffect(() => {
+    if (!sharedBoardParam) return;
+    let cancelled = false;
+    loadFullCatalogOnce()
+      .then((catalog) => {
+        if (cancelled) return;
+        setFullCatalog(catalog);
+        const valid = new Set([...catalog, ...liveItemsRef.current].map((entry) => entry.id));
+        setSharedBoardIds(parseBoardIds(sharedBoardParam, valid));
+        setBoardOpen(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [sharedBoardParam]);
+
+  const boardViewIds = sharedBoardIds ?? boardIds;
+  // Saved clips that rotated off the live wall are resolved from the full catalog.
+  useEffect(() => {
+    if (!boardOpen || fullCatalog.length > 0) return;
+    const known = new Set(allCatalogItems.map((entry) => entry.id));
+    if (boardViewIds.every((id) => known.has(id))) return;
+    loadFullCatalogOnce().then(setFullCatalog).catch(() => {});
+  }, [boardOpen, boardViewIds, allCatalogItems, fullCatalog.length]);
+
+  const boardItems = useMemo(() => {
+    const byId = new Map<string, ArchiveItem>();
+    for (const entry of fullCatalog) byId.set(entry.id, entry);
+    for (const entry of allCatalogItems) byId.set(entry.id, entry);
+    return boardViewIds.map((id) => byId.get(id)).filter((entry): entry is ArchiveItem => Boolean(entry));
+  }, [boardViewIds, allCatalogItems, fullCatalog]);
+
+  const closeBoard = useCallback(() => {
+    setBoardOpen(false);
+    if (sharedBoardIds) {
+      setSharedBoardIds(null);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("board");
+      window.history.replaceState(null, "", url.pathname + url.search);
+    }
+  }, [sharedBoardIds]);
 
   const handleOpenDetail = useCallback((item: ArchiveItem) => {
     setSelectedItemId(item.id);
@@ -431,8 +517,14 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
     saveImpressionDeckState(recordImpressionsInState(current, [item.id], Date.now()));
   }, []);
 
+  const clearFilters = useCallback(() => {
+    setCategory("ALL");
+    setTechnique(null);
+    handleLogoClick();
+  }, [handleLogoClick]);
+
   return (
-    <div className="flex min-h-screen flex-col bg-[#000000] text-white">
+    <div className="flex min-h-screen flex-col bg-[var(--kf-bg)] text-[var(--kf-text)]">
       <EyecandyHeader
         scrolled={scrolled}
         searchQuery={rawSearch}
@@ -444,22 +536,30 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         onLogoClick={handleLogoClick}
         onShuffleWall={handleShuffleWall}
         shuffleTick={shuffleTick}
-      />
+        boardCount={boardIds.length}
+        onOpenBoard={() => setBoardOpen(true)}
+      >
+        <WallFilterBar
+          category={category}
+          onCategoryChange={handleCategoryChange}
+          techniques={techniqueChips}
+          activeTechnique={technique}
+          onTechniqueChange={handleTechniqueChange}
+          resultCount={displayedPool.length}
+        />
+      </EyecandyHeader>
 
-      <main className="w-full flex-1 pt-[clamp(68px,4.3vw,88px)]">
-        {/* 5-Column Zero-Chrome HD Moving Reference Wall */}
-        <div className="w-full px-3 pb-14 sm:px-4 lg:px-6">
+      <main className="w-full flex-1 pt-[clamp(4px,0.4vw,16px)]">
+        <div className="w-full px-[var(--kf-gutter)] pb-14">
           {displayedPool.length > 0 ? (
             <>
               <section
                 aria-label="시네마·TVCF 무빙 아카이브 월"
-                className="grid grid-cols-2 items-start gap-x-[8px] md:grid-cols-3 lg:grid-cols-5"
+                className="grid items-start gap-x-[clamp(8px,0.45vw,18px)]"
+                style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
               >
                 {masonryColumns.map((colItems, colIdx) => (
-                  <div
-                    key={`col-${colIdx}`}
-                    className="flex min-w-0 flex-col gap-y-[8px]"
-                  >
+                  <div key={`col-${colIdx}`} className="flex min-w-0 flex-col gap-y-[clamp(8px,0.45vw,18px)]">
                     {colItems.map((item) => (
                       <SlideMountCard
                         key={item.id}
@@ -468,6 +568,8 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
                         onEvictItem={handleEvictItem}
                         onImpression={handleCardImpression}
                         deckEpoch={deckEpoch}
+                        saved={boardIdSet.has(item.id)}
+                        onToggleBoard={handleToggleBoard}
                       />
                     ))}
                   </div>
@@ -475,18 +577,11 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               </section>
 
               {hasMoreItems && (
-                <div
-                  ref={loadMoreSentinelRef}
-                  className="mt-8 flex items-center justify-center py-4"
-                >
+                <div ref={loadMoreSentinelRef} className="mt-8 flex items-center justify-center py-4">
                   <button
                     type="button"
-                    onClick={() =>
-                      setVisibleCount((prev) =>
-                        Math.min(displayedPool.length, prev + WALL_PAGE_STEP)
-                      )
-                    }
-                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.08] px-7 text-[14px] font-medium text-white backdrop-blur-xl transition-colors hover:bg-white/[0.16]"
+                    onClick={() => setVisibleCount((prev) => Math.min(displayedPool.length, prev + WALL_PAGE_STEP))}
+                    className="inline-flex h-[var(--kf-control-h)] items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.08] px-[clamp(24px,1.6vw,56px)] text-[length:var(--kf-text-ui)] font-medium text-white transition-[background-color,transform] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-white/[0.16] active:scale-[0.97]"
                   >
                     더 보기
                   </button>
@@ -494,17 +589,15 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
               )}
             </>
           ) : (
-            <section className="mx-auto mt-10 flex max-w-lg flex-col items-center justify-center rounded-[28px] border border-white/[0.10] bg-[#1C1C1E]/85 px-6 py-20 text-center backdrop-blur-2xl">
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-white">
-                일치하는 클립이 없습니다
-              </h2>
-              <p className="mt-2 text-[15px] text-[#98989D]">
+            <section className="mx-auto mt-10 flex max-w-lg flex-col items-center justify-center rounded-[28px] border border-white/[0.10] bg-[var(--kf-surface)] px-6 py-20 text-center">
+              <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[var(--kf-text)]">일치하는 클립이 없습니다</h2>
+              <p className="mt-2 text-[15px] text-[var(--kf-text-secondary)]">
                 작품명, 감독, 브랜드, 초성 또는 연출 기법으로 다시 검색해 보세요.
               </p>
               <button
                 type="button"
-                onClick={handleLogoClick}
-                className="mt-6 inline-flex h-10 items-center rounded-full bg-white px-6 text-[14px] font-semibold text-[#111111] transition-colors hover:bg-white/90"
+                onClick={clearFilters}
+                className="mt-6 inline-flex h-10 items-center rounded-full bg-[var(--kf-text)] px-6 text-[14px] font-semibold text-[#111111] transition-colors hover:bg-white"
               >
                 전체 월로 돌아가기
               </button>
@@ -513,44 +606,77 @@ export function ArchiveWorkbench({ items }: ArchiveWorkbenchProps) {
         </div>
       </main>
 
-      {/* Minimal Pure Black Footer */}
-      <footer className="border-t border-white/[0.08] bg-[#000000] py-5">
-        <div className="mx-auto flex w-full flex-col items-start justify-between gap-2 px-6 text-[12px] tracking-[-0.01em] text-[#98989D] sm:flex-row sm:items-center lg:px-8">
-          <span className="font-medium text-white/80">
-            KINOFRAME · Cinema &amp; TVCF Moving Reference Archive
+      <footer className="border-t border-white/[0.08] bg-[var(--kf-bg)] py-5">
+        <div className="flex w-full flex-col items-start justify-between gap-2 px-[var(--kf-gutter)] text-[clamp(12px,0.72vw,25px)] tracking-[-0.01em] text-[var(--kf-text-secondary)] sm:flex-row sm:items-center">
+          <span className="font-medium text-[var(--kf-text)]/80">KINOFRAME · 시네마·TVCF 무빙 레퍼런스 아카이브</span>
+          <span>
+            5초 루프 <span className="num">{liveItems.length}</span>편 · SD 아카이브 포함, 원본 해상도 그대로
           </span>
-          <span>1080p HD Cinema &amp; Archival Commercial Wall</span>
         </div>
       </footer>
 
-      {/* Concentric Apple Dark-Glass Theater Modal */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          data-testid="kf-toast"
+          className="num fixed bottom-[calc(20px+env(safe-area-inset-bottom))] left-1/2 z-[140] sm:bottom-auto sm:top-[clamp(16px,1vw,40px)] -translate-x-1/2 animate-[kf-sheet-in_200ms_cubic-bezier(0.23,1,0.32,1)] whitespace-nowrap rounded-full border border-white/[0.14] bg-[#1C1C1E]/95 px-[clamp(18px,1.2vw,44px)] py-[clamp(9px,0.6vw,22px)] text-[length:var(--kf-text-ui)] font-medium tracking-[-0.01em] text-white shadow-[0_14px_40px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
+        >
+          {toast}
+        </div>
+      )}
+
+      <BoardDrawer
+        open={boardOpen}
+        mode={sharedBoardIds ? "shared" : "mine"}
+        items={boardItems}
+        missingCount={Math.max(0, boardViewIds.length - boardItems.length)}
+        onClose={closeBoard}
+        onOpenItem={(item) => {
+          if (!allCatalogItems.some((entry) => entry.id === item.id)) {
+            setFullCatalog((prev) => (prev.some((entry) => entry.id === item.id) ? prev : [...prev, item]));
+          }
+          setBoardOpen(false);
+          handleOpenDetail(item);
+        }}
+        onRemove={(id) => boardActions.remove(id)}
+        onClear={() => {
+          boardActions.clear();
+          showToast("보드를 비웠습니다");
+        }}
+        onImportShared={() => {
+          if (!sharedBoardIds) return;
+          boardActions.addMany(sharedBoardIds);
+          showToast(`${sharedBoardIds.length}개 컷을 내 보드로 가져왔습니다`);
+          closeBoard();
+        }}
+        onToast={showToast}
+      />
+
       {selectedItem && (
         <ViewfinderModal
           item={selectedItem}
           hasPrev={selectedIndex > 0}
-          hasNext={
-            selectedIndex >= 0 && selectedIndex < displayedPool.length - 1
-          }
+          hasNext={selectedIndex >= 0 && selectedIndex < displayedPool.length - 1}
+          saved={boardIdSet.has(selectedItem.id)}
+          onToggleBoard={handleToggleBoard}
+          onToast={showToast}
+          onSelectTechnique={(tag) => {
+            setSelectedItemId(null);
+            setRawSearch("");
+            setDebouncedQuery("");
+            handleTechniqueChange(tag);
+          }}
           onClose={() => setSelectedItemId(null)}
           onPrev={() => {
-            if (selectedIndex > 0) {
-              setSelectedItemId(displayedPool[selectedIndex - 1].id);
-            }
+            if (selectedIndex > 0) setSelectedItemId(displayedPool[selectedIndex - 1].id);
           }}
           onNext={() => {
-            if (
-              selectedIndex >= 0 &&
-              selectedIndex < displayedPool.length - 1
-            ) {
+            if (selectedIndex >= 0 && selectedIndex < displayedPool.length - 1) {
               const nextIdx = selectedIndex + 1;
               setSelectedItemId(displayedPool[nextIdx].id);
               if (nextIdx >= visibleCount) {
-                setVisibleCount((prev) =>
-                  Math.min(
-                    displayedPool.length,
-                    Math.max(prev, nextIdx + WALL_PAGE_STEP)
-                  )
-                );
+                setVisibleCount((prev) => Math.min(displayedPool.length, Math.max(prev, nextIdx + WALL_PAGE_STEP)));
               }
             }
           }}
